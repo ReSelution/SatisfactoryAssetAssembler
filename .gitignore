@@ -1,0 +1,38 @@
+# .gitignore
+
+# ----------------------------------------
+# 1. Proprietäre/Große Binärdateien (Oodle)
+# ----------------------------------------
+# Diese Dateien dürfen NICHT im Git landen!
+liboo2corelinux64.so.9
+oo2core_9_win64.dll
+
+# ----------------------------------------
+# 2. CMake/Build-Artefakte
+# ----------------------------------------
+/build/
+/bin/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# ----------------------------------------
+# 3. Visual Studio Code / IDE Files
+# ----------------------------------------
+.vscode/
+# Ausschließen, aber oft benötigt man settings.json oder tasks.json
+!.vscode/settings.json
+!.vscode/tasks.json
+# C++ specific
+*.o
+*.a
+*.so
+*.dll
+
+# ----------------------------------------
+# 4. Outputs
+# ----------------------------------------
+/output/
