@@ -15,6 +15,10 @@ namespace SAP {
     auto parser = reinterpret_cast<UAssetParser *>(m_owner);
     auto asset = parser->getAsset();
     parseTaggedProperties(asset, cursor);
+    bool hasGuid = readPrimitive<uint32_t>(asset, cursor) == 1;
+    if (hasGuid) {
+      readStruct<FGuid>(asset, cursor);
+    }
   }
 
   FName Object::readFName(const std::vector<uint8_t> &asset, size_t &cursor) {

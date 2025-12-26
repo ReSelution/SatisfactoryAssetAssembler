@@ -16,7 +16,8 @@ namespace SAP {
     auto parser = reinterpret_cast<UAssetParser *>(owner);
     auto asset = parser->getAsset();
 
-    bool cooked = readPrimitive<uint8_t>(asset, cursor) == 1;
+    bool cooked = readPrimitive<uint32_t>(asset, cursor) == 1;
+
     if (cooked) {
       bool serializeMipData = readPrimitive<uint8_t>(asset, cursor) == 1;
       parseCookedPlatformData(asset, cursor, serializeMipData);

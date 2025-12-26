@@ -94,6 +94,7 @@ using enum_underlying_t = std::underlying_type_t<E>;
 
     const std::string m_className;
     std::string m_objName;
+    FGuid m_objGuid;
 
 
   };

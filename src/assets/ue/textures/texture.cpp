@@ -28,6 +28,7 @@ namespace SAP {
     m_filter = getOrDefaultEnum<TextureFilter>
         (static_cast<uint32_t>(ETextureProperty::Filter), [&] { return TextureFilter::TF_Nearest; });
     m_srgb = getOrDefault<bool>(static_cast<uint32_t>(ETextureProperty::SRGB), [&] { return true; });
+    cursor += 2; // Skip FStripDataFlags
   }
 
   void Texture::parseCookedPlatformData(std::vector<uint8_t> &asset, size_t &cursor, bool parseMipData) {

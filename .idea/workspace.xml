@@ -5,6 +5,7 @@
   </component>
   <component name="BackendCodeEditorMiscSettings">
     <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="3" type="long" />
+    <option name="/Default/Environment/UserInterface/HierarchyView/ViewStyle/@EntryValue" value="SuperTypes" type="string" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoQuickRename/@EntryValue" value="true" type="bool" />
@@ -25,6 +26,8 @@
       <config projectName="SatisfactoryAssetParser" targetName="SAP_Util" />
       <config projectName="SatisfactoryAssetParser" targetName="SAP_Lib" />
       <config projectName="SatisfactoryAssetParser" targetName="spdlog" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAP_Reader" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAP_Exporter" />
       <config projectName="SatisfactoryAssetParser" targetName="SAP_Parser" />
       <config projectName="SatisfactoryAssetParser" targetName="SAP_Structs" />
       <config projectName="SatisfactoryAssetParser" targetName="CITY_HASH" />
@@ -36,110 +39,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1c564557-1165-42d2-a5e3-42d92b9b9658" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/Satisfactory Asset Parser.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/external/cityhash/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/external/cityhash/city.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/external/cityhash/city.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/external/cityhash/config.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/external/spdlog" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/output/output.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/object_factory.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/object_factory.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/decompress/Decompressor.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/decompress/Decompressor.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/decompress/OodleEmbedded.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/AssetParser.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/AssetParser.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/uasset_parser.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/PAKReader.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/PAKReader.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/Reader.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/Reader.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/UsmapReader.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/UsmapReader.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/io_global_data.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/reader/io_global_data.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/assets/textures/pixel_format.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/assets/textures/texture_compression_settings.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/assets/textures/texture_filter.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/assets/textures/texture_group.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/constants.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/f_guid.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/flags.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/game.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/hash.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/name.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/package.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/package.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/properties/f_property_tag.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/properties/f_property_tag_data.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/properties/f_property_type_name_node.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/functions.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_file_package_store_entry.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_chunk_id.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header_localized_package.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header_package_redirect.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header_soft_package_refenrenes.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_id.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_directory_index_enty.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_file_index_entry.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_hash.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_offset_and_lenght.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_store_chunk_block_meta.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_store_toc_Compressed_block_entry.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_store_toc_header.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_io_toc_container_id.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/f_on_demand_toc_entry.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_bulk_data_cooked_index.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_bulk_data_map_entry.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_custom_version.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_export_bundle_entry.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_export_bundle_header.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_export_map_entry.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_file_summary.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_object_export.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_object_import.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_cell_offsets.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_summary.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_versioning_info.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/usmap/enums.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_mapping_data.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_property_data.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_schema.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/version.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/util/logger.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/util/logger.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/vfs/vfs.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/vfs/vfs.hpp" afterDir="false" />
+    <list default="true" id="1c564557-1165-42d2-a5e3-42d92b9b9658" name="Changes" comment="Init Commit">
+      <change afterPath="$PROJECT_DIR$/src/exporter/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/exporter/exporter.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/exporter/exporter.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/exporter/flags/TextureExportFlags.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/exporter/texture_exporter.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/exporter/texture_exporter.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/reader/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -186,16 +99,14 @@
     <setting file="file://$PROJECT_DIR$/src/structs/core/flags.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/core/name.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/core/package.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/structs/io/assets/f_bulk_data_map_entry.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/structs/io/assets/f_file_summary.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/structs/io/assets/f_object_export.hpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/structs/io/assets/f_object_import.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/io/f_io_chunk_id.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/io/f_io_container_header.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/io/f_io_container_header_localized_package.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/io/f_io_offset_and_lenght.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/io/f_io_store_toc_Compressed_block_entry.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/structs/io/f_io_toc_container_id.hpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///usr/include/c++/15.2.1/bits/stl_construct.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///usr/include/c++/15.2.1/type_traits" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="PvaACJHA" />
@@ -220,7 +131,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;CMake Application.AssetRipperTest.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.AssetRipperTest.executor&quot;: &quot;Debug&quot;,
     &quot;CMake Application.CITY_HASH.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
@@ -268,12 +179,22 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="SAP_Exporter" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Exporter" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="SAP_Lib" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Lib" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="SAP_Parser" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Parser" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SAP_Reader" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Reader" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -295,12 +216,14 @@
     </configuration>
     <list>
       <item itemvalue="CMake Application.AssetRipperTest" />
+      <item itemvalue="CMake Application.CITY_HASH" />
       <item itemvalue="CMake Application.SAP_Assets" />
-      <item itemvalue="CMake Application.SAP_Parser" />
+      <item itemvalue="CMake Application.SAP_Exporter" />
       <item itemvalue="CMake Application.SAP_Lib" />
+      <item itemvalue="CMake Application.SAP_Parser" />
+      <item itemvalue="CMake Application.SAP_Reader" />
       <item itemvalue="CMake Application.SAP_Structs" />
       <item itemvalue="CMake Application.SAP_Util" />
-      <item itemvalue="CMake Application.CITY_HASH" />
       <item itemvalue="CMake Application.spdlog" />
     </list>
   </component>
@@ -337,8 +260,19 @@
       <workItem from="1766407942298" duration="498000" />
       <workItem from="1766489161254" duration="957000" />
       <workItem from="1766575935896" duration="1024000" />
-      <workItem from="1766576970260" duration="125000" />
+      <workItem from="1766576970260" duration="6096000" />
+      <workItem from="1766677832919" duration="3866000" />
+      <workItem from="1766737687757" duration="3000" />
     </task>
+    <task id="LOCAL-00001" summary="Init Commit">
+      <option name="closed" value="true" />
+      <created>1766577140556</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1766577140556</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -360,13 +294,17 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Init Commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Init Commit" />
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/assets/ue/textures/texture_2d.cpp</url>
-          <line>17</line>
-          <option name="timeStamp" value="1" />
+          <line>19</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

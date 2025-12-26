@@ -80,20 +80,19 @@ target_include_directories(SAP_Util PUBLIC src/util)
 add_subdirectory(src/structs)
 add_subdirectory(src/parser)
 add_subdirectory(src/assets)
+add_subdirectory(src/reader)
+add_subdirectory(src/exporter)
+
 
 add_library(SAP_Lib STATIC)
 target_sources(SAP_Lib
         PRIVATE
         ${OODLE_GENERATED_FILE}
         src/provider/games/satisfactory/SatisfactoryDataProvider.cpp
-        src/reader/IOStoreReader.cpp
-        src/reader/PAKReader.cpp
-        src/reader/Reader.cpp
-        src/reader/UsmapReader.cpp
+
         src/vfs/vfs.cpp
         src/decompress/Decompressor.cpp
 
-        src/reader/io_global_data.cpp
 )
 
 target_sources(SAP_Lib
@@ -104,12 +103,6 @@ target_sources(SAP_Lib
         src/decompress/OodleEmbedded.hpp
 
         src/vfs/vfs.hpp
-
-        src/reader/io_global_data.hpp
-        src/reader/IOStoreReader.hpp
-        src/reader/PAKReader.hpp
-        src/reader/Reader.hpp
-        src/reader/UsmapReader.hpp
 )
 
 
@@ -119,16 +112,14 @@ target_link_libraries(SAP_Lib
         SAP_Structs
         SAP_Parser
         SAP_Assets
+        SAP_Reader
         $<LINK_LIBRARY:WHOLE_ARCHIVE,SAP_Assets> #Needed for Factory Class Registration
-
         PRIVATE
         spdlog::spdlog
 )
 
 target_include_directories(SAP_Lib
         PUBLIC
-        ${CMAKE_SOURCE_DIR}/src/parser
-        ${CMAKE_SOURCE_DIR}/src/reader
         ${CMAKE_SOURCE_DIR}/src/provider
         ${CMAKE_SOURCE_DIR}/src/vfs
         ${CMAKE_SOURCE_DIR}/src/decompress
