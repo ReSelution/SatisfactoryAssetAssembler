@@ -27,7 +27,8 @@ namespace SAP {
   class IOGlobalData {
     public:
     IOGlobalData(std::filesystem::path utocPath, std::filesystem::path ucasPath);
-    ~IOGlobalData() = default;
+    ~IOGlobalData();
+
 
     void parse(GlobalData &data);
 

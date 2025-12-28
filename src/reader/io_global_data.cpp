@@ -12,6 +12,8 @@ namespace SAP {
     storeParser = std::make_unique<IOStoreReader>(utocPath, ucasPath);
   }
 
+  IOGlobalData::~IOGlobalData() = default;
+
   void IOGlobalData::parse(GlobalData &data) {
     auto result = storeParser->load();
     Logger::logInfo("[GlobalData]", "storeParser: {}", result);

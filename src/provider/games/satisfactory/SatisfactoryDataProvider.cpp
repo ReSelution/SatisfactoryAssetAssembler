@@ -109,8 +109,8 @@ namespace SAP {
     const unsigned char *oodleBytes = oo2core_9_win64_dll;
     size_t oodleSize = oo2core_9_win64_dll_size;
 #else
-    const unsigned char *oodleBytes = liboo2corelinux64_so_9;
-    size_t oodleSize = liboo2corelinux64_so_9_size;
+    const unsigned char *oodleBytes{};
+    size_t oodleSize = 0;
 #endif
 
     std::filesystem::path tempPath = std::filesystem::temp_directory_path() / OODLE_DLL_FILENAME;

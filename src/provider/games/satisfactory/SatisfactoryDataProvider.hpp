@@ -15,7 +15,6 @@
 
 namespace SAP {
 
-  class IOGlobalData;
   using OodleLZ_Decompress_Signature = size_t (*)
   (const void *compressedData,
    size_t compressedSize,
