@@ -8,8 +8,8 @@
 namespace SAP {
 #pragma pack(push,1)
   struct FZenPackageCellOffsets {
-    uint32_t CellImportMapOffset;
-    uint32_t CellExportMapOffset;
+     int32_t CellImportMapOffset;
+     int32_t CellExportMapOffset;
   };
 #pragma pack(pop)
 }

@@ -15,8 +15,8 @@ struct TYPE##_Registrar {                                     \
 TYPE##_Registrar() {                                      \
 SAP::ObjectFactory::Register(                         \
 #TYPE,                                            \
-[]()->std::unique_ptr<Object> {        \
-return std::make_unique<TYPE>();              \
+[]()->std::shared_ptr<Object> {        \
+return std::make_shared<TYPE>();              \
 }                                                 \
 );                                                    \
 }                                                         \
@@ -27,19 +27,20 @@ static TYPE##_Registrar g_##TYPE##_registrar;                 \
 namespace SAP {
   class ObjectFactory {
   public:
-    using Factory = std::unique_ptr<Object>(*)();
+    using Factory = std::shared_ptr<Object>(*)();
 
-    static bool Register(const std::string &name, Factory factory) {
+    static bool Register(std::string_view name, Factory factory) {
       s_map[name] = factory;
       return true;
     }
 
-    static std::unique_ptr<Object> Create(const std::string &name) {
+    static std::shared_ptr<Object> Create(std::string_view name) {
       auto it = s_map.find(name);
       return (it != s_map.end()) ? it->second() : nullptr;
     }
 
+
   private:
-    static inline std::unordered_map<std::string, Factory> s_map;
+    static inline std::unordered_map<std::string_view, Factory> s_map;
   };
 } // SAP

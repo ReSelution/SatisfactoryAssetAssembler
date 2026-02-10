@@ -6,8 +6,9 @@
 #include <cstdint>
 
 enum EPackageFlags : uint32_t {
-  PKG_NONE               = 0x00000000,
-  PKG_FILTER_EDITOR_ONLY = 0x80000000,
+  PKG_NONE                  = 0x00000000,
+  PKG_FILTER_EDITOR_ONLY    = 0x80000000,
+  PKG_UnversionedProperties = 0x00002000
 };
 
 enum class EObjectFlags : uint32_t {

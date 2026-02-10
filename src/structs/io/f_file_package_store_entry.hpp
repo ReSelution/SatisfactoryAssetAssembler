@@ -14,10 +14,10 @@ namespace SAP {
 #pragma pack(push, 1)
 
   struct FFilePackageStoreEntry {
-    uint32_t exportCount{};
-    uint32_t exportBundleCount{};
-    std::vector<FPackageId> importedPackage;
-    std::vector<FIoHash> shaderMapHashes{};
+    uint32_t exportCount;
+    uint32_t exportBundleCount;
+    std::span<const FPackageId> importedPackage;
+    std::span<const FSHAHash> shaderMapHashes{};
   };
 
 #pragma pack(pop)

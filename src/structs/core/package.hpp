@@ -6,8 +6,9 @@
 #include <cstdint>
 #include <string>
 
-namespace SAP {
+#include "name.hpp"
 
+namespace SAP {
   enum class EType : uint8_t {
     Export        = 0,
     ScriptImport  = 1,
@@ -20,7 +21,7 @@ namespace SAP {
 
   struct FPackageId {
     uint64_t Id;
-    static FPackageId fromName(const std::string &name);
+    static FPackageId fromName(const std::string_view name);
     bool operator==(const FPackageId &other) const { return Id == other.Id; }
   };
 
@@ -46,21 +47,30 @@ namespace SAP {
     bool operator==(const FPackageObjectIndex &other) const { return TypeAndId == other.TypeAndId; }
   };
 
+  struct FPackageImportReference {
+    uint32_t importedPackageIndex;
+    uint32_t importedPublicExportHashIndex;
+
+    static FPackageImportReference fromObjIndex(const FPackageObjectIndex &index) {
+      return {
+        .importedPackageIndex = static_cast<uint32_t>((index.TypeAndId & index.IndexMask) >> 32),
+        .importedPublicExportHashIndex = static_cast<uint32_t>(index.TypeAndId)
+      };
+    };
+  };
 #pragma pack(pop)
 }
 
 namespace std {
-
   template<>
   struct hash<SAP::FPackageId> {
     size_t operator()(const SAP::FPackageId &id) const noexcept { return std::hash<uint64_t>{}(id.Id); }
   };
 
   template<>
- struct hash<SAP::FPackageObjectIndex> {
+  struct hash<SAP::FPackageObjectIndex> {
     size_t operator()(const SAP::FPackageObjectIndex &index) const noexcept {
       return hash<uint64_t>{}(index.TypeAndId);
     }
   };
 } // namespace std
-

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CITY_HASH_SOURCE
         city.cc
         city.h
+        citycrc.h
         config.h
 )
 

@@ -15,18 +15,6 @@
 
 namespace SAP {
 
-  using OodleLZ_Decompress_Signature = size_t (*)
-  (const void *compressedData,
-   size_t compressedSize,
-   void *decompressedData,
-   size_t decompressedSize,
-   int flags,
-   // Z.B. Oodle::Fidelity::k_Decode_Speed
-   size_t fp,
-   size_t fpLen,
-   void *decodeBuf,
-   size_t decodeBufSize,
-   int threadModule);
 
   class SatisfactoryDataProvider {
   public:
@@ -43,7 +31,7 @@ namespace SAP {
     SatisfactoryDataProvider &operator=(SatisfactoryDataProvider &&) = delete;
 
     bool load();
-
+    void crawl();
     void test();
 
   private:
@@ -56,11 +44,5 @@ namespace SAP {
 
     FUsmapMappingData m_usmapData;
     GlobalData m_globalData;
-
-    // oodle stuff
-    bool loadOodle();
-
-    OodleLZ_Decompress_Signature m_OodleDecompressFunc = nullptr;
-    void *m_OodleHandle = nullptr;
   };
 } // namespace SAP

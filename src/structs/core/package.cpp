@@ -9,11 +9,19 @@
 #include "functions.hpp"
 
 namespace SAP {
-  FPackageId FPackageId::fromName(const std::string& name)
+  FPackageId FPackageId::fromName(const std::string_view name)
   {
-    std::string lower = to_lower(name);
-    std::vector<uint8_t> utf16 = utf8_to_utf16le_ascii(lower);
-    uint64_t hash = CityHash64(reinterpret_cast<const char*>(utf16.data()), utf16.size());
+    char16_t buffer[512];
+    const size_t len = std::min(name.length(), (size_t)511);
+
+    for (size_t i = 0; i < len; ++i) {
+      // Lowercase + UTF16-Promoting in einem Schritt
+      const auto uc = static_cast<unsigned char>(name[i]);
+      char lc = static_cast<char>(uc + (((uc - 'A' < 26u) ? 1u : 0u) << 5));
+      buffer[i] = static_cast<char16_t>(lc);
+    }
+
+    uint64_t hash = CityHash64(reinterpret_cast<const char*>(buffer), len * sizeof(char16_t));
     assert(hash != ~0uL && "Package name hash collision with InvalidId");
     return FPackageId(hash);
   }

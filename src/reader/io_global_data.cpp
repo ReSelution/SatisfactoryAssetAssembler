@@ -15,20 +15,21 @@ namespace SAP {
   IOGlobalData::~IOGlobalData() = default;
 
   void IOGlobalData::parse(GlobalData &data) {
-    auto result = storeParser->load();
-    Logger::logInfo("[GlobalData]", "storeParser: {}", result);
-    size_t cursor = 0;
+    auto start = std::chrono::high_resolution_clock::now();
+    storeParser->load();
 
-    auto buffer = storeParser->readChunk(FIoChunkId{.id=0,.chunkIndex= 0, .chunkType = 5});
-    data.globalNameMap = loadNameBatch(buffer,cursor);
+    data.buffer = storeParser->readChunk(FIoChunkId{.id=0,.chunkIndex= 0, .chunkType = 5});
+    ByteCursor cursor( data.buffer);
+    data.globalNameMap = cursor.loadNameBatch(data.utf16Storage);
 
-    auto numScriptObjects = readPrimitive<uint32_t>(buffer,cursor);
-    auto scriptObjectEntries = readArray<FScriptObjectEntry>(buffer,cursor,numScriptObjects);
-    data.ScriptObjectEntriesMap.reserve(numScriptObjects);
+
+    auto scriptObjectEntries = cursor.readArray<FScriptObjectEntry>();
+    data.ScriptObjectEntriesMap.reserve(scriptObjectEntries.size());
     for (auto &scriptObject: scriptObjectEntries) {
       data.ScriptObjectEntriesMap[scriptObject.globalIndex] = scriptObject;
     }
-    Logger::logInfo("[GlobalData]", "globalNameMap: {} ScriptObjectEntriesMap {}", data.globalNameMap.size(), numScriptObjects );
-
+    auto end = std::chrono::high_resolution_clock::now();
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    Logger::logInfo("[GlobalData]", "GlobalNameMap: {} ScriptObjectEntriesMap {} in {}ms", data.globalNameMap.size(), scriptObjectEntries.size(), us.count()/1000 );
   }
 } // SAP

@@ -1,0 +1,11 @@
+//
+// Created by oleub on 02.01.26.
+//
+
+#include "field.hpp"
+
+namespace SAP {
+  void Field::parse() {
+    Object::parse();
+  }
+} // SAP

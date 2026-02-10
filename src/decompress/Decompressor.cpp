@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring> // für memcpy
-#include <dlfcn.h>
 
 #include "../util/logger.hpp"
 #include "usmap/enums.hpp"
@@ -16,32 +15,13 @@
 
 namespace SAP {
 
-  // Implementierung der Pointer-Extraktion
-  bool OodleApi::initializePointers(void *dllHandle) {
-    if (dllHandle == nullptr) {
-      Logger::logError("[Oodle]", "DLL Handle ist null.");
-      return false;
+  void OodleApi::initializePointer(OodleLZ_Decompress func) {
+    decompressFunc = func;
+    if (func) {
+      initialized.store(true);
+    }else {
+      initialized.store(false);
     }
-
-    OodleApi::dllHandle = dllHandle;
-
-    // --- Adress-Extraktion ---
-#ifdef _WIN32
-    void *funcPtr = GetProcAddress((HMODULE)dllHandle, "OodleLZ_Decompress");
-#else
-    void *funcPtr = dlsym(dllHandle, "OodleLZ_Decompress");
-#endif
-
-    if (funcPtr == nullptr) {
-      Logger::logError("[Oodle]", "OodleLZ_Decompress konnte nicht gefunden werden.");
-      // Optional: Hier könnte man das Handle wieder freigeben
-      return false;
-    }
-
-    OodleApi::decompressFunc = reinterpret_cast<OodleLZ_Decompress_Ptr>(funcPtr);
-    Logger::logInfo("[Oodle]", "OodleLZ_Decompress Pointer erfolgreich extrahiert.");
-
-    return true;
   }
 
   bool Decompressor::decompressUsmapPayload(
@@ -125,7 +105,6 @@ namespace SAP {
       throw std::runtime_error("Decompressor wurde nicht initialisiert oder Oodle fehlt.");
     }
 
-    // --- Aufruf der Funktion über den gespeicherten Pointer ---
     uint64_t decodedSize = OodleApi::decompressFunc(src.data(),
       (long)src.size(),
       dst.data(),

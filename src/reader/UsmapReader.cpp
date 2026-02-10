@@ -35,9 +35,6 @@ namespace SAP {
       parseNameMap(cursor, outputData);
       parseEnums(cursor, outputData);
       parseSchemas(cursor, outputData);
-
-      Logger::logInfo("[USMAP]", "Parsing erfolgreich. Gelesene Bytes: {}/{}", cursor, m_Buffer.size());
-      Logger::logInfo("[USMAP]", "NameMap Size: {}", outputData.NameMap.size() );
       return true;
     } catch (const std::exception &e) {
       Logger::logError("[USMAP]", "Exception während des Parsings: {}", e.what());
@@ -82,7 +79,7 @@ namespace SAP {
 
       uint32_t netCL = 0;
       file.read(reinterpret_cast<char *>(&netCL), sizeof(netCL)); // 4 Bytes
-      Logger::logError("[USMAP]", "Versiom: {} {}", pkg.FileVersionUE4, pkg.FileVersionUE5);
+      Logger::logError("[USMAP]", "Version: UE4: {} UE5: {}", pkg.FileVersionUE4, static_cast<uint32_t>(pkg.FileVersionUE5));
     }
 
     // Kompressionsinfos
@@ -123,11 +120,10 @@ namespace SAP {
 
     for (uint32_t i = 0; i < nameCount; ++i) {
       uint8_t len = readByte(cursor);
-      checkBounds(cursor, len); // String muss in Buffer passen
-
-      std::string name(reinterpret_cast<const char *>(m_Buffer.data() + cursor), len);
+      m_TempNameMap[i] = std::string_view(
+          reinterpret_cast<const char*>(m_Buffer.data() + cursor), len
+      );
       cursor += len;
-      m_TempNameMap[i] = std::move(name);
     }
     outData.NameMap = m_TempNameMap;
   }
@@ -138,32 +134,28 @@ namespace SAP {
     outData.Enums.reserve(enumCount);
 
     for (uint32_t i = 0; i < enumCount; ++i) {
-      std::string enumName = readName(cursor);
-      std::vector<std::string> values = readEnumValues(cursor);
+      std::string_view enumName = readName(cursor);
+      auto values = readEnumValues(cursor);
 
-      outData.Enums.emplace(std::move(enumName), std::move(values));
+      outData.Enums.emplace(std::move(std::string(enumName)), std::move(values));
     }
   }
 
-  std::vector<std::string> UsmapReader::readEnumValues(size_t &cursor) {
-    std::vector<std::string> values;
+  std::vector<std::string_view> UsmapReader::readEnumValues(size_t &cursor) {
+    std::vector<std::string_view> values;
 
-    // Count lesen (Länge variiert je nach Version)
     uint16_t count = 0;
     if (m_version >= EUsmapVersion::LARGE_ENUMS) { count = readUInt16(cursor); } else { count = readByte(cursor); }
 
     if (m_version >= EUsmapVersion::EXPLICIT_ENUM_VALUES) {
-      // Sparse Enum (Index -> Name)
       for (uint16_t i = 0; i < count; ++i) {
         uint64_t val = readUInt64(cursor);
-        std::string name = readName(cursor);
+        auto name = readName(cursor);
 
-        // Vector vergrößern, falls der Index (val) größer ist als aktuelle Größe
         if (val >= values.size()) { values.resize(static_cast<size_t>(val) + 1); }
-        values[static_cast<size_t>(val)] = std::move(name);
+        values[static_cast<size_t>(val)] =         name;
       }
     } else {
-      // Linear Enum
       values.reserve(count);
       for (uint16_t i = 0; i < count; ++i) { values.push_back(readName(cursor)); }
     }
@@ -197,25 +189,23 @@ namespace SAP {
     // 1. Info Header lesen
     uint16_t schemaIndex = readUInt16(cursor);
     uint8_t arraySize = readByte(cursor);
-    std::string propName = readName(cursor);
+    std::string_view propName = readName(cursor);
 
     // 2. Typ rekursiv parsen
     auto typeData = parsePropertyType(cursor);
 
     // 3. Basis-Property erstellen
     FUsmapPropertyData baseProp;
-    baseProp.Name = std::move(propName);
+    baseProp.Name = propName;
     baseProp.SchemaIndex = schemaIndex;
     baseProp.ArraySize = arraySize;
 
-    // Typ-Daten kopieren (Flattening der Struktur)
     baseProp.Type = typeData->Type;
     baseProp.StructName = typeData->StructName;
     baseProp.EnumName = typeData->EnumName;
     baseProp.InnerType = typeData->InnerType;
     baseProp.ValueType = typeData->ValueType;
 
-    // 4. Array Expansion (für statische Arrays wie int32[4])
     for (uint8_t k = 0; k < arraySize; ++k) {
       FUsmapPropertyData instance = baseProp;
       // Der Index wird hochgezählt
@@ -291,7 +281,7 @@ namespace SAP {
     return v;
   }
 
-  std::string UsmapReader::readName(size_t &cursor) {
+  std::string_view UsmapReader::readName(size_t &cursor) {
     uint32_t index = readUInt32(cursor);
 
     if (index == 0xFFFFFFFFU)

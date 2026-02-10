@@ -2,12 +2,16 @@
 
 #include <fstream>
 
-namespace SAP {
-  bool Reader::readRawBytes(long offset, long size, uint8_t *outBuffer) {
-    m_file.seekg(offset, std::ios::beg);
-    if (m_file.fail()) { return false; }
+#include "logger.hpp"
 
-    m_file.read(reinterpret_cast<char *>(outBuffer), size);
-    return !m_file.fail() || m_file.gcount() == size;
+namespace SAP {
+  std::vector<uint8_t> Reader::loadFile(const std::filesystem::path &filePath) {
+    std::ifstream stream(filePath, std::ios::binary);
+    stream.seekg(0, std::ios::end);
+    std::vector<uint8_t> data(stream.tellg());
+    stream.seekg(0, std::ios::beg);
+    stream.read(reinterpret_cast<char *>(data.data()), static_cast<std::streamsize>(data.size()));
+
+    return data;
   }
 } // namespace SAP

@@ -1,5 +1,5 @@
 #pragma once
-#include <fmt/core.h> // fmt::format_string
+
 #include <memory>
 #include <mutex>
 #include <spdlog/spdlog.h>

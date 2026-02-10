@@ -1,18 +1,74 @@
 
-add_library(SAP_Assets STATIC)
+add_library(SAP_Assets STATIC
+        ue/static_mesh/static_mesh_socket.cpp
+        ue/static_mesh/static_mesh_socket.hpp
+        ue/material/unreal_material.cpp
+        ue/material/unreal_material.hpp
+        ue/material/material_interface.cpp
+        ue/material/material_interface.hpp
+        ue/material/material.cpp
+        ue/material/material.hpp
+        ue/material/material_instance.cpp
+        ue/material/material_instance.hpp
+        ue/material/material_instance_constant.cpp
+        ue/material/material_instance_constant.hpp
+        ue/material/f_material_texture_info.hpp
+        ue/textures/texture_2d_array.cpp
+        ue/textures/texture_2d_array.hpp
+        ue/textures/texture_render_target.cpp
+        ue/textures/texture_render_target.hpp
+        ue/textures/texture_render_target_2_d.cpp
+        ue/textures/texture_render_target_2_d.hpp
+        satisfactory/fg_recipe.cpp
+        satisfactory/fg_recipe.hpp
+        satisfactory/fg_item_descriptor.cpp
+        satisfactory/fg_item_descriptor.hpp
+        satisfactory/fg_item_descriptor_biomass.cpp
+        satisfactory/fg_item_descriptor_biomass.hpp
+        satisfactory/fg_resource_descriptor.cpp
+        satisfactory/fg_resource_descriptor.hpp
+        satisfactory/fg_building_descriptor.cpp
+        satisfactory/fg_building_descriptor.hpp
+        satisfactory/fg_schematic.cpp
+        satisfactory/fg_schematic.hpp
+        ue/properties/property_holder.cpp
+        ue/properties/property_holder.hpp
+
+)
+
 
 target_sources(SAP_Assets
         PUBLIC
-        ue/object_factory.hpp
         ue/asset_object.hpp
+
         ue/textures/texture_2d.hpp
         ue/textures/texture.hpp
 
+        ue/object_factory.hpp
+        ue/object/field.hpp
+        ue/object/struct.hpp
+        ue/object/class.hpp
+
+        ue/engine/blueprint_generated_class.hpp
+
+        ue/properties/f_property_tag.hpp
+
+        ue/static_mesh/static_mesh.hpp
         PRIVATE
+        ue/engine/blueprint_generated_class.cpp
+        ue/static_mesh/static_mesh.cpp
+
+        ue/object/field.cpp
+        ue/object/struct.cpp
+        ue/object/class.cpp
         ue/object_factory.cpp
+
         ue/asset_object.cpp
+
         ue/textures/texture.cpp
         ue/textures/texture_2d.cpp
+
+        ue/static_mesh/static_mesh.cpp
 )
 
 target_link_libraries(SAP_Assets
@@ -21,6 +77,7 @@ target_link_libraries(SAP_Assets
         SAP_Parser
         SAP_Util
         SAP_Lib
+        SAP_Exporter
 )
 
 target_include_directories(SAP_Assets

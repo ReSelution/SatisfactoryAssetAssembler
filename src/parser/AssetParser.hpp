@@ -7,11 +7,16 @@
 #include <functional>
 #include <mutex>
 #include <queue>
+#include <shared_mutex>
 #include <thread>
 
-#include "io_global_data.hpp"
+#include "shared_cache.hpp"
+
+#include "../localizations/loc_manager.hpp"
 
 namespace SAP {
+  struct GlobalData;
+  class Crawler;
   struct FPackageId;
   class Reader;
   class AssetFileParser;
@@ -24,30 +29,38 @@ namespace SAP {
 
   class AssetParser {
   public:
-    explicit AssetParser(const Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData);
+    explicit AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData);
     ~AssetParser();
 
-    void queueFile(const std::filesystem::path &path);
-    void processQueue(const std::function<void(const AssetParseResult &)> &onAssetParsed, uint32_t threadCount = 0);
-    std::unique_ptr<AssetFileParser> loadPackage(const FPackageId &pkg);
-
+    void queueFile(std::string_view path);
+    void processQueue(Crawler* crawler = nullptr, uint32_t threadCount = 0);
+    std::shared_ptr<AssetFileParser> loadPackage(const FPackageId &pkg);
+     Vfs*getVfs() const {
+      return m_vfs;
+    };
 
   private:
     friend class AssetFileParser;
-    const FUsmapMappingData* mappings() const {return m_mappings;}
-    const GlobalData *globalData() const {return m_globalData;}
-    void workerThread(const std::function<void(const AssetParseResult &)> &onAssetParsed);
+    [[nodiscard]] const FUsmapMappingData* mappings() const {return m_mappings;}
+    [[nodiscard]] const GlobalData *globalData() const {return m_globalData;}
+    void workerThread(const std::function<void( std::shared_ptr<AssetFileParser>&)> &onParsed);
     void parseAsset
-    (const std::function<void(const AssetParseResult &)> &onAssetParsed, const std::filesystem::path &assetPath);
+    (  std::string_view path, const std::function<void( std::shared_ptr<AssetFileParser>&)> &onParsed);
 
-    std::unique_ptr<AssetFileParser> createParser(const std::filesystem::path &assetPath,   Reader *dataParser);
-    const Vfs *m_vfs;
+    std::shared_ptr<AssetFileParser> createParser(const UnifiedVfsEntry *vfsEntry);
+     Vfs *m_vfs;
     const FUsmapMappingData *m_mappings;
     const GlobalData *m_globalData;
 
-    std::queue<std::filesystem::path> m_JobQueue;
+    LocManager m_localizationManager;
+
+    std::queue<std::string_view> m_JobQueue;
     std::mutex m_QueueMutex;
     std::vector<std::thread> m_ThreadPool;
+    ShardedCache<uint64_t,std::weak_ptr<AssetFileParser>>  m_parserCache;
+    //std::unordered_map<uint64_t, std::weak_ptr<AssetFileParser>> m_parserCache;
+    std::shared_mutex m_cacheMutex;
+
   };
 }
 

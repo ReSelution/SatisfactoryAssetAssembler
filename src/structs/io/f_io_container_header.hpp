@@ -4,6 +4,7 @@
 
 #pragma once
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 #include "f_file_package_store_entry.hpp"
@@ -27,26 +28,22 @@ namespace SAP {
     Latest = LatestPlusOne - 1
   };
 
-
-
-
-
   struct FIoContainerHeader {
-    uint32_t magic{};
+    uint32_t magic;
     EIoContainerHeaderVersion version;
-    FPackageId containerId{};
+    FPackageId containerId;
 
-    std::vector<FPackageId> packageIds{};
-    std::vector<FFilePackageStoreEntry> storeEntries{};
+    std::span<const FPackageId> packageIds;
+    std::unordered_map<FPackageId, FFilePackageStoreEntry> storeEntriesById{};
 
-    std::vector<FPackageId> optionalSegmentPackageIds{};
-    std::vector<FFilePackageStoreEntry> optionalSegmentStoreEntries{};
-
-    std::vector<std::string> containerNameMap{};
-    std::vector<FIoContainerHeaderLocalizedPackage> localizedPackages{};
-    std::vector<FIoContainerHeaderPackageRedirect> packageRedirects{};
+    std::span<const FPackageId> optionalSegmentPackageIds;
+    std::vector<FFilePackageStoreEntry> optionalSegmentStoreEntries;
+    std::vector<uint8_t> buffer;
+    std::vector<std::string_view> containerNameMap;
+    std::span<const FIoContainerHeaderLocalizedPackage> localizedPackages;
+    std::span<const FIoContainerHeaderPackageRedirect> packageRedirects;
 
     // Not Used by Satisfactory
-    FIoContainerHeaderSoftPackageReferences softPackageReferences{};
+    FIoContainerHeaderSoftPackageReferences softPackageReferences;
   };
 }

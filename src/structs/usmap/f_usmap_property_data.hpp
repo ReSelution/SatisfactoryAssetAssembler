@@ -44,14 +44,13 @@ namespace SAP {
 
 #pragma pack(push,1)
   struct FUsmapPropertyData {
-    std::string Name;
+    std::string_view Name;
     uint16_t SchemaIndex; // Index in der internen Liste beim Parsen
     uint8_t ArraySize;    // Für statische Arrays
     EUsmapPropertyType Type;
 
-    // Zusätzliche Daten je nach Typ (StructName, InnerType für Arrays, etc.)
-    std::string StructName;
-    std::string EnumName;
+    std::string_view StructName;
+    std::string_view EnumName;
     std::shared_ptr<FUsmapPropertyData> InnerType;
     std::shared_ptr<FUsmapPropertyData> ValueType; // Nur für MapProperty
   };

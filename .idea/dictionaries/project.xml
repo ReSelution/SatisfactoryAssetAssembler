@@ -2,7 +2,10 @@
   <dictionary name="project">
     <words>
       <w>Shadowmap</w>
+      <w>cdsf</w>
+      <w>fastgltf</w>
       <w>uasset</w>
+      <w>ucas</w>
     </words>
   </dictionary>
 </component>

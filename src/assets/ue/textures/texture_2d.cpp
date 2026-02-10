@@ -4,23 +4,22 @@
 
 #include "texture_2d.hpp"
 
+#include <utility>
+
 #include "uasset_parser.hpp"
 
 namespace SAP {
-  Texture2D::Texture2D() : Texture("Texture2D") {}
-  void Texture2D::parse(size_t &cursor, AssetFileParser *owner) {
-    Texture::parse(cursor, owner);
-    m_importedSize = getOrDefault<IntPoint>(cursor, [&] { return m_importedSize; });
+  Texture2D::Texture2D(std::string_view className) : Texture(className) {}
+  void Texture2D::parse( ) {
+    Texture::parse();
+    //m_importedSize = getOrDefault<IntPoint>(m_cursor.tell(), [&] { return m_importedSize; });
 
-    cursor +=2; // Skip FStripDataFlags(2bytes)
-    auto parser = reinterpret_cast<UAssetParser *>(owner);
-    auto asset = parser->getAsset();
+    m_cursor +=2; // Skip FStripDataFlags(2bytes)
 
-    bool cooked = readPrimitive<uint32_t>(asset, cursor) == 1;
 
-    if (cooked) {
-      bool serializeMipData = readPrimitive<uint8_t>(asset, cursor) == 1;
-      parseCookedPlatformData(asset, cursor, serializeMipData);
+    if (m_cursor.readBool()) {
+      bool serializeMipData = m_cursor.readBool();
+      parseCookedPlatformData(m_cursor, serializeMipData);
     }
 
   }

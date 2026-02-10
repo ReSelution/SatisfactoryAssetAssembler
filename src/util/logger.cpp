@@ -3,6 +3,8 @@
 #include <iostream>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+#include "spdlog/sinks/basic_file_sink.h"
+
 namespace SAP::Logger {
 
   Logger &Logger::getInstance() {
@@ -19,14 +21,19 @@ namespace SAP::Logger {
     try {
       // Konsolen-Sink
       auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+      consoleSink->set_level(spdlog::level::info);
       consoleSink->set_pattern("[SAP] %n: %v%$");
 
-      auto logger = std::make_shared<spdlog::logger>(name, consoleSink);
+      //File-Sink
+      auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/sap.log", true);
+      fileSink->set_level(spdlog::level::trace);
+      fileSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
+
+      std::vector<spdlog::sink_ptr> sinks {consoleSink, fileSink};
+      auto logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
       spdlog::register_logger(logger);
 
       logger->set_level(level);
-      logger->flush_on(spdlog::level::warn);
-
       m_loggers[name] = std::move(logger);
 
     } catch (const spdlog::spdlog_ex &ex) {

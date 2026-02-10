@@ -11,7 +11,7 @@ namespace SAP {
 
 #pragma pack(push, 1)
 
-  struct FIoHash {
+  struct FSHAHash {
 
     std::array<uint8_t, FSHA_HASH_SIZE> hash;
   };

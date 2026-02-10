@@ -11,15 +11,15 @@ enum class TextureExportFlags : uint32_t {
 };
 
 // Bitwise Operatoren für TextureExportFlags
-inline constexpr TextureExportFlags operator|(TextureExportFlags a, TextureExportFlags b) {
+ constexpr TextureExportFlags operator|(TextureExportFlags a, TextureExportFlags b) {
   return static_cast<TextureExportFlags>(static_cast<int>(a) | static_cast<int>(b));
 }
 
-inline constexpr TextureExportFlags operator&(TextureExportFlags a, TextureExportFlags b) {
+ constexpr TextureExportFlags operator&(TextureExportFlags a, TextureExportFlags b) {
   return static_cast<TextureExportFlags>(static_cast<int>(a) & static_cast<int>(b));
 }
 
-inline constexpr TextureExportFlags operator~(TextureExportFlags a) {
+ constexpr TextureExportFlags operator~(TextureExportFlags a) {
   return static_cast<TextureExportFlags>(~static_cast<int>(a));
 }
 

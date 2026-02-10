@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-
+#include <charconv>
 #include "functions.hpp"
 
 namespace SAP {
@@ -26,10 +26,29 @@ namespace SAP {
     uint32_t nameIndex;
     uint32_t extraIndex;
 
-    [[nodiscard]] std::string fromNameMap(const std::vector<std::string> &map) const {
-      if (extraIndex == 0) return {map[NameIndex()]};
+    [[nodiscard]] std::string_view fromNameMap(const std::vector<std::string_view> &map, HeapStorage<> &storage) const {
+      auto index = NameIndex();
+      if (index >= map.size() || index < 0) return "None";
 
-      return {map[NameIndex()] + "_" + std::to_string(extraIndex - 1)};
+      if (extraIndex == 0) return map[index];
+
+      std::string_view base = map[index];
+
+      size_t maxLen = base.size() + 1 + 10 + 1;
+      char* buf = static_cast<char*>(storage.allocateRaw(maxLen));
+
+      char* curr = buf;
+      std::memcpy(curr, base.data(), base.size());
+      curr += base.size();
+      *curr++ = '_';
+
+      auto res = std::to_chars(curr, buf + maxLen, extraIndex - 1);
+      if (res.ec == std::errc{}) {
+        curr = res.ptr;
+      }
+
+      size_t finalLen = curr - buf;
+      return {buf, finalLen};
     }
 
     [[nodiscard]] uint32_t NameIndex() const { return nameIndex & IndexMask; }
@@ -45,13 +64,16 @@ namespace SAP {
     uint32_t index;
     uint32_t number;
     std::string plainText;
+    std::string_view plainTextView;
 
-    [[nodiscard]] std::string text() const {
-      return number == 0 ? plainText : plainText + "_" + std::to_string(number - 1);
+    [[nodiscard]] std::string_view text() {
+      if (number == 0) { return plainTextView; };
+      if (plainText.empty()) { plainText = std::string(plainTextView) + "_" + std::to_string(number - 1); }
+      return plainText;
     }
-    [[nodiscard]] bool isNone() const { return text()  == "None"; }
-  };
 
+    [[nodiscard]] bool isNone() const { return plainTextView == "None"; }
+  };
 
   struct FSerializedNameHeader {
     static constexpr int Size = 2;
@@ -68,38 +90,6 @@ namespace SAP {
 
     bool operator!=(const FSerializedNameHeader &other) const { return !(*this == other); }
   };
-
-
-  inline std::vector<std::string> loadNameBatch(const std::vector<uint8_t> &buffer, size_t &cursor) {
-    if (cursor + sizeof(uint32_t) > buffer.size()) return {};
-    auto count = readPrimitive<uint32_t>(buffer, cursor);
-
-    std::vector<std::string> entries = {};
-    if (count == 0) return entries;
-
-    cursor += sizeof(uint32_t);         // numStringBytes
-    cursor += sizeof(uint64_t);         // hashVersion
-    cursor += count * sizeof(uint64_t); // hashes
-
-    auto headers = readArray<FSerializedNameHeader>(buffer, cursor, count);
-
-    entries.reserve(count);
-    for (uint32_t i = 0; i < count; ++i) {
-      const auto &header = headers[i];
-      const uint32_t length = header.Length();
-
-      std::string name;
-      if (header.IsUtf16()) {
-        auto chars = readArray<char16_t>(buffer, cursor, length);
-        name = utf16ToUtf8(chars);
-      } else {
-        auto bytes = readArray<uint8_t>(buffer, cursor, length);
-        name.assign(reinterpret_cast<char *>(bytes.data()), length);
-      }
-      entries.emplace_back(std::move(name));
-    }
-    return entries;
-  }
 
 #pragma pack(pop)
 }

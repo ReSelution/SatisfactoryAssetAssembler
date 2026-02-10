@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "../../../util/byte_cursor.hpp"
 #include "texture.hpp"
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
@@ -11,12 +12,11 @@ namespace SAP {
   class Texture2D : public Texture {
 
   public:
-    Texture2D();
+    Texture2D(std::string_view className = "Texture2D");
     ~Texture2D() override = default;
 
-    void parse(size_t &cursor, AssetFileParser *owner) override;
-
   protected:
+    void parse() override;
     IntPoint m_importedSize{};
 
   };

@@ -1,6 +1,8 @@
 
 
-add_library(SAP_Reader STATIC)
+add_library(SAP_Reader STATIC
+        file_reader.cpp
+        file_reader.hpp)
 
 # Header files
 target_sources(SAP_Reader

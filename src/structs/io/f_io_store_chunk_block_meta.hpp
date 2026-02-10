@@ -9,7 +9,7 @@ namespace SAP {
 #pragma pack(push, 1)
 
   struct FIoStoreChunkBlockMeta {
-    FIoHash hash;
+    FSHAHash hash;
   };
 
 #pragma pack(pop)

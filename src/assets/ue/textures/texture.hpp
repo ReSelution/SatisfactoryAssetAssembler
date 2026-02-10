@@ -4,28 +4,26 @@
 
 #pragma once
 
+#include "../../../util/byte_cursor.hpp"
+#include "assets/textures/f_texture_2d_mip_map.hpp"
+#include "assets/textures/f_virtual_texture_built_data.hpp"
+#include "assets/textures/pixel_format.hpp"
 #include "core/f_guid.hpp"
 #include "core/hash.hpp"
+
+#include "structs/exported_texture_data.hpp"
+
 #include "ue/asset_object.hpp"
 
-
 namespace SAP {
+  class TextureExporter;
   class AssetFileParser;
-  enum class TextureFilter : uint8_t;
-  enum class TextureGroup : uint8_t;
-  enum class TextureCompressionSettings : uint8_t;
+  enum class TextureFilter : uint32_t;
+  enum class TextureGroup : uint32_t;
+  enum class TextureCompressionSettings : uint32_t;
 
   class Texture : public Object {
-
-
-  protected:
-    FGuid m_lightingGuid{};
-    TextureCompressionSettings m_compressionSettings{};
-    TextureGroup m_LODGroup{};
-    TextureFilter m_filter{};
-    bool m_srgb = true;
-
-    void parseCookedPlatformData(std::vector<uint8_t> &asset, size_t &cursor, bool parseMipData = true );
+    friend TextureExporter;
 
   public:
     enum class ETextureProperty : uint32_t {
@@ -37,8 +35,36 @@ namespace SAP {
       AssetUserData       = fnv1a("AssetUserData"),
     };
 
-    Texture(std::string className = "Texture");
+    Texture(std::string_view className = "Texture");
 
-    void parse(size_t &cursor, AssetFileParser *owner) override;
+    void exportAsset() override;
+    virtual void decodeTexture(ExportedTextureData &data);
+
+  private:
+    void parsePlatformData(ByteCursor &asset, bool parseMipData = true);
+    void parseVirtualTexture(ByteCursor &asset);
+    EPixelFormat m_format = EPixelFormat::PF_Unknown;
+    std::string m_pixelFormat;
+
+  protected:
+    void parse() override;
+
+    FGuid m_lightingGuid{};
+    TextureCompressionSettings m_compressionSettings{};
+    TextureGroup m_LODGroup{};
+    TextureFilter m_filter{};
+    FVirtualTextureBuiltData m_vtData{};
+
+    bool m_srgb = true;
+    int32_t m_sizeX;
+    int32_t m_sizeY;
+    int32_t m_packedData;
+    int32_t m_firstMipToSerialize;
+    std::vector<FTexture2DMipMap> m_mipmaps;
+
+    void parseCookedPlatformData
+    (ByteCursor &asset, bool parseMipData = true);
+
+    FTexture2DMipMap parseTexture2dMipMap(ByteCursor &cursor, bool parseMipData = true);
   };
 }

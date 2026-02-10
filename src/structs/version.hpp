@@ -6,6 +6,15 @@
 #include <cstdint>
 
 namespace SAP {
+  enum class EUE5Version : uint32_t {
+    UE5_1 = 1004,
+    UE5_2 = 1008,
+    UE5_3 = 1009,
+    UE5_4 = 1012,
+    UE5_5 = 1013,
+    UE5_7 = 1017,
+  };
+
   enum class EUnrealEngineObjectUE5Version : uint32_t {
     // The original UE5 version, starts from 1000
     INITIAL_VERSION = 1000,
@@ -71,12 +80,44 @@ namespace SAP {
     AUTOMATIC_VERSION = AUTOMATIC_VERSION_PLUS_ONE - 1
   };
 
-  inline bool operator>=(uint32_t lhs, EUnrealEngineObjectUE5Version rhs) { return lhs >= static_cast<uint32_t>(rhs); }
+  inline bool operator>=
+  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+    return static_cast<uint32_t>(lhs) >= static_cast<uint32_t>(rhs);
+  }
+
+  inline bool operator >
+  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+    return static_cast<uint32_t>(lhs) > static_cast<uint32_t>(rhs);
+  }
+
+  inline bool operator<=
+  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+    return static_cast<uint32_t>(lhs) <= static_cast<uint32_t>(rhs);
+  }
+
+  inline bool operator<
+  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+    return static_cast<uint32_t>(lhs) < static_cast<uint32_t>(rhs);
+  }
+
+#define SAP_ASSERT_UE5_MIN(owner, version, msg) \
+assert((owner)->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::version && msg)
+
+#define SAP_ASSERT_UE5_MAX(owner, version, msg) \
+assert((owner)->mappings()->pkgVersion.FileVersionUE5 < EUE5Version::version && msg)
+
+#define SAP_ASSERT_UE5_BEFORE(owner, version, msg)                       \
+assert((owner)->mappings()->pkgVersion.FileVersionUE5 <                \
+EUE5Version::version && msg)
+
+#define SAP_ASSERT_UE5_AT_LEAST(owner, version, msg)                     \
+assert((owner)->mappings()->pkgVersion.FileVersionUE5 >=               \
+EUE5Version::version && msg)
 
 #pragma pack(push, 1)
   struct FPackageFileVersion {
-    uint32_t FileVersionUE4; // 4 Bytes
-    uint32_t FileVersionUE5; // 4 Bytes
+    uint32_t FileVersionUE4;    // 4 Bytes
+    EUE5Version FileVersionUE5; // 4 Bytes
   };
 #pragma pack(pop)
 }

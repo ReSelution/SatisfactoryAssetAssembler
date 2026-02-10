@@ -9,9 +9,9 @@ namespace SAP {
 #pragma pack(push,1)
 
   struct FIoFileIndexEntry {
-    uint32_t name{}; // Index in String Table
-    uint32_t nextFileEntry{};
-    uint32_t userData{};
+    uint32_t name; // Index in String Table
+    uint32_t nextFileEntry;
+    uint32_t userData;
   }; // Exakt 12 Bytes
 
 #pragma pack(pop)

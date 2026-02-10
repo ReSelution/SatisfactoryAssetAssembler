@@ -1,4 +1,5 @@
-add_library(SAP_Parser)
+add_library(SAP_Parser
+        AssetFileParser.cpp)
 
 target_sources(SAP_Parser
     PUBLIC

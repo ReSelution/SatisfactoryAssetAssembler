@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <deque>
 #include <filesystem>
 #include <unordered_map>
 #include <vector>
@@ -20,7 +21,9 @@ namespace SAP {
   };
 
   struct GlobalData {
-    std::vector<std::string> globalNameMap;
+    std::vector<uint8_t> buffer;
+    HeapStorage<> utf16Storage;
+    std::vector<std::string_view> globalNameMap;
     std::unordered_map<FPackageObjectIndex, FScriptObjectEntry> ScriptObjectEntriesMap;
   };
 

@@ -31,20 +31,14 @@ namespace SAP {
     void parseSchemas(size_t &cursor, FUsmapMappingData &outData);
 
 
-    // Liest die Enum-Namen (abhängig von der Version)
-    std::vector<std::string> readEnumValues(size_t &cursor);
+    std::vector<std::string_view> readEnumValues(size_t &cursor);
 
-    // Liest eine einzelne Schema-Definition (Header + Properties)
     FUsmapSchema readSingleSchema(size_t &cursor);
 
-    // Liest eine Property-Definition (Index, Dim, Name, Typ)
-    // und fügt sie (evtl. mehrfach bei Arrays) zum Schema hinzu.
     void readAndAddProperty(size_t &cursor, FUsmapSchema &schema);
 
-    // Rekursives Parsen des Typs (ohne Index/Name)
     std::shared_ptr<FUsmapPropertyData> parsePropertyType(size_t &cursor);
 
-    // --- Low-Level Reader mit Bounds-Check ---
     void checkBounds(size_t cursor, size_t size) const;
 
     uint8_t readByte(size_t &cursor);
@@ -55,7 +49,7 @@ namespace SAP {
 
     uint64_t readUInt64(size_t &cursor);
 
-    std::string readName(size_t &cursor);
+    std::string_view readName(size_t &cursor);
 
     // --- Member Variablen ---
     std::filesystem::path m_Path;
@@ -63,8 +57,7 @@ namespace SAP {
 
     // Puffer für dekomprimierte Daten
     std::vector<uint8_t> m_Buffer;
-    // Temporäre Namenstabelle während des Parsings
-    std::vector<std::string> m_TempNameMap;
+    std::vector<std::string_view> m_TempNameMap;
 
     // Header Infos
     EUsmapCompressionMethod m_compressionMethod{ EUsmapCompressionMethod::NONE };

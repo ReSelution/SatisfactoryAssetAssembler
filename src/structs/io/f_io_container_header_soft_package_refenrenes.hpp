@@ -11,8 +11,8 @@ namespace SAP {
 #pragma pack(push, 1)
 
   struct FIoContainerHeaderSoftPackageReferences {
-    std::vector<FPackageId> PackageIds;
-    std::vector<uint8_t> PackageIndices;
+    std::span<const FPackageId> PackageIds;
+    std::span<const uint8_t> PackageIndices;
     bool bContainsSoftPackageReferences = false;
   };
 

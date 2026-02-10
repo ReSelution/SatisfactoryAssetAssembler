@@ -4,34 +4,51 @@
 #include <unordered_map>
 #include <vector>
 #include <filesystem>
+#include <memory_resource>
+
+#include "vfs_entry.hpp"
 
 #include "io/f_io_chunk_id.hpp"
 
 namespace SAP {
-  class Reader;
+  constexpr size_t VFS_ARENA_SIZE = 1024 * 16;
 
-  struct UnifiedVfsEntry {
-    std::filesystem::path path;
-    FIoChunkId chunkId;
-    Reader *owningParser;
+  struct VfsStorage {
+    std::vector<std::unique_ptr<std::pmr::monotonic_buffer_resource> > threadResources;
 
-    bool operator==(const UnifiedVfsEntry &other) const {
-      return this->chunkId == other.chunkId && this->owningParser == other.owningParser;
+    VfsStorage(size_t bufferSize = VFS_ARENA_SIZE) {
+      auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(bufferSize);
+      threadResources.push_back(std::move(pool));
     }
 
-    bool operator!=(const UnifiedVfsEntry &other) const { return !this->operator==(other); }
+    std::string_view persistString(std::string_view str) {
+      char *mem = static_cast<char *>(threadResources.front()->allocate(str.size()));
+      std::memcpy(mem, str.data(), str.size());
+      return {mem, str.size()};
+    }
+
+    template<typename T, typename... Args>
+    T *make(Args &&... args) {
+      void *mem = threadResources.front()->allocate(sizeof(T), alignof(T));
+      return new(mem) T(std::forward<Args>(args)...);
+    }
   };
 
   class Vfs {
   public:
+    Vfs getChild() { return Vfs(); }
+    void mergeChild(Vfs &child);
     void reserve(size_t size);
-    void mountEntry(Reader *parser, const std::filesystem::path &path, FIoChunkId chunkId);
-    [[nodiscard]] std::vector<uint8_t> readFile(const std::string &path) const;
-    [[nodiscard]] UnifiedVfsEntry readVfs(const std::string &path) const;
-    UnifiedVfsEntry readPkg(const FPackageId &pkg) const;
+    void mountEntry(IOStoreReader *parser, std::string_view pathStr, const FIoChunkId &chunkId);
+    void mountEntry(PAKReader *parser, std::string_view pathStr, uint32_t index);
+    void dumpToText(std::string_view path);
+    [[nodiscard]] const UnifiedVfsEntry *readVfs(std::string_view path);
+    const UnifiedVfsEntry *readPkg(const FPackageId &pkg);
+    const std::unordered_map<uint64_t, const UnifiedVfsEntry *> &entries() { return m_vfsMap; }
 
   private:
-    std::unordered_map<std::filesystem::path, UnifiedVfsEntry> m_VfsMap;
-    std::unordered_map<FPackageId, UnifiedVfsEntry> m_packageMap;
+    std::unordered_map<uint64_t, const UnifiedVfsEntry *> m_vfsMap;
+    std::unordered_map<uint64_t, const UnifiedVfsEntry *> m_pkgMap;
+    VfsStorage m_storage;
   };
 } // namespace SAP

@@ -13,8 +13,8 @@
 namespace SAP {
   struct FUsmapMappingData {
     FPackageFileVersion pkgVersion;
-    std::vector<std::string> NameMap;
-    std::unordered_map<std::string, std::vector<std::string>> Enums;
+    std::vector<std::string_view> NameMap;
+    std::unordered_map<std::string, std::vector<std::string_view>> Enums;
     std::unordered_map<std::string, FUsmapSchema> Schemas;
   };
 }
