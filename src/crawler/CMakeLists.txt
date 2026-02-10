@@ -17,6 +17,7 @@ target_link_libraries(SAP_Crawler
         SAP_Structs
         SAP_Reader
         SAP_Exporter
+        SAP_VFS
 )
 
 target_include_directories(SAP_Crawler
