@@ -1,3 +1,15 @@
 [submodule "external/spdlog"]
 	path = external/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "external/stb"]
+	path = external/stb
+	url = https://github.com/nothings/stb.git
+[submodule "external/bcdec"]
+	path = external/bcdec
+	url = https://github.com/iOrange/bcdec.git
+[submodule "external/fastgltf"]
+	path = external/fastgltf
+	url = https://github.com/spnda/fastgltf
+[submodule "external/simdjson"]
+	path = external/simdjson
+	url = https://github.com/simdjson/simdjson.git
