@@ -4,8 +4,15 @@
 # 1. Proprietäre/Große Binärdateien (Oodle)
 # ----------------------------------------
 # Diese Dateien dürfen NICHT im Git landen!
-liboo2corelinux64.so.9
+liboo2corelinux64.so.*
 oo2core_9_win64.dll
+
+#Just in case
+*.pak
+*.utoc
+*.ucas
+*.uasset
+*.umap
 
 # ----------------------------------------
 # 2. CMake/Build-Artefakte
@@ -18,21 +25,60 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
+cmake-build-*/
+/out/
+
+
 
 # ----------------------------------------
-# 3. Visual Studio Code / IDE Files
+# 3. Kompiler-Artefakte & Binaries
 # ----------------------------------------
-.vscode/
-# Ausschließen, aber oft benötigt man settings.json oder tasks.json
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.pdb
+*.exp
+
+# ----------------------------------------
+# 4. IDEs & Editoren
+# ----------------------------------------
+# JetBrains (CLion / IDEA)
+.idea/
+
+# Visual Studio Code
+.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-# C++ specific
-*.o
-*.a
-*.so
-*.dll
+!.vscode/launch.json
+
+# Visual Studio (falls mal jemand unter Windows baut)
+.vs/
+x64/
+Debug/
+Release/
 
 # ----------------------------------------
-# 4. Outputs
+# 5. OS spezifischer Müll
 # ----------------------------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------------------------
+# 6. Outputs / Logs
+# ----------------------------------------
+logs/
 /output/
+*.log
+out.txt
+
+# ----------------------------------------
+# 7. Python
+# ----------------------------------------
+
+.venv/
