@@ -14,7 +14,7 @@
 namespace SAP {
   class Material : public MaterialInterface {
     friend class MaterialExporter;
-    enum class EMaterialInterface: uint32_t {
+    enum class EMaterialInterface : uint32_t {
       TwoSided = fnv1a("TwoSided"),
       bDisableDepthTest = fnv1a("bDisableDepthTest"),
       bIsMasked = fnv1a("bIsMasked"),
@@ -24,6 +24,7 @@ namespace SAP {
       ShadingModel = fnv1a("ShadingModel"),
       OpacityMaskClipValue = fnv1a("OpacityMaskClipValue"),
     };
+
   public:
     Material(std::string_view classname = "Material") : MaterialInterface(classname) {};
     void exportToGltf(GltfMaterial &outMaterial) override;
@@ -39,8 +40,9 @@ namespace SAP {
     EMaterialShadingModel shadingModel = EMaterialShadingModel::MSM_Unlit;
     float opacityMaskClipValue = 0.333f;
     std::vector<std::weak_ptr<Texture>> m_textures;
+
   private:
   };
 
   SAP_REGISTER_ASSET(Material)
-} // SAP
+} // namespace SAP

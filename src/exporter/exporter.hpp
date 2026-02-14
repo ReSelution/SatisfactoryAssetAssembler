@@ -14,12 +14,8 @@
 
 namespace SAP {
   struct ExporterOptions {
-    std::atomic<TextureExportFlags> textureExportTypes{
-      TextureExportFlags::PNG
-    };
-    std::atomic<MeshExportFlags> meshExportTypes{
-      MeshExportFlags::GLTF2
-    };
+    std::atomic<TextureExportFlags> textureExportTypes{TextureExportFlags::PNG};
+    std::atomic<MeshExportFlags> meshExportTypes{MeshExportFlags::GLTF2};
     std::string outputPath = "./Exports";
     mutable std::shared_mutex pathMutex;
 
@@ -42,4 +38,4 @@ namespace SAP {
   private:
     static inline ExporterOptions s_options;
   };
-}; // SAP
+}; // namespace SAP

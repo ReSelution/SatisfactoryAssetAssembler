@@ -16,8 +16,8 @@ namespace SAP {
     static FColorVertexBuffer parse(ByteCursor &cursor) {
       auto stripDataFlags = cursor.read<FStripDataFlags>();
       FColorVertexBuffer ret{
-        .stride  = cursor.read<int32_t>(),
-        .numVertices = cursor.read<int32_t>(),
+          .stride = cursor.read<int32_t>(),
+          .numVertices = cursor.read<int32_t>(),
       };
       if (!stripDataFlags.isAudioVisualDataStripped() && ret.numVertices > 0) {
         ret.data = cursor.readBulkArray<FColor>();
@@ -25,4 +25,4 @@ namespace SAP {
       return ret;
     }
   };
-}
+} // namespace SAP

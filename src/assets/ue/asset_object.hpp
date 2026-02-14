@@ -8,8 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include "byte_cursor.hpp"
 #include "AssetFileParser.hpp"
-#include "../../util/byte_cursor.hpp"
 #include "logger.hpp"
 
 #include "core/name.hpp"
@@ -19,7 +19,7 @@
 namespace SAP {
   class AssetFileParser;
 
-  class Object: public PropertyHolder{
+  class Object : public PropertyHolder {
 
     enum class ObjectState : uint8_t {
       NONE,
@@ -32,9 +32,7 @@ namespace SAP {
     virtual ~Object() = default;
 
     [[nodiscard]] std::string_view getClassName() const { return m_className; }
-    virtual uint32_t getClassHash() {
-      return HASH;
-    }
+    virtual uint32_t getClassHash() { return HASH; }
     virtual void exportAsset();
     void safeParse();
 
@@ -49,8 +47,6 @@ namespace SAP {
     ByteCursor m_cursor;
     std::unique_ptr<Object> m_outer = nullptr;
 
-
-
   private:
     static constexpr uint32_t HASH = fnv1a("Object");
 
@@ -58,11 +54,8 @@ namespace SAP {
     std::string_view m_objName;
     FGuid m_objGuid{};
 
-
-
     std::atomic<ObjectState> m_state = ObjectState::NONE;
     std::mutex m_mutex;
     std::condition_variable m_cv;
-
   };
-}
+} // namespace SAP

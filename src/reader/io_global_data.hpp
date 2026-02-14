@@ -21,21 +21,18 @@ namespace SAP {
   };
 
   struct GlobalData {
-    std::vector<uint8_t> buffer;
-    HeapStorage<> utf16Storage;
-    std::vector<std::string_view> globalNameMap;
+    std::span<std::string_view> globalNameMap;
     std::unordered_map<FPackageObjectIndex, FScriptObjectEntry> ScriptObjectEntriesMap;
   };
 
   class IOGlobalData {
-    public:
+  public:
     IOGlobalData(std::filesystem::path utocPath, std::filesystem::path ucasPath);
     ~IOGlobalData();
-
 
     void parse(GlobalData &data);
 
   private:
     std::unique_ptr<IOStoreReader> storeParser;
   };
-} // SAP
+} // namespace SAP

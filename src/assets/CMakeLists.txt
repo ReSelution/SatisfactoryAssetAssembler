@@ -74,6 +74,7 @@ target_link_libraries(SAP_Assets
         SAP_Util
         SAP_Lib
         SAP_Exporter
+        SAP_Localization
 )
 
 target_include_directories(SAP_Assets

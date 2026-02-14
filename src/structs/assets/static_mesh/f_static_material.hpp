@@ -12,12 +12,11 @@
 
 namespace SAP {
   struct FStaticMaterial {
-    std::shared_ptr<MaterialInterface> materialInterface;
+    MaterialInterface* materialInterface;
     FName materialSlotName;
     FName importedMaterialSlotName;
     FMeshUVChannelInfo UVChannelInfo;
     std::shared_ptr<SAP::Object> overlayMaterialInterface;
-
   };
 
-}
+} // namespace SAP

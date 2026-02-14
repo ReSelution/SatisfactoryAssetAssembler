@@ -4,4 +4,4 @@
 
 #include "blueprint_generated_class.hpp"
 
-namespace SAP {} // SAP
+namespace SAP {} // namespace SAP

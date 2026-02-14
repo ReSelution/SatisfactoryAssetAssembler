@@ -7,14 +7,12 @@
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGResourceDescriptor: public Object {
-    public:
-    FGResourceDescriptor(std::string_view className = "FGResourceDescriptor"): Object(className) {}
+  class FGResourceDescriptor : public Object {
+  public:
+    FGResourceDescriptor(std::string_view className = "FGResourceDescriptor") : Object(className) {}
 
-    uint32_t getClassHash() override {
-      return HASH;
-    };
+    uint32_t getClassHash() override { return HASH; };
     static constexpr uint32_t HASH = fnv1a("FGResourceDescriptor");
   };
   SAP_REGISTER_ASSET(FGResourceDescriptor)
-} // SAP
+} // namespace SAP

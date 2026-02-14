@@ -12,7 +12,6 @@
 
 namespace SAP {
 
-
   enum class CompressionMethod : uint8_t {
     None = 0,
     Zlib = 1,
@@ -25,14 +24,28 @@ namespace SAP {
     Unknown = 8
   };
 
- inline  CompressionMethod stringToCompressionMethod(const std::string &name) {
-    if (name == "Zlib") { return CompressionMethod::Zlib; }
-    if (name == "Gzip") { return CompressionMethod::Gzip; }
-    if (name == "Custom") { return CompressionMethod::Custom; }
-    if (name == "Oodle") { return CompressionMethod::Oodle; }
-    if (name == "LZ4") { return CompressionMethod::LZ4; }
-    if (name == "Zstd") { return CompressionMethod::Zstd; }
-    if (name == "XB1Zlib") { return CompressionMethod::XB1Zlib; }
+  inline CompressionMethod stringToCompressionMethod(std::string_view name) {
+    if (name == "Zlib") {
+      return CompressionMethod::Zlib;
+    }
+    if (name == "Gzip") {
+      return CompressionMethod::Gzip;
+    }
+    if (name == "Custom") {
+      return CompressionMethod::Custom;
+    }
+    if (name == "Oodle") {
+      return CompressionMethod::Oodle;
+    }
+    if (name == "LZ4") {
+      return CompressionMethod::LZ4;
+    }
+    if (name == "Zstd") {
+      return CompressionMethod::Zstd;
+    }
+    if (name == "XB1Zlib") {
+      return CompressionMethod::XB1Zlib;
+    }
     // Default-Fall
     return CompressionMethod::Unknown;
   }
@@ -48,10 +61,10 @@ namespace SAP {
   public:
     Decompressor() = delete;
 
-    static bool decompressUsmapPayload(
-      std::span<const uint8_t> compressedData, std::span<uint8_t> uncompressedData, EUsmapCompressionMethod method);
-    static bool decompress(
-      std::span<const uint8_t> compressedData, std::span<uint8_t> uncompressedData, CompressionMethod method);
+    static bool decompressUsmapPayload(std::span<const uint8_t> compressedData, std::span<uint8_t> uncompressedData,
+                                       EUsmapCompressionMethod method);
+    static bool decompress(std::span<const uint8_t> compressedData, std::span<uint8_t> uncompressedData,
+                           CompressionMethod method);
 
   private:
     // Interne Implementierungen

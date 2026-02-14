@@ -15,16 +15,13 @@ class ShardedCache {
   };
   std::array<Shard, ShardCount> shards;
 
-  Shard& getShard(const K& key) {
-    return shards[key % ShardCount];
-  }
+  Shard &getShard(const K &key) { return shards[key % ShardCount]; }
 
 public:
-
   void reset() {
-    for (Shard& shard : shards) {
+    for (Shard &shard: shards) {
       std::unique_lock lock(shard.mutex);
-      for (auto& [hash, weakParser] : shard.data) {
+      for (auto &[hash, weakParser]: shard.data) {
         if (auto parser = weakParser.lock()) {
           parser->reset();
         }
@@ -32,18 +29,18 @@ public:
       shard.data.clear();
     }
   }
-  ~ShardedCache() {
-    reset();
-  }
-  V get(const K& key) {
-    auto& shard = getShard(key);
+
+  ~ShardedCache() { reset(); }
+
+  V get(const K &key) {
+    auto &shard = getShard(key);
     std::shared_lock lock(shard.mutex);
     auto it = shard.data.find(key);
     return (it != shard.data.end()) ? it->second : V{};
   }
 
-  void insert(const K& key, V value) {
-    auto& shard = getShard(key);
+  void insert(const K &key, V value) {
+    auto &shard = getShard(key);
     std::unique_lock lock(shard.mutex);
     shard.data[key] = std::move(value);
   }

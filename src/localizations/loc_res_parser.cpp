@@ -6,26 +6,27 @@
 
 #include <utility>
 
+#include "PAKReader.hpp"
 #include "byte_cursor.hpp"
 #include "logger.hpp"
-#include "PAKReader.hpp"
 #include "vfs_entry.hpp"
 
 #include "localization/f_entry.hpp"
 #include "localization/f_text_key.hpp"
 
 namespace SAP {
-  LocResParser::LocResParser
-  (LocManager *manager,  const UnifiedVfsEntry * vfsEntry) : m_manager
-                                                                     (manager), m_vfsEntry(std::move(vfsEntry)) {}
+  LocResParser::LocResParser(LocManager *manager, const UnifiedVfsEntry *vfsEntry) :
+      m_manager(manager), m_vfsEntry(std::move(vfsEntry)) {
+  }
 
   void LocResParser::parse() {
-    data = m_vfsEntry->read();
+    m_storage = std::make_unique<HeapStorage>();
+    auto data = m_vfsEntry->read(m_storage.get());
     ByteCursor cursor(data);
     auto magic = cursor.read<FGuid>();
     if (magic != LOC_RES_MAGIC) {
-      Logger::logError
-          ("[LOCRES]", "{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path, magic.A, magic.B, magic.C, magic.D);
+      Logger::logError("[LOCRES]", "{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path, magic.A, magic.B, magic.C,
+                       magic.D);
     }
     auto version = cursor.read<ELocResVersion>();
 
@@ -35,15 +36,16 @@ namespace SAP {
         auto pos = cursor.tell();
         cursor = localizedStringArrayOffset;
         auto count = cursor.read<int32_t>();
-        localizedStringArray.reserve(count);
+        localizedStringArray = m_storage->allocateSpan<FTextLocalizationResourceString>(count);
         if (version >= ELocResVersion::Optimized_CRC32) {
           for (auto i = 0; i < count; i++) {
-            auto str = cursor.readFString(m_strings); // Dont move inside emplace !!! Breaks under Mingw and Wine
-            localizedStringArray.emplace_back(str, cursor.read<int32_t>());
+            auto str = cursor.readFString(m_storage.get()); // Dont move inside emplace !!! Breaks under Mingw and Wine
+            localizedStringArray[i] = {str, cursor.read<int32_t>()};
           }
         } else {
-
-          for (auto i = 0; i < count; i++) { localizedStringArray.emplace_back(cursor.readFString(m_strings), -1); }
+          for (auto i = 0; i < count; i++) {
+            localizedStringArray[i] = {cursor.readFString(m_storage.get()), -1};
+          }
         }
         cursor = pos;
       }
@@ -52,13 +54,17 @@ namespace SAP {
     if (version >= ELocResVersion::Optimized_CRC32) {
       auto entriesCount = cursor.read<uint32_t>();
       auto namespceCount = cursor.read<uint32_t>();
+      entries.reserve(namespceCount);
       for (auto i = 0; i < namespceCount; i++) {
-        auto namespce = FTextKey{cursor.read<uint32_t>(), cursor.readFString(m_strings)};
+        auto namespce = FTextKey{cursor.read<uint32_t>(), cursor.readFString(m_storage.get())};
         auto keyCount = cursor.read<uint32_t>();
         auto &keyValue = entries.emplace(namespce, std::unordered_map<FTextKey, FEntry>{}).first->second;
         keyValue.reserve(keyCount);
         for (auto j = 0; j < keyCount; j++) {
-          auto key = FTextKey{cursor.read<uint32_t>(), cursor.readFString(m_strings),};
+          auto key = FTextKey{
+              cursor.read<uint32_t>(),
+              cursor.readFString(m_storage.get()),
+          };
           FEntry entry{"", cursor.read<uint32_t>()};
           auto stringIndex = cursor.read<uint32_t>();
           if (localizedStringArray.size() > stringIndex) {
@@ -69,4 +75,4 @@ namespace SAP {
       }
     }
   }
-} // SAP
+} // namespace SAP

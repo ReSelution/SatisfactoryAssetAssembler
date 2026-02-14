@@ -16,4 +16,4 @@ namespace SAP {
     FGuid expressionGuid;
     bool override;
   };
-}
+} // namespace SAP

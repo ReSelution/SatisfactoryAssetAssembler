@@ -9,15 +9,13 @@
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGItemDescriptorBiomass: public Object {
-    public:
-    FGItemDescriptorBiomass(std::string_view classname = "FGItemDescriptorBiomass"): Object(classname) { }
+  class FGItemDescriptorBiomass : public Object {
+  public:
+    FGItemDescriptorBiomass(std::string_view classname = "FGItemDescriptorBiomass") : Object(classname) {}
 #
-    uint32_t getClassHash() override {
-      return HASH;
-    };
+    uint32_t getClassHash() override { return HASH; };
 
     static constexpr uint32_t HASH = fnv1a("FGItemDescriptorBiomass");
   };
   SAP_REGISTER_ASSET(FGItemDescriptorBiomass)
-} // SAP
+} // namespace SAP

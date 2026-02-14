@@ -6,4 +6,4 @@
 
 namespace SAP {
   void UnrealMaterial::exportToGltf(GltfMaterial &gltfMaterial) {}
-} // SAP
+} // namespace SAP

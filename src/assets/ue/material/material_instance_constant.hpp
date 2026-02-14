@@ -15,9 +15,9 @@ namespace SAP {
 
   class MaterialInstanceConstant : public MaterialInstance {
     friend class MaterialExporter;
+
   public:
-    MaterialInstanceConstant
-    (std::string_view classname = "MaterialInstanceConstant") : MaterialInstance(classname) {};
+    MaterialInstanceConstant(std::string_view classname = "MaterialInstanceConstant") : MaterialInstance(classname) {};
 
     void parse() override;
     void exportToGltf(GltfMaterial &out) override;
@@ -29,4 +29,4 @@ namespace SAP {
   };
 
   SAP_REGISTER_ASSET(MaterialInstanceConstant)
-} // SAP
+} // namespace SAP

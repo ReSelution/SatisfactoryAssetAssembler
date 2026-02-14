@@ -9,13 +9,7 @@
 #include "name.hpp"
 
 namespace SAP {
-  enum class EType : uint8_t {
-    Export        = 0,
-    ScriptImport  = 1,
-    PackageImport = 2,
-    Null          = 3,
-    TypeCount     = Null
-  };
+  enum class EType : uint8_t { Export = 0, ScriptImport = 1, PackageImport = 2, Null = 3, TypeCount = Null };
 
 #pragma pack(push, 1)
 
@@ -52,14 +46,12 @@ namespace SAP {
     uint32_t importedPublicExportHashIndex;
 
     static FPackageImportReference fromObjIndex(const FPackageObjectIndex &index) {
-      return {
-        .importedPackageIndex = static_cast<uint32_t>((index.TypeAndId & index.IndexMask) >> 32),
-        .importedPublicExportHashIndex = static_cast<uint32_t>(index.TypeAndId)
-      };
+      return {.importedPackageIndex = static_cast<uint32_t>((index.TypeAndId & index.IndexMask) >> 32),
+              .importedPublicExportHashIndex = static_cast<uint32_t>(index.TypeAndId)};
     };
   };
 #pragma pack(pop)
-}
+} // namespace SAP
 
 namespace std {
   template<>

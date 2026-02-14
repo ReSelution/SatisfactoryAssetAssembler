@@ -8,10 +8,10 @@
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class TextureRenderTarget2D: public TextureRenderTarget {
-    public:
+  class TextureRenderTarget2D : public TextureRenderTarget {
+  public:
     TextureRenderTarget2D(std::string classname = "TextureRenderTarget2D") : TextureRenderTarget(classname) {}
   };
 
   SAP_REGISTER_ASSET(TextureRenderTarget2D)
-}
+} // namespace SAP

@@ -17,4 +17,4 @@ namespace SAP {
     std::vector<float> screenSize;
     bool bLODsShareStaticLighting;
   };
-}
+} // namespace SAP

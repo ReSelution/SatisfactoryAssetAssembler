@@ -23,7 +23,7 @@ namespace SAP {
     }
   };
 #pragma pack(pop)
-}
+} // namespace SAP
 
 namespace std {
   template<>
@@ -35,4 +35,4 @@ namespace std {
       return hsh;
     }
   };
-}
+} // namespace std

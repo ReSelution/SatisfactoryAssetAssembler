@@ -14,9 +14,9 @@
 namespace SAP {
   struct FMaterialTextureInfo {
     enum class EMaterialTextureInfo : uint32_t {
-      SamplingScale  = fnv1a("SamplingScale"),
+      SamplingScale = fnv1a("SamplingScale"),
       UVChannelIndex = fnv1a("UVChannelIndex"),
-      TextureName    = fnv1a("TextureName"),
+      TextureName = fnv1a("TextureName"),
     };
 
     float samplingScale;
@@ -38,4 +38,4 @@ namespace SAP {
       return info;
     }
   };
-}
+} // namespace SAP

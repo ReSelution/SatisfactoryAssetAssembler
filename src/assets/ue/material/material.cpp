@@ -9,9 +9,7 @@
 #include "material/material_exporter.hpp"
 
 namespace SAP {
-  void Material::exportToGltf(GltfMaterial &outMaterial) {
-    MaterialExporter::encodeMaterial(outMaterial, this);
-  }
+  void Material::exportToGltf(GltfMaterial &outMaterial) { MaterialExporter::encodeMaterial(outMaterial, this); }
 
   void Material::parse() {
     MaterialInterface::parse();
@@ -45,41 +43,40 @@ namespace SAP {
     //   }
     // }
     // if (cachedExpressionData.has_value()) {
-      // auto iter = cachedExpressionData->properties.find(fnv1a("RuntimeEntries"));
-      // if (iter != cachedExpressionData->properties.end()) {
-      //   auto runtimeEntries = std::get_if<FStructFallback>(&iter->second.Tag->Data);
-      //   if (runtimeEntries) {
-      //     for (auto &entry: runtimeEntries->properties) {
-      //       Logger::logInfo
-      //           ("RuntimeEntries", "Tag: {} -> {} : {}", entry.second.Name.text(), to_string
-      //            (entry.second.PropertyType), to_string(entry.second.TagData->InnerType));
-      //       auto *paramterInfo = std::get_if<std::vector<std::unique_ptr<FPropertyValue> > >(&entry.second.Tag->Data);
-      //       for (auto &parm: *paramterInfo) {
-      //         auto prop = std::get_if<FStructFallback>(&parm->Data);
-      //         auto pramInfo = FMaterialParameterInfo::get(prop);
-      //         Logger::logInfo
-      //             ("PramInfo", "Name: {} Index: {}", pramInfo.name.text(), pramInfo.index);
-      //       }
-      //     }
-      //   }
-      // }
+    // auto iter = cachedExpressionData->properties.find(fnv1a("RuntimeEntries"));
+    // if (iter != cachedExpressionData->properties.end()) {
+    //   auto runtimeEntries = std::get_if<FStructFallback>(&iter->second.Tag->Data);
+    //   if (runtimeEntries) {
+    //     for (auto &entry: runtimeEntries->properties) {
+    //       Logger::logInfo
+    //           ("RuntimeEntries", "Tag: {} -> {} : {}", entry.second.Name.text(), to_string
+    //            (entry.second.PropertyType), to_string(entry.second.TagData->InnerType));
+    //       auto *paramterInfo = std::get_if<std::vector<std::unique_ptr<FPropertyValue> > >(&entry.second.Tag->Data);
+    //       for (auto &parm: *paramterInfo) {
+    //         auto prop = std::get_if<FStructFallback>(&parm->Data);
+    //         auto pramInfo = FMaterialParameterInfo::get(prop);
+    //         Logger::logInfo
+    //             ("PramInfo", "Name: {} Index: {}", pramInfo.name.text(), pramInfo.index);
+    //       }
+    //     }
+    //   }
+    // }
 
-      // for (auto &entry: cachedExpressionData.value().properties) {
-      //   Logger::logInfo
-      //         ("RuntimeEntries", "Tag: {} -> {} : {}", entry.second.Name.text(), to_string
-      //       (entry.second.PropertyType), to_string(entry.second.TagData->InnerType));
-      //
-      // }
+    // for (auto &entry: cachedExpressionData.value().properties) {
+    //   Logger::logInfo
+    //         ("RuntimeEntries", "Tag: {} -> {} : {}", entry.second.Name.text(), to_string
+    //       (entry.second.PropertyType), to_string(entry.second.TagData->InnerType));
+    //
+    // }
 
-      // m_textures = cachedExpressionData.value().getArrayAs<std::weak_ptr<Texture> >
-      //     (fnv1a("ReferencedTextures"), [](FPropertyValue *val)->std::weak_ptr<Texture> {
-      //       if (auto *obj = std::get_if<std::weak_ptr<Object> >(&val->Data)) {
-      //         return std::dynamic_pointer_cast<Texture>(obj->lock());
-      //       }
-      //       return {};
-      //     });
-
+    // m_textures = cachedExpressionData.value().getArrayAs<std::weak_ptr<Texture> >
+    //     (fnv1a("ReferencedTextures"), [](FPropertyValue *val)->std::weak_ptr<Texture> {
+    //       if (auto *obj = std::get_if<std::weak_ptr<Object> >(&val->Data)) {
+    //         return std::dynamic_pointer_cast<Texture>(obj->lock());
+    //       }
+    //       return {};
+    //     });
   }
-}
+} // namespace SAP
 
 // SAP

@@ -11,4 +11,4 @@ namespace SAP {
     std::string_view localizedString;
     uint32_t strHash;
   };
-}
+} // namespace SAP

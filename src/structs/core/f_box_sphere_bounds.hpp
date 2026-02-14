@@ -12,5 +12,5 @@ namespace SAP {
     FVector extent;
     double sphereRadius;
   };
-  #pragma pack(pop)
-}
+#pragma pack(pop)
+} // namespace SAP

@@ -6,12 +6,12 @@
 #include "ue/asset_object.hpp"
 
 namespace SAP {
-  class Field: public Object {
-    public:
-    Field(std::string_view className = "Field" ) : Object(className) {};
+  class Field : public Object {
+  public:
+    Field(std::string_view className = "Field") : Object(className) {};
+
   protected:
     void parse() override;
-
   };
 
-} // SAP
+} // namespace SAP

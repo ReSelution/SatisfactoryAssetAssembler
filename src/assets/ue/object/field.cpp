@@ -5,7 +5,5 @@
 #include "field.hpp"
 
 namespace SAP {
-  void Field::parse() {
-    Object::parse();
-  }
-} // SAP
+  void Field::parse() { Object::parse(); }
+} // namespace SAP

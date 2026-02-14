@@ -1,21 +1,22 @@
 #include "games/satisfactory/SatisfactoryDataProvider.hpp"
 
 #include <filesystem>
+#include <fstream>
 
 #include <memory>
 
 #include <future>
 #include <ranges>
 
+#include "AssetParser.hpp"
+#include "Decompressor.hpp"
 #include "IOStoreReader.hpp"
 #include "PAKReader.hpp"
 #include "Reader.hpp"
 #include "UsmapReader.hpp"
-#include "logger.hpp"
-#include "Decompressor.hpp"
-#include "AssetParser.hpp"
-#include "io_global_data.hpp"
 #include "crawler.hpp"
+#include "io_global_data.hpp"
+#include "logger.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -44,13 +45,9 @@ namespace SAP {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    auto usmapFuture = std::async(std::launch::async, [&] {
-        return m_UsmapParser->parse(m_usmapData);
-    });
+    auto usmapFuture = std::async(std::launch::async, [&] { return m_UsmapParser->parse(m_usmapData); });
 
-    auto globalDataFuture = std::async(std::launch::async, [&] {
-        return m_globalDataParser->parse(m_globalData);
-    });
+    auto globalDataFuture = std::async(std::launch::async, [&] { return m_globalDataParser->parse(m_globalData); });
 
     std::vector<std::future<void>> parsableFutures;
     parsableFutures.reserve(m_Parsers.size());
@@ -58,7 +55,7 @@ namespace SAP {
     childVFS.reserve(m_Parsers.size());
 
     for (const auto &val: m_Parsers | std::views::values) {
-      auto* currentParser = val.get();
+      auto *currentParser = val.get();
       auto &child = childVFS.emplace_back(m_vfs.getChild());
       parsableFutures.emplace_back(std::async(std::launch::async, [currentParser, &child] {
         currentParser->load();
@@ -66,12 +63,12 @@ namespace SAP {
       }));
     }
 
-    for (auto& f : parsableFutures) f.wait();
+    for (auto &f: parsableFutures)
+      f.wait();
 
-    for (auto& child : childVFS) {
+    for (auto &child: childVFS) {
       m_vfs.mergeChild(child);
     }
-
 
     Logger::logInfo("[Provider]", "VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
     //m_vfs.dumpToText("output/filesEntry.txt");
@@ -87,17 +84,26 @@ namespace SAP {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
     Crawler crawler;
     crawler.crawl(parser);
-
   }
 
   void SatisfactoryDataProvider::test() {
-    Logger::logInfo(LOGGER_PROVIDER, "Starte Test-Parsing...");
+    std::ofstream csv("benchmark_results.csv");
+    csv << "buffer_size,iteration,duration_us\n"; // Header für Python/Pandas
 
-    AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-
-    // Test Paths
-    parser.queueFile("FactoryGame/Content/FactoryGame/Buildable/Factory/SignDigital/Desc_StandaloneWidgetSign_Square_Small.uasset");
-    parser.processQueue();
+    for (size_t bufferSize = 4 *1024 ; bufferSize < 162116; bufferSize += 4*1024) {
+      for (uint32_t i = 0; i < 10; i++) {
+        HeapPool::init(64, bufferSize);
+        auto start = std::chrono::high_resolution_clock::now();
+        AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
+        Crawler crawler;
+        crawler.crawl(parser);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        csv << bufferSize << "," << i << "," << us << "\n";
+        HeapPool::reset();
+      }
+    }
+    csv.close();
   }
 
   void SatisfactoryDataProvider::findAllParsableFiles(const std::filesystem::path &folder) {
@@ -108,44 +114,48 @@ namespace SAP {
       return;
     }
 
-    std::vector<std::string> subFolders = {
-      "FactoryGame/Content/Paks",
-      "CommunityResources"
-    };
+    std::vector<std::string> subFolders = {"FactoryGame/Content/Paks", "CommunityResources"};
     for (const auto &sub: subFolders) {
       std::filesystem::path searchPath = folder / sub;
 
-      if (!std::filesystem::exists(searchPath)) continue;
+      if (!std::filesystem::exists(searchPath))
+        continue;
 
       for (const auto &entry: std::filesystem::directory_iterator(searchPath)) {
-        if (!entry.is_regular_file()) { continue; }
-        if (entry.is_symlink()) { continue; }
+        if (!entry.is_regular_file()) {
+          continue;
+        }
+        if (entry.is_symlink()) {
+          continue;
+        }
         auto path = entry.path();
         auto ext = path.extension().string();
         auto basename = path.string();
 
         if (ext == ".pak") {
           m_Parsers[basename] = std::make_unique<PAKReader>(path);
-        }
-        else if (ext == ".utoc") {
+        } else if (ext == ".utoc") {
           std::filesystem::path ucasPath = path;
           ucasPath.replace_extension(".ucas");
 
           if (std::filesystem::exists(ucasPath)) {
-            if (path.filename() ==
-                "global.utoc") { m_globalDataParser = std::make_unique<IOGlobalData>(path, ucasPath); } else {
+            if (path.filename() == "global.utoc") {
+              m_globalDataParser = std::make_unique<IOGlobalData>(path, ucasPath);
+            } else {
               m_Parsers[basename] = std::make_unique<IOStoreReader>(path, ucasPath);
             }
-          } else { Logger::logWarn(LOGGER_PROVIDER, "UTOC gefunden, aber keine passende UCAS: {}", path.string()); }
-        } else if (ext == ".usmap") { m_UsmapParser = std::make_unique<UsmapReader>(path); }
+          } else {
+            Logger::logWarn(LOGGER_PROVIDER, "UTOC gefunden, aber keine passende UCAS: {}", path.string());
+          }
+        } else if (ext == ".usmap") {
+          m_UsmapParser = std::make_unique<UsmapReader>(path);
+        }
       }
     }
     auto end = std::chrono::high_resolution_clock::now();
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[Files]", "{} ms",us.count() / 1000.0);
+    Logger::logInfo("[Files]", "{} ms", us.count() / 1000.0);
   }
 
-
-  SatisfactoryDataProvider::~SatisfactoryDataProvider() {
-  }
-}
+  SatisfactoryDataProvider::~SatisfactoryDataProvider() {}
+} // namespace SAP

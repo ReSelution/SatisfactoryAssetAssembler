@@ -11,7 +11,7 @@
 namespace SAP {
 #pragma pack(push, 1)
   struct FPackedHierarchyNode {
-    std::array<FHierarchyNodeSlice,NANITE_MAX_BVH_NODE_FANOUT > slices;
+    std::array<FHierarchyNodeSlice, NANITE_MAX_BVH_NODE_FANOUT> slices;
   };
-  #pragma pack(pop)
-}
+#pragma pack(pop)
+} // namespace SAP

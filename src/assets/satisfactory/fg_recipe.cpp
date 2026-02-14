@@ -3,6 +3,4 @@
 //
 
 #include "fg_recipe.hpp"
-void SAP::FGRecipe::parse() {
-  Object::parse();
-}
+void SAP::FGRecipe::parse() { Object::parse(); }

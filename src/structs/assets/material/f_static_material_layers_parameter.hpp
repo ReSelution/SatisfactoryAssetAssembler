@@ -6,7 +6,7 @@
 #include "f_static_parameter_base.hpp"
 
 namespace SAP {
-  struct FStaticMaterialLayersParameter: FStaticParameterBase {
+  struct FStaticMaterialLayersParameter : FStaticParameterBase {
     std::string keyString;
   };
-}
+} // namespace SAP

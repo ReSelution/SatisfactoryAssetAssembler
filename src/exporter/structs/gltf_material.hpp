@@ -13,7 +13,7 @@ namespace SAP {
   struct GltfMaterial {
     std::string name;
     std::vector<ExportedTextureData> baseColors;
-    std::vector<FMaterialTextureInfo>baseInfos;
+    std::vector<FMaterialTextureInfo> baseInfos;
 
     std::vector<ExportedTextureData> normals;
     std::vector<FMaterialTextureInfo> normalInfos;
@@ -25,4 +25,4 @@ namespace SAP {
     float roughnessFactor = 1.0f;
     float metallicFactor = 1.0f;
   };
-}
+} // namespace SAP

@@ -15,6 +15,5 @@ namespace SAP {
     uint32_t firstFileEntry;
   }; // Exakt 16 Bytes
 
-
 #pragma pack(pop)
-}
+} // namespace SAP

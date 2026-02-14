@@ -27,7 +27,7 @@ namespace SAP {
       //        []() { return FMaterialParameterInfo(); });
       //   ret.expressionGuid = strct->getOrDefault<FGuid>(fnv1a("ExpressionGUID"), []() { return FGuid(); });
       // }
-       return ret;
+      return ret;
     }
   };
-}
+} // namespace SAP

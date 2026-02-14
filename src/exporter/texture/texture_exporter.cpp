@@ -6,10 +6,10 @@
 
 #include <fstream>
 
-#include "texture_decoder.hpp"
 #include "logger.hpp"
+#include "texture_decoder.hpp"
 
-#include "../../parser/AssetFileParser.hpp"
+#include "AssetFileParser.hpp"
 
 namespace SAP {
   void TextureExporter::exportAsset(Texture *texture) {
@@ -104,6 +104,8 @@ namespace SAP {
       // Cast von uint8_t* nach const char* für den Stream
       file.write(reinterpret_cast<const char *>(data.data.data()), data.data.size());
       file.close();
-    } else [[unlikely]]{ Logger::logError("[TextureExporter]", "Failed to open file for writing: {}", path); }
+    } else [[unlikely]] {
+      Logger::logError("[TextureExporter]", "Failed to open file for writing: {}", path);
+    }
   }
-} // SAP
+} // namespace SAP

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <iostream>
-#include <filesystem>
 #include <fcntl.h>
+#include <filesystem>
+#include <iostream>
 #include <span>
 
 #ifdef _WIN32
@@ -20,18 +20,16 @@
 namespace SAP {
   class FileReader {
   public:
-    FileReader(const std::filesystem::path &path) {
-      openFile(path);
-    };
+    FileReader(const std::filesystem::path &path) { openFile(path); };
     ~FileReader() { close(); }
 
     [[nodiscard]] std::span<const uint8_t> getSpan(size_t offset = 0, size_t length = 0) const;
     bool openFile(const std::filesystem::path &path);
-    [[nodiscard]] size_t size() const {return m_size;};
+    [[nodiscard]] size_t size() const { return m_size; };
     void close();
 
   private:
-    void* m_data = nullptr;
+    void *m_data = nullptr;
     size_t m_size = 0;
 #ifdef _WIN32
     HANDLE m_fileHandle = INVALID_HANDLE_VALUE;
@@ -40,4 +38,4 @@ namespace SAP {
     int m_fd = -1;
 #endif
   };
-} // SAP
+} // namespace SAP

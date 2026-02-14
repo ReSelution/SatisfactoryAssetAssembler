@@ -5,7 +5,5 @@
 #include "fg_building_descriptor.hpp"
 
 namespace SAP {
-  void FGBuildingDescriptor::parse() {
-    Object::parse();
-  }
-} // SAP
+  void FGBuildingDescriptor::parse() { Object::parse(); }
+} // namespace SAP

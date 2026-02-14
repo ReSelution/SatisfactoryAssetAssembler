@@ -3,11 +3,11 @@
 //
 
 #pragma once
-#include "ue/object_factory.hpp"
 #include "ue/object/class.hpp"
+#include "ue/object_factory.hpp"
 
 namespace SAP {
-  class BlueprintGeneratedClass: public Class{};
+  class BlueprintGeneratedClass : public Class {};
 
   SAP_REGISTER_ASSET(BlueprintGeneratedClass)
-} // SAP
+} // namespace SAP

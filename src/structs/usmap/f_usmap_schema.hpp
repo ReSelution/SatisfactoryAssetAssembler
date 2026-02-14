@@ -16,4 +16,4 @@ namespace SAP {
     std::unordered_map<uint16_t, FUsmapPropertyData> Properties; // Key: Property Index (nicht Name!)
   };
 
-}
+} // namespace SAP

@@ -50,33 +50,28 @@ namespace SAP {
   constexpr int NANITE_ROOT_PAGE_GPU_SIZE = 1 << NANITE_ROOT_PAGE_GPU_SIZE_BITS;
   constexpr int NANITE_ROOT_PAGE_MAX_CLUSTERS_BITS =
       NANITE_ROOT_PAGE_GPU_SIZE_BITS - NANITE_CLUSTER_MIN_EXPECTED_GPU_SIZE_BITS;
-  constexpr int NANITE_ROOT_PAGE_MAX_CLUSTERS =
-      1 << NANITE_ROOT_PAGE_MAX_CLUSTERS_BITS;
+  constexpr int NANITE_ROOT_PAGE_MAX_CLUSTERS = 1 << NANITE_ROOT_PAGE_MAX_CLUSTERS_BITS;
 
   // Streaming page
   constexpr int NANITE_STREAMING_PAGE_GPU_SIZE_BITS = 17;
-  constexpr int NANITE_STREAMING_PAGE_GPU_SIZE =
-      1 << NANITE_STREAMING_PAGE_GPU_SIZE_BITS;
+  constexpr int NANITE_STREAMING_PAGE_GPU_SIZE = 1 << NANITE_STREAMING_PAGE_GPU_SIZE_BITS;
   constexpr int NANITE_STREAMING_PAGE_MAX_CLUSTERS_BITS =
       NANITE_STREAMING_PAGE_GPU_SIZE_BITS - NANITE_CLUSTER_MIN_EXPECTED_GPU_SIZE_BITS;
-  constexpr int NANITE_STREAMING_PAGE_MAX_CLUSTERS =
-      1 << NANITE_STREAMING_PAGE_MAX_CLUSTERS_BITS;
+  constexpr int NANITE_STREAMING_PAGE_MAX_CLUSTERS = 1 << NANITE_STREAMING_PAGE_MAX_CLUSTERS_BITS;
 
   // Clusters per page (version dependent)
   constexpr int NANITE_MAX_CLUSTERS_PER_PAGE_BITS_500 = 8;
   constexpr int NANITE_MAX_CLUSTERS_PER_PAGE_BITS_504 =
       (NANITE_STREAMING_PAGE_MAX_CLUSTERS_BITS > NANITE_ROOT_PAGE_MAX_CLUSTERS_BITS)
-      ? NANITE_STREAMING_PAGE_MAX_CLUSTERS_BITS
-      : NANITE_ROOT_PAGE_MAX_CLUSTERS_BITS;
+          ? NANITE_STREAMING_PAGE_MAX_CLUSTERS_BITS
+          : NANITE_ROOT_PAGE_MAX_CLUSTERS_BITS;
 
   // -----------------------------------------------------------------------------
   // Cluster indices
   // -----------------------------------------------------------------------------
   constexpr int NANITE_MAX_CLUSTER_INDICES_BITS = 8;
-  constexpr int NANITE_MAX_CLUSTER_INDICES =
-      1 << NANITE_MAX_CLUSTER_INDICES_BITS;
-  constexpr int NANITE_MAX_CLUSTER_INDICES_MASK =
-      NANITE_MAX_CLUSTER_INDICES - 1;
+  constexpr int NANITE_MAX_CLUSTER_INDICES = 1 << NANITE_MAX_CLUSTER_INDICES_BITS;
+  constexpr int NANITE_MAX_CLUSTER_INDICES_MASK = NANITE_MAX_CLUSTER_INDICES - 1;
 
   // -----------------------------------------------------------------------------
   // Hierarchy / groups
@@ -84,10 +79,8 @@ namespace SAP {
   constexpr int NANITE_MAX_HIERACHY_CHILDREN_BITS = 6;
   constexpr int NANITE_MAX_GROUP_PARTS_BITS = 3;
 
-  constexpr int NANITE_MAX_HIERACHY_CHILDREN =
-      1 << NANITE_MAX_HIERACHY_CHILDREN_BITS;
-  constexpr int NANITE_MAX_GROUP_PARTS_MASK =
-      (1 << NANITE_MAX_GROUP_PARTS_BITS) - 1;
+  constexpr int NANITE_MAX_HIERACHY_CHILDREN = 1 << NANITE_MAX_HIERACHY_CHILDREN_BITS;
+  constexpr int NANITE_MAX_GROUP_PARTS_MASK = (1 << NANITE_MAX_GROUP_PARTS_BITS) - 1;
 
   // -----------------------------------------------------------------------------
   // UV float encoding
@@ -95,8 +88,7 @@ namespace SAP {
   constexpr int NANITE_UV_FLOAT_NUM_EXPONENT_BITS = 5;
   constexpr int NANITE_UV_FLOAT_MAX_MANTISSA_BITS = 14;
   constexpr int NANITE_UV_FLOAT_NUM_MANTISSA_BITS = 14;
-  constexpr int NANITE_UV_FLOAT_MAX_BITS =
-      1 + NANITE_UV_FLOAT_NUM_EXPONENT_BITS + NANITE_UV_FLOAT_MAX_MANTISSA_BITS;
+  constexpr int NANITE_UV_FLOAT_MAX_BITS = 1 + NANITE_UV_FLOAT_NUM_EXPONENT_BITS + NANITE_UV_FLOAT_MAX_MANTISSA_BITS;
 
   // -----------------------------------------------------------------------------
   // Position precision
@@ -113,15 +105,15 @@ namespace SAP {
   constexpr int NANITE_VERTEX_COLOR_MODE_VARIABLE = 1;
 
   enum class NaniteResourceFlag : uint32_t {
-    NONE                  = 0x0,
-    HAS_VERTEX_COLOR      = 0x1,
-    HAS_IMPOSTER          = 0x2,
+    NONE = 0x0,
+    HAS_VERTEX_COLOR = 0x1,
+    HAS_IMPOSTER = 0x2,
     STREAMING_DATA_IN_DDC = 0x4,
-    FORCE_ENABLED         = 0x8,
+    FORCE_ENABLED = 0x8,
   };
 
-  enum class NanitePageFlag : uint8_t{
-    NONE              = 0x0,
+  enum class NanitePageFlag : uint8_t {
+    NONE = 0x0,
     RELATIVE_ENCODING = 0x1,
   };
-}
+} // namespace SAP

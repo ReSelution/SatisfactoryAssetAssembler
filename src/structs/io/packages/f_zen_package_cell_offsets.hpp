@@ -6,10 +6,10 @@
 #include <cstdint>
 
 namespace SAP {
-#pragma pack(push,1)
+#pragma pack(push, 1)
   struct FZenPackageCellOffsets {
-     int32_t CellImportMapOffset;
-     int32_t CellExportMapOffset;
+    int32_t CellImportMapOffset;
+    int32_t CellExportMapOffset;
   };
 #pragma pack(pop)
-}
+} // namespace SAP

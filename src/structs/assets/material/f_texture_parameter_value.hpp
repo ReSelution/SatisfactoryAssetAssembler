@@ -30,4 +30,4 @@ namespace SAP {
     //   return ret;
     // }
   };
-}
+} // namespace SAP

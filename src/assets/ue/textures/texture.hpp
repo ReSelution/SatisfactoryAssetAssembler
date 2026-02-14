@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../../../util/byte_cursor.hpp"
+#include "byte_cursor.hpp"
 #include "assets/textures/f_texture_2d_mip_map.hpp"
 #include "assets/textures/f_virtual_texture_built_data.hpp"
 #include "assets/textures/pixel_format.hpp"
@@ -27,12 +27,12 @@ namespace SAP {
 
   public:
     enum class ETextureProperty : uint32_t {
-      LightingGuid        = fnv1a("LightingGuid"),
+      LightingGuid = fnv1a("LightingGuid"),
       CompressionSettings = fnv1a("CompressionSettings"),
-      LODGroup            = fnv1a("LODGroup"),
-      Filter              = fnv1a("Filter"),
-      SRGB                = fnv1a("SRGB"),
-      AssetUserData       = fnv1a("AssetUserData"),
+      LODGroup = fnv1a("LODGroup"),
+      Filter = fnv1a("Filter"),
+      SRGB = fnv1a("SRGB"),
+      AssetUserData = fnv1a("AssetUserData"),
     };
 
     Texture(std::string_view className = "Texture");
@@ -62,9 +62,8 @@ namespace SAP {
     int32_t m_firstMipToSerialize;
     std::vector<FTexture2DMipMap> m_mipmaps;
 
-    void parseCookedPlatformData
-    (ByteCursor &asset, bool parseMipData = true);
+    void parseCookedPlatformData(ByteCursor &asset, bool parseMipData = true);
 
     FTexture2DMipMap parseTexture2dMipMap(ByteCursor &cursor, bool parseMipData = true);
   };
-}
+} // namespace SAP

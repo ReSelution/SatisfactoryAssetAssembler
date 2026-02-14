@@ -45,4 +45,4 @@ namespace SAP {
 #pragma pack(pop)
 
   static_assert(sizeof(FVector) == 24 && "Sizeof FVector Wrong");
-}
+} // namespace SAP

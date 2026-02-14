@@ -1,23 +1,17 @@
 cmake_minimum_required(VERSION 3.24)
 project(SatisfactoryAssetParser LANGUAGES CXX)
-
+if(NOT CMAKE_SYSTEM_PROCESSOR)
+    set(CMAKE_SYSTEM_PROCESSOR x86_64)
+endif()
+include(GNUInstallDirs)
 # -------------------------------------------------------------------------
 # 1. Globale Einstellungen & Performance
 # -------------------------------------------------------------------------
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-# Ordner-Struktur für Binaries
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-if(WIN32)
-    add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
-    # Statisches Linken für portable Windows-Builds
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
-endif()
 
 # -------------------------------------------------------------------------
 # 2. Third Party (External)
@@ -29,7 +23,6 @@ add_subdirectory(external/fastgltf)
 # -------------------------------------------------------------------------
 # 3. Core Module (Subdirectories)
 # -------------------------------------------------------------------------
-# Diese sollten ihre eigenen add_library() Aufrufe haben
 add_subdirectory(src/structs)
 add_subdirectory(src/parser)
 add_subdirectory(src/assets)
@@ -42,7 +35,9 @@ add_subdirectory(src/localizations)
 # -------------------------------------------------------------------------
 # 4. SAP_Util: Basis-Infrastruktur
 # -------------------------------------------------------------------------
-add_library(SAP_Util STATIC)
+add_library(SAP_Util STATIC
+        src/util/heap_pool.cpp
+        src/util/heap_pool.hpp)
 
 target_sources(SAP_Util
         PUBLIC
@@ -50,12 +45,12 @@ target_sources(SAP_Util
         src/util/shared_cache.hpp
         src/util/byte_cursor.hpp
         src/util/thread_arena.hpp
-        src/util/string_storage.hpp
+        src/util/heap_storage.hpp
         PRIVATE
         src/util/logger.cpp
         src/util/byte_cursor.cpp
         src/util/thread_arena.cpp
-        src/util/string_storage.cpp
+        src/util/heap_storage.cpp
 )
 
 target_include_directories(SAP_Util PUBLIC src/util)
@@ -107,6 +102,24 @@ target_link_libraries(SAP_Lib
 add_executable(AssetRipperTest src/main.cpp)
 target_link_libraries(AssetRipperTest PRIVATE SAP_Lib)
 
+if(WIN32)
+    target_link_libraries(AssetRipperTest PRIVATE
+            "-static-libgcc"
+            "-static-libstdc++"
+            "-static"
+            "pthread"
+    )
+    set_target_properties(AssetRipperTest PROPERTIES
+            LINK_FLAGS "-static -static-libgcc -static-libstdc++"
+    )
+
+    set_target_properties(AssetRipperTest PROPERTIES
+            OUTPUT_NAME "AssetRipperTest"
+            SUFFIX ".exe"
+    )
+endif()
+
+
 set_target_properties(AssetRipperTest PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

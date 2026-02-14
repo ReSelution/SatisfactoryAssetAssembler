@@ -10,4 +10,4 @@ namespace SAP {
     double x, y, z, w;
   };
 #pragma pack(pop)
-}
+} // namespace SAP

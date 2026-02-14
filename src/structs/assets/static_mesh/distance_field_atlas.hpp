@@ -3,10 +3,8 @@
 //
 
 #pragma once
-#include <vector>
 
-#include "../../../util/byte_cursor.hpp"
-#include "uasset_parser.hpp"
+#include "byte_cursor.hpp"
 
 #include "core/math/f_box.hpp"
 
@@ -29,18 +27,17 @@ namespace SAP {
     FBox localSpaceMeshbounds;
     bool mostlyTwoSided;
     std::span<const FSparseDistanceFieldMip> mips;
-     std::span<const uint8_t> alwaysLoadedMip;
+    std::span<const uint8_t> alwaysLoadedMip;
     FByteBulkData streamableMips;
 
-    static FDistanceFieldVolumeData5 parse(ByteCursor &cursor, AssetFileParser* parser) {
+    static FDistanceFieldVolumeData5 parse(ByteCursor &cursor, AssetFileParser *parser) {
       return {
-        .localSpaceMeshbounds = cursor.read<FBox>(),
-        .mostlyTwoSided = cursor.readBool(),
-        .mips = cursor.readArray<FSparseDistanceFieldMip>(NUM_MIPS),
-        .alwaysLoadedMip = cursor.readArray<uint8_t>(),
-        .streamableMips = parser->parseFByteBulkData(cursor),
+          .localSpaceMeshbounds = cursor.read<FBox>(),
+          .mostlyTwoSided = cursor.readBool(),
+          .mips = cursor.readArray<FSparseDistanceFieldMip>(NUM_MIPS),
+          .alwaysLoadedMip = cursor.readArray<uint8_t>(),
+          .streamableMips = parser->parseFByteBulkData(cursor),
       };
     }
   };
-}
-
+} // namespace SAP

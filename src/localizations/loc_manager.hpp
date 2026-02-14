@@ -20,7 +20,7 @@ namespace SAP {
   constexpr std::string_view DEFAULT_CULTURE = "en-US";
 
   class LocManager {
-    public:
+  public:
     LocManager(AssetParser *parser);
 
     void setCulture(std::string_view langCode);
@@ -30,7 +30,7 @@ namespace SAP {
   private:
     void processCultures(uint32_t threadCount = 0);
     void workerThread();
-    void mergeCultures(std::unordered_map<FTextKey, std::unordered_map<FTextKey,FEntry>> &culture);
+    void mergeCultures(std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> &culture);
     AssetParser *m_parser = nullptr;
 
     size_t cultureIndex = 0;
@@ -44,12 +44,12 @@ namespace SAP {
     std::vector<LocResParser> m_resParsersNative;
     std::vector<LocResParser> m_cultureRes;
 
-    std::unordered_map<FTextKey, std::unordered_map<FTextKey,FEntry>> entries;
+    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> entries;
 
-    //Threading
-    std::queue<LocResParser*> m_jobQueue;
+    // Threading
+    std::queue<LocResParser *> m_jobQueue;
     std::mutex m_QueueMutex;
 
     std::vector<std::thread> m_ThreadPool;
   };
-} // SAP
+} // namespace SAP

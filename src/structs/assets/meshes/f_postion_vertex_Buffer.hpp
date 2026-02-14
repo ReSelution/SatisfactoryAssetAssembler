@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
-#include "../../../util/byte_cursor.hpp"
+#include "byte_cursor.hpp"
 #include "core/math/f_vector.hpp"
 
 namespace SAP {
@@ -14,7 +14,7 @@ namespace SAP {
     int32_t numVertices;
     int32_t stride;
     std::span<const FVector_f> vertices;
-    static FPositionVertexBuffer parse (ByteCursor &cursor) {
+    static FPositionVertexBuffer parse(ByteCursor &cursor) {
       FPositionVertexBuffer result;
       result.stride = cursor.read<int32_t>();
       result.numVertices = cursor.read<int32_t>();
@@ -22,4 +22,4 @@ namespace SAP {
       return result;
     }
   };
-}
+} // namespace SAP

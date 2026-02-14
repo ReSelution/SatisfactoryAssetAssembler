@@ -12,8 +12,7 @@
 namespace SAP {
   static constexpr uint16_t USMAP_MAGIC = 0x30C4;
 
-  UsmapReader::UsmapReader(std::filesystem::path path)
-    : m_Path(std::move(path)) {}
+  UsmapReader::UsmapReader(std::filesystem::path path) : m_Path(std::move(path)) {}
 
   bool UsmapReader::parse(FUsmapMappingData &outputData) {
     std::ifstream file(m_Path, std::ios::binary);
@@ -24,10 +23,14 @@ namespace SAP {
 
     try {
       // 1. Header lesen
-      if (!readHeader(file, outputData)) { return false; }
+      if (!readHeader(file, outputData)) {
+        return false;
+      }
 
       // 2. Dekomprimieren
-      if (!readAndDecompress(file)) { return false; }
+      if (!readAndDecompress(file)) {
+        return false;
+      }
       file.close(); // Datei wird nicht mehr benötigt
 
       // 3. Payload Parsen
@@ -58,7 +61,9 @@ namespace SAP {
     if (!file)
       throw std::runtime_error("EOF bei Version");
 
-    if (m_version > EUsmapVersion::LATEST) { throw std::runtime_error("Ungültige USMAP Version (zu neu?)"); }
+    if (m_version > EUsmapVersion::LATEST) {
+      throw std::runtime_error("Ungültige USMAP Version (zu neu?)");
+    }
 
     bool bHasVersioning = false;
     if (m_version >= EUsmapVersion::PACKAGE_VERSIONING) {
@@ -79,7 +84,8 @@ namespace SAP {
 
       uint32_t netCL = 0;
       file.read(reinterpret_cast<char *>(&netCL), sizeof(netCL)); // 4 Bytes
-      Logger::logError("[USMAP]", "Version: UE4: {} UE5: {}", pkg.FileVersionUE4, static_cast<uint32_t>(pkg.FileVersionUE5));
+      Logger::logError("[USMAP]", "Version: UE4: {} UE5: {}", pkg.FileVersionUE4,
+                       static_cast<uint32_t>(pkg.FileVersionUE5));
     }
 
     // Kompressionsinfos
@@ -120,9 +126,7 @@ namespace SAP {
 
     for (uint32_t i = 0; i < nameCount; ++i) {
       uint8_t len = readByte(cursor);
-      m_TempNameMap[i] = std::string_view(
-          reinterpret_cast<const char*>(m_Buffer.data() + cursor), len
-      );
+      m_TempNameMap[i] = std::string_view(reinterpret_cast<const char *>(m_Buffer.data() + cursor), len);
       cursor += len;
     }
     outData.NameMap = m_TempNameMap;
@@ -145,19 +149,27 @@ namespace SAP {
     std::vector<std::string_view> values;
 
     uint16_t count = 0;
-    if (m_version >= EUsmapVersion::LARGE_ENUMS) { count = readUInt16(cursor); } else { count = readByte(cursor); }
+    if (m_version >= EUsmapVersion::LARGE_ENUMS) {
+      count = readUInt16(cursor);
+    } else {
+      count = readByte(cursor);
+    }
 
     if (m_version >= EUsmapVersion::EXPLICIT_ENUM_VALUES) {
       for (uint16_t i = 0; i < count; ++i) {
         uint64_t val = readUInt64(cursor);
         auto name = readName(cursor);
 
-        if (val >= values.size()) { values.resize(static_cast<size_t>(val) + 1); }
-        values[static_cast<size_t>(val)] =         name;
+        if (val >= values.size()) {
+          values.resize(static_cast<size_t>(val) + 1);
+        }
+        values[static_cast<size_t>(val)] = name;
       }
     } else {
       values.reserve(count);
-      for (uint16_t i = 0; i < count; ++i) { values.push_back(readName(cursor)); }
+      for (uint16_t i = 0; i < count; ++i) {
+        values.push_back(readName(cursor));
+      }
     }
     return values;
   }
@@ -181,7 +193,9 @@ namespace SAP {
     uint16_t propCount = readUInt16(cursor); // Ignoriert (total count)
     uint16_t serializablePropCount = readUInt16(cursor);
 
-    for (uint16_t i = 0; i < serializablePropCount; ++i) { readAndAddProperty(cursor, schema); }
+    for (uint16_t i = 0; i < serializablePropCount; ++i) {
+      readAndAddProperty(cursor, schema);
+    }
     return schema;
   }
 
@@ -249,7 +263,9 @@ namespace SAP {
   // -------------------------------------------------------------------------
 
   void UsmapReader::checkBounds(size_t cursor, size_t size) const {
-    if (cursor + size > m_Buffer.size()) { throw std::out_of_range("Buffer Overflow beim Lesen der USMAP Daten"); }
+    if (cursor + size > m_Buffer.size()) {
+      throw std::out_of_range("Buffer Overflow beim Lesen der USMAP Daten");
+    }
   }
 
   uint8_t UsmapReader::readByte(size_t &cursor) {

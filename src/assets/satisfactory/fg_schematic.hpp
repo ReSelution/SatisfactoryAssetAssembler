@@ -7,14 +7,12 @@
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGSchematic: public Object {
-    public:
-    FGSchematic(std::string_view classname = "FGSchematic" ): Object(classname) {}
-    uint32_t getClassHash() override {
-      return HASH;
-    };
+  class FGSchematic : public Object {
+  public:
+    FGSchematic(std::string_view classname = "FGSchematic") : Object(classname) {}
+    uint32_t getClassHash() override { return HASH; };
 
     static constexpr uint32_t HASH = fnv1a("FGSchematic");
   };
   SAP_REGISTER_ASSET(FGSchematic)
-} // SAP
+} // namespace SAP

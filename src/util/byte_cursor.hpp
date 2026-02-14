@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "string_storage.hpp"
+#include "heap_storage.hpp"
 
 namespace SAP {
   class AssetFileParser;
@@ -19,11 +19,14 @@ namespace SAP {
   class ByteCursor {
   public:
     ByteCursor() = default;
-    explicit ByteCursor(std::span<const uint8_t> buf, SAP::AssetFileParser * owner = nullptr ) : m_buffer(buf), m_owner(owner) {}
+    explicit ByteCursor(std::span<const uint8_t> buf, SAP::AssetFileParser *owner = nullptr) :
+        m_buffer(buf), m_owner(owner) {}
 
     [[nodiscard]] size_t size() const { return m_buffer.size(); }
     [[nodiscard]] size_t absOffset() const { return m_absoluteOffset; }
+
     void setAbsoluteOffset(size_t offset) { m_absoluteOffset = offset; }
+
     [[nodiscard]] std::span<const uint8_t> buffer() const { return m_buffer; }
     AssetFileParser *m_owner;
 
@@ -43,34 +46,30 @@ namespace SAP {
     FName readFName();
     bool testReadFName();
 
-
-
-    std::vector<std::string_view> loadNameBatch(HeapStorage<> &utf16Storage);
-
-    template<typename T, typename F>
-    std::span<const T> readArrayView(F getter);
+    std::span<std::string_view> loadNameBatch(HeapStorage *utf16Storage = nullptr);
 
     template<typename T>
     std::span<const T> readArrayView();
 
     [[nodiscard]] ByteCursor subspan(size_t offset, size_t size) const {
-      if (offset + size > m_buffer.size())
+      if (offset + size > m_buffer.size())[[unlikely]]{
         throw std::runtime_error("subspan out of range");
+      }
 
       ByteCursor sub(m_buffer.subspan(offset, size), m_owner);
       sub.setAbsoluteOffset(m_absoluteOffset + offset);
       return sub;
     }
 
-    std::string_view readFString(HeapStorage<> &utf16Storage);
-
+    std::string_view readFString(HeapStorage *utf16Storage = nullptr);
 
     template<typename T>
     T read() {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
 
-      if (m_cursor + sizeof(T) > m_buffer.size()) [[unlikely]]
-          throw std::runtime_error("Buffer Overflow");
+      if (m_cursor + sizeof(T) > m_buffer.size())[[unlikely]]{
+        throw std::runtime_error("Buffer Overflow");
+      }
 
       T val;
       std::memcpy(&val, m_buffer.data() + m_cursor, sizeof(T));
@@ -81,7 +80,6 @@ namespace SAP {
     bool readBool() { return static_cast<bool>(read<uint32_t>()); }
     bool readFlag() { return static_cast<bool>(read<uint8_t>()); }
 
-
     template<typename T>
     std::span<const T> readBulkArray() {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
@@ -89,7 +87,7 @@ namespace SAP {
       auto elementCount = read<uint32_t>();
       auto temp = m_cursor;
       auto array = readArray<T>(elementCount);
-      if (m_cursor != temp + elementCount * elementSize) [[unlikely]]{
+      if (m_cursor != temp + elementCount * elementSize) [[unlikely]] {
         throw std::runtime_error("ByteCursor raw array size mismatch");
       }
       return array;
@@ -107,9 +105,11 @@ namespace SAP {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
       size_t bytes = sizeof(T) * count;
 
-      if (m_cursor + bytes > m_buffer.size()) [[unlikely]]{ throw std::runtime_error("ByteCursor array out of range"); }
+      if (m_cursor + bytes > m_buffer.size()) [[unlikely]] {
+        throw std::runtime_error("ByteCursor array out of range");
+      }
 
-      std::span<const T> out(reinterpret_cast<const T*>(m_buffer.data() + m_cursor), count);
+      std::span<const T> out(reinterpret_cast<const T *>(m_buffer.data() + m_cursor), count);
 
       m_cursor += bytes;
       return out;
@@ -146,18 +146,6 @@ namespace SAP {
     uint64_t m_absoluteOffset = 0;
   };
 
-  template<typename T, typename F>
-  std::span<const T> ByteCursor::readArrayView(F getter) {
-    auto initialPos = m_cursor;
-    auto count = read<uint32_t>();
-    m_cursor = read<uint32_t>() + initialPos;
-
-    std::vector<T> out;
-    out.reserve(count);
-    for (uint32_t i = 0; i < count; ++i) { out.emplace_back(getter()); }
-    m_cursor = initialPos + sizeof(uint32_t) * 2;
-    return out;
-  }
 
   template<typename T>
   std::span<const T> ByteCursor::readArrayView() {
@@ -170,4 +158,4 @@ namespace SAP {
     m_cursor = initialPos + sizeof(uint32_t) * 2;
     return out;
   }
-}
+} // namespace SAP

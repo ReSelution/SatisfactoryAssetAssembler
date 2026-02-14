@@ -16,4 +16,4 @@ namespace SAP {
   static_assert(sizeof(FExportBundleHeader) == 16, "FExportBundleHeader size mismatch!");
 
 #pragma pack(pop)
-}
+} // namespace SAP

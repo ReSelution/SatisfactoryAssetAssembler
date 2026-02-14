@@ -4,4 +4,4 @@
 
 #include "fg_schematic.hpp"
 
-namespace SAP {} // SAP
+namespace SAP {} // namespace SAP

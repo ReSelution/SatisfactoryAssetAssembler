@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-#include "../../io/packages/f_byte_bulk_data.hpp"
+#include "io/packages/f_byte_bulk_data.hpp"
 
 namespace SAP {
   struct FTexture2DMipMap {
@@ -14,4 +14,4 @@ namespace SAP {
     int32_t sizeY;
     int32_t sizeZ;
   };
-}
+} // namespace SAP

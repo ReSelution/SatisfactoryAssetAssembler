@@ -27,4 +27,4 @@ namespace SAP {
     //   return FVectorParameterValue{};
     // }
   };
-}
+} // namespace SAP

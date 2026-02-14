@@ -8,15 +8,14 @@
 #include "field.hpp"
 
 namespace SAP {
-  class Struct: public Field {
-    public:
-
-
-    Struct(std::string_view classname ="Struct" ): Field(classname) {};
+  class Struct : public Field {
+  public:
+    Struct(std::string_view classname = "Struct") : Field(classname) {};
 
     AssetFileParser *m_owner = nullptr;
-    int32_t m_superStructIndex {};
+    int32_t m_superStructIndex{};
+
   protected:
     void parse() override;
   };
-} // SAP
+} // namespace SAP

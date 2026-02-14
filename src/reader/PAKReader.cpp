@@ -1,31 +1,33 @@
 #include "PAKReader.hpp"
 
-#include "../util/byte_cursor.hpp"
+#include "byte_cursor.hpp"
+#include "Reader.hpp"
 #include "logger.hpp"
 #include "vfs.hpp"
-#include "Reader.hpp"
 
 namespace SAP {
-  PAKReader::PAKReader(std::filesystem::path path) : Reader(Reader::Type::PAK, path), m_pakFile(path) {}
+  PAKReader::PAKReader(const std::filesystem::path& path) : Reader(Reader::Type::PAK, path), m_pakFile(path) {}
 
   bool PAKReader::load() {
     auto start = std::chrono::high_resolution_clock::now();
     readPaKInfo();
     auto end = std::chrono::high_resolution_clock::now();
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[PAK]", "Loaded {} in {} ms", m_Path.string() ,us.count() / 1000.0);
+    Logger::logInfo("[PAK]", "Loaded {} in {} ms", m_Path.string(), us.count() / 1000.0);
     return true;
   }
 
   void PAKReader::readPaKInfo() {
-    //Size 8a
+    // Size 8a
     auto offset = m_pakFile.size() - std::min(m_pakFile.size(), static_cast<size_t>(221));
     auto length = m_pakFile.size() - offset;
     ByteCursor cursor(m_pakFile.getSpan(offset, length));
     m_pakInfo.encryptionGuid = cursor.read<FGuid>();
     m_pakInfo.encryptionIndex = cursor.read<uint8_t>() != 0;
     m_pakInfo.magic = cursor.read<uint32_t>();
-    if (m_pakInfo.magic != PAK_FILE_MAGIC) { throw std::runtime_error("PAK file magic doesn't match"); }
+    if (m_pakInfo.magic != PAK_FILE_MAGIC) {
+      throw std::runtime_error("PAK file magic doesn't match");
+    }
     m_pakInfo.version = cursor.read<EPakFileVersion>();
     m_pakInfo.indexOffset = cursor.read<int64_t>();
     m_pakInfo.indexSize = cursor.read<int64_t>();
@@ -45,11 +47,15 @@ namespace SAP {
     const uint8_t *methodBufferStart = buffer.data();
     for (uint32_t i = 0; i < MAX_NUM_COMRESSION_METHODE; i++) {
       auto strStart = i * COMPRESSION_METHOD_NAME_LEN;
-      std::string methodName = (std::string
-        (reinterpret_cast<const char *>(methodBufferStart + strStart), COMPRESSION_METHOD_NAME_LEN));
+      std::string methodName =
+          (std::string(reinterpret_cast<const char *>(methodBufferStart + strStart), COMPRESSION_METHOD_NAME_LEN));
       size_t nullPos = methodName.find('\0');
-      if (nullPos != std::string::npos) { methodName.resize(nullPos); }
-      if (methodName.empty()) { break; }
+      if (nullPos != std::string::npos) {
+        methodName.resize(nullPos);
+      }
+      if (methodName.empty()) {
+        break;
+      }
       CompressionMethod methodEnum = stringToCompressionMethod(methodName);
       compressionMethods.emplace_back(methodEnum);
     }
@@ -74,14 +80,15 @@ namespace SAP {
     if (entry.compressionMethod != CompressionMethod::None) {
       auto isSize32BitSafe = static_cast<bool>(bitField & (1 << 29));
       entry.compressedSize = isSize32BitSafe ? cursor.read<uint32_t>() : cursor.read<uint64_t>();
-    } else { entry.compressedSize = entry.uncompressedSize; }
+    } else {
+      entry.compressedSize = entry.uncompressedSize;
+    }
 
     auto compressionBlockCount = (bitField >> 6) & 0xffff;
     entry.compressedBlocks.reserve(compressionBlockCount);
     if (compressionBlockCount == 1) {
       entry.compressionBlockSize = entry.uncompressedSize;
-    }
-    else {
+    } else {
       entry.compressionBlockSize = blockSize;
     }
 
@@ -91,33 +98,38 @@ namespace SAP {
     }
     entry.offset += structSize;
     auto blockOffset = entry.offset;
-    if (compressionBlockCount == 1) { entry.compressedBlocks.emplace_back(blockOffset, entry.compressedSize); } else {
+    if (compressionBlockCount == 1) {
+      entry.compressedBlocks.emplace_back(blockOffset, entry.compressedSize);
+    } else {
       for (uint32_t i = 0; i < compressionBlockCount; i++) {
         auto &block = entry.compressedBlocks.emplace_back(blockOffset, cursor.read<uint32_t>());
         blockOffset += block.compressedSize;
       }
     }
     m_pakEntries.emplace_back(std::move(entry));
-    return m_pakEntries.size() -1;
+    return m_pakEntries.size() - 1;
   }
 
   bool PAKReader::mountVFS(Vfs *vfs) {
     auto start = std::chrono::high_resolution_clock::now();
     ByteCursor index(m_pakFile.getSpan(m_pakInfo.indexOffset, m_pakInfo.indexSize));
     index.setAbsoluteOffset(m_pakInfo.indexOffset);
-    auto mountPoint = index.readFString(stringStorage);
+    auto mountPoint = index.readFString(stringStorage.get());
     if (mountPoint.starts_with("../../..")) {
       mountPoint = mountPoint.substr(9); // Relativen Pfad entfernen
     }
 
     auto fileCount = index.read<int32_t>();
-    vfs->reserve(fileCount);
+    vfs->reservePak(fileCount);
     m_pakEntries.reserve(fileCount);
     index += 8; // PathHashSeed
     // PathHashIndexOffset (long) + PathHashIndexSize (long) + PathHashIndexHash (20 bytes)
-    if (index.readBool()) index += 36;
+    if (index.readBool())
+      index += 36;
 
-    if (!index.readBool()) { return false; }
+    if (!index.readBool()) {
+      return false;
+    }
     auto dirIndexOffset = index.read<int64_t>();
     auto dirIndexSize = index.read<int64_t>();
     index += FSHA_HASH_SIZE;
@@ -139,11 +151,11 @@ namespace SAP {
     for (uint32_t i = 0; i < dirIndexCount; i++) {
       size_t oldLen = pathBuffer.size();
 
-      pathBuffer += dirIndex.readFString(stringStorage);
+      pathBuffer += dirIndex.readFString(stringStorage.get());
       auto fileEntries = dirIndex.read<uint32_t>();
       for (uint32_t j = 0; j < fileEntries; j++) {
         size_t dirLen = pathBuffer.size();
-        pathBuffer += dirIndex.readFString(stringStorage);
+        pathBuffer += dirIndex.readFString(stringStorage.get());
 
         auto offset = dirIndex.read<uint32_t>();
         auto fileIndex = readPakEntry(encodedPakEntries, offset);
@@ -154,14 +166,14 @@ namespace SAP {
     }
     auto end = std::chrono::high_resolution_clock::now();
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[PAK]", "{}: Mounted {} in {} ms", m_Path.string(),fileCount ,us.count() / 1000.0);
+    Logger::logInfo("[PAK]", "{}: Mounted {} in {} ms", m_Path.string(), fileCount, us.count() / 1000.0);
     return true;
   }
 
-  std::vector<uint8_t> PAKReader::readFile(uint32_t index) const {
+  std::span<uint8_t> PAKReader::readFile(HeapStorage *storage, uint32_t index) const {
     auto &entry = m_pakEntries[index];
 
-    std::vector<uint8_t> uncompressedData(entry.uncompressedSize);
+    std::span<uint8_t> uncompressedData = storage->allocateSpan(entry.uncompressedSize);
     auto uncompressedSpan = std::span(uncompressedData);
     if (entry.compressionMethod == CompressionMethod::None) {
       auto src = m_pakFile.getSpan(entry.offset, entry.uncompressedSize);
@@ -169,18 +181,18 @@ namespace SAP {
       return uncompressedData;
     }
 
-    for ( uint64_t blockIndex = 0, offset = 0 ; offset < entry.uncompressedSize; blockIndex++, offset += entry.compressionBlockSize) {
+    for (uint64_t blockIndex = 0, offset = 0; offset < entry.uncompressedSize;
+         blockIndex++, offset += entry.compressionBlockSize) {
       auto &block = entry.compressedBlocks[blockIndex];
       auto src = m_pakFile.getSpan(block.compressedOffset, block.compressedSize);
 
-      auto uncompressedBlockSize = std::min ((uint64_t)entry.compressionBlockSize, entry.uncompressedSize- offset);
+      auto uncompressedBlockSize = std::min((uint64_t) entry.compressionBlockSize, entry.uncompressedSize - offset);
       auto dst = uncompressedSpan.subspan(offset, uncompressedBlockSize);
 
-      bool succes = Decompressor::decompress(src,dst, entry.compressionMethod);
+      bool succes = Decompressor::decompress(src, dst, entry.compressionMethod);
       if (!succes) {
         Logger::logError("[PAKReader]", "Error decompressing entry {}.", index);
-        uncompressedData.clear();
-        return uncompressedData;
+        return {};
       }
     }
     return uncompressedData;

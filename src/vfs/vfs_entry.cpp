@@ -3,14 +3,14 @@
 //
 
 #include "vfs_entry.hpp"
-#include "city.h"
 #include "IOStoreReader.hpp"
 #include "PAKReader.hpp"
+#include "city.h"
 
 namespace SAP {
   uint64_t UnifiedVfsEntry::hashPath(const std::string_view path) {
     char16_t buffer[512];
-    const size_t len = std::min(path.length(), (size_t)511);
+    const size_t len = std::min(path.length(), (size_t) 511);
 
     for (size_t i = 0; i < len; ++i) {
       // Lowercase + UTF16-Promoting in einem Schritt
@@ -20,10 +20,10 @@ namespace SAP {
     }
 
     // CityHash64 direkt auf dem lokalen Buffer ausführen
-    return CityHash64(reinterpret_cast<const char*>(buffer), len * sizeof(char16_t));
+    return CityHash64(reinterpret_cast<const char *>(buffer), len * sizeof(char16_t));
   }
 
-  std::vector<uint8_t> IOVfsEntry::read() const { return owningReader->readChunk(chunkId); }
+  std::span<uint8_t> IOVfsEntry::read(HeapStorage *storage) const { return owningReader->readChunk(storage, chunkId); }
 
-  std::vector<uint8_t> PAKVfsEntry::read() const { return owningReader->readFile(index);  }
-} // SAP
+  std::span<uint8_t> PAKVfsEntry::read(HeapStorage *storage) const { return owningReader->readFile(storage,index); }
+} // namespace SAP

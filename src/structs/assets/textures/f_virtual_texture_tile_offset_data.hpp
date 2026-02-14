@@ -14,4 +14,4 @@ namespace SAP {
     std::span<const uint32_t> addresses;
     std::span<const uint32_t> offsets;
   };
-}
+} // namespace SAP

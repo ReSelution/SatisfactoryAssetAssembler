@@ -4,4 +4,4 @@
 
 #include "static_mesh_socket.hpp"
 
-namespace SAP {} // SAP
+namespace SAP {} // namespace SAP

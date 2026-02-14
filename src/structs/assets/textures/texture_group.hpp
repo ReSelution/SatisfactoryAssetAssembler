@@ -6,7 +6,7 @@
 #include <cstdint>
 
 namespace SAP {
-  enum class TextureGroup: uint32_t {
+  enum class TextureGroup : uint32_t {
     World,
     WorldNormalMap,
     WorldSpecular,

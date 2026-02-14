@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 
-#include "../util/byte_cursor.hpp"
-#include "file_reader.hpp"
+#include "byte_cursor.hpp"
 #include "Reader.hpp"
+#include "file_reader.hpp"
 
 #include "pak/f_pak_entry.hpp"
 #include "pak/f_pak_info.hpp"
@@ -11,7 +11,7 @@
 namespace SAP {
   class PAKReader : public Reader {
   public:
-    PAKReader(std::filesystem::path pakPath);
+    PAKReader(const std::filesystem::path& pakPath);
 
     PAKReader(const PAKReader &) = delete;
     PAKReader(PAKReader &&) = delete;
@@ -20,7 +20,7 @@ namespace SAP {
 
     bool load() override;
     bool mountVFS(Vfs *vfs) override;
-    std::vector<uint8_t> readFile(uint32_t index) const;
+    std::span<uint8_t> readFile(HeapStorage *storage, uint32_t index) const;
 
   private:
     void readPaKInfo();
@@ -28,8 +28,8 @@ namespace SAP {
     uint32_t readPakEntry(ByteCursor &cursor, uint32_t offset);
 
     FileReader m_pakFile;
-    FPakInfo m_pakInfo;
+    FPakInfo m_pakInfo{};
     std::vector<FPakEntry> m_pakEntries;
-    HeapStorage<> stringStorage;
+    std::unique_ptr<HeapStorage> stringStorage;
   };
 } // namespace SAP

@@ -11,14 +11,11 @@ namespace SAP {
   public:
     FGItemDescriptor(std::string_view classname = "FGItemDescriptor") : Object(classname) {};
 
-    uint32_t getClassHash() override {
-      return HASH;
-    };
+    uint32_t getClassHash() override { return HASH; };
     void parse() override;
 
     static constexpr uint32_t HASH = fnv1a("FGItemDescriptor");
-
   };
 
   SAP_REGISTER_ASSET(FGItemDescriptor)
-} // SAP
+} // namespace SAP

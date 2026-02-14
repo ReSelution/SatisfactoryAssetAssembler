@@ -21,4 +21,4 @@ namespace SAP {
     uint8_t isValid;
   };
 #pragma pack(pop)
-}
+} // namespace SAP

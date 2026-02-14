@@ -5,7 +5,5 @@
 #include "fg_item_descriptor.hpp"
 
 namespace SAP {
-  void FGItemDescriptor::parse() {
-    Object::parse();
-  }
-} // SAP
+  void FGItemDescriptor::parse() { Object::parse(); }
+} // namespace SAP

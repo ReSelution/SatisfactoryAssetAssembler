@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../../../util/byte_cursor.hpp"
+#include "byte_cursor.hpp"
 #include "texture.hpp"
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
@@ -18,9 +18,7 @@ namespace SAP {
   protected:
     void parse() override;
     IntPoint m_importedSize{};
-
   };
 
   SAP_REGISTER_ASSET(Texture2D)
-}
-
+} // namespace SAP

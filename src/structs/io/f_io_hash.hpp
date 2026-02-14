@@ -16,4 +16,4 @@ namespace SAP {
     std::array<uint8_t, FSHA_HASH_SIZE> hash;
   };
 #pragma pack(pop)
-}
+} // namespace SAP

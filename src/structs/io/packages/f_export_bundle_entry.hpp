@@ -6,11 +6,7 @@
 #include <cstdint>
 
 namespace SAP {
-  enum class EExportCommandType : uint32_t {
-    Create,
-    Serialize,
-    Count
-  };
+  enum class EExportCommandType : uint32_t { Create, Serialize, Count };
 
 #pragma pack(push, 1)
   struct FExportBundleEntry {
@@ -20,4 +16,4 @@ namespace SAP {
 #pragma pack(pop)
   static_assert(sizeof(FExportBundleEntry) == 8, "FExportBundleEntry size mismatch!");
 
-}
+} // namespace SAP

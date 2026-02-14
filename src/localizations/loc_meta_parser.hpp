@@ -8,7 +8,7 @@
 #include <random>
 #include <unordered_map>
 
-#include "string_storage.hpp"
+#include "heap_storage.hpp"
 
 #include "core/f_guid.hpp"
 
@@ -28,21 +28,19 @@ namespace SAP {
 
   class LocMetaParser {
   public:
-    LocMetaParser(LocManager *manager, const UnifiedVfsEntry* vfsEntry);
+    LocMetaParser(LocManager *manager, const UnifiedVfsEntry *vfsEntry);
     void parse();
-    std::string_view getNativeRes() const {return nativeLocResPATH;};
+    std::string_view getNativeRes() const { return nativeLocResPATH; };
     std::pair<bool, std::string_view> getRes(std::string_view culture) const;
 
-
   private:
-    std::vector<uint8_t> data;
 
-    const UnifiedVfsEntry* m_vfsEntry;
+    const UnifiedVfsEntry *m_vfsEntry;
     LocManager *m_manager;
     std::unordered_map<std::string, std::string> cultures;
-    HeapStorage<> m_stringStorage{};
+    std::unique_ptr<HeapStorage> m_storage{};
 
     std::string nativeLocResPATH;
     std::string nativeCulture;
   };
-} // SAP
+} // namespace SAP

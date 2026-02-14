@@ -11,15 +11,12 @@ namespace SAP {
     uint32_t strHash;
     std::string_view str;
 
-    bool operator==(const FTextKey &other) const noexcept {
-      return strHash == other.strHash;
-    }
-
+    bool operator==(const FTextKey &other) const noexcept { return strHash == other.strHash; }
   };
-}
+} // namespace SAP
 namespace std {
-  template <>
+  template<>
   struct hash<SAP::FTextKey> {
-    size_t operator()(const SAP::FTextKey key) const noexcept {return std::hash<uint32_t>{}(key.strHash); }
+    size_t operator()(const SAP::FTextKey key) const noexcept { return std::hash<uint32_t>{}(key.strHash); }
   };
-}
+} // namespace std

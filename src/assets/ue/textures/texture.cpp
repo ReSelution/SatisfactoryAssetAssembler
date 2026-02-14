@@ -4,42 +4,38 @@
 
 #include "texture.hpp"
 
-#include "logger.hpp"
-#include "uasset_parser.hpp"
-#include "../../../exporter/texture/texture_exporter.hpp"
+#include "texture/texture_exporter.hpp"
 #include "assets/textures/f_opt_texture_platfrom_data.hpp"
 #include "assets/textures/pixel_format.hpp"
-#include "assets/textures/texture_compression_settings.hpp"
-#include "assets/textures/texture_filter.hpp"
-#include "assets/textures/texture_group.hpp"
+#include "logger.hpp"
+#include "uasset_parser.hpp"
 
 namespace SAP {
   Texture::Texture(std::string_view className) : Object(className) {}
 
-   void Texture::parse() {
-     Object::parse();
-     // m_lightingGuid = getOrDefault<FGuid>
-     //     (static_cast<uint32_t>(ETextureProperty::LightingGuid), [&] {
-     //       return FGuid::fromUint32(fnv1a(getFullName().c_str()));
-     //     });
-     // m_compressionSettings = getOrDefaultEnum<TextureCompressionSettings>
-     //     (static_cast<uint32_t>(ETextureProperty::CompressionSettings), [&] {
-     //       return TextureCompressionSettings::TC_Default;
-     //     });
-     // m_LODGroup = getOrDefaultEnum<TextureGroup>
-     //     (static_cast<uint32_t>(ETextureProperty::LODGroup), [&] { return TextureGroup::World; });
-     // m_filter = getOrDefaultEnum<TextureFilter>
-     //     (static_cast<uint32_t>(ETextureProperty::Filter), [&] { return TextureFilter::TF_Nearest; });
-     // m_srgb = getOrDefault<bool>(static_cast<uint32_t>(ETextureProperty::SRGB), [&] { return true; });
-     m_cursor += 2; // Skip FStripDataFlags
+  void Texture::parse() {
+    Object::parse();
+    // m_lightingGuid = getOrDefault<FGuid>
+    //     (static_cast<uint32_t>(ETextureProperty::LightingGuid), [&] {
+    //       return FGuid::fromUint32(fnv1a(getFullName().c_str()));
+    //     });
+    // m_compressionSettings = getOrDefaultEnum<TextureCompressionSettings>
+    //     (static_cast<uint32_t>(ETextureProperty::CompressionSettings), [&] {
+    //       return TextureCompressionSettings::TC_Default;
+    //     });
+    // m_LODGroup = getOrDefaultEnum<TextureGroup>
+    //     (static_cast<uint32_t>(ETextureProperty::LODGroup), [&] { return TextureGroup::World; });
+    // m_filter = getOrDefaultEnum<TextureFilter>
+    //     (static_cast<uint32_t>(ETextureProperty::Filter), [&] { return TextureFilter::TF_Nearest; });
+    // m_srgb = getOrDefault<bool>(static_cast<uint32_t>(ETextureProperty::SRGB), [&] { return true; });
+    m_cursor += 2; // Skip FStripDataFlags
   }
 
   void Texture::exportAsset() { TextureExporter::exportAsset(this); }
 
   void Texture::decodeTexture(ExportedTextureData &data) { TextureExporter::decodeTexture(data, this); }
 
-  void Texture::parseCookedPlatformData
-  (ByteCursor &cursor, bool parseMipData) {
+  void Texture::parseCookedPlatformData(ByteCursor &cursor, bool parseMipData) {
     auto pixelFormatName = cursor.readFName();
     while (!pixelFormatName.isNone()) {
       auto pixelFormat = hashEnum<EPixelFormat>(pixelFormatName.text());
@@ -59,7 +55,9 @@ namespace SAP {
 
     bool cooked = reinterpret_cast<UAssetParser *>(m_owner)->getSummary().PackageFlags & PKG_FILTER_EDITOR_ONLY;
 
-    if (parseMipData) { texture.data = m_owner->parseFByteBulkData(cursor); }
+    if (parseMipData) {
+      texture.data = m_owner->parseFByteBulkData(cursor);
+    }
 
     texture.sizeX = cursor.read<int32_t>();
     texture.sizeY = cursor.read<int32_t>();
@@ -81,21 +79,27 @@ namespace SAP {
     m_sizeY = asset.read<int32_t>();
     m_packedData = asset.read<int32_t>();
 
-    if (m_packedData & BITMASK_HAS_OPT_DATA) { asset.read<FOptTexturePlatformData>(); }
+    if (m_packedData & BITMASK_HAS_OPT_DATA) {
+      asset.read<FOptTexturePlatformData>();
+    }
 
     if (m_packedData & BITMASK_HAS_CPU_COPY) {
-      //5.4+
+      // 5.4+
       throw std::runtime_error("[TEXTURE]: Not implented CPU Copy");
     }
-    m_pixelFormat = asset.readFString(m_stringStorage);
+    m_pixelFormat = asset.readFString(m_stringStorage.get());
 
     m_firstMipToSerialize = asset.read<int32_t>();
 
     auto mipCount = asset.read<uint32_t>();
     m_mipmaps.reserve(mipCount);
-    for (uint32_t mip = 0; mip < mipCount; mip++) { m_mipmaps.emplace_back(parseTexture2dMipMap(asset, parseMipData)); }
+    for (uint32_t mip = 0; mip < mipCount; mip++) {
+      m_mipmaps.emplace_back(parseTexture2dMipMap(asset, parseMipData));
+    }
 
-    if (asset.readBool()) { parseVirtualTexture(asset); }
+    if (asset.readBool()) {
+      parseVirtualTexture(asset);
+    }
     if (!m_mipmaps.empty()) {
       m_sizeX = m_mipmaps[0].sizeX;
       m_sizeY = m_mipmaps[0].sizeY;
@@ -120,14 +124,13 @@ namespace SAP {
     auto tileCount = asset.read<uint32_t>();
     m_vtData.tileOffsetData.resize(tileCount);
     for (uint32_t i = 0; i < tileCount; i++) {
-      m_vtData.tileOffsetData.emplace_back
-          (FVirtualTextureTileOffsetData{
-             .width = asset.read<uint32_t>(),
-             .height = asset.read<uint32_t>(),
-             .maxAddress = asset.read<uint32_t>(),
-             .addresses = asset.readArray<uint32_t>(),
-             .offsets = asset.readArray<uint32_t>(),
-           });
+      m_vtData.tileOffsetData.emplace_back(FVirtualTextureTileOffsetData{
+          .width = asset.read<uint32_t>(),
+          .height = asset.read<uint32_t>(),
+          .maxAddress = asset.read<uint32_t>(),
+          .addresses = asset.readArray<uint32_t>(),
+          .offsets = asset.readArray<uint32_t>(),
+      });
     }
 
     m_vtData.tileIndexPerChunk = asset.readArray<uint32_t>();
@@ -136,7 +139,7 @@ namespace SAP {
 
     m_vtData.layerTypes.resize(m_vtData.numLayers);
     for (auto i = 0; i < m_vtData.numLayers; i++) {
-      m_vtData.layerTypes.emplace_back(hashEnum<EPixelFormat>(asset.readFString(m_stringStorage)));
+      m_vtData.layerTypes.emplace_back(hashEnum<EPixelFormat>(asset.readFString(m_stringStorage.get())));
     }
 
     m_vtData.layerFallbackColors = asset.readArray<FLinearColor>(m_vtData.numLayers);
@@ -159,4 +162,4 @@ namespace SAP {
       m_vtData.chunks.emplace_back(std::move(chunk));
     }
   }
-}
+} // namespace SAP

@@ -25,4 +25,4 @@ namespace SAP {
 
   static_assert(sizeof(FBulkDataMapEntry) == FBulkDataMapEntrySize, "FBulkDataMapEntry size mismatch!");
 
-}
+} // namespace SAP

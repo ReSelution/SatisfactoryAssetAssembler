@@ -12,5 +12,4 @@ namespace SAP {
     ByteCursor bulkCursor;
   };
 
-
-}
+} // namespace SAP

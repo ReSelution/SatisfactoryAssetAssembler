@@ -6,11 +6,11 @@
 
 #include <deque>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <string>
 
-#include "string_storage.hpp"
+#include "heap_storage.hpp"
 
 #include "core/f_guid.hpp"
 
@@ -27,9 +27,11 @@ namespace SAP {
     Legacy = 0,
     /** Compact format file - strings are stored in a LUT to avoid duplication. */
     Compact,
-    /** Optimized format file - namespaces/keys are pre-hashed (CRC32), we know the number of elements up-front, and the number of references for each string in the LUT (to allow stealing). */
+    /** Optimized format file - namespaces/keys are pre-hashed (CRC32), we know the number of elements up-front, and the
+       number of references for each string in the LUT (to allow stealing). */
     Optimized_CRC32,
-    /** Optimized format file - namespaces/keys are pre-hashed (CityHash64, UTF-16), we know the number of elements up-front, and the number of references for each string in the LUT (to allow stealing). */
+    /** Optimized format file - namespaces/keys are pre-hashed (CityHash64, UTF-16), we know the number of elements
+       up-front, and the number of references for each string in the LUT (to allow stealing). */
     Optimized_CityHash64_UTF16,
   };
 
@@ -40,14 +42,13 @@ namespace SAP {
     LocResParser(LocManager *manager, const UnifiedVfsEntry *vfsEntry);
 
     void parse();
-    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry> > &getMap() { return entries; }
+    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> &getMap() { return entries; }
 
   private:
-    std::vector<uint8_t> data;
-    HeapStorage<> m_strings;
+    std::unique_ptr<HeapStorage> m_storage;
     const UnifiedVfsEntry *m_vfsEntry;
     LocManager *m_manager = nullptr;
-    std::vector<FTextLocalizationResourceString> localizedStringArray;
-    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry> > entries;
+    std::span<FTextLocalizationResourceString> localizedStringArray;
+    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> entries;
   };
-} // SAP
+} // namespace SAP

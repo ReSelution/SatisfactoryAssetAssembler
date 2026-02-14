@@ -6,10 +6,10 @@
 #include <cstdint>
 #include <vector>
 
-#include "f_static_mesh_UV_item.hpp"
-#include "../../../util/byte_cursor.hpp"
-#include "ue/properties/f_property_tag.hpp"
 #include <cassert>
+#include "byte_cursor.hpp"
+#include "f_static_mesh_UV_item.hpp"
+#include "ue/properties/f_property_tag.hpp"
 
 namespace SAP {
   struct FStaticMeshVertexBuffer {
@@ -21,8 +21,8 @@ namespace SAP {
     static FStaticMeshVertexBuffer parse(ByteCursor &cursor) {
       auto stripDataFlags = cursor.read<FStripDataFlags>();
       FStaticMeshVertexBuffer result{
-        .numTextCoords = cursor.read<int32_t>(),
-        .numVertices = cursor.read<int32_t>(),
+          .numTextCoords = cursor.read<int32_t>(),
+          .numVertices = cursor.read<int32_t>(),
       };
 
       bool useFullPrecision = cursor.read<uint32_t>() != 0;
@@ -44,28 +44,23 @@ namespace SAP {
       itemSize = cursor.read<int32_t>();
       itemCount = cursor.read<int32_t>();
 
-
       if (useFullPrecision) {
         result.uvStorage.resize(result.numVertices * result.numTextCoords);
         auto tmpUV = cursor.readArray<FMeshUVFloat>(result.numVertices * result.numTextCoords);
-        result.uvStorage.assign(tmpUV.begin(), tmpUV.end()) ;
-      }else {
+        result.uvStorage.assign(tmpUV.begin(), tmpUV.end());
+      } else {
         result.uvStorage.reserve(result.numVertices * result.numTextCoords);
         auto tmpUV = cursor.readArray<FMeshUVHalf>(result.numVertices * result.numTextCoords);
-        for (auto uvHalf : tmpUV) {
+        for (auto uvHalf: tmpUV) {
           result.uvStorage.emplace_back(FMeshUVFloat::fromHalf(uvHalf));
         }
       }
 
       for (auto i = 0; i < result.numVertices; ++i) {
-        std::span
-            (
-             result.uvStorage.data() + i * result.numTextCoords,
-             result.numTextCoords
-            );
+        std::span(result.uvStorage.data() + i * result.numTextCoords, result.numTextCoords);
       }
 
       return result;
     }
   };
-}
+} // namespace SAP

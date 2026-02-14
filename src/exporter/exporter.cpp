@@ -12,4 +12,4 @@ namespace SAP {
     }
     return std::filesystem::exists(path);
   }
-} // SAP
+} // namespace SAP

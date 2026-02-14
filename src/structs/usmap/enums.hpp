@@ -16,5 +16,4 @@ enum class EUsmapVersion : uint8_t {
   LATEST = LATEST_PLUS_ONE - 1
 };
 
-
 enum class EUsmapCompressionMethod : uint8_t { NONE = 0, OODLE = 1, Z_STANDARD = 2, UNKNOWN = 0xFF };

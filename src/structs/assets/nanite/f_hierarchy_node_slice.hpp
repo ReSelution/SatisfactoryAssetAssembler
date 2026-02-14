@@ -30,4 +30,4 @@ namespace SAP {
 
   static_assert(std::is_trivial_v<FHierarchyNodeSlice>);
   static_assert(std::is_standard_layout_v<FHierarchyNodeSlice>);
-} // names
+} // namespace SAP

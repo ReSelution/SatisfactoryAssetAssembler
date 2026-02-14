@@ -80,39 +80,33 @@ namespace SAP {
     AUTOMATIC_VERSION = AUTOMATIC_VERSION_PLUS_ONE - 1
   };
 
-  inline bool operator>=
-  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+  inline bool operator>=(EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
     return static_cast<uint32_t>(lhs) >= static_cast<uint32_t>(rhs);
   }
 
-  inline bool operator >
-  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+  inline bool operator>(EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
     return static_cast<uint32_t>(lhs) > static_cast<uint32_t>(rhs);
   }
 
-  inline bool operator<=
-  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+  inline bool operator<=(EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
     return static_cast<uint32_t>(lhs) <= static_cast<uint32_t>(rhs);
   }
 
-  inline bool operator<
-  (EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
+  inline bool operator<(EUE5Version lhs, EUnrealEngineObjectUE5Version rhs) {
     return static_cast<uint32_t>(lhs) < static_cast<uint32_t>(rhs);
   }
 
-#define SAP_ASSERT_UE5_MIN(owner, version, msg) \
-assert((owner)->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::version && msg)
+#define SAP_ASSERT_UE5_MIN(owner, version, msg)                                                                        \
+  assert((owner)->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::version && msg)
 
-#define SAP_ASSERT_UE5_MAX(owner, version, msg) \
-assert((owner)->mappings()->pkgVersion.FileVersionUE5 < EUE5Version::version && msg)
+#define SAP_ASSERT_UE5_MAX(owner, version, msg)                                                                        \
+  assert((owner)->mappings()->pkgVersion.FileVersionUE5 < EUE5Version::version && msg)
 
-#define SAP_ASSERT_UE5_BEFORE(owner, version, msg)                       \
-assert((owner)->mappings()->pkgVersion.FileVersionUE5 <                \
-EUE5Version::version && msg)
+#define SAP_ASSERT_UE5_BEFORE(owner, version, msg)                                                                     \
+  assert((owner)->mappings()->pkgVersion.FileVersionUE5 < EUE5Version::version && msg)
 
-#define SAP_ASSERT_UE5_AT_LEAST(owner, version, msg)                     \
-assert((owner)->mappings()->pkgVersion.FileVersionUE5 >=               \
-EUE5Version::version && msg)
+#define SAP_ASSERT_UE5_AT_LEAST(owner, version, msg)                                                                   \
+  assert((owner)->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::version && msg)
 
 #pragma pack(push, 1)
   struct FPackageFileVersion {
@@ -120,4 +114,4 @@ EUE5Version::version && msg)
     EUE5Version FileVersionUE5; // 4 Bytes
   };
 #pragma pack(pop)
-}
+} // namespace SAP

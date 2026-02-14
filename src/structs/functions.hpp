@@ -8,14 +8,12 @@
 #include <cstring>
 #include <span>
 #include <stdexcept>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "../util/byte_cursor.hpp"
+#include "byte_cursor.hpp"
 
 namespace SAP {
-
-
 
   inline char to_lower(char c) {
     // gleich wie C#:
@@ -34,18 +32,16 @@ namespace SAP {
     return out;
   }
 
-  inline std::vector<uint8_t> utf8_to_utf16le_ascii(const std::string& input)
-  {
+  inline std::vector<uint8_t> utf8_to_utf16le_ascii(const std::string &input) {
     std::vector<uint8_t> out;
     out.reserve(input.size() * 2);
 
-    for (unsigned char c : input)
-    {
+    for (unsigned char c: input) {
       // ASCII → UTF-16 = 2 bytes: low, high
-      out.push_back(c);     // low byte
-      out.push_back(0x00);  // high byte (ASCII → 0)
+      out.push_back(c);    // low byte
+      out.push_back(0x00); // high byte (ASCII → 0)
     }
 
     return out;
   }
-} // SAP
+} // namespace SAP

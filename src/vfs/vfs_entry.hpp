@@ -17,7 +17,11 @@ namespace SAP {
     uint64_t hash = 0xcbf29ce484222325;
     for (char c: str) {
       char lc;
-      if ((c >= 'A' && c <= 'Z')) { lc = c + 32; } else { lc = c; }
+      if ((c >= 'A' && c <= 'Z')) {
+        lc = c + 32;
+      } else {
+        lc = c;
+      }
       hash ^= static_cast<uint64_t>(lc);
       hash *= 0x100000001b3;
     }
@@ -37,8 +41,10 @@ namespace SAP {
     uint64_t hash;
     VFS_EntryType type;
 
-    UnifiedVfsEntry
-    (std::string_view pathRef, VFS_EntryType type) : path{pathRef}, type(type) { hash = hashPath(path); };
+    UnifiedVfsEntry(std::string_view pathRef, VFS_EntryType type) :
+        path{pathRef}, type(type) {
+      hash = hashPath(path);
+    };
     static uint64_t hashPath(std::string_view path);
 
     [[nodiscard]] virtual bool isValid() const { return false; };
@@ -47,7 +53,7 @@ namespace SAP {
 
     bool operator!=(const UnifiedVfsEntry &other) const { return !this->operator==(other); }
 
-    virtual std::vector<uint8_t> read() const { return {}; };
+    virtual std::span<uint8_t> read(HeapStorage *storage) const { return {}; };
   };
 
   class IOVfsEntry : public UnifiedVfsEntry {
@@ -55,12 +61,8 @@ namespace SAP {
     FIoChunkId chunkId;
     IOStoreReader *owningReader;
 
-    IOVfsEntry
-    (const std::string_view path, FIoChunkId chunkId, IOStoreReader *owningReader) : UnifiedVfsEntry
-      (
-       path,
-       VFS_EntryType::IOVfsEntry), chunkId{chunkId},
-      owningReader(owningReader) {};
+    IOVfsEntry(const std::string_view path, FIoChunkId chunkId,  IOStoreReader *owningReader) :
+        UnifiedVfsEntry(path,  VFS_EntryType::IOVfsEntry), chunkId{chunkId}, owningReader(owningReader) {};
 
     bool operator==(const UnifiedVfsEntry &other) const override {
       if (other.type == VFS_EntryType::IOVfsEntry) {
@@ -72,7 +74,7 @@ namespace SAP {
 
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
 
-    std::vector<uint8_t> read() const  override;
+    std::span<uint8_t> read(HeapStorage *storage) const override;
   };
 
   class PAKVfsEntry : public UnifiedVfsEntry {
@@ -80,9 +82,10 @@ namespace SAP {
     uint32_t index;
     PAKReader *owningReader;
 
-    PAKVfsEntry(const std::string_view &path, uint32_t index, PAKReader *owningReader) : UnifiedVfsEntry(path, VFS_EntryType::PAKVfsEntry), index(index), owningReader(owningReader) {};
+    PAKVfsEntry(const std::string_view &path, uint32_t index,  PAKReader *owningReader) :
+        UnifiedVfsEntry(path, VFS_EntryType::PAKVfsEntry), index(index), owningReader(owningReader) {};
 
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
-    std::vector<uint8_t> read() const override ;
+    std::span<uint8_t> read(HeapStorage *storage) const override;
   };
-} // SAP
+} // namespace SAP

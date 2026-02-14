@@ -25,9 +25,13 @@ namespace SAP {
     int32_t DependencyBundleEntriesOffset;
     int32_t ImportedPackageNamesOffset;
 
-    [[nodiscard]] uint32_t exportCount() const { return (ExportBundleEntriesOffset - ExportMapOffset) / sizeof(FExportMapEntry); }
+    [[nodiscard]] uint32_t exportCount() const {
+      return (ExportBundleEntriesOffset - ExportMapOffset) / sizeof(FExportMapEntry);
+    }
 
-    [[nodiscard]] uint32_t importCount() const { return (ExportMapOffset - ImportMapOffset) / sizeof(FPackageObjectIndex); }
+    [[nodiscard]] uint32_t importCount() const {
+      return (ExportMapOffset - ImportMapOffset) / sizeof(FPackageObjectIndex);
+    }
   };
 #pragma pack(pop)
-}
+} // namespace SAP

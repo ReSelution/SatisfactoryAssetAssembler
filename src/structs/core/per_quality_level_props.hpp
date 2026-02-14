@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "../../util/byte_cursor.hpp"
+#include "byte_cursor.hpp"
 
 namespace SAP {
   struct FPerQualityLevelInt {
@@ -44,4 +44,4 @@ namespace SAP {
       return result;
     }
   };
-}
+} // namespace SAP

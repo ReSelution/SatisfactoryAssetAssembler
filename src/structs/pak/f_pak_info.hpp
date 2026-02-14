@@ -25,4 +25,4 @@ namespace SAP {
     FSHAHash hash;
     std::vector<CompressionMethod> compressionMethods;
   };
-}
+} // namespace SAP

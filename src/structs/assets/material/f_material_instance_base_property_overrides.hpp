@@ -16,10 +16,11 @@ namespace SAP {
     // static FMaterialInstanceBasePropertyOverrides parse(FStructFallback *fallback) {
     //   return FMaterialInstanceBasePropertyOverrides{
     //     .blendMode = fallback->getOrDefaultEnum<EBlendMode>(fnv1a("BlendMode"), []() { return EBlendMode{}; }),
-    //     .shadingModel = fallback->getOrDefaultEnum<EMaterialShadingModel>(fnv1a("ShadingModel"), []() { return EMaterialShadingModel{}; }),
-    //     .opacityMaskClipValue = fallback->getOrDefault<float>(fnv1a("opacityMaskClipValue"), [](){return 0.0f;}),
-    //     .ditheredLODTransition = fallback->getOrDefault<bool>(fnv1a("DitheredLODTransition"), [](){return false;}),
+    //     .shadingModel = fallback->getOrDefaultEnum<EMaterialShadingModel>(fnv1a("ShadingModel"), []() { return
+    //     EMaterialShadingModel{}; }), .opacityMaskClipValue =
+    //     fallback->getOrDefault<float>(fnv1a("opacityMaskClipValue"), [](){return 0.0f;}), .ditheredLODTransition =
+    //     fallback->getOrDefault<bool>(fnv1a("DitheredLODTransition"), [](){return false;}),
     //   };
     // }
   };
-}
+} // namespace SAP

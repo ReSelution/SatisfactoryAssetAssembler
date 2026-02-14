@@ -16,4 +16,4 @@ namespace SAP {
   };
 
   SAP_REGISTER_ASSET(UnrealMaterial)
-} // SAP
+} // namespace SAP

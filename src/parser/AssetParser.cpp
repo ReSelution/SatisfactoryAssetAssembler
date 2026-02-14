@@ -4,22 +4,20 @@
 
 #include "AssetParser.hpp"
 
-#include "uasset_parser.hpp"
-#include "logger.hpp"
-#include "vfs.hpp"
 #include <filesystem>
+#include "logger.hpp"
+#include "uasset_parser.hpp"
+#include "vfs.hpp"
 
-#include "../assets/ue/object_factory.hpp"
 #include "IOStoreReader.hpp"
 #include "Reader.hpp"
 
-#include "../crawler/crawler.hpp"
+#include "crawler.hpp"
+#include "heap_pool.hpp"
 
 namespace SAP {
-  AssetParser::AssetParser
-  (Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) : m_vfs(vfs), m_mappings(mappings),
-    m_globalData(globalData), m_localizationManager(this) {
-  }
+  AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) :
+      m_vfs(vfs), m_mappings(mappings), m_globalData(globalData), m_localizationManager(this) {}
 
   void AssetParser::queueFile(std::string_view path) {
     {
@@ -31,31 +29,31 @@ namespace SAP {
   void AssetParser::processQueue(Crawler *crawler, uint32_t threadCount) {
     m_localizationManager.setCulture("de");
     m_localizationManager.load();
-
-    if (threadCount == 0) { threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1)); }
-    Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads", m_JobQueue.size(), threadCount);
+    HeapPool::init(256, 8*1024);
+    if (threadCount == 0) {
+      threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
+    }
+    Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads with {} KB cache Size  ", m_JobQueue.size(), threadCount,HeapPool::getBufferSize()/1000.0);
     std::vector<Crawler> crawlers;
     crawlers.reserve(threadCount);
     auto start = std::chrono::high_resolution_clock::now();
     for (uint32_t i = 0; i < threadCount; ++i) {
       if (crawler) {
         auto &child = crawlers.emplace_back(crawler->getChild());
-        m_ThreadPool.emplace_back
-            (&AssetParser::workerThread, this, [&child](std::shared_ptr<AssetFileParser> &parser) {
-              child.onParsed(parser);
-            });
+        m_ThreadPool.emplace_back(&AssetParser::workerThread, this,
+                                  [&child](std::shared_ptr<AssetFileParser> &parser) { child.onParsed(parser); });
       } else {
-        m_ThreadPool.emplace_back
-            (&AssetParser::workerThread, this, [](const std::shared_ptr<AssetFileParser> &parser) {
-              parser->loadExports();
-            });
+        m_ThreadPool.emplace_back(&AssetParser::workerThread, this,
+                                  [](const std::shared_ptr<AssetFileParser> &parser) { parser->loadExports(); });
       }
     }
 
     for (uint32_t i = 0; i < threadCount; ++i) {
       if (m_ThreadPool[i].joinable()) {
         m_ThreadPool[i].join();
-        if (crawler) { crawler->mergeWithChild(crawlers[i]); }
+        if (crawler) {
+          crawler->mergeWithChild(crawlers[i]);
+        }
       }
     }
     m_ThreadPool.clear();
@@ -68,7 +66,7 @@ namespace SAP {
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(const FPackageId &pkg) {
     auto vfsEntry = m_vfs->readPkg(pkg);
     if (!vfsEntry) {
-      //Logger::logError("[AssetParser]", "Unknown PKG : {}", pkg.Id);
+      // Logger::logError("[AssetParser]", "Unknown PKG : {}", pkg.Id);
       return nullptr;
     }
     return createParser(vfsEntry);
@@ -89,10 +87,12 @@ namespace SAP {
     }
   }
 
-  void AssetParser::parseAsset
-  (std::string_view path, const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed) {
+  void AssetParser::parseAsset(std::string_view path,
+                               const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed) {
     const auto &vfsEntry = m_vfs->readVfs(path);
-    if (!vfsEntry) { return; }
+    if (!vfsEntry) {
+      return;
+    }
 
     auto parser = createParser(vfsEntry);
     if (!parser) {
@@ -104,8 +104,7 @@ namespace SAP {
     onParsed(parser);
   }
 
-  std::shared_ptr<AssetFileParser> AssetParser::createParser
-  ( const UnifiedVfsEntry*vfsEntry) {
+  std::shared_ptr<AssetFileParser> AssetParser::createParser(const UnifiedVfsEntry *vfsEntry) {
 
     if (auto shared = m_parserCache.get(vfsEntry->hash).lock()) {
       return shared;
@@ -117,17 +116,20 @@ namespace SAP {
         const std::string_view fullPath = vfsEntry->path;
         bool isUAsset = fullPath.ends_with(".uasset");
         bool isUBulk = !isUAsset && fullPath.ends_with(".ubulk");
-        if (!isUAsset && !isUBulk) { break; }
+        if (!isUAsset && !isUBulk) {
+          break;
+        }
 
-        auto entry = static_cast<const IOVfsEntry* >(vfsEntry);
+        auto entry = static_cast<const IOVfsEntry *>(vfsEntry);
 
         auto parser = std::make_shared<UAssetParser>(this, entry);
 
-        const UnifiedVfsEntry* asset;
-        const UnifiedVfsEntry* bulk;
+        const UnifiedVfsEntry *asset;
+        const UnifiedVfsEntry *bulk;
 
         char pathBuf[512];
-        if (fullPath.size() >= 512) return nullptr; // Safety first
+        if (fullPath.size() >= 512)
+          return nullptr; // Safety first
         memcpy(pathBuf, fullPath.data(), fullPath.size());
         auto lastDot = fullPath.find_last_of('.');
 
@@ -150,8 +152,9 @@ namespace SAP {
           return shared;
         }
         m_parserCache.insert(asset->hash, parser);
-        if (bulk) {  m_parserCache.insert(bulk->hash, parser); }
-
+        if (bulk) {
+          m_parserCache.insert(bulk->hash, parser);
+        }
 
         return parser;
       }
@@ -162,4 +165,4 @@ namespace SAP {
   }
 
   AssetParser::~AssetParser() {}
-}
+} // namespace SAP

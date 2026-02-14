@@ -15,7 +15,8 @@ namespace SAP {
     [[nodiscard]] bool isDefault() const { return Value == 0; }
 
     [[nodiscard]] std::string getAsExtension() const {
-      if (isDefault()) return {};
+      if (isDefault())
+        return {};
       std::ostringstream oss;
       oss << std::setw(3) << std::setfill('0') << static_cast<int>(Value);
       return oss.str();
@@ -28,4 +29,4 @@ namespace SAP {
 #pragma pack(pop)
   static_assert(sizeof(FBulkDataCookedIndex) == 1, "FBulkDataCookedIndex size mismatch!");
 
-}
+} // namespace SAP

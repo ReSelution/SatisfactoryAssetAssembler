@@ -4,9 +4,8 @@
 
 #include "mesh_exporter.hpp"
 
-
-#include "ue/static_mesh/static_mesh.hpp"
 #include "fastgltf/core.hpp"
+#include "ue/static_mesh/static_mesh.hpp"
 
 #include "material/material_exporter.hpp"
 
@@ -20,16 +19,14 @@ namespace SAP {
   }
 
   template<typename T>
-  uint32_t createAccessor
-  (fastgltf::Asset &asset,
-   std::vector<std::byte> &buffer,
-   size_t offset, size_t count,
-   std::optional<fastgltf::BufferTarget> target) {
+  uint32_t createAccessor(fastgltf::Asset &asset, std::vector<std::byte> &buffer, size_t offset, size_t count,
+                          std::optional<fastgltf::BufferTarget> target) {
     fastgltf::BufferView view;
     view.bufferIndex = 0;
     view.byteOffset = offset;
     view.byteLength = buffer.size() - offset;
-    if (target) view.target = *target;
+    if (target)
+      view.target = *target;
 
     // Automatische Bestimmung des Strides
     view.byteStride = sizeof(T);
@@ -42,10 +39,10 @@ namespace SAP {
     accessor.byteOffset = 0;
 
     // Mapping von C++ Typen auf glTF Enums
-    if constexpr (std::is_same_v<T, FVector_f> || std::is_same_v<T, fastgltf::math::vec<float, 3> >) {
+    if constexpr (std::is_same_v<T, FVector_f> || std::is_same_v<T, fastgltf::math::vec<float, 3>>) {
       accessor.type = fastgltf::AccessorType::Vec3;
       accessor.componentType = fastgltf::ComponentType::Float;
-    } else if constexpr (std::is_same_v<T, fastgltf::math::vec<float, 2> >) {
+    } else if constexpr (std::is_same_v<T, fastgltf::math::vec<float, 2>>) {
       accessor.type = fastgltf::AccessorType::Vec2;
       accessor.componentType = fastgltf::ComponentType::Float;
     } else if constexpr (std::is_same_v<T, uint32_t>) {
@@ -57,18 +54,23 @@ namespace SAP {
     } else if constexpr (std::is_same_v<T, FColor>) {
       accessor.type = fastgltf::AccessorType::Vec4;
       accessor.componentType = fastgltf::ComponentType::UnsignedByte;
-    } else { static_assert("Unkown Accessor type"); }
+    } else {
+      static_assert("Unkown Accessor type");
+    }
 
     asset.accessors.emplace_back(std::move(accessor));
     return static_cast<uint32_t>(asset.accessors.size() - 1);
   }
 
   void alignBuffer(std::vector<std::byte> &buffer) {
-    while (buffer.size() % 4 != 0) { buffer.push_back(std::byte{0}); }
+    while (buffer.size() % 4 != 0) {
+      buffer.push_back(std::byte{0});
+    }
   }
 
   int32_t embedPng(fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer, const ExportedTextureData &texData) {
-    if (texData.data.empty()) return -1;
+    if (texData.data.empty())
+      return -1;
 
     size_t offset = (binaryBuffer.size() + 3) & ~3; // 4-byte align
     binaryBuffer.resize(offset + texData.data.size());
@@ -82,10 +84,7 @@ namespace SAP {
 
     fastgltf::Image &image = asset.images.emplace_back();
     image.name = texData.name;
-    image.data = fastgltf::sources::BufferView{
-      viewIndex,
-      fastgltf::MimeType::PNG
-    };
+    image.data = fastgltf::sources::BufferView{viewIndex, fastgltf::MimeType::PNG};
 
     fastgltf::Texture &texture = asset.textures.emplace_back();
     texture.samplerIndex = 0;
@@ -95,7 +94,9 @@ namespace SAP {
   }
 
   void MeshExporter::exportAsset(StaticMesh *mesh) {
-    if (!mesh || mesh->m_renderData.LODResources.empty()) { return; }
+    if (!mesh || mesh->m_renderData.LODResources.empty()) {
+      return;
+    }
     collectMesh(mesh);
   }
 
@@ -106,26 +107,24 @@ namespace SAP {
 
   void MeshExporter::exportLOD(const FStaticMeshLODResources &lod, StaticMesh *mesh) { exportGLTf(lod, mesh); }
 
-  void MeshExporter::writeIndices
-  (const FStaticMeshLODResources &lod, fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
-   fastgltf::Primitive &primitive) {
+  void MeshExporter::writeIndices(const FStaticMeshLODResources &lod, fastgltf::Asset &asset,
+                                  std::vector<std::byte> &binaryBuffer, fastgltf::Primitive &primitive) {
     // --- INDICES ---
     {
       alignBuffer(binaryBuffer);
       size_t offset = binaryBuffer.size();
       auto indices = lod.indexBuffer.indices; // Deine FRawStaticIndexBuffer struct
-      //for (size_t i = 0; i < indices.size(); i += 3) { std::swap(indices[i], indices[i + 2]); }
+      // for (size_t i = 0; i < indices.size(); i += 3) { std::swap(indices[i], indices[i + 2]); }
       appendData(binaryBuffer, indices.data(), indices.size());
 
-      auto posAcc = createAccessor<uint32_t>
-          (asset, binaryBuffer, offset, indices.size(), fastgltf::BufferTarget::ElementArrayBuffer);
+      auto posAcc = createAccessor<uint32_t>(asset, binaryBuffer, offset, indices.size(),
+                                             fastgltf::BufferTarget::ElementArrayBuffer);
       primitive.indicesAccessor = posAcc;
     }
   }
 
-  void MeshExporter::writePostion
-  (const FStaticMeshLODResources &lod, StaticMesh *mesh, fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
-   fastgltf::Primitive &primitive) {
+  void MeshExporter::writePostion(const FStaticMeshLODResources &lod, StaticMesh *mesh, fastgltf::Asset &asset,
+                                  std::vector<std::byte> &binaryBuffer, fastgltf::Primitive &primitive) {
     {
       alignBuffer(binaryBuffer);
       size_t offset = binaryBuffer.size();
@@ -153,9 +152,8 @@ namespace SAP {
     }
   }
 
-  void MeshExporter::writeUVs
-  (const FStaticMeshLODResources &lod, fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
-   fastgltf::Primitive &primitive) {
+  void MeshExporter::writeUVs(const FStaticMeshLODResources &lod, fastgltf::Asset &asset,
+                              std::vector<std::byte> &binaryBuffer, fastgltf::Primitive &primitive) {
     alignBuffer(binaryBuffer);
 
     int32_t numSets = lod.vertexBuffer.numTextCoords;
@@ -165,25 +163,23 @@ namespace SAP {
       size_t offset = binaryBuffer.size();
 
       for (int32_t i = 0; i < lod.vertexBuffer.numVertices; ++i) {
-        const auto  &UV = lod.vertexBuffer.uvStorage[i * numSets];
-
+        const auto &UV = lod.vertexBuffer.uvStorage[i * numSets];
 
         // glTF UVs: Y-Achse invertieren (1.0 - v)
         fastgltf::math::vec<float, 2> gUV = {UV.u, UV.v};
         appendData(binaryBuffer, &gUV, 1);
       }
 
-      auto posAcc = createAccessor<fastgltf::math::vec<float, 2> >
-          (asset, binaryBuffer, offset, static_cast<size_t>(lod.vertexBuffer.numVertices),
-           fastgltf::BufferTarget::ArrayBuffer);
+      auto posAcc = createAccessor<fastgltf::math::vec<float, 2>>(asset, binaryBuffer, offset,
+                                                                  static_cast<size_t>(lod.vertexBuffer.numVertices),
+                                                                  fastgltf::BufferTarget::ArrayBuffer);
       std::string attrName = "TEXCOORD_" + std::to_string(setIdx);
       primitive.attributes.emplace_back(fastgltf::Attribute{attrName.c_str(), posAcc});
     }
   }
 
-  void MeshExporter::writeNormals
-  (const FStaticMeshLODResources &lod, fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
-   fastgltf::Primitive &primitive) {
+  void MeshExporter::writeNormals(const FStaticMeshLODResources &lod, fastgltf::Asset &asset,
+                                  std::vector<std::byte> &binaryBuffer, fastgltf::Primitive &primitive) {
     alignBuffer(binaryBuffer);
     size_t offset = binaryBuffer.size();
 
@@ -194,22 +190,17 @@ namespace SAP {
 
       // Umrechnen der Koordinaten wie bei POSITION: {x, z, -y}
       // Und wir nutzen deine x(), y(), z() Funktionen!
-      fastgltf::math::vec<float, 3> gN = {
-        n.x(),
-        n.z(),
-        n.y()
-      };
+      fastgltf::math::vec<float, 3> gN = {n.x(), n.z(), n.y()};
       appendData(binaryBuffer, &gN, 1);
     }
-    auto posAcc = createAccessor<fastgltf::math::vec<float, 3> >
-        (asset, binaryBuffer, offset, lod.vertexBuffer.numVertices, fastgltf::BufferTarget::ArrayBuffer);
+    auto posAcc = createAccessor<fastgltf::math::vec<float, 3>>(
+        asset, binaryBuffer, offset, lod.vertexBuffer.numVertices, fastgltf::BufferTarget::ArrayBuffer);
 
     primitive.attributes.emplace_back(fastgltf::Attribute{"NORMAL", posAcc});
   }
 
-  void MeshExporter::writeColors
-  (const FStaticMeshLODResources &lod, fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
-   fastgltf::Primitive &primitive) {
+  void MeshExporter::writeColors(const FStaticMeshLODResources &lod, fastgltf::Asset &asset,
+                                 std::vector<std::byte> &binaryBuffer, fastgltf::Primitive &primitive) {
     alignBuffer(binaryBuffer);
     size_t offset = binaryBuffer.size();
     size_t count = lod.colorVertexBuffer.data.size();
@@ -222,9 +213,9 @@ namespace SAP {
     primitive.attributes.emplace_back(fastgltf::Attribute{"COLOR_0", posAcc});
   }
 
-  void MeshExporter::writeSections
-  (const FStaticMeshLODResources &lod, fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
-   fastgltf::Mesh &gltfMesh, StaticMesh *mesh, fastgltf::Primitive &sharedAttributes) {
+  void MeshExporter::writeSections(const FStaticMeshLODResources &lod, fastgltf::Asset &asset,
+                                   std::vector<std::byte> &binaryBuffer, fastgltf::Mesh &gltfMesh, StaticMesh *mesh,
+                                   fastgltf::Primitive &sharedAttributes) {
     for (auto &section: lod.sections) {
       fastgltf::Primitive primitive;
       primitive.type = fastgltf::PrimitiveType::Triangles;
@@ -234,7 +225,7 @@ namespace SAP {
         auto matObj = mesh->m_materials[section.MaterialIndex].materialInterface;
         if (matObj) {
           matObj->safeParse();
-          auto encoded = MaterialExporter::encodeMaterial(matObj.get());
+          auto encoded = MaterialExporter::encodeMaterial(matObj);
           fastgltf::Material gMat;
           gMat.name = encoded.name;
 
@@ -261,7 +252,7 @@ namespace SAP {
           }
 
           // --- Roughness / Metallic ---
-         for (int i = 0; i < encoded.metallicRoughness.size(); ++i) {
+          for (int i = 0; i < encoded.metallicRoughness.size(); ++i) {
             int32_t texIdx = embedPng(asset, binaryBuffer, encoded.metallicRoughness[i]);
             if (texIdx != -1) {
               fastgltf::TextureInfo info;
@@ -278,10 +269,9 @@ namespace SAP {
     }
   }
 
-  void MeshExporter::writeSection
-  (const FStaticMeshLODResources &lod, const FStaticMeshSection &section, fastgltf::Asset &asset,
-   std::vector<std::byte> &binaryBuffer,
-   fastgltf::Primitive &primitive) {
+  void MeshExporter::writeSection(const FStaticMeshLODResources &lod, const FStaticMeshSection &section,
+                                  fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
+                                  fastgltf::Primitive &primitive) {
     alignBuffer(binaryBuffer);
     size_t offset = binaryBuffer.size();
     size_t indexCount = static_cast<size_t>(section.NumTriangles) * 3;
@@ -295,11 +285,8 @@ namespace SAP {
       sectionIndices.emplace_back(lod.indexBuffer.indices[base + 2]);
     }
     appendData(binaryBuffer, sectionIndices.data(), sectionIndices.size());
-    primitive.indicesAccessor = createAccessor<uint32_t>
-        (
-         asset, binaryBuffer, offset, sectionIndices.size(),
-         fastgltf::BufferTarget::ElementArrayBuffer
-        );
+    primitive.indicesAccessor = createAccessor<uint32_t>(asset, binaryBuffer, offset, sectionIndices.size(),
+                                                         fastgltf::BufferTarget::ElementArrayBuffer);
   }
 
   void MeshExporter::exportGLTf(const FStaticMeshLODResources &lod, StaticMesh *mesh) {
@@ -329,11 +316,13 @@ namespace SAP {
     }
 
     // --- COLORS (Optional, falls vorhanden) ---
-    if (!lod.colorVertexBuffer.data.empty()) { writeColors(lod, asset, binaryBuffer, primitive); }
+    if (!lod.colorVertexBuffer.data.empty()) {
+      writeColors(lod, asset, binaryBuffer, primitive);
+    }
 
-    //writeSections(lod, asset, binaryBuffer, gltfMesh, mesh, primitive);
+    // writeSections(lod, asset, binaryBuffer, gltfMesh, mesh, primitive);
 
-    //gltfMesh.primitives.emplace_back(std::move(primitive));
+    // gltfMesh.primitives.emplace_back(std::move(primitive));
     asset.meshes.emplace_back(std::move(gltfMesh));
 
     // --- SCENE & NODES ---
@@ -350,15 +339,13 @@ namespace SAP {
     // Der Buffer verweist nur auf die Größe, die Daten kommen beim Export
     fastgltf::Buffer buffer;
     buffer.byteLength = binaryBuffer.size();
-    buffer.data = fastgltf::sources::Vector{
-      std::move(binaryBuffer)
-    };
+    buffer.data = fastgltf::sources::Vector{std::move(binaryBuffer)};
     asset.buffers.emplace_back(std::move(buffer));
 
     // --- EXPORTIEREN (GLB) ---
     fastgltf::FileExporter exporter;
 
-    std::filesystem::path path  = options().getPath() / mesh->path();
+    std::filesystem::path path = options().getPath() / mesh->path();
     path.replace_extension(".glb");
     checkPath(path);
     auto result = exporter.writeGltfBinary(asset, path, fastgltf::ExportOptions::None);
@@ -367,4 +354,4 @@ namespace SAP {
       Logger::logError("[Exporter]", " Failed to write Gltf binary file:{}", fastgltf::getErrorName(result));
     }
   }
-} // SAP
+} // namespace SAP

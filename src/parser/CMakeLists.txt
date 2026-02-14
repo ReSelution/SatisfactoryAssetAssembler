@@ -20,11 +20,12 @@ target_include_directories(SAP_Parser
 )
 
 target_link_libraries(SAP_Parser
+        PUBLIC
+        SAP_Localization
         PRIVATE
         SAP_Structs
         SAP_Util
         SAP_Assets
         SAP_Lib
         SAP_VFS
-        SAP_Localization
 )

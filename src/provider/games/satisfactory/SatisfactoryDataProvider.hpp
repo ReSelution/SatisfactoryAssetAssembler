@@ -7,14 +7,13 @@
 #include <unordered_map>
 
 #include "Reader.hpp"
-#include "io_global_data.hpp"
 #include "UsmapReader.hpp"
+#include "io_global_data.hpp"
 
-#include "vfs.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
+#include "vfs.hpp"
 
 namespace SAP {
-
 
   class SatisfactoryDataProvider {
   public:
@@ -38,7 +37,7 @@ namespace SAP {
     Vfs m_vfs;
     std::unique_ptr<UsmapReader> m_UsmapParser = nullptr;
     std::unique_ptr<IOGlobalData> m_globalDataParser = nullptr;
-    std::unordered_map<std::string, std::unique_ptr<Reader> > m_Parsers;
+    std::unordered_map<std::string, std::unique_ptr<Reader>> m_Parsers;
 
     void findAllParsableFiles(const std::filesystem::path &folder);
 

@@ -16,12 +16,9 @@ namespace SAP {
     float u;
     float v;
     static FMeshUVFloat fromHalf(FMeshUVHalf &half) {
-      return FMeshUVFloat{
-      .u = half.u.toFloat(),
-      .v = half.v.toFloat()};
+      return FMeshUVFloat{.u = half.u.toFloat(), .v = half.v.toFloat()};
     }
   };
 
-
 #pragma pack(pop)
-}
+} // namespace SAP

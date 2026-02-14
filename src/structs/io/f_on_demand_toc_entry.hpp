@@ -10,7 +10,7 @@ namespace SAP {
 #pragma pack(push, 1)
 
   struct FOnDemandTocEntry {
-    FSHAHash Hash;                       // 20 Bytes
+    FSHAHash Hash;                        // 20 Bytes
     FIoChunkId ChunkId{};                 // 12 Bytes
     uint64_t RawSize{};                   // 8 Bytes
     uint64_t EncodedSize{};               // 8 Bytes
@@ -19,4 +19,4 @@ namespace SAP {
   };
 
 #pragma pack(pop)
-}
+} // namespace SAP

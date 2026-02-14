@@ -15,8 +15,6 @@ namespace SAP {
     }
   }
 
-  void Texture2DArray::decodeTexture(ExportedTextureData &data) {
-   TextureExporter::decodeTexture(data, this);
-  }
+  void Texture2DArray::decodeTexture(ExportedTextureData &data) { TextureExporter::decodeTexture(data, this); }
 
-}
+} // namespace SAP

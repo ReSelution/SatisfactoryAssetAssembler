@@ -7,4 +7,4 @@
 
 namespace SAP {
   class Class : public Struct {};
-}
+} // namespace SAP

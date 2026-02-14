@@ -9,4 +9,4 @@ namespace SAP {
     float r, g, b, a;
   };
 #pragma pack(pop)
-}
+} // namespace SAP

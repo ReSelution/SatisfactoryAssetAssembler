@@ -29,8 +29,12 @@ namespace SAP {
     auto socketsCount = m_cursor.read<uint32_t>();
     auto indexs = m_cursor.readArray<int32_t>(socketsCount);
     m_sockets.reserve(socketsCount);
-    for (auto &i: indexs) { m_sockets.emplace_back(m_owner->resolveIndex(i)); }
-    if (m_cooked) { parseRenderData(); }
+    for (auto &i: indexs) {
+      m_sockets.emplace_back(m_owner->resolveIndex(i));
+    }
+    if (m_cooked) {
+      parseRenderData();
+    }
     parseStaticMaterials();
   }
 
@@ -41,7 +45,9 @@ namespace SAP {
     bool stripped = stripDataFlags.isAudioVisualDataStripped() || stripDataFlags.isClassDataStripped(0x01);
     if (!stripped) {
       for (uint32_t i = 0; i < m_renderData.LODResources.size(); ++i) {
-        if (m_cursor.readBool()) { FDistanceFieldVolumeData5::parse(m_cursor, m_owner); }
+        if (m_cursor.readBool()) {
+          FDistanceFieldVolumeData5::parse(m_cursor, m_owner);
+        }
       }
     }
   }
@@ -49,8 +55,10 @@ namespace SAP {
   void StaticMesh::parseRenderData() {
     auto lenghts = m_cursor.read<uint32_t>();
     m_renderData.LODResources.resize(lenghts);
-    for (auto i = 0; i < lenghts; ++i) { parseLODResource(m_renderData.LODResources[i]); }
-    m_cursor += 1; //numInlinedLODs
+    for (auto i = 0; i < lenghts; ++i) {
+      parseLODResource(m_renderData.LODResources[i]);
+    }
+    m_cursor += 1; // numInlinedLODs
 
     parseNaniteResources(m_renderData.naniteResources);
     parseInlineDataRepresentation();
@@ -74,9 +82,11 @@ namespace SAP {
     bool isLODCookedOut = m_cursor.readBool();
     bool inlined = m_cursor.readBool();
     if (!stripDataFlags.isAudioVisualDataStripped() && !isLODCookedOut) [[likely]] {
-      SAP_ASSERT_UE5_MAX
-      (m_owner, UE5_5, "bHasRayTracingGeometry not Implented "); // bHasRayTracingGeometry skip 4 bytes
-      if (inlined) { parseLODBuffer(m_cursor, lodResources); } else {
+      SAP_ASSERT_UE5_MAX(m_owner, UE5_5,
+                         "bHasRayTracingGeometry not Implented "); // bHasRayTracingGeometry skip 4 bytes
+      if (inlined) {
+        parseLODBuffer(m_cursor, lodResources);
+      } else {
         auto bulkData = m_owner->parseFByteBulkData(m_cursor);
         parseLODBuffer(bulkData.bulkCursor, lodResources);
         m_cursor += 8; // DepthOnlyNumTriangles + Packed
@@ -102,18 +112,18 @@ namespace SAP {
     lodResources.colorVertexBuffer = FColorVertexBuffer::parse(cursor);
     lodResources.indexBuffer = FRawStaticIndexBuffer::parse(cursor);
 
-    if (!stripDataFlags.isClassDataStripped
-      (static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
+    if (!stripDataFlags.isClassDataStripped(
+            static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
       lodResources.reversedIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
     }
     lodResources.depthOnlyIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
 
-    if (!stripDataFlags.isClassDataStripped
-      (static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
+    if (!stripDataFlags.isClassDataStripped(
+            static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
       lodResources.reversedIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
     }
 
-    if (!stripDataFlags.isEditorDataStripped()) [[unlikely]]{
+    if (!stripDataFlags.isEditorDataStripped()) [[unlikely]] {
       lodResources.wireframeIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
     }
 
@@ -154,10 +164,12 @@ namespace SAP {
   void StaticMesh::parseInlineDataRepresentation() {
     constexpr uint8_t CardRepresentationDataStripFlag = 2;
     auto stripDataFlags = m_cursor.read<FStripDataFlags>();
-    if (!stripDataFlags.isAudioVisualDataStripped() && !stripDataFlags.isClassDataStripped
-        (CardRepresentationDataStripFlag)) {
+    if (!stripDataFlags.isAudioVisualDataStripped() &&
+        !stripDataFlags.isClassDataStripped(CardRepresentationDataStripFlag)) {
       for (auto &lod: m_renderData.LODResources) {
-        if (m_cursor.readBool()) { lod.cardRepresentationData = FCardRepresentationData::parse(m_cursor); }
+        if (m_cursor.readBool()) {
+          lod.cardRepresentationData = FCardRepresentationData::parse(m_cursor);
+        }
       }
     }
   }
@@ -170,15 +182,11 @@ namespace SAP {
       auto count = m_cursor.read<uint32_t>();
       m_materials.reserve(count);
       for (uint32_t i = 0; i < count; i++) {
-        m_materials.emplace_back
-            (
-             FStaticMaterial{
-               .materialInterface = std::dynamic_pointer_cast<MaterialInterface>
-               (m_owner->resolveIndex(m_cursor.read<int32_t>()).lock()),
-               .materialSlotName = m_cursor.readFName(),
-               .UVChannelInfo = FMeshUVChannelInfo::parse(m_cursor)
-             });
+        m_materials.emplace_back(FStaticMaterial{.materialInterface = static_cast<MaterialInterface*>(
+                                                     m_owner->resolveIndex(m_cursor.read<int32_t>())),
+                                                 .materialSlotName = m_cursor.readFName(),
+                                                 .UVChannelInfo = FMeshUVChannelInfo::parse(m_cursor)});
       }
     }
   }
-} // SAP
+} // namespace SAP

@@ -11,4 +11,4 @@ namespace SAP {
     uint64_t id;
   };
 #pragma pack(pop)
-}
+} // namespace SAP

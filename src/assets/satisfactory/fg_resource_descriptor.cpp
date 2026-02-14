@@ -4,4 +4,4 @@
 
 #include "fg_resource_descriptor.hpp"
 
-namespace SAP {} // SAP
+namespace SAP {} // namespace SAP

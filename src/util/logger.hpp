@@ -49,23 +49,28 @@ namespace SAP::Logger {
   // Logging-Wrapper (type-safe)
   // ---------------------------------------------------------
 
-  template<typename... Args> inline void logTrace(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
+  template<typename... Args>
+  inline void logTrace(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
     getLogger(name)->trace(fmt, std::forward<Args>(args)...);
   }
 
-  template<typename... Args> inline void logDebug(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
+  template<typename... Args>
+  inline void logDebug(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
     getLogger(name)->debug(fmt, std::forward<Args>(args)...);
   }
 
-  template<typename... Args> inline void logInfo(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
+  template<typename... Args>
+  inline void logInfo(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
     getLogger(name)->info(fmt, std::forward<Args>(args)...);
   }
 
-  template<typename... Args> inline void logWarn(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
+  template<typename... Args>
+  inline void logWarn(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
     getLogger(name)->warn(fmt, std::forward<Args>(args)...);
   }
 
-  template<typename... Args> inline void logError(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
+  template<typename... Args>
+  inline void logError(const char *name, fmt::format_string<Args...> fmt, Args &&...args) {
     getLogger(name)->error(fmt, std::forward<Args>(args)...);
   }
 

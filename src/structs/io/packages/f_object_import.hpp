@@ -15,4 +15,4 @@ namespace SAP {
   };
 
 #pragma pack(pop)
-}
+} // namespace SAP

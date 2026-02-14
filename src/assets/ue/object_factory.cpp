@@ -4,7 +4,4 @@
 
 #include "ue/object_factory.hpp"
 
-
-namespace SAP {
-
-} // SAP
+namespace SAP {} // namespace SAP

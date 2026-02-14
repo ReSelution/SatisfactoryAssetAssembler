@@ -18,4 +18,4 @@ namespace SAP {
     //   return result;
     //}
   };
-}
+} // namespace SAP

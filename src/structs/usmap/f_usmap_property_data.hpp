@@ -42,7 +42,7 @@ namespace SAP {
     UNKNOWN = 255
   };
 
-#pragma pack(push,1)
+#pragma pack(push, 1)
   struct FUsmapPropertyData {
     std::string_view Name;
     uint16_t SchemaIndex; // Index in der internen Liste beim Parsen
@@ -56,4 +56,4 @@ namespace SAP {
   };
 
 #pragma pack(pop)
-}
+} // namespace SAP

@@ -43,34 +43,27 @@ namespace SAP {
     return gltfMaterial;
   }
 
-  void MaterialExporter::addTexture
-  (GltfMaterial &gltfMaterial, std::string_view textureType, ExportedTextureData &texData) {
+  void MaterialExporter::addTexture(GltfMaterial &gltfMaterial, std::string_view textureType,
+                                    ExportedTextureData &texData) {
     std::string type = std::string(textureType);
 
-    if (type.find("_Alb") != std::string::npos ||
-        type.find("Albedo") != std::string::npos ||
+    if (type.find("_Alb") != std::string::npos || type.find("Albedo") != std::string::npos ||
         type.find("_BC") != std::string::npos)
-      //type.find("flipbook") != std::string::npos ||
-        //type.find("Diffuse") != std::string::npos)
-        {
+    // type.find("flipbook") != std::string::npos ||
+    // type.find("Diffuse") != std::string::npos)
+    {
       gltfMaterial.baseColors.emplace_back(std::move(texData));
-        }
-    else if (type.find("_Nor") != std::string::npos || type.find("_N") != std::string::npos) {
+    } else if (type.find("_Nor") != std::string::npos || type.find("_N") != std::string::npos) {
       gltfMaterial.normals.emplace_back(std::move(texData));
-    }
-    else if (type.find("_Rough") != std::string::npos ||
-             type.find("Mask") != std::string::npos ||
-             type.find("_MREO") != std::string::npos ||
-             type.find("_Forms") != std::string::npos) { // "Forms" ist UE5 Standard bei Satisfactory
+    } else if (type.find("_Rough") != std::string::npos || type.find("Mask") != std::string::npos ||
+               type.find("_MREO") != std::string::npos ||
+               type.find("_Forms") != std::string::npos) { // "Forms" ist UE5 Standard bei Satisfactory
       gltfMaterial.metallicRoughness.emplace_back(std::move(texData));
-             }
-    else if (type.find("Noise") != std::string::npos ||
-             type.find("Weather") != std::string::npos ||
-             type.find("Debug") != std::string::npos) {
+    } else if (type.find("Noise") != std::string::npos || type.find("Weather") != std::string::npos ||
+               type.find("Debug") != std::string::npos) {
       Logger::logInfo("[MaterialExporter]", "Skipping auxiliary texture: {}", type);
-             }
-    else {
+    } else {
       Logger::logError("[MaterialExporter]", "Unknown texture group: {} -> {} ", textureType, texData.name);
     }
   }
-}
+} // namespace SAP

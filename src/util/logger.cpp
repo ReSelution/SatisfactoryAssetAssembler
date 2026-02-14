@@ -24,12 +24,12 @@ namespace SAP::Logger {
       consoleSink->set_level(spdlog::level::info);
       consoleSink->set_pattern("[SAP] %n: %v%$");
 
-      //File-Sink
+      // File-Sink
       auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/sap.log", true);
       fileSink->set_level(spdlog::level::trace);
       fileSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
 
-      std::vector<spdlog::sink_ptr> sinks {consoleSink, fileSink};
+      std::vector<spdlog::sink_ptr> sinks{consoleSink, fileSink};
       auto logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
       spdlog::register_logger(logger);
 

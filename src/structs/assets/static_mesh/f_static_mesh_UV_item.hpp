@@ -13,6 +13,5 @@ namespace SAP {
   struct FStaticMeshUVItem {
     std::array<FPackedNormal, 3> normals;
     std::span<const FMeshUVFloat> UVs;
-
   };
-}
+} // namespace SAP

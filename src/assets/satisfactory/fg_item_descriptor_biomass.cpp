@@ -4,4 +4,4 @@
 
 #include "fg_item_descriptor_biomass.hpp"
 
-namespace SAP {} // SAP
+namespace SAP {} // namespace SAP

@@ -3,19 +3,15 @@
 //
 
 #pragma once
+#include <charconv>
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <charconv>
 #include "functions.hpp"
 
 namespace SAP {
 #pragma pack(push, 1)
-  enum class EMappedNameType : uint32_t {
-    Package   = 0,
-    Container = 1,
-    Global    = 2
-  };
+  enum class EMappedNameType : uint32_t { Package = 0, Container = 1, Global = 2 };
 
   struct FMappedName {
     static constexpr int IndexBits = 30;
@@ -26,18 +22,20 @@ namespace SAP {
     uint32_t nameIndex;
     uint32_t extraIndex;
 
-    [[nodiscard]] std::string_view fromNameMap(const std::vector<std::string_view> &map, HeapStorage<> &storage) const {
+    [[nodiscard]] std::string_view fromNameMap(std::span<std::string_view> map, HeapStorage *storage) const {
       auto index = NameIndex();
-      if (index >= map.size() || index < 0) return "None";
+      if (index >= map.size() || index < 0)
+        return "None";
 
-      if (extraIndex == 0) return map[index];
+      if (extraIndex == 0)
+        return map[index];
 
       std::string_view base = map[index];
 
       size_t maxLen = base.size() + 1 + 10 + 1;
-      char* buf = static_cast<char*>(storage.allocateRaw(maxLen));
+      char *buf = static_cast<char *>(storage->allocateRaw(maxLen));
 
-      char* curr = buf;
+      char *curr = buf;
       std::memcpy(curr, base.data(), base.size());
       curr += base.size();
       *curr++ = '_';
@@ -67,8 +65,12 @@ namespace SAP {
     std::string_view plainTextView;
 
     [[nodiscard]] std::string_view text() {
-      if (number == 0) { return plainTextView; };
-      if (plainText.empty()) { plainText = std::string(plainTextView) + "_" + std::to_string(number - 1); }
+      if (number == 0) {
+        return plainTextView;
+      };
+      if (plainText.empty()) {
+        plainText = std::string(plainTextView) + "_" + std::to_string(number - 1);
+      }
       return plainText;
     }
 
@@ -92,4 +94,4 @@ namespace SAP {
   };
 
 #pragma pack(pop)
-}
+} // namespace SAP

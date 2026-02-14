@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../exporter.hpp"
+#include "exporter.hpp"
 
 #include "structs/exported_texture_data.hpp"
 
@@ -26,4 +26,4 @@ namespace SAP {
     static void encodeBytes(ExportedTextureData &data);
     static void saveTextures(std::string_view path, ExportedTextureData &data);
   };
-} // SAP
+} // namespace SAP

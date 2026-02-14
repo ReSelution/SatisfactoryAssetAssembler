@@ -7,4 +7,4 @@ namespace SAP {
   struct FStaticSwitchParameter {
     bool value;
   };
-}
+} // namespace SAP

@@ -6,7 +6,7 @@
 #include <cstdint>
 
 namespace SAP {
-#pragma pack(push,1)
+#pragma pack(push, 1)
 
   struct FIoFileIndexEntry {
     uint32_t name; // Index in String Table
@@ -16,4 +16,4 @@ namespace SAP {
 
 #pragma pack(pop)
 
-} // SAP
+} // namespace SAP

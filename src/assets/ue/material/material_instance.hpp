@@ -13,9 +13,10 @@
 namespace SAP {
   class MaterialInstance : public MaterialInterface {
     friend class MaterialExporter;
+
   public:
     MaterialInstance(std::string_view classname = "MaterialInstance") : MaterialInterface(classname) {};
-    void exportToGltf(GltfMaterial &gltfMaterial) override ;
+    void exportToGltf(GltfMaterial &gltfMaterial) override;
 
   protected:
     void parse() override;
@@ -30,4 +31,4 @@ namespace SAP {
   };
 
   SAP_REGISTER_ASSET(MaterialInstance)
-} // SAP
+} // namespace SAP

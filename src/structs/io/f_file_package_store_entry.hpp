@@ -10,7 +10,6 @@
 
 namespace SAP {
 
-
 #pragma pack(push, 1)
 
   struct FFilePackageStoreEntry {
@@ -21,4 +20,4 @@ namespace SAP {
   };
 
 #pragma pack(pop)
-}
+} // namespace SAP

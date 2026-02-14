@@ -17,4 +17,4 @@ namespace SAP {
     std::unordered_map<std::string, std::vector<std::string_view>> Enums;
     std::unordered_map<std::string, FUsmapSchema> Schemas;
   };
-}
+} // namespace SAP

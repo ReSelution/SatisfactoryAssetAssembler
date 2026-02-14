@@ -15,8 +15,8 @@
 
 namespace SAP {
   enum class EFStaticMeshLODResourcesStripFlag : uint8_t {
-    CDSF_AdjacencyData       = 1,
-    CDSF_MinLodData          = 2,
+    CDSF_AdjacencyData = 1,
+    CDSF_MinLodData = 2,
     CDSF_ReversedIndexBuffer = 4,
     CDSF_RayTracingResources = 8,
   };
@@ -35,4 +35,4 @@ namespace SAP {
     FRawStaticIndexBuffer adjacentIndexBuffer;
     FCardRepresentationData cardRepresentationData;
   };
-}
+} // namespace SAP

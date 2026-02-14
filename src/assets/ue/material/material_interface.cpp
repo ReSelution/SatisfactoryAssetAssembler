@@ -14,6 +14,8 @@ namespace SAP {
     // m_flattenedTexture = getObjectAs<Texture>
     //     (fnv1a("FlattenedTexture"), []() { return std::weak_ptr<Texture>(); });
 
-    if (m_cursor.readBool()) { cachedExpressionData = parseFallbackStruct(m_cursor); }
+    if (m_cursor.readBool()) {
+      cachedExpressionData = parseFallbackStruct(m_cursor);
+    }
   }
-} // SAP
+} // namespace SAP

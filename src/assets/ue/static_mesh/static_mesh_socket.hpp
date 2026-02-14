@@ -9,6 +9,6 @@
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class StaticMeshSocket: public Object{};
+  class StaticMeshSocket : public Object {};
   SAP_REGISTER_ASSET(StaticMeshSocket)
-} // SAP
+} // namespace SAP

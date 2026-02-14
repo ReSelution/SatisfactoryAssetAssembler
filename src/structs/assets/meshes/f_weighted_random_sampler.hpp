@@ -13,4 +13,4 @@ namespace SAP {
     std::span<const int32_t> alias;
     float totlalWeight;
   };
-}
+} // namespace SAP

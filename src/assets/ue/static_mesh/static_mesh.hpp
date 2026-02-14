@@ -15,6 +15,7 @@
 namespace SAP {
   class StaticMesh : public Object {
     friend MeshExporter;
+
   public:
     StaticMesh(std::string_view classname = "StaticMesh") : Object(classname) {};
     void exportAsset() override;
@@ -24,7 +25,7 @@ namespace SAP {
 
   private:
     void parseRenderData();
-    void parseLODResource(FStaticMeshLODResources&lodResources);
+    void parseLODResource(FStaticMeshLODResources &lodResources);
     void parseLODBuffer(ByteCursor &cursor, FStaticMeshLODResources &lodResources);
     void parseNaniteResources(FNaniteResources &naniteResources);
     void parseInlineDataRepresentation();
@@ -32,14 +33,13 @@ namespace SAP {
     void parseStaticMaterials();
 
     bool m_cooked{};
-    std::weak_ptr<Object> m_bodySetup;
-    std::weak_ptr<Object> m_NavCollision;
+    Object* m_bodySetup;
+    Object* m_NavCollision;
     FGuid m_lightingGuid{};
-    std::vector<std::weak_ptr<Object> > m_sockets{};
+    std::vector<Object*> m_sockets{};
     FStaticMeshRenderData m_renderData{};
     std::vector<FStaticMaterial> m_materials{};
-
   };
 
   SAP_REGISTER_ASSET(StaticMesh)
-} // SAP
+} // namespace SAP

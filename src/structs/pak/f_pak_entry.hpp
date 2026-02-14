@@ -21,4 +21,4 @@ namespace SAP {
     std::vector<FPakCompressedBlock> compressedBlocks;
     uint32_t compressionBlockSize;
   };
-}
+} // namespace SAP

@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../../../util/byte_cursor.hpp"
+#include "byte_cursor.hpp"
 
 #include "core/math/f_box.hpp"
 
@@ -27,15 +27,15 @@ namespace SAP {
     FBox bounds;
     int32_t maxLODLevel;
     bool bMostlyTwoSided;
-     std::span<const FLumenCardBuildData> buildData;
+    std::span<const FLumenCardBuildData> buildData;
 
     static FCardRepresentationData parse(ByteCursor &cursor) {
-     return {
-       .bounds = cursor.read<FBox>(),
-       .maxLODLevel = 0,
-       .bMostlyTwoSided = cursor.readBool(),
-       .buildData = cursor.readArray<FLumenCardBuildData>(),
+      return {
+          .bounds = cursor.read<FBox>(),
+          .maxLODLevel = 0,
+          .bMostlyTwoSided = cursor.readBool(),
+          .buildData = cursor.readArray<FLumenCardBuildData>(),
       };
     }
   };
-}
+} // namespace SAP

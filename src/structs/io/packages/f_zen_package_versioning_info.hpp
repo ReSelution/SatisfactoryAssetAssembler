@@ -17,7 +17,6 @@ namespace SAP {
     Latest = LatestPlusOne - 1
   };
 
-
 #pragma pack(push, 1)
   struct FZenPackageVersioningInfo {
     EZenPackageVersion ZenVersion;
@@ -27,4 +26,4 @@ namespace SAP {
   };
 #pragma pack(pop)
 
-}
+} // namespace SAP

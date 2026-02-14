@@ -3,16 +3,12 @@
 //
 
 #pragma once
+#include <string>
 #include <vector>
 #include "../flags/TextureExportFlags.hpp"
-#include <string>
 
 namespace SAP {
-  enum class EImageMimeType : uint32_t {
-    None,
-    PNG = static_cast<uint32_t>(TextureExportFlags::PNG),
-    RawRGBA
-  };
+  enum class EImageMimeType : uint32_t { None, PNG = static_cast<uint32_t>(TextureExportFlags::PNG), RawRGBA };
 
   struct ExportedTextureData {
     std::vector<uint8_t> data;
@@ -21,4 +17,4 @@ namespace SAP {
     EImageMimeType mimeType;
     std::string name;
   };
-}
+} // namespace SAP

@@ -7,13 +7,11 @@
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGBuildingDescriptor: public Object {
-    public:
-    FGBuildingDescriptor(std::string classname = "FGBuildingDescriptor"): Object(classname) {}
+  class FGBuildingDescriptor : public Object {
+  public:
+    FGBuildingDescriptor(std::string classname = "FGBuildingDescriptor") : Object(classname) {}
 
-    uint32_t getClassHash() override {
-      return HASH;
-    };
+    uint32_t getClassHash() override { return HASH; };
 
     void parse() override;
 
@@ -21,4 +19,4 @@ namespace SAP {
   };
 
   SAP_REGISTER_ASSET(FGBuildingDescriptor)
-} // SAP
+} // namespace SAP

@@ -22,4 +22,4 @@ namespace SAP {
     uint32_t bAffectDistanceFieldLighting;
   };
 #pragma pack(pop)
-}
+} // namespace SAP

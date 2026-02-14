@@ -8,26 +8,29 @@
 #include <unordered_map>
 #include <vector>
 
-#include "byte_cursor.hpp"
-#include "Reader.hpp"
 #include "Decompressor.hpp"
-#include "logger.hpp"
-#include "functions.hpp"
+#include "Reader.hpp"
+#include "byte_cursor.hpp"
 #include "core/constants.hpp"
+#include "functions.hpp"
 #include "io/f_io_directory_index_enty.hpp"
 #include "io/f_io_file_index_entry.hpp"
 #include "io/f_on_demand_toc_entry.hpp"
+#include "logger.hpp"
 
+#include "spdlog/fmt/bundled/std.h"
 #include "vfs.hpp"
 
 namespace SAP {
-  IOStoreReader::IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath)
-    : Reader(Reader::Type::IO_STORE, std::move(utocPath)), m_ucasReader(ucasPath) {}
+  IOStoreReader::IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath) :
+      Reader(Reader::Type::IO_STORE, std::move(utocPath)), m_ucasReader(ucasPath) {
+    alocMutipilyer = 1.3;
+  }
 
   bool IOStoreReader::load() {
 
     auto start = std::chrono::high_resolution_clock::now();
-
+    Reader::load();
     utocBuffer = loadFile(m_Path);
     ByteCursor cursor(utocBuffer);
 
@@ -65,7 +68,7 @@ namespace SAP {
 
     auto end = std::chrono::high_resolution_clock::now();
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[IOSTORE]", "Loaded {} in {} ms", m_Path.string(),us.count() / 1000.0);
+    Logger::logInfo("[IOSTORE]", "Loaded {} in {} ms", m_Path.string(), us.count() / 1000.0);
     return true;
   }
 
@@ -79,7 +82,7 @@ namespace SAP {
 
     ByteCursor cursor(m_DirectoryIndexBuffer);
 
-    auto mountPoint = cursor.readFString(m_stringStorage);
+    auto mountPoint = cursor.readFString(m_storage.get());
 
     if (mountPoint.starts_with("../../..")) {
       mountPoint = mountPoint.substr(9); // Relativen Pfad entfernen
@@ -89,7 +92,7 @@ namespace SAP {
 
     auto fileEntries = cursor.readArray<FIoFileIndexEntry>();
 
-    vfs->reserve(fileEntries.size());
+    vfs->reserveIOStore(fileEntries.size());
     std::string pathBuffer;
     pathBuffer.reserve(512); //
     pathBuffer = mountPoint;
@@ -101,7 +104,8 @@ namespace SAP {
       if (dir.name < m_DirectoryPaths.size()) {
         std::string_view dName = m_DirectoryPaths[dir.name];
         if (!dName.empty()) {
-          if (!pathBuffer.empty() && pathBuffer.back() != '/') pathBuffer += '/';
+          if (!pathBuffer.empty() && pathBuffer.back() != '/')
+            pathBuffer += '/';
           pathBuffer += dName;
         }
       }
@@ -111,7 +115,8 @@ namespace SAP {
         const auto &file = fileEntries[fileIndex];
 
         size_t pathWithDirLen = pathBuffer.size();
-        if (!pathBuffer.empty() && pathBuffer.back() != '/') pathBuffer += '/';
+        if (!pathBuffer.empty() && pathBuffer.back() != '/')
+          pathBuffer += '/';
         pathBuffer += m_DirectoryPaths[file.name];
 
         vfs->mountEntry(this, pathBuffer, m_ChunkIds[file.userData]);
@@ -130,19 +135,20 @@ namespace SAP {
     };
 
     // Starten bei Root (Index 0) mit dem MountPoint als Basis
-    if (dirEntries.size() > 0) { traverse(traverse, 0); }
+    if (dirEntries.size() > 0) {
+      traverse(traverse, 0);
+    }
 
     auto end = std::chrono::high_resolution_clock::now();
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[IOSTORE]", "{}: Mounted {} in {} ms", m_Path.string(),fileEntries.size() ,us.count() / 1000.0);
+    Logger::logInfo("[IOSTORE]", "{}: Mounted {} in {} ms", m_Path.string(), fileEntries.size(), us.count() / 1000.0);
 
     return true;
   }
 
   void IOStoreReader::parseHeader(ByteCursor &cursor) {
     m_TocHeader = cursor.read<FIoStoreTocHeader>();
-    if (memcmp
-        (m_TocHeader.tocMagic.data(), EXPECTED_TOC_MAGIC.data(), EXPECTED_TOC_MAGIC.size()) != 0) {
+    if (memcmp(m_TocHeader.tocMagic.data(), EXPECTED_TOC_MAGIC.data(), EXPECTED_TOC_MAGIC.size()) != 0) {
       throw std::runtime_error("Wrong magic number.");
     }
     cursor = m_TocHeader.tocHeaderSize;
@@ -153,10 +159,7 @@ namespace SAP {
   }
 
   void IOStoreReader::parseOffsetLengths(ByteCursor &cursor) {
-    m_ChunkOffsetLengths.reserve(m_TocHeader.tocEntryCount);
-
-    auto buffer = cursor.readArray<FIoOffsetAndLength_raw>(m_TocHeader.tocEntryCount);
-    for (auto raw: buffer) { m_ChunkOffsetLengths.emplace_back(FIoOffsetAndLength::get(raw)); }
+   m_ChunkOffsetLengths = cursor.readArray<FIoOffsetAndLength>(m_TocHeader.tocEntryCount);
   }
 
   bool operator>=(EIoStoreTocVersion lhs, uint8_t rhs) { return static_cast<uint8_t>(lhs) >= rhs; }
@@ -167,11 +170,7 @@ namespace SAP {
   }
 
   void IOStoreReader::parseCompressionBlocks(ByteCursor &cursor) {
-    auto buffer = cursor.readArray<FIoStoreTocCompressedBlockEntry_raw>
-        (m_TocHeader.tocCompressedBlockEntryCount);
-    m_CompressionBlocks.reserve(m_TocHeader.tocCompressedBlockEntryCount);
-
-    for (auto &raw: buffer) { m_CompressionBlocks.emplace_back(FIoStoreTocCompressedBlockEntry::get(raw)); }
+   m_compressionBlocks = cursor.readArray<FIoStoreTocCompressedBlockEntry>(m_TocHeader.tocCompressedBlockEntryCount);
   }
 
   void IOStoreReader::parseCompressionMethods(ByteCursor &cursor) {
@@ -182,20 +181,25 @@ namespace SAP {
     auto buffer = cursor.readArray<uint8_t>(dataSize);
 
     const uint8_t *methodBufferStart = buffer.data();
-    m_CompressionMethods.resize(count + 1);
+    m_CompressionMethods = m_storage->allocateSpan<CompressionMethod>(count+1);
+    m_CompressionMethods[0]= CompressionMethod::None;
 
     for (uint32_t i = 0; i < count; i++) {
       auto strStart = i * length;
-      std::string methodName = (std::string(reinterpret_cast<const char *>(methodBufferStart + strStart), length));
+      std::string_view methodName = {reinterpret_cast<const char *>(methodBufferStart + strStart), length};
       size_t nullPos = methodName.find('\0');
-      if (nullPos != std::string::npos) { methodName.resize(nullPos); }
-      SAP::CompressionMethod methodEnum = stringToCompressionMethod(methodName);
+      if (nullPos != std::string::npos) {
+        methodName = methodName.substr(0, nullPos);
+      }
+      CompressionMethod methodEnum = stringToCompressionMethod(methodName);
       m_CompressionMethods[i + 1] = methodEnum;
     }
   }
 
   void IOStoreReader::parseSignatures(ByteCursor &cursor) {
-    if (!(m_TocHeader.containerFlags & EIoContainerFlags::SIGNED)) { return; }
+    if (!(m_TocHeader.containerFlags & EIoContainerFlags::SIGNED)) {
+      return;
+    }
 
     auto hashSize = cursor.read<int32_t>();
 
@@ -211,9 +215,8 @@ namespace SAP {
     const uint32_t TOC_VERSION_DIRECTORY_INDEX = 5;
     const EIoContainerFlags CONTAINER_FLAG_INDEXED = EIoContainerFlags::INDEXED;
     assert(m_TocHeader.version >= TOC_VERSION_DIRECTORY_INDEX && "TOC version is to Low");
-    assert
-    ((m_TocHeader.containerFlags & CONTAINER_FLAG_INDEXED) || m_TocHeader.directoryIndexSize == 0 &&
-     "No Directory Index");
+    assert((m_TocHeader.containerFlags & CONTAINER_FLAG_INDEXED) ||
+           m_TocHeader.directoryIndexSize == 0 && "No Directory Index");
 
     m_DirectoryIndexBuffer = cursor.readArray<uint8_t>(m_TocHeader.directoryIndexSize);
   }
@@ -234,9 +237,12 @@ namespace SAP {
 
   bool IOStoreReader::readContainerHeader() {
     FIoChunkId chunkId{.id = m_TocHeader.containerId.id, .chunkIndex = 0, .chunkType = 6};
-    FIoContainerHeader containerHeader{.version = EIoContainerHeaderVersion::Initial, .buffer = readChunk(chunkId) };
+    FIoContainerHeader containerHeader{
+        .version = EIoContainerHeaderVersion::Initial,
+    };
 
-    ByteCursor cursor(containerHeader.buffer);
+    auto buffer = readChunk(m_storage.get(), chunkId);
+    ByteCursor cursor(buffer);
 
     containerHeader.magic = cursor.read<uint32_t>();
     if (containerHeader.magic != IO_CONTAINER_MAGIC) {
@@ -247,15 +253,17 @@ namespace SAP {
     containerHeader.version = cursor.read<EIoContainerHeaderVersion>();
     containerHeader.containerId = cursor.read<FPackageId>();
 
-    if (containerHeader.version < EIoContainerHeaderVersion::OptionalSegmentPackages) { cursor += sizeof(uint32_t); }
+    if (containerHeader.version < EIoContainerHeaderVersion::OptionalSegmentPackages) {
+      cursor += sizeof(uint32_t);
+    }
     containerHeader.packageIds = cursor.readArray<FPackageId>();
 
     auto storeEntriesEnd = cursor.read<uint32_t>() + cursor.tell();
 
     containerHeader.storeEntriesById.reserve(containerHeader.packageIds.size());
     for (uint32_t i = 0; i < containerHeader.packageIds.size(); ++i) {
-      containerHeader.storeEntriesById.emplace
-          (containerHeader.packageIds[i], readFilePackageStoreEntry(cursor, containerHeader.version));
+      const auto &[entry, insered] = containerHeader.storeEntriesById.emplace(containerHeader.packageIds[i], FFilePackageStoreEntry{});
+      readFilePackageStoreEntry(cursor, &entry->second ,containerHeader.version);
     }
     cursor = storeEntriesEnd;
 
@@ -264,17 +272,17 @@ namespace SAP {
 
       auto optStoreEntriesEnd = cursor.read<uint32_t>() + cursor.tell();
 
-      containerHeader.optionalSegmentStoreEntries.reserve(containerHeader.optionalSegmentPackageIds.size());
+      containerHeader.optionalSegmentStoreEntries =
+          m_storage->allocateSpan<FFilePackageStoreEntry>(containerHeader.optionalSegmentPackageIds.size());
       for (uint32_t i = 0; i < containerHeader.optionalSegmentPackageIds.size(); ++i) {
-        containerHeader.optionalSegmentStoreEntries.emplace_back
-            (readFilePackageStoreEntry(cursor, containerHeader.version));
+        readFilePackageStoreEntry(cursor, &containerHeader.optionalSegmentStoreEntries[i], containerHeader.version);
       }
 
       cursor = optStoreEntriesEnd;
     }
 
     if (containerHeader.version >= EIoContainerHeaderVersion::Initial) {
-      containerHeader.containerNameMap = cursor.loadNameBatch(m_stringStorage);
+      containerHeader.containerNameMap = cursor.loadNameBatch(m_storage.get());
     }
 
     if (containerHeader.version >= EIoContainerHeaderVersion::LocalizedPackages) {
@@ -287,29 +295,26 @@ namespace SAP {
     return true;
   }
 
-  FFilePackageStoreEntry IOStoreReader::readFilePackageStoreEntry
-  (ByteCursor &cursor, EIoContainerHeaderVersion version) {
-    FFilePackageStoreEntry entry{};
+  void IOStoreReader::readFilePackageStoreEntry(ByteCursor &cursor, FFilePackageStoreEntry *entry,
+                                                EIoContainerHeaderVersion version) {
     if (version >= EIoContainerHeaderVersion::Initial) {
       if (version < EIoContainerHeaderVersion::NoExportInfo) {
-        entry.exportCount = cursor.read<uint32_t>();
-        entry.exportBundleCount = cursor.read<uint32_t>();
+        entry->exportCount = cursor.read<uint32_t>();
+        entry->exportBundleCount = cursor.read<uint32_t>();
       }
 
-      entry.importedPackage = cursor.readArrayView<FPackageId>();
-      entry.shaderMapHashes = cursor.readArrayView<FSHAHash>();
+      entry->importedPackage = cursor.readArrayView<FPackageId>();
+      entry->shaderMapHashes = cursor.readArrayView<FSHAHash>();
     } else {
       cursor += 8; // ExportBundlesSize (skip 8)
-      entry.exportCount = cursor.read<uint32_t>();
-      entry.exportBundleCount = cursor.read<uint32_t>();
+      entry->exportCount = cursor.read<uint32_t>();
+      entry->exportBundleCount = cursor.read<uint32_t>();
       cursor += 8; // LoadOrder + Pad
-      entry.importedPackage = cursor.readArrayView<FPackageId>();
+      entry->importedPackage = cursor.readArrayView<FPackageId>();
     }
-    return entry;
   }
 
-  FIoContainerHeaderSoftPackageReferences IOStoreReader::readSoftPackageReferences
-  (ByteCursor &cursor) {
+  FIoContainerHeaderSoftPackageReferences IOStoreReader::readSoftPackageReferences(ByteCursor &cursor) {
     FIoContainerHeaderSoftPackageReferences out;
 
     out.bContainsSoftPackageReferences = cursor.readBool();
@@ -323,39 +328,35 @@ namespace SAP {
   }
 
   void IOStoreReader::parseDirectoryPathList() {
-    if (m_DirectoryIndexBuffer.empty()) { return; }
+    if (m_DirectoryIndexBuffer.empty()) {
+      return;
+    }
 
     ByteCursor cursor(m_DirectoryIndexBuffer);
-    auto mountPoint = cursor.readFString(m_stringStorage);
+    auto mountPoint = cursor.readFString(m_storage.get());
 
     auto dirEntryCount = cursor.read<uint32_t>();
     cursor += dirEntryCount * sizeof(FIoDirectoryIndexEntry); // Skip we only want the strings
 
     auto fileEntryCount = cursor.read<uint32_t>();
 
-    cursor += fileEntryCount * sizeof(FIoFileIndexEntry); //Skip
+    cursor += fileEntryCount * sizeof(FIoFileIndexEntry); // Skip
 
     auto stringCount = cursor.read<uint32_t>();
 
     Logger::logInfo("[Path List]", "Lese {} Pfad-Strings...", stringCount);
 
-    m_DirectoryPaths.reserve(stringCount);
-    for (uint32_t i = 0; i < stringCount; ++i) { m_DirectoryPaths.emplace_back(cursor.readFString(m_stringStorage)); }
+    m_DirectoryPaths = m_storage->allocateSpan<std::string_view>(stringCount);
+    for (uint32_t i = 0; i < stringCount; ++i) {
+      m_DirectoryPaths[i] = cursor.readFString(m_storage.get());
+    }
   }
 
   void IOStoreReader::createChunkLookupTable() {
-    if (m_ChunkIds.size() != m_ChunkOffsetLengths.size()) {
-      Logger::logError
-          ("[Lookup Table]",
-           "Chunk IDs ({}) und Offsets ({}) stimmen in der Anzahl nicht überein!",
-           m_ChunkIds.size(),
-           m_ChunkOffsetLengths.size());
-      return;
-    }
 
-    m_ImperfectChunkOffsetMap.reserve(m_ChunkIds.size()); // Optional, aber gut für die Performance
-    for (size_t i = 0; i < m_ChunkIds.size(); ++i) {
-      m_ImperfectChunkOffsetMap[m_ChunkIds[i]] = m_ChunkOffsetLengths[i];
+    m_ImperfectChunkOffsetMap.reserve(m_ChunkIndicesWithoutPerfectHash.size());
+    for (const auto &i: m_ChunkIndicesWithoutPerfectHash) {
+      m_ImperfectChunkOffsetMap.try_emplace(m_ChunkIds[i], m_ChunkOffsetLengths[i]);
     }
   }
 
@@ -363,7 +364,9 @@ namespace SAP {
     const auto *bytes = reinterpret_cast<const uint8_t *>(chunkId);
     constexpr size_t datasize = sizeof(FIoChunkId);
     uint64_t hash = seed != 0 ? static_cast<uint64_t>(seed) : 0xcbf29ce484222325;
-    for (size_t i = 0; i < datasize; ++i) { hash = (hash * 0x00000100000001B3) ^ bytes[i]; }
+    for (size_t i = 0; i < datasize; ++i) {
+      hash = (hash * 0x00000100000001B3) ^ bytes[i];
+    }
     return hash;
   }
 
@@ -383,10 +386,14 @@ namespace SAP {
     uint32_t slot;
     if (seed < 0) {
       uint32_t seedAsIndex = -seed - 1;
-      if (seedAsIndex < m_TocHeader.tocEntryCount) { slot = seedAsIndex; } else {
+      if (seedAsIndex < m_TocHeader.tocEntryCount) {
+        slot = seedAsIndex;
+      } else {
         return resolveImperfectChunk(chunkId, outOffsetLength);
       }
-    } else { slot = hashChunk(seed, &chunkId) % m_TocHeader.tocEntryCount; }
+    } else {
+      slot = hashChunk(seed, &chunkId) % m_TocHeader.tocEntryCount;
+    }
 
     if (m_ChunkIds[slot] == chunkId) {
       outOffsetLength = m_ChunkOffsetLengths[slot];
@@ -396,7 +403,7 @@ namespace SAP {
     return false;
   }
 
-  bool IOStoreReader::resolveImperfectChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const  {
+  bool IOStoreReader::resolveImperfectChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const {
     auto iter = m_ImperfectChunkOffsetMap.find(chunkId);
     if (iter == m_ImperfectChunkOffsetMap.end()) {
       outOffsetLength = {};
@@ -406,40 +413,41 @@ namespace SAP {
     return true;
   }
 
-  std::vector<uint8_t> IOStoreReader::readChunk(const FIoChunkId &chunkId) const{
-    std::vector<uint8_t> uncompressedData;
+  std::span<uint8_t> IOStoreReader::readChunk(HeapStorage *storage, const FIoChunkId &chunkId) const {
 
     FIoOffsetAndLength offsetLenght{};
     if (!resolveChunk(chunkId, offsetLenght)) {
       Logger::logError("[Chunk Read]", "Chunk {} nicht gefunden.", chunkId.chunkIndex);
-      return uncompressedData;
+      return {};
     }
 
-    uint64_t index = offsetLenght.offset / m_TocHeader.compressionBlockSize;
-    const uint64_t lenght = offsetLenght.length;
-    uncompressedData.resize(lenght);
+    uint64_t index = offsetLenght.offset() / m_TocHeader.compressionBlockSize;
+    const uint64_t lenght = offsetLenght.length();
+    auto uncompressedData = storage->allocateSpan(lenght);
     auto uncompressedSpan = std::span(uncompressedData);
     for (uint64_t offset = 0; offset < lenght; index++) {
-      auto &block = m_CompressionBlocks[index];
-      auto dst = uncompressedSpan.subspan(offset, block.uncompressedSize);
+      auto &block = m_compressionBlocks[index];
+      auto size = block.uncompressedSize();
+      auto dst = uncompressedSpan.subspan(offset, size);
       bool success = readBlock(block, dst);
       if (!success) {
-        uncompressedData.clear();
         Logger::logError("[Chunk Read]", "Fehler beim Lesen oder Dekomprimieren von Block {}.", index);
-        return uncompressedData;
+        return {};
       }
-      offset += block.uncompressedSize;
+      offset += size;
     }
     return uncompressedData;
   }
 
   bool IOStoreReader::readBlock(const FIoStoreTocCompressedBlockEntry &blockEntry, std::span<uint8_t> dst) const {
-    uint64_t compressedOffset = blockEntry.compressedOffset;
-    uint32_t compressedSize = blockEntry.compressedSize;
+    uint64_t compressedOffset = blockEntry.compressedOffset();
+    uint32_t compressedSize = blockEntry.compressedSize();
     uint8_t methodIndex = blockEntry.compressionMethod;
 
     CompressionMethod compressionMethod;
-    if (methodIndex < m_CompressionMethods.size()) { compressionMethod = m_CompressionMethods[methodIndex]; } else {
+    if (methodIndex < m_CompressionMethods.size()) {
+      compressionMethod = m_CompressionMethods[methodIndex];
+    } else {
       Logger::logError("[IOStore]", "Unbekannter Kompressionsindex {} gefunden.", methodIndex);
       return false;
     }

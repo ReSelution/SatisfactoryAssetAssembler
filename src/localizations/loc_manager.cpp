@@ -12,6 +12,8 @@
 
 namespace SAP {
   LocManager::LocManager(AssetParser *parser) : m_parser(parser) {
+    auto start = std::chrono::high_resolution_clock::now();
+
     auto *vfs = parser->getVfs();
     for (auto &entry: vfs->entries()) {
       if (entry.second->path.ends_with(".locmeta")) {
@@ -19,6 +21,9 @@ namespace SAP {
         parser.parse();
       }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    Logger::logInfo("[LocManager]", "Found {} Files in: {} ms", m_metaParsers.size() ,us.count() / 1000.0);
   }
 
   void LocManager::setCulture(std::string_view langCode) {
@@ -28,7 +33,9 @@ namespace SAP {
     }
     auto index = 0;
     for (auto &entry: m_cultureList) {
-      if (entry == langCode) { break; }
+      if (entry == langCode) {
+        break;
+      }
       index++;
     }
     cultureIndex = index;
@@ -38,13 +45,17 @@ namespace SAP {
     auto [it, inserted] = m_registeredCultures.insert(std::string(culture));
     if (inserted) {
       m_cultureList.push_back(*it);
-      if (*it == DEFAULT_CULTURE) { cultureIndex = m_registeredCultures.size() - 1; }
+      if (*it == DEFAULT_CULTURE) {
+        cultureIndex = m_registeredCultures.size() - 1;
+      }
     }
   }
 
   void LocManager::load() {
 
-    if (cultureIndex == loadedIndex) { return; }
+    if (cultureIndex == loadedIndex) {
+      return;
+    }
     auto *vfs = m_parser->getVfs();
     auto culture = m_cultureList.at(cultureIndex);
 
@@ -60,22 +71,29 @@ namespace SAP {
       if (vfsEntryNative) {
         auto *res = &m_resParsersNative.emplace_back(this, vfsEntryNative);
         m_jobQueue.emplace(res);
-      } else { Logger::logError("[LOC]", "Failed to load locRes: {}", nativeResPath); }
+      } else {
+        Logger::logError("[LOC]", "Failed to load locRes: {}", nativeResPath);
+      }
 
-      auto [isNative ,resPath] = locMeta.getRes(culture);
+      auto [isNative, resPath] = locMeta.getRes(culture);
       if (!isNative && !resPath.empty()) {
         auto vfsEntry = vfs->readVfs(resPath);
         if (vfsEntry) {
           auto *res = &m_cultureRes.emplace_back(this, vfsEntry);
           m_jobQueue.emplace(res);
-        } else { Logger::logError("[LOC]", "Failed to load locRes: {}", resPath); }
+        } else {
+          Logger::logError("[LOC]", "Failed to load locRes: {}", resPath);
+        }
       }
     }
 
-
     processCultures();
-    for (auto &res: m_cultureRes) { mergeCultures(res.getMap()); }
-    for (auto &res: m_resParsersNative) { mergeCultures(res.getMap()); }
+    for (auto &res: m_cultureRes) {
+      mergeCultures(res.getMap());
+    }
+    for (auto &res: m_resParsersNative) {
+      mergeCultures(res.getMap());
+    }
 
     loadedIndex = cultureIndex;
     auto end = std::chrono::high_resolution_clock::now();
@@ -84,7 +102,9 @@ namespace SAP {
   }
 
   void LocManager::processCultures(uint32_t threadCount) {
-    if (threadCount == 0) { threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1)); }
+    if (threadCount == 0) {
+      threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
+    }
     for (uint32_t i = 0; i < threadCount; i++) {
       m_ThreadPool.emplace_back(&LocManager::workerThread, this);
     }
@@ -99,26 +119,25 @@ namespace SAP {
 
   void LocManager::workerThread() {
     while (true) {
-        std::unique_lock lock (m_QueueMutex);
-        if (m_jobQueue.empty()) {
-          return;
-        }
-        auto parser = m_jobQueue.front();
-        m_jobQueue.pop();
-        lock.unlock();
-        parser->parse();
+      std::unique_lock lock(m_QueueMutex);
+      if (m_jobQueue.empty()) {
+        return;
+      }
+      auto parser = m_jobQueue.front();
+      m_jobQueue.pop();
+      lock.unlock();
+      parser->parse();
     }
   }
 
   void LocManager::mergeCultures(std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> &src) {
-    for ( auto& [nsName, nsKeys]:src ) {
+    for (auto &[nsName, nsKeys]: src) {
       auto dst = entries.find(nsName);
       if (dst == entries.end()) {
         entries[nsName] = std::move(nsKeys);
-      }
-      else {
+      } else {
         dst->second.merge(entries[nsName]);
       }
     }
   }
-} // SAP
+} // namespace SAP

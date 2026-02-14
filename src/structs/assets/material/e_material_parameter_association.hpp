@@ -6,7 +6,7 @@
 #include <cstdint>
 
 namespace SAP {
-  enum class EMaterialParameterAssociation: uint32_t {
+  enum class EMaterialParameterAssociation : uint32_t {
     LayerParameter = fnv1a("LayerParameter"),
     BlendParameter = fnv1a("BlendParameter"),
     GlobalParameter = fnv1a("GlobalParameter"),

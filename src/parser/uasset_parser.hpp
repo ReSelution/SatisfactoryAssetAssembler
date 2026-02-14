@@ -1,8 +1,7 @@
 #pragma once
 
+#include "byte_cursor.hpp"
 #include "AssetFileParser.hpp"
-#include "../util/byte_cursor.hpp"
-#include "version.hpp"
 #include "core/name.hpp"
 #include "io/f_io_container_header.hpp"
 #include "io/packages/f_bulk_data_map_entry.hpp"
@@ -11,6 +10,7 @@
 #include "io/packages/f_zen_package_cell_offsets.hpp"
 #include "io/packages/f_zen_package_summary.hpp"
 #include "ue/object/struct.hpp"
+#include "version.hpp"
 
 namespace SAP {
   class IOVfsEntry;
@@ -19,20 +19,20 @@ namespace SAP {
 
   class UAssetParser final : public AssetFileParser {
   public:
-    UAssetParser(AssetParser *assetParser, const IOVfsEntry* vfsEntry);
+    UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry);
     ~UAssetParser() override = default;
 
     [[nodiscard]] std::string_view nameFromMap(uint32_t index) override;
     std::string_view getMappedName(FMappedName name);
 
     [[nodiscard]] const FZenPackageSummary &getSummary() const;
-    [[nodiscard]] const std::vector<std::string_view> &getNameMap() const;
+    [[nodiscard]] std::span<std::string_view> getNameMap() const;
 
     [[nodiscard]] std::span<const FBulkDataMapEntry> bulkDataMap() const { return m_bulkDataMap; };
 
     FByteBulkData parseFByteBulkData(ByteCursor &cursor) override;
 
-    std::weak_ptr<Object> resolveIndex(int32_t index) override;
+    Object* resolveIndex(int32_t index) override;
 
     void loadExports() const override;
     void exportAssets() const override;
@@ -56,14 +56,13 @@ namespace SAP {
     void processExports();
 
     void processExportEntry(const FExportBundleEntry &entry);
-    std::weak_ptr<Object> resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index);
-    std::weak_ptr<Object> resolveExportObject
-    (const FExportMapEntry &entry, const FPackageObjectIndex &index) override;
-    std::weak_ptr<Object> resolveScriptImport(const FExportMapEntry &entry, const FPackageObjectIndex &index);
-    std::weak_ptr<Object> resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index) const;
-    std::weak_ptr<Object> resolvePackageExport(const uint64_t &publicExportHash) override;
-    std::weak_ptr<Object> constructObject(const FExportMapEntry &entry, const std::shared_ptr<Struct> &ustruct);
-    std::vector<std::shared_ptr<Object> > &exportMap() override;
+    Object* resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index);
+    Object* resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) override;
+    Object* resolveScriptImport(const FExportMapEntry &entry, const FPackageObjectIndex &index);
+    Object* resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index) const;
+    Object* resolvePackageExport(const uint64_t &publicExportHash) override;
+    Object* constructObject(const FExportMapEntry &entry, Struct* ustruct);
+    std::span<Object*> exportMap() override;
 
     const FIoContainerHeader *m_containerHeader{nullptr};
 
@@ -73,8 +72,7 @@ namespace SAP {
     FZenPackageCellOffsets m_cellOffsets{};
 
     // ---- name & store ----
-    HeapStorage<> m_stringStorage;
-    std::vector<std::string_view> m_nameMap;
+    std::span<std::string_view> m_nameMap;
     FFilePackageStoreEntry m_storeEntry{};
 
     // ---- data maps ----
@@ -82,12 +80,11 @@ namespace SAP {
     std::span<const FPackageObjectIndex> m_importMap;
     std::span<const uint64_t> m_importedPublicExportHashes;
     std::span<const FExportMapEntry> m_exportMap;
-    std::unordered_map<uint64_t, uint32_t> m_exportHashToIndex;
+    std::pmr::unordered_map<uint64_t, uint32_t> m_exportHashToIndex;
     std::span<const FExportBundleEntry> m_exportBundleEntries;
 
     // ---- imported assets ----
-    std::vector<std::shared_ptr<Object> > m_exportObjectsKeepalive;
 
-    std::vector<std::weak_ptr<Object> > m_exportObjects;
+    std::span<Object*> m_exportObjects;
   };
 } // namespace SAP

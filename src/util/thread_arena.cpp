@@ -4,4 +4,4 @@
 
 #include "thread_arena.hpp"
 
-namespace SAP {} // SAP
+namespace SAP {} // namespace SAP
