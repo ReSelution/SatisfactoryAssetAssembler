@@ -15,6 +15,7 @@ namespace SAP {
   UsmapReader::UsmapReader(std::filesystem::path path) : m_Path(std::move(path)) {}
 
   bool UsmapReader::parse(FUsmapMappingData &outputData) {
+    auto start = std::chrono::high_resolution_clock::now();
     std::ifstream file(m_Path, std::ios::binary);
     if (!file.is_open()) {
       Logger::logError("[USMAP]", "Konnte Datei nicht öffnen: {}", m_Path.string());
@@ -38,6 +39,9 @@ namespace SAP {
       parseNameMap(cursor, outputData);
       parseEnums(cursor, outputData);
       parseSchemas(cursor, outputData);
+      auto end = std::chrono::high_resolution_clock::now();
+      auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+      Logger::logInfo("[USMAP]", "Parsed {} Enums and {} Schemas in {} ms ", outputData.Enums.size(), outputData.Schemas.size(), us.count()/1000);
       return true;
     } catch (const std::exception &e) {
       Logger::logError("[USMAP]", "Exception während des Parsings: {}", e.what());

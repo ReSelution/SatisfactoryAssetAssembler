@@ -43,6 +43,7 @@ namespace SAP {
     Vector = fnv1a("Vector"),
     Vector4d = fnv1a("Vector4d"),
     Vector3f = fnv1a("Vector3f"),
+    Vector2f = fnv1a("Vector2f"),
     Rotator = fnv1a("Rotator"),
     Quat = fnv1a("Quat"),
     Box = fnv1a("Box"),
@@ -88,83 +89,46 @@ namespace SAP {
     SoftObjectPath = fnv1a("SoftObjectPath"),
     MovieSceneFrameRange = fnv1a("MovieSceneFrameRange"),
     FontData = fnv1a("FontData"),
-    FontCharacter
+    MovieSceneEvaluationFieldEntityTree = fnv1a("MovieSceneEvaluationFieldEntityTree"),
+    FontCharacter = fnv1a("FontCharacter"),
+    FrameNumber = fnv1a("FrameNumber"),
+    MovieSceneFloatChannel = fnv1a("MovieSceneFloatChannel"),
+    Box2f = fnv1a("Box2f"),
+    MovieSceneTrackIdentifier = fnv1a("MovieSceneTrackIdentifier"),
+    LevelSequenceObjectReferenceMap = fnv1a("LevelSequenceObjectReferenceMap"),
+    SmartName = fnv1a("SmartName"),
+    DateTime  = fnv1a("DateTime"),
+    FGServerCertificate = fnv1a("FGServerCertificate"),
+    PerPlatformFrameRate = fnv1a("PerPlatformFrameRate"),
+    ShaderValueTypeHandle = fnv1a("ShaderValueTypeHandle"),
+
+    // --- Niagara ---
+    NiagaraVariable = fnv1a("NiagaraVariable"),
+    NiagaraVariableBase = fnv1a("NiagaraVariableBase"),
+    NiagaraVariableWithOffset = fnv1a("NiagaraVariableWithOffset"),
+    NiagaraDataChannelVariable = fnv1a("NiagaraDataChannelVariable"),
+    NiagaraDataInterfaceGPUParamInfo = fnv1a("NiagaraDataInterfaceGPUParamInfo"),
+    NiagaraScript = fnv1a("NiagaraScript"),
+    NiagaraScriptExecutionParameterStore = fnv1a("NiagaraScriptExecutionParameterStore"),
+
+    // --- MovieScene / Sequencer ---
+    MovieSceneSequenceID = fnv1a("MovieSceneSequenceID"),
+    MovieSceneEvaluationKey = fnv1a("MovieSceneEvaluationKey"),
+    MovieSceneEventParameters = fnv1a("MovieSceneEventParameters"),
+    MovieSceneSegment = fnv1a("MovieSceneSegment"),
+    MovieSceneSegmentIdentifier = fnv1a("MovieSceneSegmentIdentifier"),
+    MovieSceneTrackFieldData = fnv1a("MovieSceneTrackFieldData"),
+    MovieSceneSubSequenceTree = fnv1a("MovieSceneSubSequenceTree"),
+    MovieSceneSequenceInstanceDataPtr = fnv1a("MovieSceneSequenceInstanceDataPtr"),
+    MovieSceneEvalTemplatePtr = fnv1a("MovieSceneEvalTemplatePtr"),
+    MovieSceneTrackImplementationPtr = fnv1a("MovieSceneTrackImplementationPtr"),
+    SectionEvaluationDataTree = fnv1a("SectionEvaluationDataTree"),
+    MovieSceneDoubleChannel = fnv1a("MovieSceneDoubleChannel"),
+    MovieSceneTrackIdentifiers = fnv1a("MovieSceneTrackIdentifiers"),
+    MovieSceneByteChannel = fnv1a("MovieSceneByteChannel"),
+
   };
 
-  inline const char *to_string(ESatisfactoryStruct s) {
-    switch (s) {
-      case ESatisfactoryStruct::Unknown:
-        return "Unknown";
-
-      case ESatisfactoryStruct::Guid:
-        return "Guid";
-      case ESatisfactoryStruct::IntPoint:
-        return "IntPoint";
-      case ESatisfactoryStruct::Vector:
-        return "Vector";
-      case ESatisfactoryStruct::Vector4d:
-        return "Vector4d";
-      case ESatisfactoryStruct::Rotator:
-        return "Rotator";
-      case ESatisfactoryStruct::Box:
-        return "Box";
-      case ESatisfactoryStruct::Quat:
-        return "Quat";
-      case ESatisfactoryStruct::Transform:
-        return "Transform";
-      case ESatisfactoryStruct::KAggregateGeom:
-        return "KAggregateGeom";
-      case ESatisfactoryStruct::KBoxElem:
-        return "KBoxElem";
-      case ESatisfactoryStruct::KConvexElem:
-        return "KConvexElem";
-      case ESatisfactoryStruct::BodyInstance:
-        return "BodyInstance";
-      case ESatisfactoryStruct::CollisionResponse:
-        return "CollisionResponse";
-      case ESatisfactoryStruct::ResponseChannel:
-        return "ResponseChannel";
-      case ESatisfactoryStruct::StaticMaterial:
-        return "StaticMaterial";
-      case ESatisfactoryStruct::BoxSphereBounds:
-        return "BoxSphereBounds";
-      case ESatisfactoryStruct::MeshUVChannelInfo:
-        return "MeshUVChannelInfo";
-      case ESatisfactoryStruct::LinearColor:
-        return "LinearColor";
-      case ESatisfactoryStruct::ScalarParameterValue:
-        return "ScalarParameterValue";
-      case ESatisfactoryStruct::VectorParameterValue:
-        return "VectorParameterValue";
-      case ESatisfactoryStruct::TextureParameterValue:
-        return "TextureParameterValue";
-      case ESatisfactoryStruct::MaterialParameterInfo:
-        return "MaterialParameterInfo";
-      case ESatisfactoryStruct::MaterialInstanceBasePropertyOverrides:
-        return "MaterialInstanceBasePropertyOverrides";
-      case ESatisfactoryStruct::MaterialTextureInfo:
-        return "MaterialTextureInfo";
-      case ESatisfactoryStruct::StaticParameterSetRuntimeData:
-        return "StaticParameterSetRuntimeData";
-      case ESatisfactoryStruct::StaticSwitchParameter:
-        return "StaticSwitchParameter";
-      case ESatisfactoryStruct::MaterialCachedParameterEntry:
-        return "MaterialCachedParameterEntry";
-      case ESatisfactoryStruct::Color:
-        return "Color";
-      case ESatisfactoryStruct::RichCurveKey:
-        return "RichCurveKey";
-      case ESatisfactoryStruct::Vector4:
-        return "Vector4";
-      case ESatisfactoryStruct::DeprecateSlateVector2D:
-        return "DeprecateSlateVector2D";
-      case ESatisfactoryStruct::Vector2D:
-        return "Vector2D";
-
-      default:
-        return "InvalidESatisfactoryStruct";
-    }
-  }
 
   enum class EPropertyTagType : uint32_t {
     Unknown = 0,
@@ -215,106 +179,12 @@ namespace SAP {
     GameDataHandle = fnv1a("GameDataHandleProperty"),
   };
 
-  inline std::string to_string(EPropertyTagType type) {
-    switch (type) {
-      case EPropertyTagType::Unknown:
-        return "Unknown";
-      case EPropertyTagType::Array:
-        return "ArrayProperty";
-      case EPropertyTagType::AssetObject:
-        return "AssetObjectProperty";
-      case EPropertyTagType::AssetClass:
-        return "AssetClassProperty";
-      case EPropertyTagType::Bool:
-        return "BoolProperty";
-      case EPropertyTagType::Byte:
-        return "ByteProperty";
-      case EPropertyTagType::Class:
-        return "ClassProperty";
-      case EPropertyTagType::Delegate:
-        return "DelegateProperty";
-      case EPropertyTagType::Double:
-        return "DoubleProperty";
-      case EPropertyTagType::Enum:
-        return "EnumProperty";
-      case EPropertyTagType::FieldPath:
-        return "FieldPathProperty";
-      case EPropertyTagType::Float:
-        return "FloatProperty";
-      case EPropertyTagType::Int16:
-        return "Int16Property";
-      case EPropertyTagType::Int64:
-        return "Int64Property";
-      case EPropertyTagType::Int8:
-        return "Int8Property";
-      case EPropertyTagType::Int:
-        return "IntProperty";
-      case EPropertyTagType::Interface:
-        return "InterfaceProperty";
-      case EPropertyTagType::LazyObject:
-        return "LazyObjectProperty";
-      case EPropertyTagType::Map:
-        return "MapProperty";
-      case EPropertyTagType::MulticastDelegate:
-        return "MulticastDelegateProperty";
-      case EPropertyTagType::MulticastInline:
-        return "MulticastInlineDelegateProperty";
-      case EPropertyTagType::MulticastSparse:
-        return "MulticastSparseDelegateProperty";
-      case EPropertyTagType::Name:
-        return "NameProperty";
-      case EPropertyTagType::Object:
-        return "ObjectProperty";
-      case EPropertyTagType::Set:
-        return "SetProperty";
-      case EPropertyTagType::SoftClass:
-        return "SoftClassProperty";
-      case EPropertyTagType::SoftObject:
-        return "SoftObjectProperty";
-      case EPropertyTagType::Str:
-        return "StrProperty";
-      case EPropertyTagType::Utf8Str:
-        return "Utf8StrProperty";
-      case EPropertyTagType::Struct:
-        return "StructProperty";
-      case EPropertyTagType::Text:
-        return "TextProperty";
-      case EPropertyTagType::UInt16:
-        return "UInt16Property";
-      case EPropertyTagType::UInt32:
-        return "UInt32Property";
-      case EPropertyTagType::UInt64:
-        return "UInt64Property";
-      case EPropertyTagType::WeakObject:
-        return "WeakObjectProperty";
-      case EPropertyTagType::Optional:
-        return "OptionalProperty";
-
-      case EPropertyTagType::VerseString:
-        return "VerseStringProperty";
-      case EPropertyTagType::VerseFunction:
-        return "VerseFunctionProperty";
-      case EPropertyTagType::VerseDynamic:
-        return "VerseDynamicProperty";
-
-      case EPropertyTagType::Custom_FD:
-        return "CustomProperty_FD";
-      case EPropertyTagType::Custom_FE:
-        return "CustomProperty_FE";
-      case EPropertyTagType::GbxDefPtr:
-        return "GbxDefPtrProperty";
-      case EPropertyTagType::GameDataHandle:
-        return "GameDataHandleProperty";
-      case EPropertyTagType::None:
-        return "None";
-    }
-    return "<invalid>";
-  }
 
   struct FPropertyTagData {
     FName Name; // optional
     EPropertyTagType Type = EPropertyTagType::Unknown;
 
+    FName structName;
     ESatisfactoryStruct StructType;
     FGuid StructGuid;
 
@@ -362,20 +232,19 @@ namespace SAP {
   };
 
   struct FPropertyValue {
-    using Value =
-        std::variant<std::monostate, IntPoint, bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t,
-                     uint64_t, float, double, std::string_view, Object*,
+    using Value = std::variant<
+        std::monostate, IntPoint, bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, float,
+        double, std::string_view, Object *,
 
-                     FMaterialOverrideNanite, FPerQualityLevelFloat, FPerQualityLevelInt,
+        FMaterialOverrideNanite, FPerQualityLevelFloat, FPerQualityLevelInt,
 
-                     FName, FGuid,
+        FName, FGuid,
 
-                     FVector, FVector_f, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
+        FVector, FVector_f, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
 
-                     FQuat, FBox, FLinearColor, FText, FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
+        FQuat, FBox, FBox2f, FLinearColor, FText, FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
 
-                     std::vector<FPropertyValue>, std::vector<std::pair<FPropertyValue, FPropertyValue>>,
-                     FWeightedRandomSampler>;
+        std::pmr::vector<FPropertyValue>, std::pmr::vector<std::pair<FPropertyValue, FPropertyValue>>, FWeightedRandomSampler>;
     Value data;
   };
 
@@ -405,3 +274,24 @@ namespace SAP {
     }
   };
 } // namespace SAP
+
+template<typename T>
+std::optional<T> SAP::PropertyHolder::getProperty(std::string_view name) const {
+  auto it = m_properties.find(fnv1a(name));
+  if (it == m_properties.end())
+    return std::nullopt;
+
+  // Hier ist FPropertyValue jetzt "complete" und std::get_if funktioniert
+  if (const T *val = std::get_if<T>(&it->second.Tag.data)) {
+    return *val;
+  }
+  return std::nullopt;
+}
+template<typename T>
+const std::pmr::vector<SAP::FPropertyValue> *SAP::PropertyHolder::getArray(std::string_view name) const {
+  auto it = m_properties.find(fnv1a(name));
+  if (it != m_properties.end()) {
+    return std::get_if<std::pmr::vector<FPropertyValue>>(&it->second.Tag.data);
+  }
+  return nullptr;
+}

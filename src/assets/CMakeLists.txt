@@ -1,7 +1,11 @@
 # ----------------------------------------
 # SAP_Assets Library Definition
 # ----------------------------------------
-add_library(SAP_Assets STATIC)
+add_library(SAP_Assets STATIC
+        ue/controlRig/rig_hierarchy.cpp
+        ue/controlRig/rig_hierarchy.hpp
+        ue/rigVM/rig_vm.cpp
+        ue/rigVM/rig_vm.hpp)
 
 target_sources(SAP_Assets
         PUBLIC

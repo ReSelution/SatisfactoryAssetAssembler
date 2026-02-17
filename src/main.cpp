@@ -19,7 +19,7 @@ int main() {
     std::cerr << "FEHLER: SAP-Initialisierung fehlgeschlagen. Prüfen Sie Pfade und Oodle/Mappings." << '\n';
     return 1;
   }
-  // provider.test();
+  //provider.test();
   provider.crawl();
   auto end = std::chrono::high_resolution_clock::now();
   auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);

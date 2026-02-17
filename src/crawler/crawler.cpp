@@ -10,6 +10,7 @@
 #include "vfs.hpp"
 
 #include "ue/asset_object.hpp"
+#include "PropertyTracker.hpp"
 
 namespace SAP {
   Crawler::Crawler() {
@@ -36,7 +37,8 @@ namespace SAP {
 
   void Crawler::crawl(AssetParser &parser) {
     createFileQueue(parser);
-    parser.processQueue(this,4);
+    parser.processQueue(this);
+    DBG_PRINT_MISSING();
     Logger::logInfo("[CRAWLER]", "Found {} Buildings", m_buildable.size());
     Logger::logInfo("[CRAWLER]", "Found {} Recipes", m_recipes.size());
     Logger::logInfo("[CRAWLER]", "Found {} Items", m_items.size());
@@ -51,28 +53,28 @@ namespace SAP {
       auto hash = static_cast<HIT_TEST_CLASS_HASH>(obj->getClassHash());
       switch (hash) {
         case HIT_TEST_CLASS_HASH::FGRecipe:
-          obj->safeParse();
+          parser->loadExports();
           m_recipes.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGSchematic:
-          obj->safeParse();
+          parser->loadExports();
           m_schematics.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGItemDescriptor:
         case HIT_TEST_CLASS_HASH::FGItemDescriptorBiomass:
-          obj->safeParse();
+          parser->loadExports();
           m_items.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGResourceDescriptor:
-          obj->safeParse();
+          parser->loadExports();
           m_resources.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGBuildingDescriptor:
-          obj->safeParse();
+          parser->loadExports();
           m_buildable.emplace_back(parser);
           return true;
 

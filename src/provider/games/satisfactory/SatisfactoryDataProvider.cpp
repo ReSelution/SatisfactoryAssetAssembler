@@ -71,7 +71,7 @@ namespace SAP {
     }
 
     Logger::logInfo("[Provider]", "VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
-    //m_vfs.dumpToText("output/filesEntry.txt");
+    // m_vfs.dumpToText("output/filesEntry.txt");
     usmapFuture.get();
     globalDataFuture.get();
     auto end = std::chrono::high_resolution_clock::now();
@@ -87,23 +87,16 @@ namespace SAP {
   }
 
   void SatisfactoryDataProvider::test() {
-    std::ofstream csv("benchmark_results.csv");
-    csv << "buffer_size,iteration,duration_us\n"; // Header für Python/Pandas
+    AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
+    // parser.queueFile("FactoryGame/Content/FactoryGame/Interface/UI/Server/BPW_Server_AcceptCertificate_Popup.uasset");
 
-    for (size_t bufferSize = 4 *1024 ; bufferSize < 162116; bufferSize += 4*1024) {
-      for (uint32_t i = 0; i < 10; i++) {
-        HeapPool::init(64, bufferSize);
-        auto start = std::chrono::high_resolution_clock::now();
-        AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-        Crawler crawler;
-        crawler.crawl(parser);
-        auto end = std::chrono::high_resolution_clock::now();
-        auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        csv << bufferSize << "," << i << "," << us << "\n";
-        HeapPool::reset();
+    for (auto &[hash, entry]: m_vfs.entries()) {
+      if (entry->path.ends_with(".uasset")) {
+        parser.queueFile(entry->path);
       }
     }
-    csv.close();
+
+    parser.processQueue();
   }
 
   void SatisfactoryDataProvider::findAllParsableFiles(const std::filesystem::path &folder) {

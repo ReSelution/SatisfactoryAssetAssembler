@@ -28,7 +28,7 @@ namespace SAP {
       if (m_initialized)
         return;
       bufferSize = initBufferSize;
-      m_storage.reserve(poolSize + 256);
+      m_storage.reserve(poolSize);
       for (size_t i = 0; i < poolSize; ++i) {
         m_storage.push_back(std::make_unique<HeapStorage>(bufferSize));
       }

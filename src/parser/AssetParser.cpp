@@ -11,6 +11,7 @@
 
 #include "IOStoreReader.hpp"
 #include "Reader.hpp"
+#include "ThroughputStats.hpp"
 
 #include "crawler.hpp"
 #include "heap_pool.hpp"
@@ -29,14 +30,16 @@ namespace SAP {
   void AssetParser::processQueue(Crawler *crawler, uint32_t threadCount) {
     m_localizationManager.setCulture("de");
     m_localizationManager.load();
-    HeapPool::init(256, 8*1024);
     if (threadCount == 0) {
       threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
     }
-    Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads with {} KB cache Size  ", m_JobQueue.size(), threadCount,HeapPool::getBufferSize()/1000.0);
+    HeapPool::init(threadCount *4, 16*1024);
+    m_parserCache.reserve(m_vfs->entries().size());
+    Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads with {} KB cache Size  ", m_JobQueue.size(), threadCount,HeapPool::getBufferSize()/1024.0);
     std::vector<Crawler> crawlers;
     crawlers.reserve(threadCount);
     auto start = std::chrono::high_resolution_clock::now();
+    ThroughputStats::start();
     for (uint32_t i = 0; i < threadCount; ++i) {
       if (crawler) {
         auto &child = crawlers.emplace_back(crawler->getChild());
@@ -44,7 +47,9 @@ namespace SAP {
                                   [&child](std::shared_ptr<AssetFileParser> &parser) { child.onParsed(parser); });
       } else {
         m_ThreadPool.emplace_back(&AssetParser::workerThread, this,
-                                  [](const std::shared_ptr<AssetFileParser> &parser) { parser->loadExports(); });
+                                  [](std::shared_ptr<AssetFileParser> &parser) {
+                                    parser->loadExports();
+                                  });
       }
     }
 
@@ -56,11 +61,16 @@ namespace SAP {
         }
       }
     }
+
     m_ThreadPool.clear();
 
     auto end = std::chrono::high_resolution_clock::now();
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     Logger::logInfo("[AssetParser]", "Parsing finished: {} ms", us.count() / 1000.0);
+    Logger::logInfo("[AssetParser]", "Durchsatz: Decompresed: {:.2f} MB/s Compressed: {:.2f} MB/s (Gesamt: {:.2f} GB)",
+                ThroughputStats::getMBPerSecondDecompressed(),
+                ThroughputStats::getMBPerSecondCompressed(),
+                ThroughputStats::totalDecompressedBytes.load() / (1024.0 * 1024.0 * 1024.0));
   }
 
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(const FPackageId &pkg) {

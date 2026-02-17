@@ -18,8 +18,7 @@
 namespace SAP {
   void Object::parse() {
     parseTaggedProperties(m_cursor);
-    bool hasGuid = m_cursor.readBool();
-    if (hasGuid) {
+    if (m_cursor.remaining() >=16 && m_cursor.readBool()) {
       m_cursor.read<FGuid>();
     }
   }
@@ -44,6 +43,9 @@ namespace SAP {
       m_cv.wait(lock, [this] { return m_state != ObjectState::PARSING; });
     }
   }
+  void Object::setOwner(AssetFileParser *parser) {
+    m_owner = parser;
+  }
 
   std::string Object::getFullName() const {
     std::string name = std::string(m_className);
@@ -56,6 +58,12 @@ namespace SAP {
 
   void Object::setObjName(std::string_view name) { m_objName = name; }
 
-  void Object::setCursor(const ByteCursor &cursor) { m_cursor = cursor; }
+
+  void Object::setCursor(const ByteCursor &cursor) {
+    assert(m_state.load(std::memory_order_acquire) == ObjectState::NONE);
+    m_cursor = cursor;
+  }
 
 } // namespace SAP
+
+

@@ -3,18 +3,15 @@
 //
 
 #pragma once
-#include <cstdint>
-#include <string>
-#include <utility>
-#include <vector>
 
-#include "byte_cursor.hpp"
 #include "AssetFileParser.hpp"
+#include "byte_cursor.hpp"
+#include "core/f_guid.hpp"
+#include "core/hash.hpp"
 #include "logger.hpp"
 
-#include "core/name.hpp"
-#include "properties/f_property_tag.hpp"
 #include "properties/property_holder.hpp"
+#include "properties/f_property_tag.hpp"
 
 namespace SAP {
   class AssetFileParser;
@@ -28,14 +25,16 @@ namespace SAP {
     };
 
   public:
-    Object(std::string_view className = "Object") : m_className(className) {};
+    Object(std::string_view className = "Object"):PropertyHolder(className) {
+
+    };
     virtual ~Object() = default;
 
     [[nodiscard]] std::string_view getClassName() const { return m_className; }
     virtual uint32_t getClassHash() { return HASH; }
     virtual void exportAsset();
     void safeParse();
-
+    void setOwner(AssetFileParser *parser);
     void setObjName(std::string_view name);
     void setCursor(const ByteCursor &cursor);
     std::string getFullName() const;
@@ -50,7 +49,7 @@ namespace SAP {
   private:
     static constexpr uint32_t HASH = fnv1a("Object");
 
-    const std::string_view m_className;
+
     std::string_view m_objName;
     FGuid m_objGuid{};
 

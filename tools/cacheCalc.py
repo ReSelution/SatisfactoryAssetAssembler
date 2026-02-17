@@ -39,6 +39,7 @@ def analyze_assets(data):
         print(f"Maximum:  {max(data_list):>12} Bytes")
         print(f"Schnitt:  {int(statistics.mean(data_list)):>12} Bytes")
         print(f"Median:   {int(statistics.median(data_list)):>12} Bytes")
+        print(f"Summe:    {int(sum(data_list)):>12} Bytes")
         # P95 berechnen
         data_sorted = sorted(data_list)
         p95_idx = int(len(data_sorted) * 0.95)

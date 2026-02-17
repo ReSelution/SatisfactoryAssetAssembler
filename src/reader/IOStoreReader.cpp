@@ -10,6 +10,7 @@
 
 #include "Decompressor.hpp"
 #include "Reader.hpp"
+#include "ThroughputStats.hpp"
 #include "byte_cursor.hpp"
 #include "core/constants.hpp"
 #include "functions.hpp"
@@ -436,6 +437,7 @@ namespace SAP {
       }
       offset += size;
     }
+
     return uncompressedData;
   }
 
@@ -453,6 +455,8 @@ namespace SAP {
     }
 
     std::span<const uint8_t> compressedData = m_ucasReader.getSpan(compressedOffset, compressedSize);
+    ThroughputStats::totalDecompressedBytes.fetch_add(dst.size(), std::memory_order_relaxed);
+    ThroughputStats::totalCompressedBytes.fetch_add(compressedSize, std::memory_order_relaxed);
     return Decompressor::decompress(compressedData, dst, compressionMethod);
   }
 } // namespace SAP

@@ -87,7 +87,7 @@ namespace SAP {
       // 5.4+
       throw std::runtime_error("[TEXTURE]: Not implented CPU Copy");
     }
-    m_pixelFormat = asset.readFString(m_stringStorage.get());
+    m_pixelFormat = asset.readFString();
 
     m_firstMipToSerialize = asset.read<int32_t>();
 
@@ -139,7 +139,7 @@ namespace SAP {
 
     m_vtData.layerTypes.resize(m_vtData.numLayers);
     for (auto i = 0; i < m_vtData.numLayers; i++) {
-      m_vtData.layerTypes.emplace_back(hashEnum<EPixelFormat>(asset.readFString(m_stringStorage.get())));
+      m_vtData.layerTypes.emplace_back(hashEnum<EPixelFormat>(asset.readFString()));
     }
 
     m_vtData.layerFallbackColors = asset.readArray<FLinearColor>(m_vtData.numLayers);

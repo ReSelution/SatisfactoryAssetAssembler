@@ -37,7 +37,9 @@ add_subdirectory(src/localizations)
 # -------------------------------------------------------------------------
 add_library(SAP_Util STATIC
         src/util/heap_pool.cpp
-        src/util/heap_pool.hpp)
+        src/util/heap_pool.hpp
+        src/util/ThroughputStats.hpp
+        src/util/PropertyTracker.hpp)
 
 target_sources(SAP_Util
         PUBLIC

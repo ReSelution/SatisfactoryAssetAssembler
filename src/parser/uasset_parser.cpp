@@ -34,6 +34,7 @@ namespace SAP {
   }
 
   std::string_view UAssetParser::nameFromMap(uint32_t index) { return m_nameMap[index]; }
+  std::span<std::string_view> UAssetParser::nameMap() {return m_nameMap;}
 
   std::string_view UAssetParser::getMappedName(FMappedName name) {
     if (name.isGlobal()) {
@@ -244,24 +245,32 @@ namespace SAP {
     }
 
     if (obj->getClassName() == "Struct") {
-      auto ustruct = static_cast<Struct*>(obj);
+      auto ustruct = reinterpret_cast<Struct*>(obj);
       ByteCursor cursor = getAsset();
       cursor += m_summary.HeaderSize + entry.CookedSerialOffset;
+      obj->setOwner(this);
       ustruct->setCursor(cursor);
       return constructObject(entry, ustruct);
     }
     obj->setObjName(getMappedName(entry.ObjectName));
+    obj->setOwner(this);
     return obj;
   }
 
    Object* UAssetParser::resolvePackageImport(const FExportMapEntry &entry,
-                                                           const FPackageObjectIndex &index) const {
+                                                           const FPackageObjectIndex &index) {
     auto packageImportRef = FPackageImportReference::fromObjIndex(index);
     if (packageImportRef.importedPackageIndex < m_importedParsers.size()) {
       auto const &hash = m_importedPublicExportHashes[packageImportRef.importedPublicExportHashIndex];
 
       if (auto parser = m_importedParsers[packageImportRef.importedPackageIndex]) {
-        const auto &obj = parser->resolvePackageExport(hash);
+        auto obj = parser->resolvePackageExport(hash);
+        auto className = obj->getClassName();
+        obj = ObjectFactory::Create(className, m_storage.get());
+        if (!obj) {
+          obj = m_storage->make<Object>(className);
+        }
+        obj->setOwner(this);
         return obj;
       }
     }

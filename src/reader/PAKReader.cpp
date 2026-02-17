@@ -1,7 +1,8 @@
 #include "PAKReader.hpp"
 
-#include "byte_cursor.hpp"
 #include "Reader.hpp"
+#include "ThroughputStats.hpp"
+#include "byte_cursor.hpp"
 #include "logger.hpp"
 #include "vfs.hpp"
 
@@ -195,6 +196,8 @@ namespace SAP {
         return {};
       }
     }
+    ThroughputStats::totalDecompressedBytes.fetch_add(uncompressedData.size(), std::memory_order_relaxed);
+    ThroughputStats::totalCompressedBytes.fetch_add(entry.compressedSize, std::memory_order_relaxed);
     return uncompressedData;
   }
 } // namespace SAP

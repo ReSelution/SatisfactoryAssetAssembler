@@ -20,5 +20,11 @@ namespace SAP {
     FVector_f max;
     uint8_t isValid;
   };
+
+  struct FBox2f {
+    FVector2F min;
+    FVector2F max;
+    uint8_t isValid;
+  };
 #pragma pack(pop)
 } // namespace SAP

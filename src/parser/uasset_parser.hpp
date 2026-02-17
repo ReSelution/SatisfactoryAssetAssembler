@@ -23,6 +23,7 @@ namespace SAP {
     ~UAssetParser() override = default;
 
     [[nodiscard]] std::string_view nameFromMap(uint32_t index) override;
+    std::span<std::string_view> nameMap() override;
     std::string_view getMappedName(FMappedName name);
 
     [[nodiscard]] const FZenPackageSummary &getSummary() const;
@@ -59,7 +60,7 @@ namespace SAP {
     Object* resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index);
     Object* resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) override;
     Object* resolveScriptImport(const FExportMapEntry &entry, const FPackageObjectIndex &index);
-    Object* resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index) const;
+    Object* resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index) ;
     Object* resolvePackageExport(const uint64_t &publicExportHash) override;
     Object* constructObject(const FExportMapEntry &entry, Struct* ustruct);
     std::span<Object*> exportMap() override;

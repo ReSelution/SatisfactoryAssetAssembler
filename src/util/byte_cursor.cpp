@@ -43,7 +43,7 @@ namespace SAP {
   }
 
   FName ByteCursor::readFName() {
-    SAP::FName name{
+    FName name{
         .index = read<uint32_t>(),
         .number = read<uint32_t>(),
     };
@@ -53,9 +53,12 @@ namespace SAP {
 
   bool ByteCursor::testReadFName() {
     auto pos = tell();
-    auto name = readFName();
+    FName name{
+        .index = read<uint32_t>(),
+        .number = read<uint32_t>(),
+    };
     m_cursor = pos;
-    return !name.isNone() && name.number < 256;
+    return name.index < m_owner->nameMap().size() && name.number < 256;
   }
 
   std::span<std::string_view> ByteCursor::loadNameBatch(HeapStorage *utf16Storage) {

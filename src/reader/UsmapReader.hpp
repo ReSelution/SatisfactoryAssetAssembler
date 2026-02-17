@@ -9,8 +9,6 @@
 
 namespace SAP {
   struct ParseContext;
-
-  // Falls UsmapStructs.hpp diese nicht definiert, hier Forward Declarations oder Includes:
   struct FUsmapMappingData;
   struct FUsmapPropertyData;
   struct FUsmapSchema;

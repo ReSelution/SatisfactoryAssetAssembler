@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include <condition_variable>
 #include <cstdint>
+#include <condition_variable>
 #include <filesystem>
 #include <utility>
 #include <vector>
@@ -61,6 +61,7 @@ namespace SAP {
 
     virtual Object *resolveIndex(int32_t index) { return nullptr; };
     virtual std::string_view nameFromMap(uint32_t index) = 0;
+    virtual std::span<std::string_view> nameMap() = 0;
 
     virtual Object *resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) { return {}; };
 

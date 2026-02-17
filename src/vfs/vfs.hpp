@@ -40,8 +40,9 @@ namespace SAP {
 
     std::string_view persistString(std::string_view str) {
       assert(index >= 0 && index < threadResources.size() && "CALL Reserve first");
-      char *mem = static_cast<char *>(threadResources[index]->allocate(str.size()));
+      char *mem = static_cast<char *>(threadResources[index]->allocate(str.size()+1));
       std::memcpy(mem, str.data(), str.size());
+      mem[str.size()] = '\0';
       return {mem, str.size()};
     }
 
