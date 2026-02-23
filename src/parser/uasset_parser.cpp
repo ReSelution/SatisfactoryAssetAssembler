@@ -293,7 +293,7 @@ namespace SAP {
    Object* UAssetParser::constructObject(const FExportMapEntry &entry,
                                                       Struct* ustruct) {
     ustruct->safeParse();
-    if (ustruct->m_superStructIndex < 0 || (-ustruct->m_superStructIndex - 1) >= m_importMap.size()) {
+    if (ustruct->m_superStructIndex < 0 || (-ustruct->m_superStructIndex - 1) <= m_importMap.size()) {
       return resolveObject(entry, m_importMap[-ustruct->m_superStructIndex - 1]);
     }
     if (ustruct->m_superStructIndex > 0 && ustruct->m_superStructIndex <= m_exportMap.size()) {
@@ -307,4 +307,8 @@ namespace SAP {
   const FZenPackageSummary &UAssetParser::getSummary() const { return m_summary; }
 
   std::span<std::string_view> UAssetParser::getNameMap() const { return m_nameMap; }
+
+
+
 } // namespace SAP
+

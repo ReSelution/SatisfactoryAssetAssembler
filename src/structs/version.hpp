@@ -12,7 +12,7 @@ namespace SAP {
     UE5_3 = 1009,
     UE5_4 = 1012,
     UE5_5 = 1013,
-    UE5_7 = 1017,
+    UE5_6 = 1017,
   };
 
   enum class EUnrealEngineObjectUE5Version : uint32_t {

@@ -182,6 +182,37 @@ namespace SAP {
     GameDataHandle = fnv1a("GameDataHandleProperty"),
   };
 
+  struct FPropertyTypeNameNode {
+    FName Name;
+    int32_t innerCount;
+  };
+
+  inline int32_t countSubtreeNodes(std::span<FPropertyTypeNameNode> s) {
+    if (s.empty()) return 0;
+    int32_t remaining = 1;
+    int32_t count = 0;
+    while (remaining > 0 && count < s.size()) {
+      remaining += (s[count].innerCount - 1);
+      count++;
+    }
+    return count;
+  }
+
+  inline std::span<FPropertyTypeNameNode> getParameter(std::span<FPropertyTypeNameNode> nodes, int32_t paramIndex) {
+    if (nodes.empty() || paramIndex < 0 || paramIndex >= nodes[0].innerCount) {
+      return {};
+    }
+
+    int32_t offset = 1;
+    for (int32_t i = 0; i < paramIndex; ++i) {
+      offset += countSubtreeNodes(nodes.subspan(offset));
+    }
+
+    int32_t length = countSubtreeNodes(nodes.subspan(offset));
+
+    return nodes.subspan(offset, length);
+  }
+
 
   struct FPropertyTagData {
     FName Name; // optional
@@ -233,6 +264,64 @@ namespace SAP {
     BoolTrue = 0x10,
     SkippedSerialize = 0x20
   };
+
+  // Bitweise OR
+  inline EPropertyTagFlags operator|(EPropertyTagFlags lhs, EPropertyTagFlags rhs) {
+    return static_cast<EPropertyTagFlags>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+  }
+
+  // Bitweise AND
+  inline EPropertyTagFlags operator&(EPropertyTagFlags lhs, EPropertyTagFlags rhs) {
+    return static_cast<EPropertyTagFlags>(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+  }
+
+  // Bitweise XOR
+  inline EPropertyTagFlags operator^(EPropertyTagFlags lhs, EPropertyTagFlags rhs) {
+    return static_cast<EPropertyTagFlags>(static_cast<uint8_t>(lhs) ^ static_cast<uint8_t>(rhs));
+  }
+
+  // Bitweise NOT
+  inline EPropertyTagFlags operator~(EPropertyTagFlags arg) {
+    return static_cast<EPropertyTagFlags>(~static_cast<uint8_t>(arg));
+  }
+
+  // Compound Assignments
+  inline EPropertyTagFlags& operator|=(EPropertyTagFlags& lhs, EPropertyTagFlags rhs) {
+    lhs = lhs | rhs;
+    return lhs;
+  }
+
+  inline EPropertyTagFlags& operator&=(EPropertyTagFlags& lhs, EPropertyTagFlags rhs) {
+    lhs = lhs & rhs;
+    return lhs;
+  }
+
+  inline bool hasFlag(EPropertyTagFlags value, EPropertyTagFlags flag) {
+    return (static_cast<uint8_t>(value) & static_cast<uint8_t>(flag)) == static_cast<uint8_t>(flag);
+  }
+
+  inline bool anyFlag(EPropertyTagFlags value) {
+    return value != EPropertyTagFlags::None;
+  }
+
+  enum class  EPropertyTagExtension : uint8_t
+  {
+    NoExtension					= 0x00,
+    ReserveForFutureUse			= 0x01, // Can be use to add a next group of extension
+
+    ////////////////////////////////////////////////
+    // First extension group
+    OverridableInformation		= 0x02,
+
+    //
+    // Add more extension for the first group here
+    //
+};
+
+  inline bool hasFlag(EPropertyTagExtension value, EPropertyTagExtension flag) {
+    return (static_cast<uint8_t>(value) & static_cast<uint8_t>(flag)) == static_cast<uint8_t>(flag);
+  }
+
 
   struct FPropertyValue {
     using Value = std::variant<

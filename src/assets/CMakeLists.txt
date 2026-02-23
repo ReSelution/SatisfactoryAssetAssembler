@@ -7,7 +7,8 @@ add_library(SAP_Assets STATIC
         ue/rigVM/rig_vm.cpp
         ue/rigVM/rig_vm.hpp
         ue/properties/property_parser.hpp
-        ue/properties/property_parser_1009.cpp)
+        ue/properties/property_parser_1009.cpp
+        ue/properties/property_parser_1017.cpp)
 
 target_sources(SAP_Assets
         PUBLIC

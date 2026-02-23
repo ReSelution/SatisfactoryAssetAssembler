@@ -46,54 +46,24 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1727978c-9dad-4f3d-932e-e1742b7a3b3a" name="Changes" comment="ClangFormat">
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1009.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/staging_arena.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/staging_arena.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/warehouse_arena.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/warehouse_arena.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/assets/satisfactory/ItemAmount.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/structs/core/f_soft_obj.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/util/PropertyTracker.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.clang-format" beforeDir="false" afterPath="$PROJECT_DIR$/.clang-format" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="1727978c-9dad-4f3d-932e-e1742b7a3b3a" name="Changes" comment="FG Classes">
+      <change afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1017.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/structs/core/EClassSerializationControlExtension.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/f_property_tag.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/f_property_tag.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1009.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1009.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/crawler/crawler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/crawler/crawler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/AssetParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetParser.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/UsmapReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/UsmapReader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/file_reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/file_reader.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/structs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/core/f_text.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/f_text.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/localization/f_text_key.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/localization/f_text_key.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/PropertyTracker.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/PropertyTracker.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/byte_cursor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/byte_cursor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/vfs/vfs.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/version.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/version.hpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,7 +73,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -132,35 +102,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "CMake Application.AssetRipperTest.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Notification.DisplayName-DoNotAsk-Execution": "External process execution failed",
-    "Notification.DoNotAsk-Execution": "true",
-    "Python.cacheCalc.executor": "Run",
-    "Python.cacheEval.executor": "Run",
-    "RunOnceActivity.RadMigrateCodeStyle": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "RunOnceActivity.west.config.association.type.startup.service": "true",
-    "cf.advertisement.text.overridden": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/oleub/dev/source/repos/SatisfactoryAssetParser",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;CMake Application.AssetRipperTest.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Notification.DisplayName-DoNotAsk-Execution&quot;: &quot;External process execution failed&quot;,
+    &quot;Notification.DoNotAsk-Execution&quot;: &quot;true&quot;,
+    &quot;Python.cacheCalc.executor&quot;: &quot;Run&quot;,
+    &quot;Python.cacheEval.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/oleub/dev/source/repos/SatisfactoryAssetParser&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -171,11 +141,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.AssetRipperTest">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="AssetRipperTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="AssetRipperTest">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -345,7 +310,9 @@
       <workItem from="1771808816893" duration="122000" />
       <workItem from="1771808951562" duration="2134000" />
       <workItem from="1771811250737" duration="3285000" />
-      <workItem from="1771817437468" duration="6398000" />
+      <workItem from="1771817437468" duration="6990000" />
+      <workItem from="1771825535279" duration="19045000" />
+      <workItem from="1771844956069" duration="9000" />
     </task>
     <task id="LOCAL-00001" summary="ClangFormat">
       <option name="closed" value="true" />
@@ -355,7 +322,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771069299154</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="FG Classes">
+      <option name="closed" value="true" />
+      <created>1771825001538</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1771825001538</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -368,12 +343,13 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="ClangFormat" />
-    <option name="LAST_COMMIT_MESSAGE" value="ClangFormat" />
+    <MESSAGE value="FG Classes" />
+    <option name="LAST_COMMIT_MESSAGE" value="FG Classes" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
-        <watch expression="this-&gt;m_className" />
+        <watch expression="cursor.m_cursor" />
       </configuration>
     </watches-manager>
   </component>

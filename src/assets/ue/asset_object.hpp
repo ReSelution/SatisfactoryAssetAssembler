@@ -25,8 +25,7 @@ namespace SAP {
     };
 
   public:
-    Object(std::string_view className = "Object"):PropertyHolder(className) {
-
+    explicit Object(std::string_view className = "Object") : PropertyHolder(className) {
     };
     virtual ~Object() = default;
 
@@ -43,7 +42,7 @@ namespace SAP {
 
   protected:
     virtual void parse();
-    ByteCursor m_cursor;
+    ByteCursor m_cursor{};
     std::unique_ptr<Object> m_outer = nullptr;
 
   private:

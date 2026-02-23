@@ -3,8 +3,8 @@
 # ==============================================================================
 add_library(SAP_Structs STATIC
         core/f_soft_obj.hpp
-        core/yxy.cpp
         assets/satisfactory/ItemAmount.hpp
+        core/EClassSerializationControlExtension.hpp
 )
 
 # ------------------------------------------------------------------------------

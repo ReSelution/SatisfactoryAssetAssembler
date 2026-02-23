@@ -23,14 +23,14 @@ namespace SAP {
 
   class PropertyHolder {
   public:
-    PropertyHolder(std::string_view className = "PropertyHolder") : m_className(className) {
-    };
+    virtual ~PropertyHolder() = default;
 
-    PropertyHolder(std::pmr::memory_resource *resource) : m_properties(resource) {
-    };
+    PropertyHolder(std::string_view className = "PropertyHolder");;
+
+    PropertyHolder(std::pmr::memory_resource *resource);;
     std::pmr::unordered_map<uint32_t, FPropertyTag> m_properties;
 
-    void parseTaggedProperties(ByteCursor &cursor, ReadType readType = ReadType::NORMAL);
+    void parseProperties(ByteCursor &cursor);
 
     static void releaseResources();
 
@@ -53,27 +53,6 @@ namespace SAP {
     AssetFileParser *m_owner = nullptr;
     std::string m_className;
 
-  private:
-    static FPropertyTag parsePropertyTag(ByteCursor &cursor);
 
-    static FPropertyValue parseMapProperty(ByteCursor &cursor, FPropertyTagData *tagData, uint32_t size);
-
-    static FPropertyTagData *parsePropertyTagData(ByteCursor &cursor, EPropertyTagType type);
-
-    static FPropertyValue parsePropertyValue(ByteCursor &cursor, FPropertyTag &tag, ReadType readType, uint32_t size);
-
-    static FPropertyValue parseStructPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData, ReadType type,
-                                                   uint32_t size);
-
-    static FPropertyValue parseTextPropertyValue(ByteCursor &cursor);
-
-    static FPropertyValue parseArrayPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData, ReadType type,
-                                                  uint32_t size);
-
-    static FPropertyValue parseObjectPropertyValue(ByteCursor &cursor);
-
-    static FPropertyValue parseSetPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData);
-
-    static FPropertyValue parseBoolPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData, ReadType type);
   };
 } // namespace SAP

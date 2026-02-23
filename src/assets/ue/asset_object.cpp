@@ -17,9 +17,9 @@
 
 namespace SAP {
   void Object::parse() {
-    parseTaggedProperties(m_cursor);
+    parseProperties(m_cursor);
     DBG_TRACK_MAP(m_className,m_properties);
-    if (m_cursor.remaining() >=16 && m_cursor.readBool()) {
+    if (m_cursor.readBool() && m_cursor.remaining() >=16 ) {
       m_cursor.read<FGuid>();
     }
   }

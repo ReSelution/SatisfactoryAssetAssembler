@@ -20,6 +20,7 @@ namespace SAP {
     m_schematics.reserve(100);
     m_resources.reserve(10);
   }
+
   Crawler Crawler::getChild() { return {}; }
 
   void Crawler::mergeWithChild(Crawler &child) {
@@ -52,6 +53,7 @@ namespace SAP {
 
   bool Crawler::hitTestAsset(std::shared_ptr<AssetFileParser> &parser) {
     for (auto &obj: parser->exportMap()) {
+      if (!obj) { continue; }
       auto hash = static_cast<HIT_TEST_CLASS_HASH>(obj->getClassHash());
       switch (hash) {
         case HIT_TEST_CLASS_HASH::FGRecipe:
@@ -88,7 +90,6 @@ namespace SAP {
   }
 
   void Crawler::createFileQueue(AssetParser &parser) {
-
     Vfs *vfs = parser.getVfs();
 
     for (const auto &entry: vfs->entries()) {

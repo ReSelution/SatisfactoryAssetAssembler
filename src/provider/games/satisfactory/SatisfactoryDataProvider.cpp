@@ -88,13 +88,13 @@ namespace SAP {
 
   void SatisfactoryDataProvider::test() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-    // parser.queueFile("FactoryGame/Content/FactoryGame/Interface/UI/Server/BPW_Server_AcceptCertificate_Popup.uasset");
+    parser.queueFile("FactoryGame/Content/FactoryGame/Recipes/Assembler/Recipe_IronPlateReinforced.uasset");
 
-    for (auto &[hash, entry]: m_vfs.entries()) {
-      if (entry->path.ends_with(".uasset")) {
-        parser.queueFile(entry->path);
-      }
-    }
+    // for (auto &[hash, entry]: m_vfs.entries()) {
+    //   if (entry->path.ends_with(".uasset")) {
+    //     parser.queueFile(entry->path);
+    //   }
+    // }
 
     parser.processQueue();
   }
