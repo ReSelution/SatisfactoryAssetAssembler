@@ -13,8 +13,6 @@
 #include <string>
 #include <variant>
 
-#include "property_holder.hpp"
-
 #include "assets/material/f_material_override_nanite.hpp"
 #include "assets/meshes/f_weighted_random_sampler.hpp"
 
@@ -30,6 +28,12 @@
 #include "core/math/f_vector.hpp"
 #include "core/name.hpp"
 #include "core/per_quality_level_props.hpp"
+
+#include "property_holder.hpp"
+#include "AssetFileParser.hpp"
+#include "PropertyTracker.hpp"
+#include "core/f_soft_obj.hpp"
+
 
 namespace SAP {
   struct FPropertyValue;
@@ -97,7 +101,7 @@ namespace SAP {
     MovieSceneTrackIdentifier = fnv1a("MovieSceneTrackIdentifier"),
     LevelSequenceObjectReferenceMap = fnv1a("LevelSequenceObjectReferenceMap"),
     SmartName = fnv1a("SmartName"),
-    DateTime  = fnv1a("DateTime"),
+    DateTime = fnv1a("DateTime"),
     FGServerCertificate = fnv1a("FGServerCertificate"),
     PerPlatformFrameRate = fnv1a("PerPlatformFrameRate"),
     ShaderValueTypeHandle = fnv1a("ShaderValueTypeHandle"),
@@ -126,7 +130,6 @@ namespace SAP {
     MovieSceneDoubleChannel = fnv1a("MovieSceneDoubleChannel"),
     MovieSceneTrackIdentifiers = fnv1a("MovieSceneTrackIdentifiers"),
     MovieSceneByteChannel = fnv1a("MovieSceneByteChannel"),
-
   };
 
 
@@ -233,18 +236,20 @@ namespace SAP {
 
   struct FPropertyValue {
     using Value = std::variant<
-        std::monostate, IntPoint, bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, float,
-        double, std::string_view, Object *,
+      std::monostate, IntPoint, bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t,
+      float,
+      double, std::string_view, Object *,
 
-        FMaterialOverrideNanite, FPerQualityLevelFloat, FPerQualityLevelInt,
+      FMaterialOverrideNanite, FPerQualityLevelFloat, FPerQualityLevelInt,
 
-        FName, FGuid,
+      FName, FGuid, SoftObj,
 
-        FVector, FVector_f, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
+      FVector, FVector_f, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
 
-        FQuat, FBox, FBox2f, FLinearColor, FText, FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
+      FQuat, FBox, FBox2f, FLinearColor, FText, FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
 
-        std::pmr::vector<FPropertyValue>, std::pmr::vector<std::pair<FPropertyValue, FPropertyValue>>, FWeightedRandomSampler>;
+      std::pmr::vector<FPropertyValue>, std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> >,
+      FWeightedRandomSampler>;
     Value data;
   };
 
@@ -273,25 +278,68 @@ namespace SAP {
       return EPropertyTagSerializeType::Property;
     }
   };
-} // namespace SAP
+#ifndef NDEBUG
+  struct PropertyInfo {
+    FPropertyTag tag;
+    size_t count = 0;
+  };
+#endif
 
-template<typename T>
-std::optional<T> SAP::PropertyHolder::getProperty(std::string_view name) const {
-  auto it = m_properties.find(fnv1a(name));
-  if (it == m_properties.end())
+  template<typename T>
+  std::optional<T> PropertyHolder::get(uint32_t hash) const {
+    DBG_MARK_HANDLED(m_className, hash);
+    auto it = m_properties.find(hash);
+    if (it == m_properties.end())
+      return std::nullopt;
+    return std::get<T>(it->second.Tag.data);
+  }
+
+  template<typename T, typename Func>
+  std::optional<T> PropertyHolder::get(uint32_t hash, Func &&processor) const {
+    DBG_MARK_HANDLED(m_className, hash);
+    auto it = m_properties.find(hash);
+    if (it == m_properties.end())
+      return std::nullopt;
+
+    if (const auto *prop = std::get_if<PropertyHolder>(&it->second.Tag.data)) {
+      return processor(prop);
+    }
+
     return std::nullopt;
+  }
 
-  // Hier ist FPropertyValue jetzt "complete" und std::get_if funktioniert
-  if (const T *val = std::get_if<T>(&it->second.Tag.data)) {
-    return *val;
+  template<typename T>
+  std::span<T> PropertyHolder::getArray(uint32_t hash) const {
+    DBG_MARK_HANDLED(m_className, hash);
+    auto it = m_properties.find(hash);
+
+    if (it == m_properties.end()) return {};
+
+    const auto &val = std::get<std::pmr::vector<FPropertyValue> >(it->second.Tag.data);
+
+    auto *vector = m_owner->storage()->make<std::pmr::vector<T> >(m_owner->storage()->memoryResource());
+    vector->reserve(val.size());
+
+    for (const auto &[data]: val) {
+      vector->emplace_back(std::get<T>(data));
+    }
+    return *vector;
   }
-  return std::nullopt;
-}
-template<typename T>
-const std::pmr::vector<SAP::FPropertyValue> *SAP::PropertyHolder::getArray(std::string_view name) const {
-  auto it = m_properties.find(fnv1a(name));
-  if (it != m_properties.end()) {
-    return std::get_if<std::pmr::vector<FPropertyValue>>(&it->second.Tag.data);
+
+  template<typename T, typename Func>
+  std::span<T> PropertyHolder::getArray(uint32_t hash, Func &&processor) const {
+    DBG_MARK_HANDLED(m_className, hash);
+    auto it = m_properties.find(hash);
+    if (it == m_properties.end()) return {};
+
+    const auto &val = std::get<std::pmr::vector<FPropertyValue> >(it->second.Tag.data);
+
+    auto *vector = m_owner->storage()->make<std::pmr::vector<T> >(m_owner->storage()->memoryResource());
+    vector->reserve(val.size());
+
+    for (const auto &[data]: val) {
+      vector->emplace_back(processor(std::get<PropertyHolder>(data)));
+    }
+    return *vector;
   }
-  return nullptr;
-}
+} // namespace SAP

@@ -46,35 +46,37 @@ namespace SAP {
     Logger::logInfo("[CRAWLER]", "Found {} Resources", m_resources.size());
   }
 
-  void Crawler::onParsed(std::shared_ptr<AssetFileParser> &parser) { hitTestAsset(parser); }
+  void Crawler::onParsed(std::shared_ptr<AssetFileParser> &parser) {
+    hitTestAsset(parser);
+  }
 
   bool Crawler::hitTestAsset(std::shared_ptr<AssetFileParser> &parser) {
     for (auto &obj: parser->exportMap()) {
       auto hash = static_cast<HIT_TEST_CLASS_HASH>(obj->getClassHash());
       switch (hash) {
         case HIT_TEST_CLASS_HASH::FGRecipe:
-          parser->loadExports();
+          obj->safeParse();
           m_recipes.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGSchematic:
-          parser->loadExports();
+          obj->safeParse();
           m_schematics.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGItemDescriptor:
         case HIT_TEST_CLASS_HASH::FGItemDescriptorBiomass:
-          parser->loadExports();
+          obj->safeParse();
           m_items.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGResourceDescriptor:
-          parser->loadExports();
+          obj->safeParse();
           m_resources.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGBuildingDescriptor:
-          parser->loadExports();
+          obj->safeParse();
           m_buildable.emplace_back(parser);
           return true;
 

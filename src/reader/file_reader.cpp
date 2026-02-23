@@ -40,7 +40,7 @@ namespace SAP {
 
     m_data = ::mmap(nullptr, m_size, PROT_READ, MAP_PRIVATE, m_fd, 0);
     if (m_data != MAP_FAILED) {
-      ::madvise(m_data, m_size, MADV_WILLNEED| MAP_POPULATE | MADV_SEQUENTIAL);
+      ::madvise(m_data, m_size, MADV_WILLNEED | MADV_SEQUENTIAL);
     }
     if (m_data == MAP_FAILED) {
       ::close(m_fd);

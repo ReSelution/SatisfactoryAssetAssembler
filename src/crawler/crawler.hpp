@@ -48,5 +48,6 @@ namespace SAP {
     std::vector<std::shared_ptr<AssetFileParser>> m_items;
     std::vector<std::shared_ptr<AssetFileParser>> m_schematics;
     std::vector<std::shared_ptr<AssetFileParser>> m_resources;
+
   };
 } // namespace SAP

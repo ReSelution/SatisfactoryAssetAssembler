@@ -39,7 +39,8 @@ add_library(SAP_Util STATIC
         src/util/heap_pool.cpp
         src/util/heap_pool.hpp
         src/util/ThroughputStats.hpp
-        src/util/PropertyTracker.hpp)
+        src/util/PropertyTracker.hpp
+        src/util/PropertyTracker.cpp)
 
 target_sources(SAP_Util
         PUBLIC
@@ -60,6 +61,7 @@ target_link_libraries(SAP_Util
         PUBLIC
         SAP_Structs
         SAP_Parser
+        SAP_Assets
         spdlog::spdlog
 )
 # -------------------------------------------------------------------------
@@ -113,11 +115,6 @@ if(WIN32)
     )
     set_target_properties(AssetRipperTest PROPERTIES
             LINK_FLAGS "-static -static-libgcc -static-libstdc++"
-    )
-
-    set_target_properties(AssetRipperTest PROPERTIES
-            OUTPUT_NAME "AssetRipperTest"
-            SUFFIX ".exe"
     )
 endif()
 

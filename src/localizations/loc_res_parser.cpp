@@ -57,7 +57,7 @@ namespace SAP {
       entries.reserve(namespceCount);
       for (auto i = 0; i < namespceCount; i++) {
         auto namespce = FTextKey{cursor.read<uint32_t>(), cursor.readFString(m_storage.get())};
-        auto keyCount = cursor.read<uint32_t>();
+        const auto keyCount = cursor.read<uint32_t>();
         auto &keyValue = entries.emplace(namespce, std::unordered_map<FTextKey, FEntry>{}).first->second;
         keyValue.reserve(keyCount);
         for (auto j = 0; j < keyCount; j++) {

@@ -1,4 +1,8 @@
 add_library(SAP_Exporter STATIC
+        puplic/arena/staging_arena.cpp
+        puplic/arena/staging_arena.hpp
+        puplic/arena/warehouse_arena.cpp
+        puplic/arena/warehouse_arena.hpp
 )
 
 target_sources(SAP_Exporter

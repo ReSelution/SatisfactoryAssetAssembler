@@ -17,6 +17,6 @@ namespace SAP {
 namespace std {
   template<>
   struct hash<SAP::FTextKey> {
-    size_t operator()(const SAP::FTextKey key) const noexcept { return std::hash<uint32_t>{}(key.strHash); }
+    size_t operator()(const SAP::FTextKey &key) const noexcept { return static_cast<size_t>(key.strHash);; }
   };
 } // namespace std

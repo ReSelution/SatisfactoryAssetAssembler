@@ -5,7 +5,8 @@
 #include "provider/games/satisfactory/SatisfactoryDataProvider.hpp"
 
 int main() {
-  std::filesystem::path gamePath = "/home/oleub/.local/share/Steam/steamapps/common/Satisfactory";
+  //std::filesystem::path gamePath = "/home/oleub/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Satisfactory/";
+  std::filesystem::path gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
 
   auto start = std::chrono::high_resolution_clock::now();
   SAP::SatisfactoryDataProvider provider(gamePath);
@@ -20,7 +21,7 @@ int main() {
     return 1;
   }
   //provider.test();
-  provider.crawl();
+  //provider.crawl();
   auto end = std::chrono::high_resolution_clock::now();
   auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
   std::cout << "SAP Bibliothek Fertig: " << us.count() / 1000.0 << " ms\n";

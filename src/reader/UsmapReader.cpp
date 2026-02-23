@@ -226,9 +226,7 @@ namespace SAP {
 
     for (uint8_t k = 0; k < arraySize; ++k) {
       FUsmapPropertyData instance = baseProp;
-      // Der Index wird hochgezählt
       instance.SchemaIndex = static_cast<uint16_t>(schemaIndex + k);
-
       schema.Properties[instance.SchemaIndex] = std::move(instance);
     }
   }
@@ -256,7 +254,6 @@ namespace SAP {
         data->ValueType = parsePropertyType(cursor);
         break;
       default:
-        // Einfache Typen haben keine Metadaten
         break;
     }
     return data;

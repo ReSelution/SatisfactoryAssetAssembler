@@ -42,6 +42,8 @@ namespace SAP {
   }
 
   void Vfs::dumpToText(std::string_view path) {
+    std::filesystem::path tmpPath(path);
+    create_directories(tmpPath.parent_path());
     auto fileStream = std::ofstream(std::string(path));
     for (auto &entry: m_vfsMap) {
       fileStream <<  entry.second->path << "\n";

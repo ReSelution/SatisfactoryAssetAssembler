@@ -221,14 +221,14 @@ namespace SAP {
       case EType::PackageImport:
         return resolvePackageImport(entry, index);
       default:
-        return {};
+        return nullptr;
     }
   }
 
    Object* UAssetParser::resolveExportObject(const FExportMapEntry &entry,
                                                           const FPackageObjectIndex &index) {
     if (index.TypeAndId >= m_exportObjects.size()) {
-      return {};
+      return nullptr;
     }
     return m_exportObjects[index.TypeAndId];
   }
@@ -243,17 +243,17 @@ namespace SAP {
     if (!obj) {
       obj = m_storage->make<Object>(objName);
     }
+    obj->setObjName(objName);
+    obj->setOwner(this);
 
     if (obj->getClassName() == "Struct") {
       auto ustruct = reinterpret_cast<Struct*>(obj);
       ByteCursor cursor = getAsset();
       cursor += m_summary.HeaderSize + entry.CookedSerialOffset;
-      obj->setOwner(this);
       ustruct->setCursor(cursor);
       return constructObject(entry, ustruct);
     }
-    obj->setObjName(getMappedName(entry.ObjectName));
-    obj->setOwner(this);
+
     return obj;
   }
 
@@ -265,6 +265,9 @@ namespace SAP {
 
       if (auto parser = m_importedParsers[packageImportRef.importedPackageIndex]) {
         auto obj = parser->resolvePackageExport(hash);
+        if (!obj) {
+          return nullptr;
+        }
         auto className = obj->getClassName();
         obj = ObjectFactory::Create(className, m_storage.get());
         if (!obj) {
@@ -275,7 +278,7 @@ namespace SAP {
       }
     }
 
-    return {};
+    return nullptr;
   }
 
   Object* UAssetParser::resolvePackageExport(const uint64_t &publicExportHash) {
@@ -284,7 +287,7 @@ namespace SAP {
     if (it != m_exportHashToIndex.end()) {
       return m_exportObjects[it->second];
     }
-    return {};
+    return nullptr;
   }
 
    Object* UAssetParser::constructObject(const FExportMapEntry &entry,
@@ -296,7 +299,7 @@ namespace SAP {
     if (ustruct->m_superStructIndex > 0 && ustruct->m_superStructIndex <= m_exportMap.size()) {
       return ustruct->m_owner->resolveExportObject(entry, m_exportMap[ustruct->m_superStructIndex - 1].ClassIndex);
     }
-    return {};
+    return nullptr;
   }
 
   std::span< Object*> UAssetParser::exportMap() { return m_exportObjects; }

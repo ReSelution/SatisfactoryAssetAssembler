@@ -9,12 +9,14 @@
 #include "core/hash.hpp"
 #include "f_property_tag.hpp"
 #include "logger.hpp"
+#include "PropertyTracker.hpp"
 #include "thread_arena.hpp"
+#include "core/f_soft_obj.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAP {
   void PropertyHolder::parseTaggedProperties(ByteCursor &cursor, ReadType readType) {
-    m_properties =  std::pmr::unordered_map<uint32_t, FPropertyTag>(m_owner->storage()->memoryResource());
+    m_properties = std::pmr::unordered_map<uint32_t, FPropertyTag>(m_owner->storage()->memoryResource());
     m_properties.reserve(10);
     while (true) {
       auto tag = parsePropertyTag(cursor);
@@ -23,7 +25,7 @@ namespace SAP {
       }
       auto final = cursor.tell() + tag.Size;
       tag.Tag = parsePropertyValue(cursor, tag, ReadType::NORMAL, tag.Size);
-      tag.TagData = nullptr; // ThreadArena Memory gets released after Parsing
+      //   tag.TagData = nullptr; // ThreadArena Memory gets released after Parsing
       cursor = final;
       m_properties.emplace(fnv1a(tag.Name.text()), std::move(tag));
     }
@@ -33,8 +35,10 @@ namespace SAP {
 
   FPropertyTag PropertyHolder::parsePropertyTag(ByteCursor &cursor) {
     // Logger::logInfo("[Property]", "Property @ {}", cursor.tell());
-    int debug;
-
+#ifndef NDEBUG
+    int debug = cursor.tell();
+    (void) debug;
+#endif
     auto tag = FPropertyTag{.Name = cursor.readFName()};
     // Logger::logInfo("[Property]", "Property: {} @ {}",tag.Name.text() ,cursor.tell());
 
@@ -42,20 +46,20 @@ namespace SAP {
       return tag;
     }
 
+
     tag.PropertyTypeName = cursor.readFName();
     // Logger::logInfo("[Property]", "Property {} @ {}", tag.PropertyTypeName.text(), cursor.tell());
     tag.PropertyType = hashEnum<EPropertyTagType>(tag.PropertyTypeName.text());
     tag.Size = cursor.read<uint32_t>();
     tag.ArrayIndex = cursor.read<uint32_t>();
     tag.TagData = parsePropertyTagData(cursor, tag.PropertyType);
-    auto hasPropertyGuid = cursor.readFlag();
-    if (hasPropertyGuid) {
+    if (cursor.readFlag()) {
       tag.PropertyGuid = cursor.read<FGuid>();
     }
     return tag;
   }
 
-  FPropertyValue PropertyHolder::parseMapPropterty(ByteCursor &cursor, FPropertyTagData *tagData, uint32_t size) {
+  FPropertyValue PropertyHolder::parseMapProperty(ByteCursor &cursor, FPropertyTagData *tagData, uint32_t size) {
     if (!tagData->InnerTypeData && !tagData->ValueTypeData) {
       cursor += size;
       return {};
@@ -68,7 +72,7 @@ namespace SAP {
       parsePropertyValue(cursor, keyTag, ReadType::MAP, 0);
     }
 
-    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue>> vec(m_owner->storage()->memoryResource());
+    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->memoryResource());
     auto entries = cursor.read<uint32_t>();
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {
@@ -79,7 +83,7 @@ namespace SAP {
     return {.data = std::move(vec)};
   }
 
-  FPropertyTagData *PropertyHolder::parsePropertyTagData(ByteCursor &cursor, EPropertyTagType type, ReadType readType) {
+  FPropertyTagData *PropertyHolder::parsePropertyTagData(ByteCursor &cursor, EPropertyTagType type) {
     auto *data = ThreadArena<>::make<FPropertyTagData>();
     switch (type) {
       case EPropertyTagType::Struct: {
@@ -120,8 +124,7 @@ namespace SAP {
   FPropertyValue PropertyHolder::parsePropertyValue(ByteCursor &cursor, FPropertyTag &tag, ReadType readType,
                                                     uint32_t size) {
     FPropertyValue val;
-    auto type = tag.PropertyType;
-    switch (type) {
+    switch (tag.PropertyType) {
       case EPropertyTagType::Struct: {
         val = parseStructPropertyValue(cursor, tag.TagData, readType, size);
         break;
@@ -131,7 +134,7 @@ namespace SAP {
         break;
       }
       case EPropertyTagType::Map: {
-        val = parseMapPropterty(cursor, tag.TagData, size);
+        val = parseMapProperty(cursor, tag.TagData, size);
         break;
       }
 
@@ -159,7 +162,7 @@ namespace SAP {
         break;
       }
       case EPropertyTagType::Set: {
-        val = parseSetPropertyValue(cursor, tag.TagData, readType);
+        val = parseSetPropertyValue(cursor, tag.TagData);
         break;
       }
       case EPropertyTagType::Delegate: {
@@ -214,9 +217,11 @@ namespace SAP {
       }
 
       case EPropertyTagType::SoftObject: {
-        auto packageName = cursor.readFName();
-        auto assetName = cursor.readFName();
-        auto subPath = cursor.readArray<uint8_t>();
+        val.data = SoftObj{
+          cursor.readFName(),
+          cursor.readFName(),
+          cursor.readArray<uint8_t>(),
+        };
         break;
       }
 
@@ -243,9 +248,9 @@ namespace SAP {
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
 #ifndef NDEBUG
     auto debug = cursor.tell();
+    (void) debug;
 #endif
-    const auto structType = tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown;
-    switch (structType) {
+    switch (const auto structType = tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
       case ESatisfactoryStruct::Guid: {
         val.data = cursor.read<FGuid>();
         break;
@@ -309,7 +314,7 @@ namespace SAP {
         val.data = cursor.read<FRotator>();
         break;
       }
-        // --- Sequencer / MovieScene (Cutscene Data) ---
+      // --- Sequencer / MovieScene (Cutscene Data) ---
       case ESatisfactoryStruct::MovieSceneTrackIdentifier:
       case ESatisfactoryStruct::MovieSceneTrackIdentifiers:
       case ESatisfactoryStruct::MovieSceneFloatChannel:
@@ -329,7 +334,7 @@ namespace SAP {
       case ESatisfactoryStruct::MovieSceneByteChannel:
       case ESatisfactoryStruct::SectionEvaluationDataTree:
 
-        // --- Niagara / VFX (Particle-Logic) ---
+      // --- Niagara / VFX (Particle-Logic) ---
       case ESatisfactoryStruct::NiagaraUserRedirectionParameterStore:
       case ESatisfactoryStruct::NiagaraVariable:
       case ESatisfactoryStruct::NiagaraVariableBase:
@@ -339,7 +344,7 @@ namespace SAP {
       case ESatisfactoryStruct::NiagaraScript:
       case ESatisfactoryStruct::NiagaraScriptExecutionParameterStore:
 
-        // --- UI / Fonts / Special-System ---
+      // --- UI / Fonts / Special-System ---
       case ESatisfactoryStruct::FontData:
       case ESatisfactoryStruct::FontCharacter:
       case ESatisfactoryStruct::LevelSequenceObjectReferenceMap:
@@ -370,25 +375,28 @@ namespace SAP {
       }
 
       case ESatisfactoryStruct::MaterialOverrideNanite: {
-        val.data = FMaterialOverrideNanite{cursor.readFName(), cursor.readBool(),
-                                           cursor.m_owner->resolveIndex(cursor.read<int32_t>())
+        val.data = FMaterialOverrideNanite{
+          cursor.readFName(), cursor.readBool(),
+          cursor.m_owner->resolveIndex(cursor.read<int32_t>())
 
         };
         break;
       }
       case ESatisfactoryStruct::SkeletalMeshSamplingLODBuiltData: {
         val.data = FWeightedRandomSampler{
-            .probabilities = cursor.readArray<float>(),
-            .alias = cursor.readArray<int32_t>(),
-            .totlalWeight = cursor.read<float>(),
+          .probabilities = cursor.readArray<float>(),
+          .alias = cursor.readArray<int32_t>(),
+          .totlalWeight = cursor.read<float>(),
         };
         break;
       }
       case ESatisfactoryStruct::SoftObjectPath:
       case ESatisfactoryStruct::SoftClassPath: {
-        auto packageName = cursor.readFName();
-        auto assetName = cursor.readFName();
-        auto array = cursor.readArray<uint8_t>();
+        val.data = SoftObj{
+          cursor.readFName(),
+          cursor.readFName(),
+          cursor.readArray<uint8_t>()
+        };
         break;
       }
       case ESatisfactoryStruct::PerPlatformInt: {
@@ -406,12 +414,12 @@ namespace SAP {
         val.data = PropertyHolder{};
         break;
       default:
-// #ifndef NDEBUG
-//         if (tagData) {
-//           Logger::logInfo("[PropertyHolder]", "Parsing Struct: {} as Fallback @ {}", tagData->structName.text(),
-//                           cursor.tell());
-//         }
-// #endif
+        // #ifndef NDEBUG
+        //         if (tagData) {
+        //           Logger::logInfo("[PropertyHolder]", "Parsing Struct: {} as Fallback @ {}", tagData->structName.text(),
+        //                           cursor.tell());
+        //         }
+        // #endif
         val.data = parseFallbackStruct(cursor);
         break;
     }
@@ -419,15 +427,14 @@ namespace SAP {
   }
 
   FPropertyValue PropertyHolder::parseTextPropertyValue(ByteCursor &cursor) {
-    FText text{};
-    text.flags = cursor.read<ETextFlag>();
-    text.type = cursor.read<ETextHistoryType>();
+    FText text{.flags = cursor.read<ETextFlag>(), .type = cursor.read<ETextHistoryType>()};
+
 
     switch (text.type) {
       case ETextHistoryType::Base: {
-        auto nSpace = cursor.readFString();
-        auto key = cursor.readFString();
-        auto sourceString = cursor.readFString();
+        text.nSpace = cursor.readFString();
+        text.key = cursor.readFString();
+        text.sourceString = cursor.readFString();
         break;
       }
       case ETextHistoryType::AsPercent: {
@@ -469,7 +476,7 @@ namespace SAP {
   }
 
   PropertyHolder PropertyHolder::parseFallbackStruct(ByteCursor &cursor) {
-    PropertyHolder structFallback(m_owner->storage()->memoryResource());
+    PropertyHolder structFallback(cursor.m_owner->storage()->memoryResource());
     while (true) {
       auto tag = parsePropertyTag(cursor);
       if (tag.Name.isNone()) {
@@ -497,13 +504,12 @@ namespace SAP {
       tag = parsePropertyTag(cursor);
     }
 
-   std::pmr::vector<FPropertyValue> vec(m_owner->storage()->memoryResource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->memoryResource());
     vec.reserve(lenght);
 
     switch (arrayType) {
       case EPropertyTagType::Byte: {
-        bool isEnum = size == sizeof(uint32_t) ? false : (size - sizeof(uint32_t)) / lenght > 1;
-        if (isEnum) {
+        if (size == sizeof(uint32_t) ? false : (size - sizeof(uint32_t)) / lenght > 1) {
           tag.PropertyType = EPropertyTagType::Enum;
         } else {
           tag.PropertyType = EPropertyTagType::Byte;
@@ -537,7 +543,7 @@ namespace SAP {
     return val;
   }
 
-  FPropertyValue PropertyHolder::parseSetPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData, ReadType type) {
+  FPropertyValue PropertyHolder::parseSetPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData) {
     if (tagData->InnerTypeData == nullptr && tagData->InnerType == EPropertyTagType::Struct) {
       if (tagData->Name.text() == "AnimSequenceInstances" || tagData->Name.text() == "PostProcessInstances") {
         tagData->InnerTypeData = ThreadArena<>::make<FPropertyTagData>();
@@ -547,15 +553,15 @@ namespace SAP {
     }
     auto num = cursor.read<uint32_t>();
     FPropertyTag tag{
-        .PropertyType = tagData->InnerType,
-        .TagData = tagData->InnerTypeData,
+      .PropertyType = tagData->InnerType,
+      .TagData = tagData->InnerTypeData,
     };
 
     for (int i = 0; i < num; i++) {
       parsePropertyValue(cursor, tag, ReadType::ARRAY, 0);
     }
     num = cursor.read<uint32_t>();
-    std::pmr::vector<FPropertyValue> vec(m_owner->storage()->memoryResource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->memoryResource());
     vec.reserve(num);
     for (int i = 0; i < num; i++) {
       vec.emplace_back(parsePropertyValue(cursor, tag, ReadType::ARRAY, 0));

@@ -85,12 +85,15 @@ namespace SAP {
   };
 
   struct FTextHistory {
-    std::string text;
+    std::string_view text;
   };
 
   struct FText {
     ETextFlag flags;
     ETextHistoryType type;
     FTextHistory textHistory;
+    std::string_view nSpace;
+    std::string_view key;
+    std::string_view sourceString;
   };
 } // namespace SAP

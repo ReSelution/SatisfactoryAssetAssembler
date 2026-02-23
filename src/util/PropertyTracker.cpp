@@ -1,0 +1,57 @@
+//
+// Created by oleub on 19.02.26.
+//
+
+#include "PropertyTracker.hpp"
+
+#include "ue/properties/f_property_tag.hpp"
+
+namespace SAP {
+#ifndef NDEBUG
+
+  std::map<std::string, std::map<uint64_t, PropertyInfo> > PropertyTracker::m_allSeen{};
+
+  void PropertyTracker::registerMap(std::string_view className,
+                                    std::pmr::unordered_map<uint32_t, FPropertyTag> &props) {
+    if (className == "Struct") { return; }
+    std::string cls(className);
+    std::lock_guard<std::mutex> lock(m_mutex);
+    ++m_classInstanceCount[cls];
+    auto &classData = m_allSeen[cls];
+
+    for (auto &[key, tag]: props) {
+      auto &info = classData[key];
+      if (info.count == 0) {
+        info.tag = tag;
+      }
+      ++info.count;
+    }
+  }
+
+  void PropertyTracker::printMissing() {
+    bool anyMissingAtAll = false;
+
+    for (auto &[className, seen]: m_allSeen) {
+      const auto &handled = m_handled[className];
+      bool classHeaderPrinted = false;
+      auto &count = m_classInstanceCount[className];
+      for (auto &[hash, prop]: seen) {
+        if (handled.find(hash) == handled.end()) {
+          if (!anyMissingAtAll) {
+            Logger::logInfo("[Tracker]", "=== Fehlende Property-Mappings ===");
+            anyMissingAtAll = true;
+          }
+
+          if (!classHeaderPrinted) {
+            Logger::logInfo("[Tracker]", "Klasse: {}", className);
+            classHeaderPrinted = true;
+          }
+
+          Logger::logWarn("[Tracker]", "{}: {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
+                          prop.tag.PropertyTypeName.text());
+        }
+      }
+    }
+  }
+#endif
+}

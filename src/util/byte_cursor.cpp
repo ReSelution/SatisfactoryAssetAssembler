@@ -76,7 +76,7 @@ namespace SAP {
     }
     assert(storage != nullptr);
 
-    auto headers = readArray<SAP::FSerializedNameHeader>(count);
+    auto headers = readArray<FSerializedNameHeader>(count);
 
     auto entries = storage->allocateSpan<std::string_view>(count);
 
@@ -86,7 +86,7 @@ namespace SAP {
 
       if (header.IsUtf16()) {
         auto chars = readArray<char16_t>(length);
-        auto res = utf16Storage->utf16ToUtf8Arena(chars);
+        auto res = storage->utf16ToUtf8Arena(chars);
         entries[i] = res;
       } else {
         const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);

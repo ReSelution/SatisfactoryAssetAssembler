@@ -17,8 +17,14 @@
 #include "heap_pool.hpp"
 
 namespace SAP {
-  AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) :
-      m_vfs(vfs), m_mappings(mappings), m_globalData(globalData), m_localizationManager(this) {}
+  AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) : m_vfs(vfs),
+                                                                                                        m_mappings(
+                                                                                                          mappings),
+                                                                                                        m_globalData(
+                                                                                                          globalData),
+                                                                                                        m_localizationManager(
+                                                                                                          this) {
+  }
 
   void AssetParser::queueFile(std::string_view path) {
     {
@@ -33,9 +39,10 @@ namespace SAP {
     if (threadCount == 0) {
       threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
     }
-    HeapPool::init(threadCount *4, 16*1024);
+    HeapPool::init(threadCount * 4, 8 * 1024);
     m_parserCache.reserve(m_vfs->entries().size());
-    Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads with {} KB cache Size  ", m_JobQueue.size(), threadCount,HeapPool::getBufferSize()/1024.0);
+    Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads with {} KB cache Size  ",
+                    m_JobQueue.size(), threadCount, HeapPool::getBufferSize() / 1024.0);
     std::vector<Crawler> crawlers;
     crawlers.reserve(threadCount);
     auto start = std::chrono::high_resolution_clock::now();
@@ -67,10 +74,12 @@ namespace SAP {
     auto end = std::chrono::high_resolution_clock::now();
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     Logger::logInfo("[AssetParser]", "Parsing finished: {} ms", us.count() / 1000.0);
-    Logger::logInfo("[AssetParser]", "Durchsatz: Decompresed: {:.2f} MB/s Compressed: {:.2f} MB/s (Gesamt: {:.2f} GB)",
-                ThroughputStats::getMBPerSecondDecompressed(),
-                ThroughputStats::getMBPerSecondCompressed(),
-                ThroughputStats::totalDecompressedBytes.load() / (1024.0 * 1024.0 * 1024.0));
+    Logger::logInfo("[AssetParser]",
+                    "Durchsatz: Decompresed: {:.2f} MB/s Compressed: {:.2f} MB/s (Decompressed: {:.2f} GB, On Disk: {:.2f} GB)",
+                    ThroughputStats::getMBPerSecondDecompressed(),
+                    ThroughputStats::getMBPerSecondCompressed(),
+                    ThroughputStats::totalDecompressedBytes.load() / (1024.0 * 1024.0 * 1024.0),
+                    ThroughputStats::totalCompressedBytes.load() / (1024.0 * 1024.0 * 1024.0));
   }
 
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(const FPackageId &pkg) {
@@ -115,14 +124,12 @@ namespace SAP {
   }
 
   std::shared_ptr<AssetFileParser> AssetParser::createParser(const UnifiedVfsEntry *vfsEntry) {
-
     if (auto shared = m_parserCache.get(vfsEntry->hash).lock()) {
       return shared;
     }
 
     switch (vfsEntry->type) {
       case VFS_EntryType::IOVfsEntry: {
-
         const std::string_view fullPath = vfsEntry->path;
         bool isUAsset = fullPath.ends_with(".uasset");
         bool isUBulk = !isUAsset && fullPath.ends_with(".ubulk");
@@ -174,5 +181,6 @@ namespace SAP {
     return nullptr;
   }
 
-  AssetParser::~AssetParser() {}
+  AssetParser::~AssetParser() {
+  }
 } // namespace SAP

@@ -1,7 +1,11 @@
 # ==============================================================================
 # SAP_Structs - The Core Data Structures
 # ==============================================================================
-add_library(SAP_Structs STATIC)
+add_library(SAP_Structs STATIC
+        core/f_soft_obj.hpp
+        core/yxy.cpp
+        assets/satisfactory/ItemAmount.hpp
+)
 
 # ------------------------------------------------------------------------------
 # PUBLIC INTERFACE (Header Files)

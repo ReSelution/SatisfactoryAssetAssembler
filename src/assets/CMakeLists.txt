@@ -5,7 +5,9 @@ add_library(SAP_Assets STATIC
         ue/controlRig/rig_hierarchy.cpp
         ue/controlRig/rig_hierarchy.hpp
         ue/rigVM/rig_vm.cpp
-        ue/rigVM/rig_vm.hpp)
+        ue/rigVM/rig_vm.hpp
+        ue/properties/property_parser.hpp
+        ue/properties/property_parser_1009.cpp)
 
 target_sources(SAP_Assets
         PUBLIC
