@@ -7,9 +7,12 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
+struct Recipe;
+
 namespace SAP {
   class FGRecipe : public Object {
-    struct Recipe {
+    friend class FGExporter;
+    struct RecipeProps {
       static constexpr uint32_t ManufacturingMenuPriority = fnv1a("mManufacturingMenuPriority");
       static constexpr uint32_t Product = fnv1a("mProduct");
       static constexpr uint32_t RelevantEvents = fnv1a("mRelevantEvents");
@@ -30,7 +33,8 @@ namespace SAP {
     }
 
     uint32_t getClassHash() override { return HASH; }
-
+  protected:
+    void exprt() override;
     void parse() override;
 
   private:
@@ -47,7 +51,7 @@ namespace SAP {
     std::span<SoftObj> mProducedIn;
     std::span<ItemAmount> mProduct;
     std::span<ItemAmount> mIngredients;
-
+    Recipe* mRecipeExport = nullptr;
   };
 
   SAP_REGISTER_ASSET(FGRecipe)

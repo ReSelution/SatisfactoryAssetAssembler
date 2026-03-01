@@ -4,27 +4,32 @@
 #include "fg_recipe.hpp"
 
 #include "PropertyTracker.hpp"
+#include "fg/fg_exporter.hpp"
 
 namespace SAP {
+  void FGRecipe::exprt() {
+    mRecipeExport = FGExporter::encode(this);
+  }
+
   void FGRecipe::parse() {
     Object::parse();
     DBG_TRACK_MAP(m_className, m_properties);
-    DBG_MARK_HANDLED(m_className, Recipe::ManufacturingMenuPriority);
-    DBG_MARK_HANDLED(m_className, Recipe::RelevantEvents);
+    DBG_MARK_HANDLED(m_className, RecipeProps::ManufacturingMenuPriority);
+    DBG_MARK_HANDLED(m_className, RecipeProps::RelevantEvents);
 
-    mProducedIn = getArray<SoftObj>(Recipe::ProducedIn);
+    mProducedIn = getArray<SoftObj>(RecipeProps::ProducedIn);
     if (mProducedIn.empty()) { return; }
 
-    mManufactoringDuration = get<float>(Recipe::ManufactoringDuration);
-    mVariablePowerConsumptionConstant = get<float>(Recipe::VariablePowerConsumptionConstant);
-    mManualManufacturingMultiplier = get<float>(Recipe::ManualManufacturingMultiplier);
-    mVariablePowerConsumptionFactor = get<float>(Recipe::VariablePowerConsumptionFactor);
-    mDisplayName = get<FText>(Recipe::DisplayName);
-    mProduct = getArray<ItemAmount>(Recipe::Product, &ItemAmount::get);
-    mDisplayNameOverride = get<bool>(Recipe::DisplayNameOverride);
-    mOverriddenCategory = get<Object *>(Recipe::OverriddenCategory);
-    mMaterialCustomizationRecipe = get<Object *>(Recipe::MaterialCustomizationRecipe);
-    mIngredients = getArray<ItemAmount>(Recipe::Ingredients, &ItemAmount::get);
+    mManufactoringDuration = get<float>(RecipeProps::ManufactoringDuration);
+    mVariablePowerConsumptionConstant = get<float>(RecipeProps::VariablePowerConsumptionConstant);
+    mManualManufacturingMultiplier = get<float>(RecipeProps::ManualManufacturingMultiplier);
+    mVariablePowerConsumptionFactor = get<float>(RecipeProps::VariablePowerConsumptionFactor);
+    mDisplayName = get<FText>(RecipeProps::DisplayName);
+    mProduct = getArray<ItemAmount>(RecipeProps::Product, &ItemAmount::get);
+    mDisplayNameOverride = get<bool>(RecipeProps::DisplayNameOverride);
+    mOverriddenCategory = get<Object *>(RecipeProps::OverriddenCategory);
+    mMaterialCustomizationRecipe = get<Object *>(RecipeProps::MaterialCustomizationRecipe);
+    mIngredients = getArray<ItemAmount>(RecipeProps::Ingredients, &ItemAmount::get);
 
   }
 } // namespace SAP

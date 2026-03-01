@@ -61,7 +61,7 @@ namespace SAP {
 
   template<>
   FPropertyTagData *PropertyParser<EUE5Version::UE5_3>::parsePropertyTagData(ByteCursor &cursor, EPropertyTagType type) {
-    auto *data = ThreadArena<>::make<FPropertyTagData>();
+    auto *data = ThreadArena::make<FPropertyTagData>();
     switch (type) {
       case EPropertyTagType::Struct: {
         data->structName = cursor.readFName();
@@ -530,7 +530,7 @@ namespace SAP {
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseSetPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData) {
     if (tagData->InnerTypeData == nullptr && tagData->InnerType == EPropertyTagType::Struct) {
       if (tagData->Name.text() == "AnimSequenceInstances" || tagData->Name.text() == "PostProcessInstances") {
-        tagData->InnerTypeData = ThreadArena<>::make<FPropertyTagData>();
+        tagData->InnerTypeData = ThreadArena::make<FPropertyTagData>();
         tagData->InnerTypeData->Type = EPropertyTagType::Struct;
         tagData->InnerTypeData->StructType = static_cast<ESatisfactoryStruct>(fnv1a("Guid"));
       }

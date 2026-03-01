@@ -15,6 +15,7 @@
 
 #include "crawler.hpp"
 #include "heap_pool.hpp"
+#include "puplic/arena/registery.hpp"
 
 namespace SAP {
   AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) : m_vfs(vfs),
@@ -40,6 +41,7 @@ namespace SAP {
       threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
     }
     HeapPool::init(threadCount * 4, 8 * 1024);
+    Registry::init(2048*1024);
     m_parserCache.reserve(m_vfs->entries().size());
     Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads with {} KB cache Size  ",
                     m_JobQueue.size(), threadCount, HeapPool::getBufferSize() / 1024.0);

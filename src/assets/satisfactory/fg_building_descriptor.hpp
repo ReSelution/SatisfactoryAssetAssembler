@@ -3,11 +3,12 @@
 //
 
 #pragma once
+#include "fg_descriptor.hpp"
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGBuildingDescriptor : public Object {
+  class FGBuildingDescriptor : public FGDescriptor {
     struct Building { // In class FGBuildingDescriptor
       static constexpr uint32_t Category = fnv1a("mCategory");
       static constexpr uint32_t StackSize = fnv1a("mStackSize");
@@ -23,7 +24,7 @@ namespace SAP {
       static constexpr uint32_t UseDisplayNameAndDescription = fnv1a("mUseDisplayNameAndDescription");
     };
   public:
-    FGBuildingDescriptor(std::string classname = "FGBuildingDescriptor") : Object(classname) {}
+    FGBuildingDescriptor(std::string classname = "FGBuildingDescriptor") : FGDescriptor(classname) {}
 
     uint32_t getClassHash() override { return HASH; };
 

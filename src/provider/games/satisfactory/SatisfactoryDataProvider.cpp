@@ -71,7 +71,7 @@ namespace SAP {
     }
 
     Logger::logInfo("[Provider]", "VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
-    m_vfs.dumpToText("output/filesEntry.txt");
+    // m_vfs.dumpToText("output/filesEntry.txt");
     usmapFuture.get();
     globalDataFuture.get();
     auto end = std::chrono::high_resolution_clock::now();

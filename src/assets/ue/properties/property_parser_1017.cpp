@@ -2,6 +2,7 @@
 // Created by oleub on 23.02.26.
 //
 
+#include "AssetParser.hpp"
 #include "property_parser.hpp"
 #include "thread_arena.hpp"
 #include "core/EClassSerializationControlExtension.hpp"
@@ -41,17 +42,27 @@ namespace SAP {
     }
 
     auto name = cursor.readFName();
-    FPropertyTypeNameNode *firstNode = ThreadArena<>::make<FPropertyTypeNameNode>(
+    auto *firstNode = ThreadArena::make<FPropertyTypeNameNode>(
       name, cursor.read<int32_t>());
+
     int32_t nodeCount = 1;
     int32_t remaining = firstNode->innerCount;
     while (remaining > 0) {
       name = cursor.readFName();
-      auto *node = ThreadArena<>::make<FPropertyTypeNameNode>(name, cursor.read<int32_t>());
+      const auto *node = ThreadArena::make<FPropertyTypeNameNode>(name, cursor.read<int32_t>());
       remaining += node->innerCount - 1;
       nodeCount++;
     }
-    auto typeName = std::span<FPropertyTypeNameNode>(firstNode, nodeCount);
+    /**
+ * THE SPAN TRICK:
+ * Exploits the strict linear allocation of the ThreadLocal Arena.
+ * Since 'ThreadArena::make' guarantees contiguous memory for sequential calls
+ * on the same thread, we can treat individually allocated nodes as a packed array.
+ * This avoids 'std::vector' overhead/reallocations while parsing recursive
+ * trees into a cache-friendly, flat 'std::span'.
+ */
+    auto typeName = std::span(firstNode, nodeCount);
+
     tag.PropertyTypeName = typeName[0].Name;
     tag.PropertyType = hashEnum<EPropertyTagType>(tag.PropertyTypeName.text());
     tag.TagData = parsePropertyTagData(tag.PropertyType, typeName, tag.PropertyTypeName);
@@ -73,7 +84,7 @@ namespace SAP {
   template<>
   FPropertyTagData *PP6::parsePropertyTagData(EPropertyTagType type, std::span<FPropertyTypeNameNode> typeName,
                                               const FName &name) {
-    auto *data = ThreadArena<>::make<FPropertyTagData>();
+    auto *data = ThreadArena::make<FPropertyTagData>();
     data->Name = name;
 
     switch (type) {
@@ -227,7 +238,7 @@ namespace SAP {
       }
 
       case EPropertyTagType::SoftObject: {
-        val.data = SoftObj{
+       val.data = SoftObj{
           cursor.readFName(),
           cursor.readFName(),
           cursor.readArray<uint8_t>(),
@@ -312,9 +323,9 @@ namespace SAP {
     return structFallback;
   }
 
-    template<>
+  template<>
   FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData, ReadType type,
-                                          uint32_t size) {
+                                               uint32_t size) {
     FPropertyValue val;
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
 #ifndef NDEBUG
@@ -498,7 +509,7 @@ namespace SAP {
   }
 
   template<>
- FPropertyValue PP6::parseMapProperty(ByteCursor &cursor, FPropertyTagData *tagData, uint32_t size) {
+  FPropertyValue PP6::parseMapProperty(ByteCursor &cursor, FPropertyTagData *tagData, uint32_t size) {
     if (!tagData->InnerTypeData && !tagData->ValueTypeData) {
       cursor += size;
       return {};

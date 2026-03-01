@@ -6,6 +6,8 @@
 
 #include <cassert>
 
+#include "logger.hpp"
+
 namespace SAP {
   std::span<const uint8_t> FileReader::getSpan(size_t offset, size_t length) const {
     assert(offset + length <= m_size);
@@ -39,11 +41,13 @@ namespace SAP {
       return false;
 
     m_data = ::mmap(nullptr, m_size, PROT_READ, MAP_PRIVATE, m_fd, 0);
+
     if (m_data != MAP_FAILED) {
-      ::madvise(m_data, m_size, MADV_WILLNEED | MADV_SEQUENTIAL);
+      ::madvise(m_data, m_size, MADV_WILLNEED | MADV_SEQUENTIAL | MADV_HUGEPAGE);
     }
     if (m_data == MAP_FAILED) {
       ::close(m_fd);
+      Logger::logError("[IO]", "mmap failed for size {}: {}", m_size, strerror(errno));
       m_fd = -1;
       m_data = nullptr;
       return false;

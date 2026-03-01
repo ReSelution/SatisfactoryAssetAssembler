@@ -34,6 +34,7 @@ namespace SAP {
     FByteBulkData parseFByteBulkData(ByteCursor &cursor) override;
 
     Object* resolveIndex(int32_t index) override;
+    Object* resolveSoftObj(std::string_view assetName) override;
 
     void loadExports() const override;
     void exportAssets() const override;
@@ -54,6 +55,7 @@ namespace SAP {
     void parseExports(ByteCursor &cursor);
     void parseExportBundles(ByteCursor &cursor);
     void loadImportedPackages();
+    void processImportes();
     void processExports();
 
     void processExportEntry(const FExportBundleEntry &entry);
@@ -83,9 +85,10 @@ namespace SAP {
     std::span<const FExportMapEntry> m_exportMap;
     std::pmr::unordered_map<uint64_t, uint32_t> m_exportHashToIndex;
     std::span<const FExportBundleEntry> m_exportBundleEntries;
+    std::pmr::unordered_map<std::string_view, uint32_t> m_nameToIndex;
 
     // ---- imported assets ----
-
-    std::span<Object*> m_exportObjects;
+    std::span<Object *> m_importObjects;
+    std::span<Object *> m_exportObjects;
   };
 } // namespace SAP

@@ -46,7 +46,7 @@ namespace SAP {
     FName readFName();
     bool testReadFName();
 
-    std::span<std::string_view> loadNameBatch(HeapStorage *utf16Storage = nullptr);
+    std::span<std::string_view> loadNameBatch(HeapStorage *utf16Storage);
 
     template<typename T>
     std::span<const T> readArrayView();
@@ -60,8 +60,8 @@ namespace SAP {
       sub.setAbsoluteOffset(m_absoluteOffset + offset);
       return sub;
     }
-
-    std::string_view readFString(HeapStorage *utf16Storage = nullptr);
+    std::string_view readFString();
+    std::string_view readFString(HeapStorage *utf16Storage);
 
     template<typename T>
     T read() {

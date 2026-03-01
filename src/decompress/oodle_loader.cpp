@@ -117,7 +117,6 @@ namespace SAP {
       Logger::logInfo("[OODLE]", "Searching Oodle in Game Core...");
       std::filesystem::path binPath = coreDllPath.parent_path();
       SetDllDirectoryW(binPath.wstring().c_str());
-      Logger::logInfo("[OODLE]", "Test");
 
       HMODULE hCore = LoadLibraryExW(
         coreDllPath.wstring().c_str(),
@@ -125,7 +124,6 @@ namespace SAP {
         LOAD_WITH_ALTERED_SEARCH_PATH
       );
       if (hCore) {
-        Logger::logInfo("[OODLE]", "Test");
         MODULEINFO modInfo;
         if (GetModuleInformation(GetCurrentProcess(), hCore, &modInfo, sizeof(modInfo))) {
           std::vector<uint8_t> pattern = {

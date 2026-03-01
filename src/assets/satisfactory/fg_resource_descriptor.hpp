@@ -3,11 +3,12 @@
 //
 
 #pragma once
+#include "fg_descriptor.hpp"
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGResourceDescriptor : public Object {
+  class FGResourceDescriptor : public FGDescriptor {
     struct Resource {
       // Identität & Navigation
       static constexpr uint32_t DisplayName = fnv1a("mDisplayName");
@@ -45,7 +46,7 @@ namespace SAP {
     };
 
   public:
-    FGResourceDescriptor(std::string_view className = "FGResourceDescriptor") : Object(className) {
+    explicit FGResourceDescriptor(const std::string_view className = "FGResourceDescriptor") : FGDescriptor(className) {
     }
 
 
@@ -65,14 +66,14 @@ namespace SAP {
     std::optional<Object *> mSmallIcon;
     std::optional<Object *> mConveyorMesh;
     std::optional<FName> mForm;
-    float mEnergyValue;
-    float mRadioactiveDecay;
+    float mEnergyValue{};
+    float mRadioactiveDecay{};
     std::optional<Object *> mCompassTexture;
     std::optional<Object *> mDepositMesh;
     std::optional<FLinearColor> mPingColor;
     std::optional<FColor> mFluidColor;
     std::optional<FName> mStackSize;
-    bool mIsAlienItem;
+    bool mIsAlienItem{};
   };
 
   SAP_REGISTER_ASSET(FGResourceDescriptor)

@@ -60,6 +60,7 @@ namespace SAP {
     [[nodiscard]] const AssetType type();
 
     virtual Object *resolveIndex(int32_t index) { return nullptr; };
+    virtual Object* resolveSoftObj(std::string_view assetName) {return nullptr;}
     virtual std::string_view nameFromMap(uint32_t index) = 0;
     virtual std::span<std::string_view> nameMap() = 0;
 
@@ -69,6 +70,7 @@ namespace SAP {
 
     [[nodiscard]] const FUsmapMappingData *mappings() const;
     [[nodiscard]] const GlobalData *globalData() const;
+    [[nodiscard]] AssetParser * assetParser() const;
     std::string_view path() { return m_path; }
 
     void setAssetData(const UnifiedVfsEntry *assetEntry) {

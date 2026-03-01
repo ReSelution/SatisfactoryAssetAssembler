@@ -1,8 +1,9 @@
 add_library(SAP_Exporter STATIC
-        puplic/arena/staging_arena.cpp
-        puplic/arena/staging_arena.hpp
-        puplic/arena/warehouse_arena.cpp
-        puplic/arena/warehouse_arena.hpp
+        puplic/arena/registery.cpp
+        puplic/arena/registery.hpp
+        puplic/structs/gpu_export.hpp
+        puplic/structs/meta_export.hpp
+
 )
 
 target_sources(SAP_Exporter
@@ -16,6 +17,7 @@ target_sources(SAP_Exporter
         material/material_exporter.hpp
         structs/gltf_material.hpp
         structs/exported_texture_data.hpp
+        fg/fg_exporter.hpp
 )
 
 target_sources(SAP_Exporter
@@ -25,6 +27,8 @@ target_sources(SAP_Exporter
         texture/texture_decoder.cpp
         meshes/mesh_exporter.cpp
         material/material_exporter.cpp
+        fg/fg_exporter.cpp
+
 )
 
 target_link_libraries(SAP_Exporter

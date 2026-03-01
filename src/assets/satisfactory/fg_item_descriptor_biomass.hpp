@@ -3,13 +3,14 @@
 //
 
 #pragma once
+#include "fg_descriptor.hpp"
 #include "simdjson.h"
 
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGItemDescriptorBiomass : public Object {
+  class FGItemDescriptorBiomass : public FGDescriptor {
     struct Biomass {
       // Die Klassiker (schon bekannt, aber hier gelistet für die Vollständigkeit)
       static constexpr uint32_t DisplayName                 = fnv1a("mDisplayName");
@@ -32,7 +33,7 @@ namespace SAP {
       static constexpr uint32_t RememberPickUp              = fnv1a("mRememberPickUp");
     };
   public:
-    FGItemDescriptorBiomass(std::string_view classname = "FGItemDescriptorBiomass") : Object(classname) {}
+    FGItemDescriptorBiomass(std::string_view classname = "FGItemDescriptorBiomass") : FGDescriptor(classname) {}
 
     void parse() override;
 #

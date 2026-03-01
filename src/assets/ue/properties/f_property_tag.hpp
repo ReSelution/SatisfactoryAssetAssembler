@@ -32,7 +32,7 @@
 #include "property_holder.hpp"
 #include "AssetFileParser.hpp"
 #include "PropertyTracker.hpp"
-#include "core/f_soft_obj.hpp"
+#include "soft_object.hpp"
 
 
 namespace SAP {

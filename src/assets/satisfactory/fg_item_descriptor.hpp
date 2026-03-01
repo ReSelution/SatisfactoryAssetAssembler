@@ -3,11 +3,12 @@
 //
 
 #pragma once
+#include "fg_descriptor.hpp"
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
 namespace SAP {
-  class FGItemDescriptor : public Object {
+  class FGItemDescriptor : public FGDescriptor {
     struct Item {
       // Kern-Identität & UI
       static constexpr uint32_t DisplayName = fnv1a("mDisplayName");
@@ -50,7 +51,7 @@ namespace SAP {
     };
 
   public:
-    FGItemDescriptor(std::string_view classname = "FGItemDescriptor") : Object(classname) {
+    FGItemDescriptor(std::string_view classname = "FGItemDescriptor") : FGDescriptor(classname) {
     };
 
     uint32_t getClassHash() override { return HASH; };

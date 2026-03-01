@@ -12,7 +12,6 @@
 #include "PropertyTracker.hpp"
 #include "property_parser.hpp"
 #include "thread_arena.hpp"
-#include "core/f_soft_obj.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAP {
@@ -38,7 +37,7 @@ namespace SAP {
   }
 
 
-  void PropertyHolder::releaseResources() { ThreadArena<>::reset(); }
+  void PropertyHolder::releaseResources() { ThreadArena::reset(); }
 
   PropertyHolder PropertyHolder::parseFallbackStruct(ByteCursor &cursor) {
     return {};

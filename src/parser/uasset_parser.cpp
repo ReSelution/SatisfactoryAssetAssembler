@@ -12,8 +12,8 @@
 #include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAP {
-  UAssetParser::UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry) :
-      AssetFileParser(assetParser, vfsEntry->path, AssetType::UASSET) {
+  UAssetParser::UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry) : AssetFileParser(
+    assetParser, vfsEntry->path, AssetType::UASSET) {
     auto reader = vfsEntry->owningReader;
     m_containerHeader = reader->containerHeader();
   }
@@ -34,7 +34,7 @@ namespace SAP {
   }
 
   std::string_view UAssetParser::nameFromMap(uint32_t index) { return m_nameMap[index]; }
-  std::span<std::string_view> UAssetParser::nameMap() {return m_nameMap;}
+  std::span<std::string_view> UAssetParser::nameMap() { return m_nameMap; }
 
   std::string_view UAssetParser::getMappedName(FMappedName name) {
     if (name.isGlobal()) {
@@ -62,7 +62,7 @@ namespace SAP {
     return data;
   }
 
-  Object* UAssetParser::resolveIndex(int32_t index) {
+  Object *UAssetParser::resolveIndex(int32_t index) {
     if (index == 0) {
       return {};
     }
@@ -73,6 +73,15 @@ namespace SAP {
       return resolveExportObject({}, m_exportMap[index - 1].ClassIndex);
     }
     return {};
+  }
+
+  Object *UAssetParser::resolveSoftObj(std::string_view assetName) {
+    safeParse();
+    auto iter = m_nameToIndex.find(assetName);
+    if (iter != m_nameToIndex.end()) {
+      return m_exportObjects[iter->second];
+    }
+    return nullptr;
   }
 
   void UAssetParser::parseSummary(ByteCursor &cursor) { m_summary = cursor.read<FZenPackageSummary>(); }
@@ -137,7 +146,7 @@ namespace SAP {
   void UAssetParser::parseExports(ByteCursor &cursor) {
     cursor = m_summary.ExportMapOffset;
     m_exportMap = cursor.readArray<FExportMapEntry>(m_summary.exportCount());
-    m_exportHashToIndex =  std::pmr::unordered_map<uint64_t, uint32_t>(m_storage->memoryResource());
+    m_exportHashToIndex = std::pmr::unordered_map<uint64_t, uint32_t>(m_storage->memoryResource());
     m_exportHashToIndex.reserve(m_exportMap.size());
     for (int i = 0; i < m_exportMap.size(); i++) {
       m_exportHashToIndex.emplace(m_exportMap[i].PublicExportHash, i);
@@ -158,8 +167,27 @@ namespace SAP {
     }
   }
 
+  void UAssetParser::processImportes() {
+    //
+    // for (int i = 0; i < m_importMap.size(); i++) {
+    //   auto packageImportRef = FPackageImportReference::fromObjIndex(m_importMap[i]);
+    //   if (packageImportRef.importedPackageIndex < m_importedParsers.size()) {
+    //     auto const &hash = m_importedPublicExportHashes[packageImportRef.importedPublicExportHashIndex];
+    //     if (auto parser = m_importedParsers[packageImportRef.importedPackageIndex]) {
+    //       auto obj = parser->resolvePackageExport(hash);
+    //       if (obj) {
+    //         auto className = obj->getClassName();
+    //         m_nameToIndex.emplace(className, i);
+    //       }
+    //     }
+    //   }
+    // }
+  }
+
   void UAssetParser::processExports() {
-    m_exportObjects = m_storage->allocateSpan<Object*>(m_exportMap.size());
+    m_exportObjects = m_storage->allocateSpan<Object *>(m_exportMap.size());
+    m_nameToIndex = std::pmr::unordered_map<std::string_view, uint32_t>(m_storage->memoryResource());
+    m_nameToIndex.reserve(m_exportMap.size());
     for (const auto &entry: m_exportBundleEntries) {
       processExportEntry(entry);
     }
@@ -193,7 +221,7 @@ namespace SAP {
     m_exportBundleEntries = {};
     m_importedPublicExportHashes = {};
     m_exportHashToIndex.clear();
-    m_exportObjects= {};
+    m_exportObjects = {};
     AssetFileParser::reset();
   }
 
@@ -204,15 +232,16 @@ namespace SAP {
     auto &exportMapEntry = m_exportMap[entry.LocalExportIndex];
     if (auto obj = resolveObject(exportMapEntry, exportMapEntry.ClassIndex)) {
       ByteCursor cursor = getAsset().subspan(0, m_summary.HeaderSize + exportMapEntry.CookedSerialOffset +
-                                                    exportMapEntry.CookedSerialSize);
+                                                exportMapEntry.CookedSerialSize);
       cursor += m_summary.HeaderSize + exportMapEntry.CookedSerialOffset;
       cursor.setAbsoluteOffset(m_summary.CookedHeaderSize - m_summary.HeaderSize);
       obj->setCursor(cursor);
       m_exportObjects[entry.LocalExportIndex] = obj;
+      m_nameToIndex[obj->objName()] = entry.LocalExportIndex;
     }
   }
 
-  Object* UAssetParser::resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) {
+  Object *UAssetParser::resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) {
     switch (index.GetType()) {
       case EType::Export:
         return resolveExportObject(entry, index);
@@ -225,29 +254,30 @@ namespace SAP {
     }
   }
 
-   Object* UAssetParser::resolveExportObject(const FExportMapEntry &entry,
-                                                          const FPackageObjectIndex &index) {
+  Object *UAssetParser::resolveExportObject(const FExportMapEntry &entry,
+                                            const FPackageObjectIndex &index) {
     if (index.TypeAndId >= m_exportObjects.size()) {
       return nullptr;
     }
     return m_exportObjects[index.TypeAndId];
   }
 
-   Object* UAssetParser::resolveScriptImport(const FExportMapEntry &entry,
-                                                          const FPackageObjectIndex &index) {
+  Object *UAssetParser::resolveScriptImport(const FExportMapEntry &entry,
+                                            const FPackageObjectIndex &index) {
     const auto &scriptEntry = globalData()->ScriptObjectEntriesMap.at(index);
-    auto objName = getMappedName(scriptEntry.ObjectName);
-    auto obj = ObjectFactory::Create(objName, m_storage.get());
-    // Logger::logInfo("[UAssetParser]", "OBJ: {}", objName);
+    auto clasName = getMappedName(scriptEntry.ObjectName);
+    auto objName = getMappedName(entry.ObjectName);
+    auto obj = ObjectFactory::Create(clasName, m_storage.get());
+    //Logger::logInfo("[UAssetParser]", "{} -> {}", objName, clasName);
 
     if (!obj) {
-      obj = m_storage->make<Object>(objName);
+      obj = m_storage->make<Object>(clasName);
     }
     obj->setObjName(objName);
     obj->setOwner(this);
 
     if (obj->getClassName() == "Struct") {
-      auto ustruct = reinterpret_cast<Struct*>(obj);
+      auto ustruct = reinterpret_cast<Struct *>(obj);
       ByteCursor cursor = getAsset();
       cursor += m_summary.HeaderSize + entry.CookedSerialOffset;
       ustruct->setCursor(cursor);
@@ -257,8 +287,8 @@ namespace SAP {
     return obj;
   }
 
-   Object* UAssetParser::resolvePackageImport(const FExportMapEntry &entry,
-                                                           const FPackageObjectIndex &index) {
+  Object *UAssetParser::resolvePackageImport(const FExportMapEntry &entry,
+                                             const FPackageObjectIndex &index) {
     auto packageImportRef = FPackageImportReference::fromObjIndex(index);
     if (packageImportRef.importedPackageIndex < m_importedParsers.size()) {
       auto const &hash = m_importedPublicExportHashes[packageImportRef.importedPublicExportHashIndex];
@@ -281,7 +311,7 @@ namespace SAP {
     return nullptr;
   }
 
-  Object* UAssetParser::resolvePackageExport(const uint64_t &publicExportHash) {
+  Object *UAssetParser::resolvePackageExport(const uint64_t &publicExportHash) {
     safeParse();
     auto it = m_exportHashToIndex.find(publicExportHash);
     if (it != m_exportHashToIndex.end()) {
@@ -290,8 +320,8 @@ namespace SAP {
     return nullptr;
   }
 
-   Object* UAssetParser::constructObject(const FExportMapEntry &entry,
-                                                      Struct* ustruct) {
+  Object *UAssetParser::constructObject(const FExportMapEntry &entry,
+                                        Struct *ustruct) {
     ustruct->safeParse();
     if (ustruct->m_superStructIndex < 0 || (-ustruct->m_superStructIndex - 1) <= m_importMap.size()) {
       return resolveObject(entry, m_importMap[-ustruct->m_superStructIndex - 1]);
@@ -302,13 +332,9 @@ namespace SAP {
     return nullptr;
   }
 
-  std::span< Object*> UAssetParser::exportMap() { return m_exportObjects; }
+  std::span<Object *> UAssetParser::exportMap() { return m_exportObjects; }
 
   const FZenPackageSummary &UAssetParser::getSummary() const { return m_summary; }
 
   std::span<std::string_view> UAssetParser::getNameMap() const { return m_nameMap; }
-
-
-
 } // namespace SAP
-

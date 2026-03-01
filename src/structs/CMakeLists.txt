@@ -2,7 +2,6 @@
 # SAP_Structs - The Core Data Structures
 # ==============================================================================
 add_library(SAP_Structs STATIC
-        core/f_soft_obj.hpp
         assets/satisfactory/ItemAmount.hpp
         core/EClassSerializationControlExtension.hpp
 )
@@ -30,6 +29,7 @@ target_sources(SAP_Structs
         core/per_quality_level_props.hpp
         version.hpp
         functions.hpp
+
 
         # --- Curves ---
         core/curves/rich_curve.hpp
@@ -144,6 +144,7 @@ target_sources(SAP_Structs
 target_sources(SAP_Structs
         PRIVATE
         core/package.cpp
+
 )
 
 # ------------------------------------------------------------------------------
@@ -159,6 +160,8 @@ target_include_directories(SAP_Structs
 target_link_libraries(SAP_Structs
         PUBLIC
         SAP_Util
+        SAP_Assets
+        SAP_Parser
         PRIVATE
         CITY_HASH
 )

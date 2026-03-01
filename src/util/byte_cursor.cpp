@@ -44,8 +44,8 @@ namespace SAP {
 
   FName ByteCursor::readFName() {
     FName name{
-        .index = read<uint32_t>(),
-        .number = read<uint32_t>(),
+      .index = read<uint32_t>(),
+      .number = read<uint32_t>(),
     };
     name.plainTextView = m_owner->nameFromMap(name.index);
     return name;
@@ -54,8 +54,8 @@ namespace SAP {
   bool ByteCursor::testReadFName() {
     auto pos = tell();
     FName name{
-        .index = read<uint32_t>(),
-        .number = read<uint32_t>(),
+      .index = read<uint32_t>(),
+      .number = read<uint32_t>(),
     };
     m_cursor = pos;
     return name.index < m_owner->nameMap().size() && name.number < 256;
@@ -66,19 +66,16 @@ namespace SAP {
     if (count == 0)
       return {};
 
-    m_cursor += sizeof(uint32_t);         // numStringBytes
-    m_cursor += sizeof(uint64_t);         // hashVersion
+    m_cursor += sizeof(uint32_t); // numStringBytes
+    m_cursor += sizeof(uint64_t); // hashVersion
     m_cursor += count * sizeof(uint64_t); // hashes
 
-    HeapStorage *storage = utf16Storage;
-    if (storage == nullptr) {
-      storage = m_owner->storage();
-    }
-    assert(storage != nullptr);
+
+    assert(utf16Storage != nullptr);
 
     auto headers = readArray<FSerializedNameHeader>(count);
 
-    auto entries = storage->allocateSpan<std::string_view>(count);
+    auto entries = utf16Storage->allocateSpan<std::string_view>(count);
 
     for (uint32_t i = 0; i < count; ++i) {
       const auto &header = headers[i];
@@ -86,7 +83,7 @@ namespace SAP {
 
       if (header.IsUtf16()) {
         auto chars = readArray<char16_t>(length);
-        auto res = storage->utf16ToUtf8Arena(chars);
+        auto res = utf16Storage->utf16ToUtf8Arena(chars);
         entries[i] = res;
       } else {
         const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
@@ -95,6 +92,10 @@ namespace SAP {
       }
     }
     return entries;
+  }
+
+  std::string_view ByteCursor::readFString() {
+    return readFString(m_owner->storage());
   }
 
   std::string_view ByteCursor::readFString(HeapStorage *utf16Storage) {
@@ -114,13 +115,8 @@ namespace SAP {
     if (isUnicode) {
       const char16_t *utf16Source = reinterpret_cast<const char16_t *>(m_buffer.data() + m_cursor);
       std::span<const char16_t> src(utf16Source, absLength - 1);
-      if (utf16Storage) {
-        result = utf16Storage->utf16ToUtf8Arena(src);
-      } else if (m_owner) {
-        result = m_owner->storage()->utf16ToUtf8Arena(src);
-      } else {
-        throw std::runtime_error("readFString No Storage");
-      }
+      assert(utf16Storage != nullptr);
+      result = utf16Storage->utf16ToUtf8Arena(src);
     } else {
       if (absLength > 1) {
         result = std::string_view(reinterpret_cast<const char *>(m_buffer.data() + m_cursor), absLength - 1);

@@ -102,9 +102,9 @@ namespace SAP {
       throw std::runtime_error("Decompressor wurde nicht initialisiert oder Oodle fehlt.");
     }
 
-    uint64_t decodedSize = OodleApi::decompressFunc(src.data(), static_cast<long>(src.size()), dst.data(), static_cast<long>(dst.size()), 1, 0,
+    uint64_t decodedSize = OodleApi::decompressFunc(src.data(), static_cast<long>(src.size()), dst.data(), static_cast<long>(dst.size()), 0, 0,
                                                     0, nullptr, 0, nullptr, nullptr, nullptr, 0,
-                                                    0); // All
+                                                    0);
 
     if (decodedSize <= 0) {
       Logger::logError("[Oodle]", "Oodle Dekompression fehlgeschlagen.");

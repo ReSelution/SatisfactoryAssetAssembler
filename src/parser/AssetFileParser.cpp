@@ -11,6 +11,10 @@ namespace SAP {
   const FUsmapMappingData *AssetFileParser::mappings() const { return m_assetParser->mappings(); }
   const GlobalData *AssetFileParser::globalData() const { return m_assetParser->globalData(); }
 
+  AssetParser * AssetFileParser::assetParser() const {
+    return m_assetParser;
+  }
+
   void AssetFileParser::setReader(Reader *reader) {
     if (m_state.load(std::memory_order_acquire) == ParserState::NONE) {
       m_reader = reader;

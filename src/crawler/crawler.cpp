@@ -57,28 +57,28 @@ namespace SAP {
       auto hash = static_cast<HIT_TEST_CLASS_HASH>(obj->getClassHash());
       switch (hash) {
         case HIT_TEST_CLASS_HASH::FGRecipe:
-          obj->safeParse();
+          obj->safeExport();
           m_recipes.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGSchematic:
-          obj->safeParse();
+          obj->safeExport();
           m_schematics.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGItemDescriptor:
         case HIT_TEST_CLASS_HASH::FGItemDescriptorBiomass:
-          obj->safeParse();
+          obj->safeExport();
           m_items.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGResourceDescriptor:
-          obj->safeParse();
+          obj->safeExport();
           m_resources.emplace_back(parser);
           return true;
 
         case HIT_TEST_CLASS_HASH::FGBuildingDescriptor:
-          obj->safeParse();
+          obj->safeExport();
           m_buildable.emplace_back(parser);
           return true;
 
