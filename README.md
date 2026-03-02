@@ -4,7 +4,7 @@
 
 ---
 
-## 🛠️ Build Instructions (Linux / Fedora)
+
 
 ## ⚖️ Legal Disclaimer (Oodle Compression)
 
@@ -15,6 +15,7 @@
 
 *Oodle is a registered trademark of Epic Games Tools (formerly RAD Game Tools). This project is an independent fan-made tool and is not affiliated with, endorsed by, or sponsored by Coffee Stain Studios or Epic Games.*
 
+## 🛠️ Build Instructions (Linux / Fedora)
 ```bash
 
 git clone --recursive [https://github.com/ReSelution/SatisfactoryAssetAssembler.git](https://github.com/ReSelution/SatisfactoryAssetAssembler.git)
