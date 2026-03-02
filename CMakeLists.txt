@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 project(SatisfactoryAssetParser LANGUAGES CXX)
-if(NOT CMAKE_SYSTEM_PROCESSOR)
-    set(CMAKE_SYSTEM_PROCESSOR x86_64)
-endif()
-include(GNUInstallDirs)
+
+
 # -------------------------------------------------------------------------
 # 1. Globale Einstellungen & Performance
 # -------------------------------------------------------------------------
@@ -121,4 +119,5 @@ endif()
 
 set_target_properties(AssetRipperTest PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        OUTPUT_NAME "AssetRipperTest"
 )

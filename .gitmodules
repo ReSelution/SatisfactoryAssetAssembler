@@ -10,6 +10,3 @@
 [submodule "external/fastgltf"]
 	path = external/fastgltf
 	url = https://github.com/spnda/fastgltf
-[submodule "external/simdjson"]
-	path = external/simdjson
-	url = https://github.com/simdjson/simdjson.git
