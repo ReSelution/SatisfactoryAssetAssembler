@@ -1,0 +1,12 @@
+Satisfactory Asset Assembler (SAA)
+Copyright (c) 2025-2026 Ole Ubben
+
+This product contains derived or integrated code from:
+- CUE4Parse (https://github.com/FabianS99/CUE4Parse)
+  Copyright (c) 2021-2026 FabianS99 and contributors
+
+- fastgltf (https://github.com/spurious/fastgltf)
+  Copyright (c) 2022-2026 spurious
+
+- CityHash (https://github.com/google/cityhash)
+  Copyright (c) 2011 Google Inc.
