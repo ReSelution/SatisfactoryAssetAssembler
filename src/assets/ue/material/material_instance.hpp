@@ -10,7 +10,7 @@
 
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class MaterialInstance : public MaterialInterface {
     friend class MaterialExporter;
 
@@ -30,5 +30,5 @@ namespace SAP {
   private:
   };
 
-  SAP_REGISTER_ASSET(MaterialInstance)
+  SAA_REGISTER_ASSET(MaterialInstance)
 } // namespace SAP

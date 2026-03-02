@@ -9,7 +9,7 @@
 
 #include "render_core/f_packed_normal.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FStaticMeshUVItem {
     std::array<FPackedNormal, 3> normals;
     std::span<const FMeshUVFloat> UVs;

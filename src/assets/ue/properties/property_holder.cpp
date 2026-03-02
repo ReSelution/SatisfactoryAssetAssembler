@@ -14,7 +14,7 @@
 #include "thread_arena.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 
-namespace SAP {
+namespace SAA {
   PropertyHolder::PropertyHolder(std::string_view className): m_className(className) {}
 
   PropertyHolder::PropertyHolder(std::pmr::memory_resource *resource): m_properties(resource) {}

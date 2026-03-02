@@ -26,7 +26,7 @@
 
 #endif
 
-namespace SAP {
+namespace SAA {
   static constexpr const char *LOGGER_PROVIDER = "[Provider]";
   static constexpr const char *LOGGER_OODLE = "[Oodle]";
 

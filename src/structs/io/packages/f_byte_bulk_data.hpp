@@ -6,7 +6,7 @@
 #include "byte_cursor.hpp"
 #include "f_byte_bulk_data_header.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FByteBulkData {
     EBulkDataFlags flags;
     ByteCursor bulkCursor;

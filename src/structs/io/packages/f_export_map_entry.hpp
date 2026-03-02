@@ -10,7 +10,7 @@
 #include "core/name.hpp"
 #include "core/package.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FExportMapEntry {
     uint64_t CookedSerialOffset;

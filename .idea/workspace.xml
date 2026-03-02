@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="4" type="long" />
-    <option name="/Default/Environment/UserInterface/HierarchyView/ViewStyle/@EntryValue" value="SuperTypes" type="string" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="5" type="long" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
-    <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
-    <option name="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue" value="CppFormatterOtherPage" type="string" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
   </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
@@ -22,116 +21,307 @@
   <component name="CMakeRunConfigurationManager">
     <generated>
       <config projectName="SatisfactoryAssetParser" targetName="SAP_VFS" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAA_Structs" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAA_Util" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAA_Assets" />
       <config projectName="SatisfactoryAssetParser" targetName="fastgltf" />
-      <config projectName="SatisfactoryAssetParser" targetName="SAP_Lib" />
       <config projectName="SatisfactoryAssetParser" targetName="spdlog" />
-      <config projectName="SatisfactoryAssetParser" targetName="SAP_Exporter" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAA_Lib" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAA_Crawler" />
       <config projectName="SatisfactoryAssetParser" targetName="AssetRipperTest" />
-      <config projectName="SatisfactoryAssetParser" targetName="SAP_Assets" />
-      <config projectName="SatisfactoryAssetParser" targetName="SAP_Crawler" />
+      <config projectName="SatisfactoryAssetParser" targetName="SAA_Exporter" />
       <config projectName="SatisfactoryAssetParser" targetName="SAP_Localization" />
-      <config projectName="SatisfactoryAssetParser" targetName="SAP_Util" />
       <config projectName="SatisfactoryAssetParser" targetName="SAP_Reader" />
       <config projectName="SatisfactoryAssetParser" targetName="SAP_Parser" />
-      <config projectName="SatisfactoryAssetParser" targetName="SAP_Structs" />
       <config projectName="SatisfactoryAssetParser" targetName="CITY_HASH" />
     </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
-      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" />
-      <configuration PROFILE_NAME="Windows-Debug" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Windows" />
-      <configuration PROFILE_NAME="Windows-Release" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Windows" GENERATION_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS=&quot;-static -static-libgcc -static-libstdc++&quot;  -DCMAKE_LINK_SEARCH_START_STATIC=ON  -DCMAKE_LINK_SEARCH_END_STATIC=ON" />
-      <configuration PROFILE_NAME="Release-GCC" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="GCC" />
-      <configuration PROFILE_NAME="Debug-GCC" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="GCC" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" />
+      <configuration PROFILE_NAME="Release-Windows" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Windows" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1727978c-9dad-4f3d-932e-e1742b7a3b3a" name="Changes" comment="Fixed Oddle Pattern Matching">
-      <change afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_descriptor.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_descriptor.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/properties/soft_object.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/ue/properties/soft_object.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/registery.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/registery.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/structs/gpu_export.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/exporter/puplic/structs/meta_export.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/Satisfactory Asset Parser.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/project.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_building_descriptor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_descriptor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_descriptor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_descriptor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_descriptor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_item_descriptor_biomass.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_recipe.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_resource_descriptor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/satisfactory/fg_schematic.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/controlRig/rig_hierarchy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/controlRig/rig_hierarchy.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/controlRig/rig_hierarchy.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/controlRig/rig_hierarchy.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/engine/blueprint_generated_class.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/engine/blueprint_generated_class.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/engine/blueprint_generated_class.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/engine/blueprint_generated_class.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/f_material_texture_info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/f_material_texture_info.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material_instance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material_instance.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material_instance.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material_instance.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material_instance_constant.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material_instance_constant.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material_instance_constant.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material_instance_constant.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material_interface.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material_interface.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material_interface.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material_interface.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/unreal_material.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/unreal_material.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/unreal_material.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/unreal_material.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/object/class.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object/class.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/object/field.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object/field.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/object/field.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object/field.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/object/struct.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object/struct.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/object/struct.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object/struct.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/object_factory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object_factory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/object_factory.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object_factory.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/f_property_tag.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/f_property_tag.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1009.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1009.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1017.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1017.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/soft_object.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/soft_object.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/soft_object.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/soft_object.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/rigVM/rig_vm.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/rigVM/rig_vm.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/rigVM/rig_vm.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/rigVM/rig_vm.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh_socket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh_socket.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh_socket.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/static_mesh/static_mesh_socket.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d_array.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d_array.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d_array.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_2d_array.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture_render_target.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_render_target.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture_render_target_2_d.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture_render_target_2_d.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/crawler/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/crawler/crawler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/crawler/crawler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/decompress/Decompressor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/decompress/Decompressor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decompress/Decompressor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/decompress/Decompressor.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/decompress/oodle_loader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/decompress/oodle_loader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decompress/oodle_loader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/decompress/oodle_loader.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/exporter/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/puplic/arena/staging_arena.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/puplic/arena/staging_arena.hpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/puplic/arena/warehouse_arena.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/puplic/arena/warehouse_arena.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/exporter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/exporter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/exporter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/material/material_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/material/material_exporter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/material/material_exporter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/material/material_exporter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/meshes/mesh_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/meshes/mesh_exporter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/meshes/mesh_exporter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/meshes/mesh_exporter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/puplic/arena/registery.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/registery.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/puplic/arena/registery.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/puplic/arena/registery.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/puplic/structs/meta_export.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/puplic/structs/meta_export.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/structs/exported_texture_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/structs/exported_texture_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/structs/gltf_material.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/structs/gltf_material.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/texture/texture_decoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/texture/texture_decoder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/texture/texture_decoder.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/texture/texture_decoder.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/texture/texture_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/texture/texture_exporter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/texture/texture_exporter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/texture/texture_exporter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_manager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_manager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_manager.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_manager.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_meta_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_meta_parser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_meta_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_meta_parser.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_res_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_res_parser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/AssetParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetParser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/AssetParser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetParser.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/PAKReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/PAKReader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/PAKReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/PAKReader.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/Reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/Reader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/Reader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/Reader.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/UsmapReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/UsmapReader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/UsmapReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/UsmapReader.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/reader/file_reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/file_reader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/file_reader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/file_reader.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/io_global_data.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/io_global_data.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/io_global_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/io_global_data.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/structs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/core/f_soft_obj.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/e_blend_mode.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/e_blend_mode.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/e_material_parameter_association.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/e_material_parameter_association.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/e_material_shading_model.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/e_material_shading_model.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/e_translucency_lighting_mode.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/e_translucency_lighting_mode.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_material_instance_base_property_overrides.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_material_instance_base_property_overrides.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_material_override_nanite.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_material_override_nanite.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_material_parameter_info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_material_parameter_info.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_scalar_parameter_value.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_scalar_parameter_value.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_static_component_mask_parameter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_static_component_mask_parameter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_static_material_layers_parameter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_static_material_layers_parameter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_static_parameter_base.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_static_parameter_base.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_static_parameter_set.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_static_parameter_set.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_static_switch_parameter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_static_switch_parameter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_static_terrain_layer_weight_parameter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_static_terrain_layer_weight_parameter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_texture_parameter_value.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_texture_parameter_value.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/material/f_vector_parameter_value.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/material/f_vector_parameter_value.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/meshes/f_color_vertex_buffer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/meshes/f_color_vertex_buffer.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/meshes/f_mesh_UV_channel_info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/meshes/f_mesh_UV_channel_info.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/meshes/f_mesh_UV_float.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/meshes/f_mesh_UV_float.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/meshes/f_postion_vertex_Buffer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/meshes/f_postion_vertex_Buffer.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/meshes/f_weighted_random_sampler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/meshes/f_weighted_random_sampler.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/nanite/f_hierarchy_node_slice.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/nanite/f_hierarchy_node_slice.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/nanite/f_nanit_resources.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/nanite/f_nanit_resources.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/nanite/f_packed_hierachy_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/nanite/f_packed_hierachy_node.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/nanite/f_page_streaming_state.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/nanite/f_page_streaming_state.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/nanite/nanite_constants.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/nanite/nanite_constants.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/satisfactory/ItemAmount.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/satisfactory/ItemAmount.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/distance_field_atlas.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/distance_field_atlas.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_card_represantation_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_card_represantation_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_material.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_material.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_LOD_resources.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_LOD_resources.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_UV_item.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_UV_item.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_render_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_render_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_section.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_section.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_vertex_buffer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_mesh_vertex_buffer.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_raw_index_buffer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/static_mesh/f_static_raw_index_buffer.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/f_opt_texture_platfrom_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/f_opt_texture_platfrom_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/f_texture_2d_mip_map.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/f_texture_2d_mip_map.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/f_virtual_texture_built_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/f_virtual_texture_built_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/f_virtual_texture_tile_offset_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/f_virtual_texture_tile_offset_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/f_virtual_texturte_data_chunk.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/f_virtual_texturte_data_chunk.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/pixel_format.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/pixel_format.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/texture_compression_settings.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/texture_compression_settings.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/assets/textures/texture_group.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/assets/textures/texture_group.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/curves/f_compressed_rich_curve.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/curves/f_compressed_rich_curve.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/curves/rich_curve.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/curves/rich_curve.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/f_box_sphere_bounds.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/f_box_sphere_bounds.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/f_color.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/f_color.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/f_guid.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/f_guid.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/f_linear_color.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/f_linear_color.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/f_text.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/f_text.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/half.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/half.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/math/f_box.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/math/f_box.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/math/f_quat.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/math/f_quat.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/math/f_vector.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/math/f_vector.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/name.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/name.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/package.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/package.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/package.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/package.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/per_quality_level_props.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/per_quality_level_props.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/functions.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/functions.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_file_package_store_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_file_package_store_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_chunk_id.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_chunk_id.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_container_header.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_container_header_localized_package.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header_localized_package.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_container_header_package_redirect.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header_package_redirect.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_container_header_soft_package_refenrenes.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_header_soft_package_refenrenes.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_container_id.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_container_id.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_directory_index_enty.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_directory_index_enty.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_file_index_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_file_index_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_hash.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_hash.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_offset_and_lenght.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_offset_and_lenght.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_store_chunk_block_meta.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_store_chunk_block_meta.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_store_toc_Compressed_block_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_store_toc_Compressed_block_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_store_toc_header.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_store_toc_header.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_toc_container_id.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_toc_container_id.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_on_demand_toc_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_on_demand_toc_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_bulk_data_cooked_index.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_bulk_data_cooked_index.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_bulk_data_map_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_bulk_data_map_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_byte_bulk_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_byte_bulk_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_byte_bulk_data_header.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_byte_bulk_data_header.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_custom_version.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_custom_version.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_export_bundle_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_export_bundle_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_export_bundle_header.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_export_bundle_header.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_export_map_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_export_map_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_file_summary.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_file_summary.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_object_export.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_object_export.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_object_import.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_object_import.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_cell_offsets.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_cell_offsets.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_summary.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_summary.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_versioning_info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/packages/f_zen_package_versioning_info.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/localization/f_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/localization/f_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/localization/f_text_key.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/localization/f_text_key.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/localization/f_text_localization_resource_string.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/localization/f_text_localization_resource_string.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/pak/e_pak_file_version.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/pak/e_pak_file_version.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/pak/f_pak_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/pak/f_pak_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/pak/f_pak_info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/pak/f_pak_info.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/render_core/f_packed_normal.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/render_core/f_packed_normal.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/usmap/f_usmap_mapping_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_mapping_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/usmap/f_usmap_property_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_property_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/usmap/f_usmap_schema.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_schema.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/version.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/version.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/PropertyTracker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/PropertyTracker.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/PropertyTracker.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/PropertyTracker.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/ThroughputStats.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/ThroughputStats.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/util/byte_cursor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/byte_cursor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/util/byte_cursor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/byte_cursor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/thread_arena.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/thread_arena.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/thread_arena.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/thread_arena.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/en-US.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/en-US.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_pool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/heap_pool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_pool.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/heap_pool.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_storage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/heap_storage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_storage.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/heap_storage.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/logger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/logger.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/logger.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/logger.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs_entry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs_entry.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/offsetDif.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/offsetDif.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ClangdSettings">
-    <option name="formatViaClangd" value="false" />
-  </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
-  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ReSelution&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:ReSelution/SatisfactoryAssetAssembler.git&quot;,
+    &quot;accountId&quot;: &quot;f78cf0c1-1c88-4956-89ae-367e23ed15f0&quot;
+  }
+}</component>
   <component name="MacroExpansionManager">
-    <option name="directoryName" value="FlhHlmpO" />
+    <option name="directoryName" value="MHsEPmEa" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
     <option name="majorVersion" value="2025" />
-    <option name="minorVersion" value="3.2" />
+    <option name="minorVersion" value="3.3" />
     <option name="productBranch" value="Classic" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
 }</component>
-  <component name="ProjectId" id="39V4fnxdfgeyWRdzcmTQ3Y5LTUh" />
+  <component name="ProjectId" id="3AOSRXzFbcBLLgIvBg1gYBuL0lh" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -141,17 +331,12 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
     &quot;CMake Application.AssetRipperTest.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Notification.DisplayName-DoNotAsk-Execution&quot;: &quot;External process execution failed&quot;,
-    &quot;Notification.DoNotAsk-Execution&quot;: &quot;true&quot;,
-    &quot;Python.cacheCalc.executor&quot;: &quot;Run&quot;,
-    &quot;Python.cacheEval.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
@@ -159,252 +344,119 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/oleub/dev/source/repos/SatisfactoryAssetParser&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/oleub/dev/source/repos/SatisfactoryAssetAssembler&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/tools" />
-      <recent name="$PROJECT_DIR$/src/exporter" />
-      <recent name="$PROJECT_DIR$/src/structs/assets" />
-    </key>
-  </component>
   <component name="RunManager" selected="CMake Application.AssetRipperTest">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AssetRipperTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="AssetRipperTest">
+    <configuration name="AssetRipperTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="AssetRipperTest">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CITY_HASH" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="CITY_HASH" CONFIG_NAME="Release">
+    <configuration name="CITY_HASH" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="CITY_HASH" CONFIG_NAME="Release-Windows">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Assets" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Assets" CONFIG_NAME="Release">
+    <configuration name="SAA_Assets" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAA_Assets" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Crawler" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Crawler" CONFIG_NAME="Release">
+    <configuration name="SAA_Crawler" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAA_Crawler" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Exporter" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Exporter" CONFIG_NAME="Release">
+    <configuration name="SAA_Exporter" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAA_Exporter" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Lib" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Lib" CONFIG_NAME="Release">
+    <configuration name="SAA_Lib" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAA_Lib" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Localization" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Localization" CONFIG_NAME="Release">
+    <configuration name="SAA_Structs" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAA_Structs" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Parser" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Parser" CONFIG_NAME="Release">
+    <configuration name="SAA_Util" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAA_Util" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Reader" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Reader" CONFIG_NAME="Release">
+    <configuration name="SAP_Localization" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Localization" CONFIG_NAME="Release-Windows">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Structs" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Structs" CONFIG_NAME="Release">
+    <configuration name="SAP_Parser" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Parser" CONFIG_NAME="Release-Windows">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_Util" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Util" CONFIG_NAME="Release">
+    <configuration name="SAP_Reader" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_Reader" CONFIG_NAME="Release-Windows">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SAP_VFS" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_VFS" CONFIG_NAME="Release">
+    <configuration name="SAP_VFS" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="SAP_VFS" CONFIG_NAME="Release-Windows">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="fastgltf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="fastgltf" CONFIG_NAME="Release">
+    <configuration name="fastgltf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="fastgltf" CONFIG_NAME="Release-Windows">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="spdlog" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="spdlog" CONFIG_NAME="Release">
+    <configuration name="spdlog" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="spdlog" CONFIG_NAME="Release-Windows">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="cacheCalc" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Satisfactory Asset Parser" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/cacheCalc.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="true" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="cacheEval" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Satisfactory Asset Parser" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/cacheEval.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="true" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
     </configuration>
     <list>
       <item itemvalue="CMake Application.AssetRipperTest" />
+      <item itemvalue="CMake Application.SAA_Lib" />
+      <item itemvalue="CMake Application.SAA_Util" />
       <item itemvalue="CMake Application.CITY_HASH" />
-      <item itemvalue="CMake Application.SAP_Assets" />
-      <item itemvalue="CMake Application.SAP_Crawler" />
-      <item itemvalue="CMake Application.SAP_Exporter" />
-      <item itemvalue="CMake Application.SAP_Lib" />
+      <item itemvalue="CMake Application.fastgltf" />
+      <item itemvalue="CMake Application.spdlog" />
+      <item itemvalue="CMake Application.SAA_Assets" />
+      <item itemvalue="CMake Application.SAA_Crawler" />
+      <item itemvalue="CMake Application.SAA_Exporter" />
       <item itemvalue="CMake Application.SAP_Localization" />
       <item itemvalue="CMake Application.SAP_Parser" />
       <item itemvalue="CMake Application.SAP_Reader" />
-      <item itemvalue="CMake Application.SAP_Structs" />
-      <item itemvalue="CMake Application.SAP_Util" />
+      <item itemvalue="CMake Application.SAA_Structs" />
       <item itemvalue="CMake Application.SAP_VFS" />
-      <item itemvalue="CMake Application.fastgltf" />
-      <item itemvalue="CMake Application.spdlog" />
-      <item itemvalue="Python.cacheCalc" />
-      <item itemvalue="Python.cacheEval" />
     </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.cacheCalc" />
-        <item itemvalue="Python.cacheEval" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="1727978c-9dad-4f3d-932e-e1742b7a3b3a" name="Changes" comment="" />
-      <created>1770768011250</created>
+      <changelist id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="" />
+      <created>1772462116016</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1770768011250</updated>
-      <workItem from="1770768012849" duration="8147000" />
-      <workItem from="1770805663223" duration="31010000" />
-      <workItem from="1770878496617" duration="5860000" />
-      <workItem from="1770987837204" duration="11001000" />
-      <workItem from="1770999712357" duration="13349000" />
-      <workItem from="1771068043201" duration="2682000" />
-      <workItem from="1771071471637" duration="7298000" />
-      <workItem from="1771156495129" duration="46298000" />
-      <workItem from="1771214864578" duration="997000" />
-      <workItem from="1771249906561" duration="9000" />
-      <workItem from="1771249952635" duration="11656000" />
-      <workItem from="1771346968428" duration="9000" />
-      <workItem from="1771357412351" duration="729000" />
-      <workItem from="1771372454023" duration="1013000" />
-      <workItem from="1771421335570" duration="11260000" />
-      <workItem from="1771483523294" duration="1393000" />
-      <workItem from="1771497319050" duration="9050000" />
-      <workItem from="1771672621601" duration="46748000" />
-      <workItem from="1771808816893" duration="122000" />
-      <workItem from="1771808951562" duration="2134000" />
-      <workItem from="1771811250737" duration="3285000" />
-      <workItem from="1771817437468" duration="6990000" />
-      <workItem from="1771825535279" duration="19045000" />
-      <workItem from="1771844956069" duration="1669000" />
-      <workItem from="1771858242751" duration="268000" />
-      <workItem from="1771858627211" duration="5348000" />
-      <workItem from="1771927928178" duration="13545000" />
-      <workItem from="1771957054032" duration="9607000" />
-      <workItem from="1772020314721" duration="4464000" />
-      <workItem from="1772084049427" duration="31000" />
-      <workItem from="1772084662374" duration="10011000" />
-      <workItem from="1772117226716" duration="7491000" />
-      <workItem from="1772190003419" duration="1431000" />
-      <workItem from="1772279434441" duration="3787000" />
-      <workItem from="1772283774832" duration="7700000" />
-      <workItem from="1772296233772" duration="8938000" />
-      <workItem from="1772356509223" duration="3847000" />
+      <updated>1772462116016</updated>
+      <workItem from="1772462117157" duration="877000" />
+      <workItem from="1772463015623" duration="559000" />
     </task>
-    <task id="LOCAL-00001" summary="ClangFormat">
-      <option name="closed" value="true" />
-      <created>1771069299154</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1771069299154</updated>
-    </task>
-    <task id="LOCAL-00002" summary="FG Classes">
-      <option name="closed" value="true" />
-      <created>1771825001538</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1771825001538</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Added Unreal 5.6">
-      <option name="closed" value="true" />
-      <created>1771844994692</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1771844994692</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Fixed Oddle Pattern Matching">
-      <option name="closed" value="true" />
-      <created>1772301325233</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1772301325233</updated>
-    </task>
-    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -414,24 +466,5 @@
     <isAutomaticCheckingOnLaunch value="false" />
     <isAutomaticFoundErrors value="true" />
     <isAutomaticReloadCMake value="true" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="ClangFormat" />
-    <MESSAGE value="FG Classes" />
-    <MESSAGE value="Added Unreal 5.6" />
-    <MESSAGE value="Fixed Oddle Pattern Matching" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed Oddle Pattern Matching" />
-  </component>
-  <component name="XDebuggerManager">
-    <watches-manager>
-      <configuration name="CMakeRunConfiguration">
-        <watch expression="recipe-&gt;mProducedIn" />
-        <watch expression="recipe-&gt;m_owner-&gt;m_importedParsers" />
-      </configuration>
-    </watches-manager>
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>

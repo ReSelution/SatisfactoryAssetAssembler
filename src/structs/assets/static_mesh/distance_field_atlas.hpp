@@ -10,7 +10,7 @@
 
 #include "io/packages/f_byte_bulk_data.hpp"
 
-namespace SAP {
+namespace SAA {
   constexpr size_t NUM_MIPS = 3;
 #pragma pack(push, 1)
   struct FSparseDistanceFieldMip {

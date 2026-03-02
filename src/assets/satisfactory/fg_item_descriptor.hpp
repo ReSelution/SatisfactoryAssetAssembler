@@ -7,8 +7,10 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class FGItemDescriptor : public FGDescriptor {
+    friend class FGExporter;
+
     struct Item {
       // Kern-Identität & UI
       static constexpr uint32_t DisplayName = fnv1a("mDisplayName");
@@ -88,5 +90,5 @@ namespace SAP {
 
   };
 
-  SAP_REGISTER_ASSET(FGItemDescriptor)
+  SAA_REGISTER_ASSET(FGItemDescriptor)
 } // namespace SAP

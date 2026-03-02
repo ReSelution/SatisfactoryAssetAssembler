@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <array>
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FIoStoreTocCompressedBlockEntry {
     std::array<uint8_t, 5> compressedOffsetArray; // 5 Bytes

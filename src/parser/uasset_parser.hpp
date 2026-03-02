@@ -12,7 +12,7 @@
 #include "ue/object/struct.hpp"
 #include "version.hpp"
 
-namespace SAP {
+namespace SAA {
   class IOVfsEntry;
   class Object;
   class AssetParser;

@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace SAP {
+namespace SAA {
   struct FEntry {
     std::string_view localizedString;
     uint32_t strHash;

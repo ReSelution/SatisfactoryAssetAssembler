@@ -7,7 +7,7 @@
 
 #include "ue/asset_object.hpp"
 
-namespace SAP {
+namespace SAA {
   struct ItemAmount {
     static constexpr uint32_t Amount = fnv1a("Amount");
     static constexpr uint32_t ItemClass = fnv1a("ItemClass");

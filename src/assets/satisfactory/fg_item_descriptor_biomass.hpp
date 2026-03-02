@@ -9,7 +9,7 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class FGItemDescriptorBiomass : public FGDescriptor {
     struct Biomass {
       // Die Klassiker (schon bekannt, aber hier gelistet für die Vollständigkeit)
@@ -58,5 +58,5 @@ namespace SAP {
 
 
   };
-  SAP_REGISTER_ASSET(FGItemDescriptorBiomass)
+  SAA_REGISTER_ASSET(FGItemDescriptorBiomass)
 } // namespace SAP

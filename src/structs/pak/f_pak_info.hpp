@@ -12,7 +12,7 @@
 
 #include "io/f_io_hash.hpp"
 
-namespace SAP {
+namespace SAA {
   constexpr uint32_t PAK_FILE_MAGIC = 0x5A6F12E1;
 
   struct FPakInfo {

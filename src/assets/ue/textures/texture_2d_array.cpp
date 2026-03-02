@@ -6,7 +6,7 @@
 
 #include "texture/texture_exporter.hpp"
 
-namespace SAP {
+namespace SAA {
   void Texture2DArray::parse() {
     Texture::parse();
     m_cursor += sizeof(FStripDataFlags);

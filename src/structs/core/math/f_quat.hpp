@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FQuat {
     double x, y, z, w;

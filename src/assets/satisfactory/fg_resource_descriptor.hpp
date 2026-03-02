@@ -7,7 +7,7 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class FGResourceDescriptor : public FGDescriptor {
     struct Resource {
       // Identität & Navigation
@@ -76,5 +76,5 @@ namespace SAP {
     bool mIsAlienItem{};
   };
 
-  SAP_REGISTER_ASSET(FGResourceDescriptor)
+  SAA_REGISTER_ASSET(FGResourceDescriptor)
 } // namespace SAP

@@ -1,31 +1,31 @@
-add_library(SAP_Parser)
+add_library(SAA_Parser)
 
-target_sources(SAP_Parser
+target_sources(SAA_Parser
     PUBLIC
         AssetFileParser.hpp
         AssetParser.hpp
         uasset_parser.hpp
 )
 
-target_sources(SAP_Parser
+target_sources(SAA_Parser
         PRIVATE
         AssetParser.cpp
         uasset_parser.cpp
         AssetFileParser.cpp
 )
 
-target_include_directories(SAP_Parser
+target_include_directories(SAA_Parser
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(SAP_Parser
+target_link_libraries(SAA_Parser
         PUBLIC
-        SAP_Localization
+        SAA_Localization
         PRIVATE
-        SAP_Structs
-        SAP_Util
-        SAP_Assets
-        SAP_Lib
-        SAP_VFS
+        SAA_Structs
+        SAA_Util
+        SAA_Assets
+        SAA_Lib
+        SAA_VFS
 )

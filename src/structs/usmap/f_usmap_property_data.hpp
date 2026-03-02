@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-namespace SAP {
+namespace SAA {
 
   enum class EUsmapPropertyType : uint8_t {
     BYTE_PROPERTY = 0,

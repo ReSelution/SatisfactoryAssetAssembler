@@ -4,7 +4,7 @@
 
 #include "exporter.hpp"
 
-namespace SAP {
+namespace SAA {
   bool Exporter::checkPath(std::filesystem::path path) {
     std::filesystem::path dir(path.parent_path());
     if (!dir.empty() && !std::filesystem::exists(dir)) {

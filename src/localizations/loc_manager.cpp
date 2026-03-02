@@ -10,7 +10,7 @@
 #include "logger.hpp"
 #include "vfs.hpp"
 
-namespace SAP {
+namespace SAA {
   LocManager::LocManager(AssetParser *parser) : m_parser(parser) {
     auto start = std::chrono::high_resolution_clock::now();
 

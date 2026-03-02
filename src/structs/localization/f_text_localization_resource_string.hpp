@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace SAP {
+namespace SAA {
   struct FTextLocalizationResourceString {
     std::string_view str;
     int32_t refCount;

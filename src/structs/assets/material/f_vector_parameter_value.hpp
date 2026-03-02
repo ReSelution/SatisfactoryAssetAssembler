@@ -11,7 +11,7 @@
 
 #include "ue/properties/f_property_tag.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FVectorParameterValue {
     FName name;
     FMaterialParameterInfo parameterInfo;

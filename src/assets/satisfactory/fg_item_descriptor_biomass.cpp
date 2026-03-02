@@ -4,7 +4,7 @@
 
 #include "fg_item_descriptor_biomass.hpp"
 
-namespace SAP {
+namespace SAA {
   void FGItemDescriptorBiomass::parse() {
     Object::parse();
     DBG_MARK_HANDLED(m_className, Biomass::CachedStackSize);

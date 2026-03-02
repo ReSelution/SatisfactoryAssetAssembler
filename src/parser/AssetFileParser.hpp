@@ -16,7 +16,7 @@
 #include "io/packages/f_object_export.hpp"
 #include "io/packages/f_object_import.hpp"
 
-namespace SAP {
+namespace SAA {
   class Reader;
   struct FUsmapMappingData;
   struct GlobalData;

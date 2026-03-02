@@ -9,7 +9,7 @@
 #include "core/name.hpp"
 #include "io/packages/f_export_map_entry.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FZenPackageSummary {
     uint32_t bHasVersioningInfo;

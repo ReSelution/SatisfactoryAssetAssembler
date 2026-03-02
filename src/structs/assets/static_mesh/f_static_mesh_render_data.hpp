@@ -9,7 +9,7 @@
 
 #include "core/f_box_sphere_bounds.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FStaticMeshRenderData {
     std::vector<FStaticMeshLODResources> LODResources;
     FNaniteResources naniteResources;

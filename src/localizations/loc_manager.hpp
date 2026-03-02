@@ -15,7 +15,7 @@ namespace std {
   class thread;
 }
 
-namespace SAP {
+namespace SAA {
   class AssetParser;
   constexpr std::string_view DEFAULT_CULTURE = "en-US";
 

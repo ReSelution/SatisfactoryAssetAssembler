@@ -34,7 +34,7 @@ inline std::string utf16ToUtf8(const std::span<const char16_t> &input) {
   return out;
 }
 
-namespace SAP {
+namespace SAA {
   void ByteCursor::seek(size_t newPos) {
     if (newPos > m_buffer.size() && newPos > 0) [[unlikely]] {
       throw std::runtime_error("ByteCursor seek out of range");

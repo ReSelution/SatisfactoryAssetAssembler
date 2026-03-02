@@ -14,7 +14,7 @@
 #include <dlfcn.h>
 #endif
 
-namespace SAP {
+namespace SAA {
   static void *g_OodleLibHandle = nullptr;
 
 #ifdef _WIN32

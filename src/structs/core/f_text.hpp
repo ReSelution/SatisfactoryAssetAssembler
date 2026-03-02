@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   enum class ETextFlag : uint32_t {
     Transient = (1 << 0),
     CultureInvariant = (1 << 1),

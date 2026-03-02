@@ -9,7 +9,7 @@
 
 #include "f_usmap_property_data.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FUsmapSchema {
     std::string Name;
     std::string SuperName;

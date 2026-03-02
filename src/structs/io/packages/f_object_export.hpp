@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <string>
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FObjectExport {
     int32_t ClassIndex; // Referenz auf den Typ (Import oder Export)

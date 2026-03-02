@@ -11,7 +11,7 @@
 
 #include "AssetFileParser.hpp"
 
-namespace SAP {
+namespace SAA {
   void TextureExporter::exportAsset(Texture *texture) {
     ExportedTextureData data{.mimeType = static_cast<EImageMimeType>(options().textureExportTypes.load())};
     texture->decodeTexture(data);

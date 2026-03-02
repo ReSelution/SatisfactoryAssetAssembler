@@ -8,7 +8,7 @@
 #include "city.h"
 #include "functions.hpp"
 
-namespace SAP {
+namespace SAA {
   FPackageId FPackageId::fromName(const std::string_view name) {
     char16_t buffer[512];
     const size_t len = std::min(name.length(), (size_t) 511);

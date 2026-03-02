@@ -7,7 +7,7 @@
 #include <vector>
 #include "../flags/TextureExportFlags.hpp"
 
-namespace SAP {
+namespace SAA {
   enum class EImageMimeType : uint32_t { None, PNG = static_cast<uint32_t>(TextureExportFlags::PNG), RawRGBA };
 
   struct ExportedTextureData {

@@ -6,8 +6,8 @@
 #include "ue/object/class.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class BlueprintGeneratedClass : public Class {};
 
-  SAP_REGISTER_ASSET(BlueprintGeneratedClass)
+  SAA_REGISTER_ASSET(BlueprintGeneratedClass)
 } // namespace SAP

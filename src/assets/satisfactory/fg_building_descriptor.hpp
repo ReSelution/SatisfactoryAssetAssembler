@@ -7,7 +7,7 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class FGBuildingDescriptor : public FGDescriptor {
     struct Building { // In class FGBuildingDescriptor
       static constexpr uint32_t Category = fnv1a("mCategory");
@@ -43,5 +43,5 @@ namespace SAP {
 
   };
 
-  SAP_REGISTER_ASSET(FGBuildingDescriptor)
+  SAA_REGISTER_ASSET(FGBuildingDescriptor)
 } // namespace SAP

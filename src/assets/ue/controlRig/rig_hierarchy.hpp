@@ -6,7 +6,7 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
 
   class RigHierarchy: public Object {
     public:
@@ -14,5 +14,5 @@ namespace SAP {
 
     void parse() override;
   };
-  SAP_REGISTER_ASSET(RigHierarchy)
+  SAA_REGISTER_ASSET(RigHierarchy)
 } // namespace SAP

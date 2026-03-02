@@ -10,7 +10,7 @@
 #include "f_static_switch_parameter.hpp"
 #include "f_static_terrain_layer_weight_parameter.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FStaticParameterSet {
     std::vector<FStaticSwitchParameter> staticSwitchParameters;
     std::vector<FStaticComponentMaskParameter> staticComponentMaskParameters;

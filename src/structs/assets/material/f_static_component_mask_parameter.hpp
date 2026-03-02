@@ -3,7 +3,7 @@
 //
 
 #pragma once
-namespace SAP {
+namespace SAA {
   struct FStaticComponentMaskParameter {
     bool r, g, b, a;
 

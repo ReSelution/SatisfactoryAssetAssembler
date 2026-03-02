@@ -8,7 +8,7 @@
 #include "f_bulk_data_cooked_index.hpp"
 #include "io/packages/f_bulk_data_cooked_index.hpp"
 
-namespace SAP {
+namespace SAA {
   enum class EBulkDataFlags : uint32_t {
     BULKDATA_None = 0,
     BULKDATA_PayloadAtEndOfFile = 1 << 0,

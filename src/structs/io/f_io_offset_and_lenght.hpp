@@ -7,7 +7,7 @@
 
 #include "functions.hpp"
 
-namespace SAP {
+namespace SAA {
   constexpr uint64_t decode40Bit(const std::array<uint8_t, 5> &data) {
     return static_cast<uint64_t>(data[4]) | (static_cast<uint64_t>(data[3]) << 8) |
            (static_cast<uint64_t>(data[2]) << 16) | (static_cast<uint64_t>(data[1]) << 24) |

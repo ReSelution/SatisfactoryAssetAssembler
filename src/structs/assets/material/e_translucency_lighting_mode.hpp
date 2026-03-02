@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   enum class ETranslucencyLightingMode : uint32_t {
     TLM_VolumetricNonDirectional = fnv1a("TLM_VolumetricNonDirectional"),
     TLM_VolumetricDirectional = fnv1a("TLM_VolumetricDirectional"),

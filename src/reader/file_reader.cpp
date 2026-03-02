@@ -8,7 +8,7 @@
 
 #include "logger.hpp"
 
-namespace SAP {
+namespace SAA {
   std::span<const uint8_t> FileReader::getSpan(size_t offset, size_t length) const {
     assert(offset + length <= m_size);
     return {static_cast<const uint8_t *>(m_data) + offset, length};

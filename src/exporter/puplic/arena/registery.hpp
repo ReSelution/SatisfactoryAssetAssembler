@@ -13,7 +13,7 @@
 
 struct MetaExport;
 
-namespace SAP {
+namespace SAA {
   template<typename T>
   struct is_span : std::false_type {
   };

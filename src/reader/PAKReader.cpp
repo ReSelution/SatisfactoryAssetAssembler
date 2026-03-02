@@ -6,7 +6,7 @@
 #include "logger.hpp"
 #include "vfs.hpp"
 
-namespace SAP {
+namespace SAA {
   PAKReader::PAKReader(const std::filesystem::path& path) : Reader(Reader::Type::PAK, path), m_pakFile(path) {}
 
   bool PAKReader::load() {

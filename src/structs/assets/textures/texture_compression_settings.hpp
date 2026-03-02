@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   enum class TextureCompressionSettings : uint32_t {
     TC_Default = fnv1a("TC_Default"),
     TC_Normalmap = fnv1a("TC_Normalmap"),

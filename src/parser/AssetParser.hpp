@@ -14,7 +14,7 @@
 #include "shared_cache.hpp"
 
 
-namespace SAP {
+namespace SAA {
   struct GlobalData;
   class Crawler;
   struct FPackageId;
@@ -22,7 +22,7 @@ namespace SAP {
   class AssetFileParser;
 } // namespace SAP
 
-namespace SAP {
+namespace SAA {
   struct AssetParseResult;
   class Vfs;
   struct FUsmapMappingData;

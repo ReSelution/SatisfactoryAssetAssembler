@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace SAP {
+namespace SAA {
   struct FTextKey {
     uint32_t strHash;
     std::string_view str;
@@ -16,7 +16,7 @@ namespace SAP {
 } // namespace SAP
 namespace std {
   template<>
-  struct hash<SAP::FTextKey> {
-    size_t operator()(const SAP::FTextKey &key) const noexcept { return static_cast<size_t>(key.strHash);; }
+  struct hash<SAA::FTextKey> {
+    size_t operator()(const SAA::FTextKey &key) const noexcept { return static_cast<size_t>(key.strHash);; }
   };
 } // namespace std

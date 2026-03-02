@@ -5,6 +5,6 @@
 #pragma once
 #include "struct.hpp"
 
-namespace SAP {
+namespace SAA {
   class Class : public Struct {};
 } // namespace SAP

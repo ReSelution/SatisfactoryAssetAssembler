@@ -5,7 +5,7 @@
 #pragma once
 #include "ue/asset_object.hpp"
 
-namespace SAP {
+namespace SAA {
   class FGDescriptor:public Object{
     public:
     explicit FGDescriptor(const std::string_view className = "FGDescriptor"): Object(className) {

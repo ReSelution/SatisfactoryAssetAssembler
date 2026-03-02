@@ -17,7 +17,7 @@
 #include "heap_pool.hpp"
 #include "puplic/arena/registery.hpp"
 
-namespace SAP {
+namespace SAA {
   AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) : m_vfs(vfs),
                                                                                                         m_mappings(
                                                                                                           mappings),

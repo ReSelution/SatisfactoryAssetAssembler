@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   struct FStaticTerrainLayerWeightParameter {
     uint32_t weightMapIndex;
     bool weightBasedBlend;

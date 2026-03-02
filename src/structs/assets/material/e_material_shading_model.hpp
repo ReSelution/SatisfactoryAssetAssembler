@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace SAP {
+namespace SAA {
   enum class EMaterialShadingModel : uint32_t {
     MSM_Unlit = fnv1a("MSM_Unlit"),
     MSM_DefaultLit = fnv1a("MSM_DefaultLit"),

@@ -8,7 +8,7 @@
 
 #include "name.hpp"
 
-namespace SAP {
+namespace SAA {
   enum class EType : uint8_t { Export = 0, ScriptImport = 1, PackageImport = 2, Null = 3, TypeCount = Null };
 
 #pragma pack(push, 1)
@@ -55,13 +55,13 @@ namespace SAP {
 
 namespace std {
   template<>
-  struct hash<SAP::FPackageId> {
-    size_t operator()(const SAP::FPackageId &id) const noexcept { return std::hash<uint64_t>{}(id.Id); }
+  struct hash<SAA::FPackageId> {
+    size_t operator()(const SAA::FPackageId &id) const noexcept { return std::hash<uint64_t>{}(id.Id); }
   };
 
   template<>
-  struct hash<SAP::FPackageObjectIndex> {
-    size_t operator()(const SAP::FPackageObjectIndex &index) const noexcept {
+  struct hash<SAA::FPackageObjectIndex> {
+    size_t operator()(const SAA::FPackageObjectIndex &index) const noexcept {
       return hash<uint64_t>{}(index.TypeAndId);
     }
   };

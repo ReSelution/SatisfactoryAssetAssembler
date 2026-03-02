@@ -8,7 +8,7 @@
 
 #include "byte_cursor.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FRawIndexBuffer {
     std::vector<uint32_t> indicesStorag;
     std::span<const uint32_t> indices;

@@ -4,7 +4,7 @@
 #include "soft_object.hpp"
 #include "ue/asset_object.hpp"
 
-namespace SAP {
+namespace SAA {
   Object *SoftObj::resolve(AssetParser *assetParser) {
 
     if (object) {

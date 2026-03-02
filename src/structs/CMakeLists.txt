@@ -1,7 +1,7 @@
 # ==============================================================================
-# SAP_Structs - The Core Data Structures
+# SAA_Structs - The Core Data Structures
 # ==============================================================================
-add_library(SAP_Structs STATIC
+add_library(SAA_Structs STATIC
         assets/satisfactory/ItemAmount.hpp
         core/EClassSerializationControlExtension.hpp
 )
@@ -9,7 +9,7 @@ add_library(SAP_Structs STATIC
 # ------------------------------------------------------------------------------
 # PUBLIC INTERFACE (Header Files)
 # ------------------------------------------------------------------------------
-target_sources(SAP_Structs
+target_sources(SAA_Structs
         PUBLIC
         # --- Core & Math ---
         core/math/f_vector.hpp
@@ -141,7 +141,7 @@ target_sources(SAP_Structs
 # ------------------------------------------------------------------------------
 # PRIVATE IMPLEMENTATION
 # ------------------------------------------------------------------------------
-target_sources(SAP_Structs
+target_sources(SAA_Structs
         PRIVATE
         core/package.cpp
 
@@ -150,18 +150,18 @@ target_sources(SAP_Structs
 # ------------------------------------------------------------------------------
 # DEPENDENCIES & INCLUDES
 # ------------------------------------------------------------------------------
-target_include_directories(SAP_Structs
+target_include_directories(SAA_Structs
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE
         external/cityhash
 )
 
-target_link_libraries(SAP_Structs
+target_link_libraries(SAA_Structs
         PUBLIC
-        SAP_Util
-        SAP_Assets
-        SAP_Parser
+        SAA_Util
+        SAA_Assets
+        SAA_Parser
         PRIVATE
         CITY_HASH
 )

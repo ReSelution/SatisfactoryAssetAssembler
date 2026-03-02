@@ -9,7 +9,7 @@
 #include "logger.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 
-namespace SAP {
+namespace SAA {
   static constexpr uint16_t USMAP_MAGIC = 0x30C4;
 
   UsmapReader::UsmapReader(std::filesystem::path path) : m_Path(std::move(path)) {}

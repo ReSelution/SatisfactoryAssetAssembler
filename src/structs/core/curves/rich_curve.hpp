@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   enum class ERichCurveInterpMode : uint8_t {
     /** Use linear interpolation between values. */
     RCIM_Linear,

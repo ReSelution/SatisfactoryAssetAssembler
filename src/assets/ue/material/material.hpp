@@ -11,7 +11,7 @@
 
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class Material : public MaterialInterface {
     friend class MaterialExporter;
     enum class EMaterialInterface : uint32_t {
@@ -44,5 +44,5 @@ namespace SAP {
   private:
   };
 
-  SAP_REGISTER_ASSET(Material)
+  SAA_REGISTER_ASSET(Material)
 } // namespace SAP

@@ -4,8 +4,8 @@
 
 #pragma once
 #include "texture.hpp"
-namespace SAP {
-  class TextureRenderTarget : public SAP::Texture {
+namespace SAA {
+  class TextureRenderTarget : public SAA::Texture {
   public:
     TextureRenderTarget(std::string classname = "TextureRenderTarget") : Texture(classname) {}
   };

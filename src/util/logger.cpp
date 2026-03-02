@@ -5,7 +5,7 @@
 
 #include "spdlog/sinks/basic_file_sink.h"
 
-namespace SAP::Logger {
+namespace SAA::Logger {
 
   Logger &Logger::getInstance() {
     static Logger instance;

@@ -1,6 +1,6 @@
-add_library(SAP_VFS STATIC)
+add_library(SAA_VFS STATIC)
 
-target_sources(SAP_VFS
+target_sources(SAA_VFS
         PUBLIC
         vfs.hpp
         vfs_entry.hpp
@@ -9,17 +9,17 @@ target_sources(SAP_VFS
         vfs_entry.cpp
 )
 
-target_include_directories(SAP_VFS
+target_include_directories(SAA_VFS
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE
         external/cityhash
 )
-target_link_libraries(SAP_VFS
+target_link_libraries(SAA_VFS
         PUBLIC
-        SAP_Structs
-        SAP_Util
-        SAP_Reader
+        SAA_Structs
+        SAA_Util
+        SAA_Reader
         PRIVATE
         CITY_HASH
 )

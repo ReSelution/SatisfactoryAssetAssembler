@@ -33,16 +33,16 @@ add_subdirectory(src/vfs)
 add_subdirectory(src/localizations)
 
 # -------------------------------------------------------------------------
-# 4. SAP_Util: Basis-Infrastruktur
+# 4. SAA_Util: Basis-Infrastruktur
 # -------------------------------------------------------------------------
-add_library(SAP_Util STATIC
+add_library(SAA_Util STATIC
         src/util/heap_pool.cpp
         src/util/heap_pool.hpp
         src/util/ThroughputStats.hpp
         src/util/PropertyTracker.hpp
         src/util/PropertyTracker.cpp)
 
-target_sources(SAP_Util
+target_sources(SAA_Util
         PUBLIC
         src/util/logger.hpp
         src/util/shared_cache.hpp
@@ -56,20 +56,20 @@ target_sources(SAP_Util
         src/util/heap_storage.cpp
 )
 
-target_include_directories(SAP_Util PUBLIC src/util)
-target_link_libraries(SAP_Util
+target_include_directories(SAA_Util PUBLIC src/util)
+target_link_libraries(SAA_Util
         PUBLIC
-        SAP_Structs
-        SAP_Parser
-        SAP_Assets
+        SAA_Structs
+        SAA_Parser
+        SAA_Assets
         spdlog::spdlog
 )
 # -------------------------------------------------------------------------
-# 5. SAP_Lib: Der "High-Level" Wrapper & Provider
+# 5. SAA_Lib: Der "High-Level" Wrapper & Provider
 # -------------------------------------------------------------------------
-add_library(SAP_Lib STATIC)
+add_library(SAA_Lib STATIC)
 
-target_sources(SAP_Lib
+target_sources(SAA_Lib
         PUBLIC
         src/provider/games/satisfactory/SatisfactoryDataProvider.hpp
         src/decompress/Decompressor.hpp
@@ -81,21 +81,21 @@ target_sources(SAP_Lib
         src/decompress/oodle_loader.cpp
 )
 
-target_include_directories(SAP_Lib
+target_include_directories(SAA_Lib
         PUBLIC
         src/provider
         src/decompress
 )
 
-target_link_libraries(SAP_Lib
+target_link_libraries(SAA_Lib
         PUBLIC
-        SAP_Util
-        SAP_Structs
-        SAP_Parser
-        SAP_Reader
-        SAP_Crawler
+        SAA_Util
+        SAA_Structs
+        SAA_Parser
+        SAA_Reader
+        SAA_Crawler
         # Whole Archive for Asset-Factory Registration
-        $<LINK_LIBRARY:WHOLE_ARCHIVE,SAP_Assets> #DONT REMOVE !!!
+        $<LINK_LIBRARY:WHOLE_ARCHIVE,SAA_Assets> #DONT REMOVE !!!
         PRIVATE
         spdlog::spdlog
 )
@@ -104,7 +104,7 @@ target_link_libraries(SAP_Lib
 # 6. Executables
 # -------------------------------------------------------------------------
 add_executable(AssetRipperTest src/main.cpp)
-target_link_libraries(AssetRipperTest PRIVATE SAP_Lib)
+target_link_libraries(AssetRipperTest PRIVATE SAA_Lib)
 
 if(WIN32)
     target_link_libraries(AssetRipperTest PRIVATE

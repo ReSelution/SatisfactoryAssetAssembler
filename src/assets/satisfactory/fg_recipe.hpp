@@ -9,7 +9,7 @@
 
 struct Recipe;
 
-namespace SAP {
+namespace SAA {
   class FGRecipe : public Object {
     friend class FGExporter;
     struct RecipeProps {
@@ -54,5 +54,5 @@ namespace SAP {
     Recipe* mRecipeExport = nullptr;
   };
 
-  SAP_REGISTER_ASSET(FGRecipe)
+  SAA_REGISTER_ASSET(FGRecipe)
 } // namespace SAP

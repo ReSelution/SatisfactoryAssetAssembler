@@ -1,4 +1,4 @@
-add_library(SAP_Exporter STATIC
+add_library(SAA_Exporter STATIC
         puplic/arena/registery.cpp
         puplic/arena/registery.hpp
         puplic/structs/gpu_export.hpp
@@ -6,7 +6,7 @@ add_library(SAP_Exporter STATIC
 
 )
 
-target_sources(SAP_Exporter
+target_sources(SAA_Exporter
         PUBLIC
         exporter.hpp
         flags/TextureExportFlags.hpp
@@ -20,7 +20,7 @@ target_sources(SAP_Exporter
         fg/fg_exporter.hpp
 )
 
-target_sources(SAP_Exporter
+target_sources(SAA_Exporter
         PRIVATE
         exporter.cpp
         texture/texture_exporter.cpp
@@ -31,15 +31,15 @@ target_sources(SAP_Exporter
 
 )
 
-target_link_libraries(SAP_Exporter
+target_link_libraries(SAA_Exporter
         PUBLIC
-        SAP_Assets
-        SAP_Structs
-        SAP_Reader
+        SAA_Assets
+        SAA_Structs
+        SAA_Reader
         fastgltf::fastgltf
 )
 
-target_include_directories(SAP_Exporter
+target_include_directories(SAA_Exporter
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE

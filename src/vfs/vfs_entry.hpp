@@ -9,7 +9,7 @@
 
 #include "io/f_io_chunk_id.hpp"
 
-namespace SAP {
+namespace SAA {
   class PAKReader;
   class IOStoreReader;
 

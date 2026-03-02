@@ -17,7 +17,7 @@
 #include <unistd.h>
 #endif
 
-namespace SAP {
+namespace SAA {
   class FileReader {
   public:
     FileReader(const std::filesystem::path &path) { openFile(path); };

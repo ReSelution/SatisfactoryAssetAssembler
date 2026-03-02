@@ -11,7 +11,7 @@
 #include "f_static_mesh_UV_item.hpp"
 #include "ue/properties/f_property_tag.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FStaticMeshVertexBuffer {
     int32_t numTextCoords{};
     int32_t numVertices{};

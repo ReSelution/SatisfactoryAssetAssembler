@@ -4,6 +4,6 @@
 
 #include "rig_hierarchy.hpp"
 
-namespace SAP {
+namespace SAA {
   void RigHierarchy::parse() {  }
 } // namespace SAP

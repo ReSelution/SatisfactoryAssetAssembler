@@ -11,7 +11,7 @@
 #include "ue/material/material_instance.hpp"
 #include "ue/material/material_instance_constant.hpp"
 
-namespace SAP {
+namespace SAA {
   class MaterialExporter : public Exporter {
   public:
     static GltfMaterial encodeMaterial(MaterialInterface *materialInterface);

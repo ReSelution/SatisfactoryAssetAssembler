@@ -7,7 +7,7 @@
 
 #include "usmap/enums.hpp"
 
-namespace SAP {
+namespace SAA {
   struct ParseContext;
   struct FUsmapMappingData;
   struct FUsmapPropertyData;

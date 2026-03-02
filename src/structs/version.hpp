@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   enum class EUE5Version : uint32_t {
     UE5_1 = 1004,
     UE5_2 = 1008,
@@ -96,16 +96,16 @@ namespace SAP {
     return static_cast<uint32_t>(lhs) < static_cast<uint32_t>(rhs);
   }
 
-#define SAP_ASSERT_UE5_MIN(owner, version, msg)                                                                        \
+#define SAA_ASSERT_UE5_MIN(owner, version, msg)                                                                        \
   assert((owner)->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::version && msg)
 
-#define SAP_ASSERT_UE5_MAX(owner, version, msg)                                                                        \
+#define SAA_ASSERT_UE5_MAX(owner, version, msg)                                                                        \
   assert((owner)->mappings()->pkgVersion.FileVersionUE5 < EUE5Version::version && msg)
 
-#define SAP_ASSERT_UE5_BEFORE(owner, version, msg)                                                                     \
+#define SAA_ASSERT_UE5_BEFORE(owner, version, msg)                                                                     \
   assert((owner)->mappings()->pkgVersion.FileVersionUE5 < EUE5Version::version && msg)
 
-#define SAP_ASSERT_UE5_AT_LEAST(owner, version, msg)                                                                   \
+#define SAA_ASSERT_UE5_AT_LEAST(owner, version, msg)                                                                   \
   assert((owner)->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::version && msg)
 
 #pragma pack(push, 1)

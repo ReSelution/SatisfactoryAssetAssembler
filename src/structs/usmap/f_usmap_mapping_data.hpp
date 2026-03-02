@@ -10,7 +10,7 @@
 #include "f_usmap_schema.hpp"
 #include "version.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FUsmapMappingData {
     FPackageFileVersion pkgVersion;
     std::vector<std::string_view> NameMap;

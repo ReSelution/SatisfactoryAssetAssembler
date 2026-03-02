@@ -4,5 +4,5 @@
 
 #include "fg_descriptor.hpp"
 
-namespace SAP {
+namespace SAA {
 } // SAP

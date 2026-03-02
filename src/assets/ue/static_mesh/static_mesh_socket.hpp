@@ -8,7 +8,7 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class StaticMeshSocket : public Object {};
-  SAP_REGISTER_ASSET(StaticMeshSocket)
+  SAA_REGISTER_ASSET(StaticMeshSocket)
 } // namespace SAP

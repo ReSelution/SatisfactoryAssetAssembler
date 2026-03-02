@@ -7,7 +7,7 @@
 #include "PAKReader.hpp"
 #include "city.h"
 
-namespace SAP {
+namespace SAA {
   uint64_t UnifiedVfsEntry::hashPath(const std::string_view path) {
     char16_t buffer[512];
     const size_t len = std::min(path.length(), (size_t) 511);

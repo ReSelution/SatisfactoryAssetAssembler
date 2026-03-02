@@ -6,7 +6,7 @@
 
 #include "field.hpp"
 
-namespace SAP {
+namespace SAA {
   class Struct : public Field {
   public:
     Struct(std::string_view classname = "Struct") : Field(classname) {};

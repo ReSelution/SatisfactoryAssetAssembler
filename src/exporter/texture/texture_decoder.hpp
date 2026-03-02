@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace SAP {
+namespace SAA {
   class TextureDecoder {
   public:
     static std::vector<uint8_t> decompressDXT1(uint32_t width, uint32_t height, std::span<const uint8_t> data);

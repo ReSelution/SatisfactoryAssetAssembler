@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   enum class TextureGroup : uint32_t {
     World,
     WorldNormalMap,

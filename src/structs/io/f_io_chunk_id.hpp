@@ -7,7 +7,7 @@
 
 #include "core/package.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
 
   struct FIoChunkId {
@@ -27,8 +27,8 @@ namespace SAP {
 
 namespace std {
   template<>
-  struct hash<SAP::FIoChunkId> {
-    size_t operator()(const SAP::FIoChunkId &id) const noexcept {
+  struct hash<SAA::FIoChunkId> {
+    size_t operator()(const SAA::FIoChunkId &id) const noexcept {
       size_t hsh = std::hash<uint64_t>{}(id.id);
       hsh ^= std::hash<uint32_t>{}(id.chunkIndex) + 0x9e3779b9 + (hsh << 6) + (hsh >> 2);
       hsh ^= std::hash<uint8_t>{}(id.chunkType) + 0x9e3779b9 + (hsh << 6) + (hsh >> 2);

@@ -14,7 +14,7 @@
 #include "localization/f_entry.hpp"
 #include "localization/f_text_key.hpp"
 
-namespace SAP {
+namespace SAA {
   LocResParser::LocResParser(LocManager *manager, const UnifiedVfsEntry *vfsEntry) :
       m_manager(manager), m_vfsEntry(std::move(vfsEntry)) {
   }

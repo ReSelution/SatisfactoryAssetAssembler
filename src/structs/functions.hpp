@@ -13,7 +13,7 @@
 
 #include "byte_cursor.hpp"
 
-namespace SAP {
+namespace SAA {
 
   inline char to_lower(char c) {
     // gleich wie C#:

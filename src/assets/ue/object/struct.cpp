@@ -7,7 +7,7 @@
 #include <iostream>
 #include <ostream>
 
-namespace SAP {
+namespace SAA {
   void Struct::parse() {
     Field::parse();
     m_superStructIndex = m_cursor.read<int32_t>();

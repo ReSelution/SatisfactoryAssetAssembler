@@ -7,8 +7,8 @@
 
 #include "ue/object_factory.hpp"
 
-namespace SAP {
-  class Texture2DArray : public SAP::Texture {
+namespace SAA {
+  class Texture2DArray : public SAA::Texture {
     friend class TextureExporter;
 
   public:
@@ -18,5 +18,5 @@ namespace SAP {
   protected:
     void parse() override;
   };
-  SAP_REGISTER_ASSET(Texture2DArray)
+  SAA_REGISTER_ASSET(Texture2DArray)
 } // namespace SAP

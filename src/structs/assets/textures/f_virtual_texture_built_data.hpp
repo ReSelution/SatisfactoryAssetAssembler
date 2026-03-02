@@ -12,7 +12,7 @@
 
 #include "core/f_linear_color.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FVirtualTextureBuiltData {
     uint32_t numLayers;
     uint32_t numMips;

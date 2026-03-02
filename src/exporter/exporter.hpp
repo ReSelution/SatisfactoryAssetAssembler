@@ -12,7 +12,7 @@
 #include "flags/MeshExportFlags.hpp"
 #include "flags/TextureExportFlags.hpp"
 
-namespace SAP {
+namespace SAA {
   struct ExporterOptions {
     std::atomic<TextureExportFlags> textureExportTypes{TextureExportFlags::PNG};
     std::atomic<MeshExportFlags> meshExportTypes{MeshExportFlags::GLTF2};

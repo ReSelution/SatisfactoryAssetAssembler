@@ -18,7 +18,7 @@ enum class EVirtualTextureCodec : uint8_t {
   Max,                  // Add new codecs before this entry
 };
 
-namespace SAP {
+namespace SAA {
   struct FVirtualTextureDataChunk {
     FByteBulkData bulkData;
     uint32_t byteSize;

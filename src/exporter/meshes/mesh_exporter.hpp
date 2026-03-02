@@ -9,7 +9,7 @@
 
 #include "fastgltf/types.hpp"
 
-namespace SAP {
+namespace SAA {
   class StaticMesh;
 
   class MeshExporter : public Exporter {

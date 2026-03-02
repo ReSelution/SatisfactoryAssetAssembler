@@ -12,7 +12,7 @@
 
 #include "meshes/mesh_exporter.hpp"
 
-namespace SAP {
+namespace SAA {
   class StaticMesh : public Object {
     friend MeshExporter;
 
@@ -41,5 +41,5 @@ namespace SAP {
     std::vector<FStaticMaterial> m_materials{};
   };
 
-  SAP_REGISTER_ASSET(StaticMesh)
+  SAA_REGISTER_ASSET(StaticMesh)
 } // namespace SAP

@@ -8,7 +8,7 @@
 #include "f_hierarchy_node_slice.hpp"
 #include "nanite_constants.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FPackedHierarchyNode {
     std::array<FHierarchyNodeSlice, NANITE_MAX_BVH_NODE_FANOUT> slices;

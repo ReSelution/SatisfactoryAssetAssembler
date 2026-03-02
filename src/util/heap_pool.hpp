@@ -10,7 +10,7 @@
 #include <vector>
 #include "heap_storage.hpp"
 
-namespace SAP {
+namespace SAA {
 
   class HeapPool {
     static inline std::vector<std::unique_ptr<HeapStorage>> m_storage;

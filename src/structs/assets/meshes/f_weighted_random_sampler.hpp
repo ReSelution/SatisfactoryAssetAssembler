@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace SAP {
+namespace SAA {
 
   struct FWeightedRandomSampler {
     std::span<const float> probabilities;

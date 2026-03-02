@@ -8,7 +8,7 @@
 #include "pak/f_pak_entry.hpp"
 #include "pak/f_pak_info.hpp"
 
-namespace SAP {
+namespace SAA {
   class PAKReader : public Reader {
   public:
     PAKReader(const std::filesystem::path& pakPath);

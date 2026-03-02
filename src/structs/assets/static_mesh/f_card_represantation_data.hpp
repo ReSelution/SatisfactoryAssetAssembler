@@ -7,7 +7,7 @@
 
 #include "core/math/f_box.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FLumenCardOBB {
     FVector_f axisX;

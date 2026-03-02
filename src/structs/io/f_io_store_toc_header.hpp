@@ -9,7 +9,7 @@
 #include "core/f_guid.hpp"
 #include "f_io_toc_container_id.hpp"
 
-namespace SAP {
+namespace SAA {
 
   static const std::array<uint8_t, 16> EXPECTED_TOC_MAGIC = {
       0x2D, 0x3D, 0x3D, 0x2D, 0x2D, 0x3D, 0x3D, 0x2D,

@@ -7,7 +7,7 @@
 
 #include "Decompressor.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FPakCompressedBlock {
     uint64_t compressedOffset;
     uint64_t compressedSize;

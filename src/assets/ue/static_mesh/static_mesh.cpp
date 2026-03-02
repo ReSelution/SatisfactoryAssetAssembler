@@ -14,7 +14,7 @@
 
 #include "usmap/f_usmap_mapping_data.hpp"
 
-namespace SAP {
+namespace SAA {
   void StaticMesh::parse() {
     Object::parse();
     auto stripDataFlags = m_cursor.read<FStripDataFlags>();
@@ -77,12 +77,12 @@ namespace SAP {
   void StaticMesh::parseLODResource(FStaticMeshLODResources &lodResources) {
     auto stripDataFlags = m_cursor.read<FStripDataFlags>();
     lodResources.sections = m_cursor.readArray<FStaticMeshSection>();
-    SAP_ASSERT_UE5_MAX(m_owner, UE5_5, "FBoxSphereBounds not Implented ");
+    SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "FBoxSphereBounds not Implented ");
     lodResources.maxDeviation = m_cursor.read<float>();
     bool isLODCookedOut = m_cursor.readBool();
     bool inlined = m_cursor.readBool();
     if (!stripDataFlags.isAudioVisualDataStripped() && !isLODCookedOut) [[likely]] {
-      SAP_ASSERT_UE5_MAX(m_owner, UE5_5,
+      SAA_ASSERT_UE5_MAX(m_owner, UE5_5,
                          "bHasRayTracingGeometry not Implented "); // bHasRayTracingGeometry skip 4 bytes
       if (inlined) {
         parseLODBuffer(m_cursor, lodResources);
@@ -99,7 +99,7 @@ namespace SAP {
         // DepthOnlyIndexBuffer
         // ReversedDepthOnlyIndexBuffer
         // WireframeIndexBuffer
-        SAP_ASSERT_UE5_MAX(m_owner, UE5_5, "RawDataHeader = 6x uint32 not Implented ");
+        SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "RawDataHeader = 6x uint32 not Implented ");
       }
     }
     m_cursor += 12;
@@ -127,7 +127,7 @@ namespace SAP {
       lodResources.wireframeIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
     }
 
-    SAP_ASSERT_UE5_MAX(m_owner, UE5_5, "RayTracingResources not Implented ");
+    SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "RayTracingResources not Implented ");
 
     // Skiping FWeightedRandomSampler // areaWeightedSectionSamplers areaWeightedSampler-> +1
     for (int i = 0; i < lodResources.sections.size() + 1; i++) {
@@ -147,14 +147,14 @@ namespace SAP {
       naniteResources.hierarchyNodes = m_cursor.readArray<FPackedHierarchyNode>();
       naniteResources.rootHierarchyOffset = m_cursor.readArray<uint32_t>();
       naniteResources.pageDependency = m_cursor.readArray<uint32_t>();
-      SAP_ASSERT_UE5_MAX(m_owner, UE5_5, "AssemblyTransforms & MeshBounds not Implented "); // Should be UE5_6
+      SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "AssemblyTransforms & MeshBounds not Implented "); // Should be UE5_6
       naniteResources.imposterAtlas = m_cursor.readArray<uint16_t>();
       naniteResources.numRootPages = m_cursor.read<uint32_t>();
       naniteResources.positionPrecision = m_cursor.read<int32_t>();
       naniteResources.normalPrecision = m_cursor.read<int32_t>();
       naniteResources.numInputTriangles = m_cursor.read<uint32_t>();
       naniteResources.numInputVertices = m_cursor.read<uint32_t>();
-      SAP_ASSERT_UE5_MAX(m_owner, UE5_5, "NumInputMeshes & NumInputTexCoords wont get Read any more"); // as of UE5_6
+      SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "NumInputMeshes & NumInputTexCoords wont get Read any more"); // as of UE5_6
       naniteResources.numInputMeshes = m_cursor.read<uint16_t>();
       naniteResources.numTexCoords = m_cursor.read<uint16_t>();
       naniteResources.numClusters = m_cursor.read<uint32_t>();

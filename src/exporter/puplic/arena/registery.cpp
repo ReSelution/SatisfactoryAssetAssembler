@@ -6,7 +6,7 @@
 
 #include <assert.h>
 
-namespace SAP {
+namespace SAA {
   void Registry::init(size_t bufferSize) {
     if (!initialized) {
       backingBuffer = std::make_unique_for_overwrite<uint8_t[]>(bufferSize);

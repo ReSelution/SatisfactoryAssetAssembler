@@ -1,26 +1,26 @@
-add_library(SAP_Crawler STATIC)
+add_library(SAA_Crawler STATIC)
 
-target_sources(SAP_Crawler
+target_sources(SAA_Crawler
         PUBLIC
         crawler.hpp
 
 )
 
-target_sources(SAP_Crawler
+target_sources(SAA_Crawler
         PRIVATE
         crawler.cpp
 )
 
-target_link_libraries(SAP_Crawler
+target_link_libraries(SAA_Crawler
         PUBLIC
-        SAP_Assets
-        SAP_Structs
-        SAP_Reader
-        SAP_Exporter
-        SAP_VFS
+        SAA_Assets
+        SAA_Structs
+        SAA_Reader
+        SAA_Exporter
+        SAA_VFS
 )
 
-target_include_directories(SAP_Crawler
+target_include_directories(SAA_Crawler
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

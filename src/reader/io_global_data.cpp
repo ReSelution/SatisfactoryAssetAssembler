@@ -7,7 +7,7 @@
 #include "IOStoreReader.hpp"
 #include "logger.hpp"
 
-namespace SAP {
+namespace SAA {
   IOGlobalData::IOGlobalData(std::filesystem::path utocPath, std::filesystem::path ucasPath) {
     storeParser = std::make_unique<IOStoreReader>(utocPath, ucasPath);
     storeParser->initBufferSize += 2908111; // Size of the chunk

@@ -6,7 +6,7 @@
 #include <cstdint>
 #include "core/f_guid.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FCustomVersion {
     FGuid key;

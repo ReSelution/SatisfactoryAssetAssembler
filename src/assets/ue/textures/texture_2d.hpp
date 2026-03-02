@@ -8,7 +8,7 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class Texture2D : public Texture {
 
   public:
@@ -20,5 +20,5 @@ namespace SAP {
     IntPoint m_importedSize{};
   };
 
-  SAP_REGISTER_ASSET(Texture2D)
+  SAA_REGISTER_ASSET(Texture2D)
 } // namespace SAP

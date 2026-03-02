@@ -4,7 +4,7 @@
 
 #include "fg_resource_descriptor.hpp"
 
-namespace SAP {
+namespace SAA {
   void FGResourceDescriptor::parse() {
     Object::parse();
     // Irrelevantes entsorgen

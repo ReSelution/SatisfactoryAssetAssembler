@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   enum class EMaterialParameterAssociation : uint32_t {
     LayerParameter = fnv1a("LayerParameter"),
     BlendParameter = fnv1a("BlendParameter"),

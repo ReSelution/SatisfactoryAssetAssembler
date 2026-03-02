@@ -18,7 +18,7 @@
 #include "localization/f_text_key.hpp"
 #include "localization/f_text_localization_resource_string.hpp"
 
-namespace SAP {
+namespace SAA {
   class UnifiedVfsEntry;
   class LocManager;
 

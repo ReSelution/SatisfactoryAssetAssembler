@@ -10,7 +10,7 @@
 #include "ue/textures/texture.hpp"
 #include "ue/textures/texture_2d_array.hpp"
 
-namespace SAP {
+namespace SAA {
   class TextureExporter : public Exporter {
   public:
     TextureExporter() : Exporter() {};

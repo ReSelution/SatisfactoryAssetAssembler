@@ -11,7 +11,7 @@
 
 #include "io/packages/f_byte_bulk_data.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FNaniteResources {
     NaniteResourceFlag resourceFlag;
     FByteBulkData streamablePages;

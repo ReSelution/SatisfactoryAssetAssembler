@@ -3,13 +3,18 @@
 //
 
 #pragma once
+
+struct ItemDescriptor;
 struct Recipe;
 
-namespace SAP {
-  class FGRecipe;
+namespace SAA {
+class FGItemDescriptor;
+class FGRecipe;
 
   class FGExporter {
     public:
     static Recipe* encode(FGRecipe *recipe);
+    static ItemDescriptor* encode(FGItemDescriptor *recipe);
+
   };
 } // SAP

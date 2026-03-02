@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <utility> // std::forward
 
-namespace SAP::Logger {
+namespace SAA::Logger {
 
   // Standard-Loggername
   constexpr const char *defaultLoggerName = "SAP";

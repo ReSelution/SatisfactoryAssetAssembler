@@ -12,7 +12,7 @@
 #include "ue/asset_object.hpp"
 #include "PropertyTracker.hpp"
 
-namespace SAP {
+namespace SAA {
   Crawler::Crawler() {
     m_buildable.reserve(100);
     m_recipes.reserve(100);

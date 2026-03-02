@@ -6,7 +6,7 @@
 #include "core/name.hpp"
 #include "core/package.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FIoContainerHeaderPackageRedirect {
     FPackageId SourcePackageId;

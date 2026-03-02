@@ -1,7 +1,7 @@
 # ----------------------------------------
-# SAP_Assets Library Definition
+# SAA_Assets Library Definition
 # ----------------------------------------
-add_library(SAP_Assets STATIC
+add_library(SAA_Assets STATIC
         ue/controlRig/rig_hierarchy.cpp
         ue/controlRig/rig_hierarchy.hpp
         ue/rigVM/rig_vm.cpp
@@ -14,7 +14,7 @@ add_library(SAP_Assets STATIC
         satisfactory/fg_descriptor.cpp
         satisfactory/fg_descriptor.hpp)
 
-target_sources(SAP_Assets
+target_sources(SAA_Assets
         PUBLIC
         ue/asset_object.hpp
         ue/object_factory.hpp
@@ -29,7 +29,7 @@ target_sources(SAP_Assets
         ue/textures/texture.hpp
 )
 
-target_sources(SAP_Assets
+target_sources(SAA_Assets
         PRIVATE
         ue/asset_object.cpp
         ue/object_factory.cpp
@@ -78,16 +78,16 @@ target_sources(SAP_Assets
         satisfactory/fg_schematic.hpp
 )
 
-target_link_libraries(SAP_Assets
+target_link_libraries(SAA_Assets
         PRIVATE
-        SAP_Structs
-        SAP_Parser
-        SAP_Util
-        SAP_Lib
-        SAP_Exporter
-        SAP_Localization
+        SAA_Structs
+        SAA_Parser
+        SAA_Util
+        SAA_Lib
+        SAA_Exporter
+        SAA_Localization
 )
 
-target_include_directories(SAP_Assets
+target_include_directories(SAA_Assets
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )

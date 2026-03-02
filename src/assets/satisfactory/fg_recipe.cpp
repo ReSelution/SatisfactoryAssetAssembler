@@ -6,7 +6,7 @@
 #include "PropertyTracker.hpp"
 #include "fg/fg_exporter.hpp"
 
-namespace SAP {
+namespace SAA {
   void FGRecipe::exprt() {
     mRecipeExport = FGExporter::encode(this);
   }

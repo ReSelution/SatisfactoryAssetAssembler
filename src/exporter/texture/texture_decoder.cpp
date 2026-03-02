@@ -14,7 +14,7 @@
 
 #include "stb/stb_image_write.h"
 
-namespace SAP {
+namespace SAA {
   std::vector<uint8_t> TextureDecoder::decompressDXT1(uint32_t width, uint32_t height, std::span<const uint8_t> data) {
 
     std::vector<uint8_t> rgba(width * height * 4);

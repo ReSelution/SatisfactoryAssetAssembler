@@ -12,7 +12,7 @@
 // #include <zlib.h>
 // #include "oodk.h"
 
-namespace SAP {
+namespace SAA {
 
   void OodleApi::initializePointer(OodleLZ_Decompress func) {
     decompressFunc = func;

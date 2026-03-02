@@ -13,7 +13,7 @@
 #include "properties/property_holder.hpp"
 #include "properties/f_property_tag.hpp"
 
-namespace SAP {
+namespace SAA {
   class AssetFileParser;
 
   class Object : public PropertyHolder {

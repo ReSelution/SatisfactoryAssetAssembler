@@ -8,7 +8,7 @@
 #include "core/EClassSerializationControlExtension.hpp"
 
 
-namespace SAP {
+namespace SAA {
   template<>
   void PP6::parse(PropertyHolder *holder, ByteCursor &cursor) {
     auto controlByte = cursor.read<EClassSerializationControlExtension>();

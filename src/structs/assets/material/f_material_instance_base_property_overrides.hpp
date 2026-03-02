@@ -6,7 +6,7 @@
 #include "e_blend_mode.hpp"
 #include "e_material_shading_model.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FMaterialInstanceBasePropertyOverrides {
     EBlendMode blendMode;
     EMaterialShadingModel shadingModel;

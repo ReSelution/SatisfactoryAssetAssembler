@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
   struct FPackedNormal {
     uint32_t data;
     [[nodiscard]] float x() const { return static_cast<float>(data & 0xFF) / 127.5f - 1; }

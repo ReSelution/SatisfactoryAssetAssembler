@@ -17,7 +17,7 @@
 #include "io/f_io_store_toc_Compressed_block_entry.hpp"
 #include "io/f_io_store_toc_header.hpp"
 
-namespace SAP {
+namespace SAA {
   class IOStoreReader : public Reader {
   public:
     IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath);

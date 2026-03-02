@@ -1,6 +1,6 @@
 import re
 
-SAP_LOG = "./logs/sap.log"
+SAA_LOG = "./logs/sap.log"
 CUE_LOG = "./logs/cue.log"
 
 PATTERN = re.compile(r"(\w+Property)\s+@\s+(\d+)")
@@ -15,7 +15,7 @@ def parseCueLog():
 
 def main():
     parseCueLog()
-    with open(SAP_LOG, 'r') as f:
+    with open(SAA_LOG, 'r') as f:
         for line in f:
             match = PATTERN.search(line)
             if match:

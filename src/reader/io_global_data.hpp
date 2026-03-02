@@ -11,7 +11,7 @@
 #include "core/name.hpp"
 #include "core/package.hpp"
 
-namespace SAP {
+namespace SAA {
   class IOStoreReader;
   struct FScriptObjectEntry {
     FMappedName ObjectName;

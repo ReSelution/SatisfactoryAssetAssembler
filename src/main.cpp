@@ -10,7 +10,7 @@ int main() {
  // gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
 
   auto start = std::chrono::high_resolution_clock::now();
-  SAP::SatisfactoryDataProvider provider(gamePath);
+  SAA::SatisfactoryDataProvider provider(gamePath);
 
 
   if (provider.load()) {

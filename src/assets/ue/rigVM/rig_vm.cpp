@@ -4,6 +4,6 @@
 
 #include "rig_vm.hpp"
 
-namespace SAP {
+namespace SAA {
   void RigVM::parse() {}
 } // namespace SAP

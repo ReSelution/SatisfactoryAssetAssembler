@@ -7,7 +7,7 @@
 
 #include "f_bulk_data_cooked_index.hpp"
 
-namespace SAP {
+namespace SAA {
 
   constexpr uint32_t FBulkDataMapEntrySize = 32;
 

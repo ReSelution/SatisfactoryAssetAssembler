@@ -4,7 +4,7 @@
 
 #include "fg_building_descriptor.hpp"
 
-namespace SAP {
+namespace SAA {
   void FGBuildingDescriptor::parse() {
     Object::parse();
     DBG_MARK_HANDLED(m_className, Building::UsesDistanceForZooping);

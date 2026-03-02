@@ -8,7 +8,7 @@
 
 #include "byte_cursor.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FPerQualityLevelInt {
     bool cooked = false;
     int32_t defaultInt;

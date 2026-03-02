@@ -1,9 +1,9 @@
  # ==============================================================================
- # SAP_Localization - Handling LocMeta and LocRes files
+ # SAA_Localization - Handling LocMeta and LocRes files
  # ==============================================================================
- add_library(SAP_Localization STATIC)
+ add_library(SAA_Localization STATIC)
 
-target_sources(SAP_Localization
+target_sources(SAA_Localization
     PUBLIC
     loc_manager.hpp
     loc_meta_parser.hpp
@@ -14,14 +14,14 @@ target_sources(SAP_Localization
     loc_res_parser.cpp
 )
 
-target_include_directories(SAP_Localization
+target_include_directories(SAA_Localization
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
- target_link_libraries(SAP_Localization
+ target_link_libraries(SAA_Localization
         PUBLIC
-        SAP_Structs
-        SAP_Util
-        SAP_VFS
+        SAA_Structs
+        SAA_Util
+        SAA_VFS
  )

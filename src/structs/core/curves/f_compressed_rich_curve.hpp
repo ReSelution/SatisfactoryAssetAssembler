@@ -8,7 +8,7 @@
 
 #include "byte_cursor.hpp"
 
-namespace SAP {
+namespace SAA {
   enum class ERichCurveCompressionFormat : uint8_t {
     /** No keys are present */
     RCCF_Empty,

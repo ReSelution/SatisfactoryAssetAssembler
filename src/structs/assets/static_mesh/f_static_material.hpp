@@ -10,13 +10,13 @@
 #include "ue/asset_object.hpp"
 #include "ue/material/material_interface.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FStaticMaterial {
     MaterialInterface* materialInterface;
     FName materialSlotName;
     FName importedMaterialSlotName;
     FMeshUVChannelInfo UVChannelInfo;
-    std::shared_ptr<SAP::Object> overlayMaterialInterface;
+    std::shared_ptr<SAA::Object> overlayMaterialInterface;
   };
 
 } // namespace SAP

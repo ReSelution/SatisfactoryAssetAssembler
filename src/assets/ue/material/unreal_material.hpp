@@ -8,12 +8,12 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class UnrealMaterial : public Object {
   public:
     UnrealMaterial(std::string_view classname = "UnrealMaterial") : Object(classname) {};
     virtual void exportToGltf(GltfMaterial &gltfMaterial);
   };
 
-  SAP_REGISTER_ASSET(UnrealMaterial)
+  SAA_REGISTER_ASSET(UnrealMaterial)
 } // namespace SAP

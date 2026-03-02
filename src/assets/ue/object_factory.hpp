@@ -9,17 +9,17 @@
 #include "asset_object.hpp"
 #include "logger.hpp"
 
-#define SAP_REGISTER_ASSET(TYPE)                                                                                       \
+#define SAA_REGISTER_ASSET(TYPE)                                                                                       \
   namespace {                                                                                                          \
     struct TYPE##_Registrar {                                                                                          \
       TYPE##_Registrar() {                                                                                             \
-        SAP::ObjectFactory::Register(#TYPE, [](HeapStorage *storage) -> Object * { return storage->make<TYPE>(); });   \
+        SAA::ObjectFactory::Register(#TYPE, [](HeapStorage *storage) -> Object * { return storage->make<TYPE>(); });   \
       }                                                                                                                \
     };                                                                                                                 \
     static TYPE##_Registrar g_##TYPE##_registrar;                                                                      \
   }
 
-namespace SAP {
+namespace SAA {
   class ObjectFactory {
   public:
     using Factory = Object *(*) (HeapStorage * storage);

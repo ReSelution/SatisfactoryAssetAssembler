@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace SAP {
+namespace SAA {
   struct FVirtualTextureTileOffsetData {
     uint32_t width;
     uint32_t height;

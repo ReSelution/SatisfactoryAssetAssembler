@@ -4,7 +4,7 @@
 
 #include "fg_item_descriptor.hpp"
 
-namespace SAP {
+namespace SAA {
   void FGItemDescriptor::parse() {
     Object::parse();
 

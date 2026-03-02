@@ -8,7 +8,7 @@
 
 #include "material/material_exporter.hpp"
 
-namespace SAP {
+namespace SAA {
   void Material::exportToGltf(GltfMaterial &outMaterial) { MaterialExporter::encodeMaterial(outMaterial, this); }
 
   void Material::parse() {

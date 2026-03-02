@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace SAP {
+namespace SAA {
   struct FMeshUVChannelInfo {
     constexpr static uint32_t TEXSTREAM_MAX_NUM_UVCHANNELS = 4;
     bool initialized;

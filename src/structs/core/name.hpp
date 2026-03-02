@@ -9,7 +9,7 @@
 #include <vector>
 #include "functions.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   enum class EMappedNameType : uint32_t { Package = 0, Container = 1, Global = 2 };
 

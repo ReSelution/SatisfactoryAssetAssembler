@@ -11,7 +11,7 @@
 #include "io/packages/f_zen_package_versioning_info.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 
-namespace SAP {
+namespace SAA {
   UAssetParser::UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry) : AssetFileParser(
     assetParser, vfsEntry->path, AssetType::UASSET) {
     auto reader = vfsEntry->owningReader;

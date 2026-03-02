@@ -7,7 +7,7 @@
 
 #include "heap_storage.hpp"
 
-namespace SAP {
+namespace SAA {
   class Vfs;
 
   class Reader {

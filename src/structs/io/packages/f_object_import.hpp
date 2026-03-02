@@ -5,7 +5,7 @@
 #pragma once
 #include <string>
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FObjectImport {
     std::string ClassPackage; // z.B. "/Script/CoreUObject"

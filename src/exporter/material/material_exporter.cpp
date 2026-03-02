@@ -10,7 +10,7 @@
 
 #include "ue/material/material_instance_constant.hpp"
 
-namespace SAP {
+namespace SAA {
   void MaterialExporter::encodeMaterial(GltfMaterial &gltfMaterial, Material *material) {
     for (auto &tex: material->m_textures) {
       auto texture = tex.lock().get();

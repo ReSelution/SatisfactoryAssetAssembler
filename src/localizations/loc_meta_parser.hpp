@@ -12,7 +12,7 @@
 
 #include "core/f_guid.hpp"
 
-namespace SAP {
+namespace SAA {
   class UnifiedVfsEntry;
   class LocManager;
   enum class ELocMetaVersion : uint8_t {

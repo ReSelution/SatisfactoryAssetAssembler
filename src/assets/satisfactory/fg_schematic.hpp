@@ -7,7 +7,7 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
   class FGSchematic : public Object {
     struct Schematic {
     // Identität & Fortschritt
@@ -71,5 +71,5 @@ namespace SAP {
 
 
   };
-  SAP_REGISTER_ASSET(FGSchematic)
+  SAA_REGISTER_ASSET(FGSchematic)
 } // namespace SAP

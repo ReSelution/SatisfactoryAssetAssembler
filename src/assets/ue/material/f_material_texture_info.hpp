@@ -11,7 +11,7 @@
 
 #include "ue/properties/f_property_tag.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FMaterialTextureInfo {
     enum class EMaterialTextureInfo : uint32_t {
       SamplingScale = fnv1a("SamplingScale"),

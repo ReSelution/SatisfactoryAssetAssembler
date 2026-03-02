@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FIoTocContainerId {
     uint64_t id;

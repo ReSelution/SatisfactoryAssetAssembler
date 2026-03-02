@@ -4,7 +4,7 @@
 
 #include "fg_schematic.hpp"
 
-namespace SAP {
+namespace SAA {
   void FGSchematic::parse() {
     Object::parse();
     DBG_MARK_HANDLED(m_className, Schematic::MenuPriority);

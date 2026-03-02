@@ -1,11 +1,11 @@
 
 
-add_library(SAP_Reader STATIC
+add_library(SAA_Reader STATIC
         file_reader.cpp
         file_reader.hpp)
 
 # Header files
-target_sources(SAP_Reader
+target_sources(SAA_Reader
         PUBLIC
         io_global_data.hpp
         IOStoreReader.hpp
@@ -15,7 +15,7 @@ target_sources(SAP_Reader
 )
 
 # Source
-target_sources(SAP_Reader
+target_sources(SAA_Reader
         PRIVATE
         IOStoreReader.cpp
         PAKReader.cpp
@@ -24,7 +24,7 @@ target_sources(SAP_Reader
         io_global_data.cpp
 )
 
-target_include_directories(SAP_Reader PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SAP_Reader PUBLIC
-        SAP_Lib
+target_include_directories(SAA_Reader PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(SAA_Reader PUBLIC
+        SAA_Lib
 )

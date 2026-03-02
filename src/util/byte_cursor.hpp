@@ -12,14 +12,14 @@
 
 #include "heap_storage.hpp"
 
-namespace SAP {
+namespace SAA {
   class AssetFileParser;
   struct FName;
 
   class ByteCursor {
   public:
     ByteCursor() = default;
-    explicit ByteCursor(std::span<const uint8_t> buf, SAP::AssetFileParser *owner = nullptr) :
+    explicit ByteCursor(std::span<const uint8_t> buf, SAA::AssetFileParser *owner = nullptr) :
         m_buffer(buf), m_owner(owner) {}
 
     [[nodiscard]] size_t size() const { return m_buffer.size(); }

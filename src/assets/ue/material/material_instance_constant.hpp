@@ -11,7 +11,7 @@
 
 #include "ue/object_factory.hpp"
 
-namespace SAP {
+namespace SAA {
 
   class MaterialInstanceConstant : public MaterialInstance {
     friend class MaterialExporter;
@@ -28,5 +28,5 @@ namespace SAP {
     std::vector<FVectorParameterValue> vector_parameters;
   };
 
-  SAP_REGISTER_ASSET(MaterialInstanceConstant)
+  SAA_REGISTER_ASSET(MaterialInstanceConstant)
 } // namespace SAP

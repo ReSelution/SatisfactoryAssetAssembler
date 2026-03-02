@@ -11,7 +11,7 @@
 #include "logger.hpp"
 #include "vfs_entry.hpp"
 
-namespace SAP {
+namespace SAA {
   std::string cleanPath(std::string path) {
     constexpr std::string_view posixSuffix = "-POSIX";
     size_t pos = path.find(posixSuffix);

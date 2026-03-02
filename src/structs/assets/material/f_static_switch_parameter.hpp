@@ -3,7 +3,7 @@
 //
 
 #pragma once
-namespace SAP {
+namespace SAA {
   struct FStaticSwitchParameter {
     bool value;
   };

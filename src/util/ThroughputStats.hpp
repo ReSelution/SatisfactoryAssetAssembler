@@ -2,7 +2,7 @@
 #include <atomic>
 #include <chrono>
 
-namespace SAP {
+namespace SAA {
   struct ThroughputStats {
     static inline std::atomic<uint64_t> totalDecompressedBytes{0};
     static inline std::atomic<uint64_t> totalCompressedBytes{0};

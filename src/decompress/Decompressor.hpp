@@ -10,7 +10,7 @@
 
 #include "usmap/enums.hpp"
 
-namespace SAP {
+namespace SAA {
 
   enum class CompressionMethod : uint8_t {
     None = 0,

@@ -7,7 +7,7 @@
 
 #include "core/name.hpp"
 
-namespace SAP {
+namespace SAA {
   struct FMaterialParameterInfo {
     FName name;
     EMaterialParameterAssociation association;

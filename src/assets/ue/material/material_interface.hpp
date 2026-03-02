@@ -10,7 +10,7 @@
 
 #include "ue/textures/texture.hpp"
 
-namespace SAP {
+namespace SAA {
   class MaterialInterface : public UnrealMaterial {
     friend class MaterialExporter;
 
@@ -41,5 +41,5 @@ namespace SAP {
   private:
   };
 
-  SAP_REGISTER_ASSET(MaterialInterface)
+  SAA_REGISTER_ASSET(MaterialInterface)
 } // namespace SAP

@@ -7,7 +7,7 @@
 
 #include "nanite_constants.hpp"
 
-namespace SAP {
+namespace SAA {
 #pragma pack(push, 1)
   struct FPageStreamingState {
     uint32_t BulkOffset;

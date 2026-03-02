@@ -9,7 +9,7 @@
 
 #include "ue/material/f_material_texture_info.hpp"
 
-namespace SAP {
+namespace SAA {
   struct GltfMaterial {
     std::string name;
     std::vector<ExportedTextureData> baseColors;
