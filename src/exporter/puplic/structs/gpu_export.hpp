@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 #include <span>
-
+namespace SAA{
 enum class DataType { Mesh, Texture };
 
 struct gpu_export {
@@ -28,4 +28,4 @@ struct TextureData : public gpu_export {
 
   TextureData(std::span<uint8_t> p, int w, int h)
       : gpu_export(DataType::Texture), pixels(p), width(w), height(h) {}
-};
+};}

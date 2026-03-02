@@ -7,9 +7,10 @@
 #include "ue/asset_object.hpp"
 #include "ue/object_factory.hpp"
 
-struct Recipe;
 
 namespace SAA {
+struct Recipe;
+
   class FGRecipe : public Object {
     friend class FGExporter;
     struct RecipeProps {

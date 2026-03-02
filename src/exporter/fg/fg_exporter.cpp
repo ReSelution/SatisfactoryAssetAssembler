@@ -7,11 +7,10 @@
 #include "puplic/arena/registery.hpp"
 #include "satisfactory/fg_item_descriptor.hpp"
 #include "satisfactory/fg_recipe.hpp"
-#include "ue/properties/soft_object.hpp"
 
 
 namespace SAA {
-  Recipe *FGExporter::encode(FGRecipe *recipe) {
+Recipe *FGExporter::encode(FGRecipe *recipe) {
     auto ex = Registry::write<Recipe>(
       recipe->mManufactoringDuration,
       recipe->mManualManufacturingMultiplier,

@@ -11,9 +11,9 @@
 
 
 namespace SAA {
-  struct ItemAmount;
-  struct SoftObj;
-}
+struct ItemAmount;
+struct SoftObj;
+
 
 enum class ExportType : uint32_t {
   Unknown = 0,
@@ -37,28 +37,28 @@ struct Recipe : MetaExport {
   std::optional<bool> mDisplayNameOverride;
   std::optional<float> mVariablePowerConsumptionConstant;
 
-  std::optional<SAA::FText> mDisplayName;
-  std::span<SAA::SoftObj> mProducedIn;
-  std::span<SAA::ItemAmount> mProduct;
-  std::span<SAA::ItemAmount> mIngredients;
+  std::optional<FText> mDisplayName;
+  std::span<SoftObj> mProducedIn;
+  std::span<ItemAmount> mProduct;
+  std::span<ItemAmount> mIngredients;
 };
 
 
 struct ItemDescriptor : MetaExport {
   static constexpr auto Kind = ExportType::ItemDescriptor;
-  std::optional<SAA::FText> mDisplayName;
-  std::optional<SAA::FText> mDescription;
-  std::optional<SAA::FText> mAbbreviatedDisplayName;
+  std::optional<FText> mDisplayName;
+  std::optional<FText> mDescription;
+  std::optional<FText> mAbbreviatedDisplayName;
 
-  std::optional<SAA::Object *> mCategory;
-  std::optional<SAA::Object *> mPersistentBigIcon;
-  std::optional<SAA::Object *> mSmallIcon;
-  std::optional<SAA::Object *> mConveyorMesh;
+  std::optional<Object *> mCategory;
+  std::optional<Object *> mPersistentBigIcon;
+  std::optional<Object *> mSmallIcon;
+  std::optional<Object *> mConveyorMesh;
 
-  std::optional<SAA::FName> mStackSize;
-  std::optional<SAA::FName> mForm;
-  std::optional<SAA::FColor> mFluidColor;
-  std::optional<SAA::FColor> mGasColor;
+  std::optional<FName> mStackSize;
+  std::optional<FName> mForm;
+  std::optional<FColor> mFluidColor;
+  std::optional<FColor> mGasColor;
 
   float mEnergyValue{};
   float mRadioactiveDecay{};
@@ -66,8 +66,9 @@ struct ItemDescriptor : MetaExport {
   bool mIsAlienItem{};
   int32_t mItemIndex{};
 
-  std::optional<SAA::FName> mScannableType;
-  std::optional<SAA::SoftObj> mClassToScanFor;
-  std::optional<SAA::FText> mScannerDisplayText;
-  std::optional<SAA::Object *> mRequiredSchematic;
+  std::optional<FName> mScannableType;
+  std::optional<SoftObj> mClassToScanFor;
+  std::optional<FText> mScannerDisplayText;
+  std::optional<Object *> mRequiredSchematic;
 };
+}
