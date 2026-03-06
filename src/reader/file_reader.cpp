@@ -6,7 +6,6 @@
 
 #include <cassert>
 
-#include "logger.hpp"
 
 namespace SAA {
   std::span<const uint8_t> FileReader::getSpan(size_t offset, size_t length) const {
@@ -47,7 +46,6 @@ namespace SAA {
     }
     if (m_data == MAP_FAILED) {
       ::close(m_fd);
-      Logger::logError("[IO]", "mmap failed for size {}: {}", m_size, strerror(errno));
       m_fd = -1;
       m_data = nullptr;
       return false;

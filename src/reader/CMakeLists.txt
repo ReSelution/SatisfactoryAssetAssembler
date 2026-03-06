@@ -27,4 +27,5 @@ target_sources(SAA_Reader
 target_include_directories(SAA_Reader PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(SAA_Reader PUBLIC
         SAA_Lib
+        StructuredChaos
 )

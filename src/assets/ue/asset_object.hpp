@@ -8,7 +8,6 @@
 #include "byte_cursor.hpp"
 #include "core/f_guid.hpp"
 #include "core/hash.hpp"
-#include "logger.hpp"
 
 #include "properties/property_holder.hpp"
 #include "properties/f_property_tag.hpp"

@@ -7,12 +7,14 @@
 #include <fstream>
 
 #include "Decompressor.hpp"
-#include "logger.hpp"
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <dlfcn.h>
 #endif
+
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(OodleLog, "SAA", "OODLE")
 
 namespace SAA {
   static void *g_OodleLibHandle = nullptr;
@@ -56,16 +58,16 @@ namespace SAA {
     if (anchorIdx == pattern.size()) return start;
 
     uint8_t firstFixedByte = pattern[anchorIdx];
-    uint8_t* scanPos = start + anchorIdx;
-    uint8_t* end = start + size - pattern.size() + anchorIdx;
+    uint8_t *scanPos = start + anchorIdx;
+    uint8_t *end = start + size - pattern.size() + anchorIdx;
 
     while (scanPos <= end) {
       // Suche blitzschnell nach dem ersten fixen Byte
-      uint8_t* found = (uint8_t*)memchr(scanPos, firstFixedByte, end - scanPos + 1);
+      uint8_t *found = (uint8_t *) memchr(scanPos, firstFixedByte, end - scanPos + 1);
       if (!found) break;
 
       // Wir haben den Anker gefunden, jetzt prüfen wir den Rest des Patterns
-      uint8_t* potentialMatch = found - anchorIdx;
+      uint8_t *potentialMatch = found - anchorIdx;
       bool match = true;
 
       for (size_t j = 0; j < pattern.size(); j++) {
@@ -94,7 +96,7 @@ namespace SAA {
 #endif
 
   void OodleLoader::loadOodle(const std::filesystem::path &gamePath) {
-    auto start = std::chrono::high_resolution_clock::now();
+    auto t = OodleLog::time( "Found in {}");
 
     std::string libName;
 #ifdef _WIN32
@@ -105,7 +107,7 @@ namespace SAA {
     std::filesystem::path localPath = std::filesystem::current_path() / libName;
     OodleLZ_Decompress decompressFunc = nullptr;
     if (std::filesystem::exists(localPath)) {
-      Logger::logInfo("[OODLE]", "Using local Oodle library: {}", localPath.string());
+      OodleLog::info("Using local Oodle library: {}", localPath.string());
       decompressFunc = loadLib(localPath);
       if (decompressFunc == nullptr) {
         throw std::runtime_error("Oodle library couldn't be loaded");
@@ -127,17 +129,17 @@ namespace SAA {
         MODULEINFO modInfo;
         if (GetModuleInformation(GetCurrentProcess(), hCore, &modInfo, sizeof(modInfo))) {
           std::vector<uint8_t> pattern = {
-            0x40, 0x55,                          // PUSH RBP
-            0x53,                                // PUSH RBX
-            0x56,                                // PUSH RSI
-            0x57,                                // PUSH RDI
-            0x41, 0x54,                          // PUSH R12
-            0x41, 0x55,                          // PUSH R13
-            0x41, 0x56,                          // PUSH R14
-            0x41, 0x57,                          // PUSH R15
+            0x40, 0x55, // PUSH RBP
+            0x53, // PUSH RBX
+            0x56, // PUSH RSI
+            0x57, // PUSH RDI
+            0x41, 0x54, // PUSH R12
+            0x41, 0x55, // PUSH R13
+            0x41, 0x56, // PUSH R14
+            0x41, 0x57, // PUSH R15
             0x48, 0x81, 0xEC, 0xCC, 0xCC, 0x00, 0x00, // SUB RSP, [Wildcard]
-            0x48, 0x8D, 0x6C, 0x24, 0x60          // LEA RBP, [RSP + 60h]  <-- DER ANKER
-        };
+            0x48, 0x8D, 0x6C, 0x24, 0x60 // LEA RBP, [RSP + 60h]  <-- DER ANKER
+          };
           //dumpModuleMemory(hCore, "factory_core_memory_dump.bin");
           auto base = static_cast<uint8_t *>(modInfo.lpBaseOfDll);
           uint8_t *addr = findPattern(base, modInfo.SizeOfImage, pattern);
@@ -150,7 +152,7 @@ namespace SAA {
               realStart--;
             }
             Logger::logInfo("[OODLE]", "Found at: 0x{:X}, Function Start: 0x{:X}",
-                    (uintptr_t)addr, (uintptr_t)realStart);
+                            (uintptr_t) addr, (uintptr_t) realStart);
 
             decompressFunc = reinterpret_cast<OodleLZ_Decompress>(realStart);
           }
@@ -166,9 +168,6 @@ namespace SAA {
         "Oodle decompressor could not be located! Put oo2core_9_win64.dll/liboo2corelinux64.so.9 in the app folder.");
     }
     OodleApi::initializePointer(decompressFunc);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[OODLE]", "Found in {} ms", us.count() / 1000.0);
   }
 
   OodleLZ_Decompress OodleLoader::loadLib(std::filesystem::path const &path) {

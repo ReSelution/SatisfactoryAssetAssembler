@@ -3,7 +3,6 @@
 #include <fstream>
 
 #include "heap_storage.hpp"
-#include "logger.hpp"
 
 namespace SAA {
   bool Reader::load() {

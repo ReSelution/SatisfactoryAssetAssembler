@@ -3,8 +3,10 @@
 #include <iostream>
 
 #include "provider/games/satisfactory/SatisfactoryDataProvider.hpp"
+#include "threading/chaos_threading.hpp"
 
 int main() {
+  SC::ChaosThreading::init();
   std::filesystem::path gamePath =
       "/home/oleub/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Satisfactory/";
  // gamePath = "/home/oleub/dev/data/Satisfactory_1009/";

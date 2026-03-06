@@ -8,8 +8,10 @@
 
 #include "byte_cursor.hpp"
 #include "loc_manager.hpp"
-#include "logger.hpp"
 #include "vfs_entry.hpp"
+#include "logger/chaos_logger.hpp"
+
+LOG_ALIAS(LocMetaLog, "SAA", "LOCMETA");
 
 namespace SAA {
   std::string cleanPath(std::string path) {
@@ -31,7 +33,7 @@ namespace SAA {
     ByteCursor cursor(data);
     auto magic = cursor.read<FGuid>();
     if (magic != LOC_META_MAGIC) {
-      Logger::logError("[LOCMETA]", "{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path, magic.A, magic.B, magic.C,
+      LocMetaLog::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path, magic.A, magic.B, magic.C,
                        magic.D);
       return;
     }
@@ -60,7 +62,6 @@ namespace SAA {
         cultures.emplace(currentCulture, cleanPath(path));
       }
     }
-    return;
   }
 
   // bool if it is the nativ Culture

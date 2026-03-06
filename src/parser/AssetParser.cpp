@@ -5,7 +5,6 @@
 #include "AssetParser.hpp"
 
 #include <filesystem>
-#include "logger.hpp"
 #include "uasset_parser.hpp"
 #include "vfs.hpp"
 
@@ -16,6 +15,9 @@
 #include "crawler.hpp"
 #include "heap_pool.hpp"
 #include "puplic/arena/registery.hpp"
+
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(APLog, "SAA", "AssetParser")
 
 namespace SAA {
   AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) : m_vfs(vfs),
@@ -41,13 +43,14 @@ namespace SAA {
       threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
     }
     HeapPool::init(threadCount * 4, 8 * 1024);
-    Registry::init(2048*1024);
+    Registry::init(2048 * 1024);
     m_parserCache.reserve(m_vfs->entries().size());
-    Logger::logInfo("[AssetParser]", "Start Parsing of {} files on {} Threads with {} KB cache Size  ",
-                    m_JobQueue.size(), threadCount, HeapPool::getBufferSize() / 1024.0);
+    APLog::info("Start Parsing of {} files on {} Threads with {} KB cache Size  ",
+                m_JobQueue.size(), threadCount, HeapPool::getBufferSize() / 1024.0);
     std::vector<Crawler> crawlers;
     crawlers.reserve(threadCount);
-    auto start = std::chrono::high_resolution_clock::now();
+
+    auto t = APLog::time("[AssetParser]", "Parsing finished: {} ms");
     ThroughputStats::start();
     for (uint32_t i = 0; i < threadCount; ++i) {
       if (crawler) {
@@ -73,15 +76,13 @@ namespace SAA {
 
     m_ThreadPool.clear();
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[AssetParser]", "Parsing finished: {} ms", us.count() / 1000.0);
-    Logger::logInfo("[AssetParser]",
-                    "Durchsatz: Decompresed: {:.2f} MB/s Compressed: {:.2f} MB/s (Decompressed: {:.2f} GB, On Disk: {:.2f} GB)",
-                    ThroughputStats::getMBPerSecondDecompressed(),
-                    ThroughputStats::getMBPerSecondCompressed(),
-                    ThroughputStats::totalDecompressedBytes.load() / (1024.0 * 1024.0 * 1024.0),
-                    ThroughputStats::totalCompressedBytes.load() / (1024.0 * 1024.0 * 1024.0));
+
+    APLog::info(
+      "Durchsatz: Decompresed: {:.2f} MB/s Compressed: {:.2f} MB/s (Decompressed: {:.2f} GB, On Disk: {:.2f} GB)",
+      ThroughputStats::getMBPerSecondDecompressed(),
+      ThroughputStats::getMBPerSecondCompressed(),
+      ThroughputStats::totalDecompressedBytes.load() / (1024.0 * 1024.0 * 1024.0),
+      ThroughputStats::totalCompressedBytes.load() / (1024.0 * 1024.0 * 1024.0));
   }
 
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(const FPackageId &pkg) {
@@ -117,7 +118,7 @@ namespace SAA {
 
     auto parser = createParser(vfsEntry);
     if (!parser) {
-      Logger::logInfo("[AssetParser]", "Unknown file : {}", path);
+      APLog::info("[AssetParser]", "Unknown file : {}", path);
       return;
     }
 

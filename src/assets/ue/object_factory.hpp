@@ -7,7 +7,6 @@
 #include <unordered_map>
 
 #include "asset_object.hpp"
-#include "logger.hpp"
 
 #define SAA_REGISTER_ASSET(TYPE)                                                                                       \
   namespace {                                                                                                          \

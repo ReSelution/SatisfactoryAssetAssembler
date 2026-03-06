@@ -6,19 +6,23 @@
 #include <stdexcept>
 
 #include "Decompressor.hpp"
-#include "logger.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
+
+#include "logger/chaos_logger.hpp"
+
+LOG_ALIAS(UsmapLog, "SAA", "USAMP");
 
 namespace SAA {
   static constexpr uint16_t USMAP_MAGIC = 0x30C4;
 
-  UsmapReader::UsmapReader(std::filesystem::path path) : m_Path(std::move(path)) {}
+  UsmapReader::UsmapReader(std::filesystem::path path) : m_Path(std::move(path)) {
+  }
 
   bool UsmapReader::parse(FUsmapMappingData &outputData) {
     auto start = std::chrono::high_resolution_clock::now();
     std::ifstream file(m_Path, std::ios::binary);
     if (!file.is_open()) {
-      Logger::logError("[USMAP]", "Konnte Datei nicht öffnen: {}", m_Path.string());
+      UsmapLog::err("Konnte Datei nicht öffnen: {}", m_Path.string());
       return false;
     }
 
@@ -41,10 +45,11 @@ namespace SAA {
       parseSchemas(cursor, outputData);
       auto end = std::chrono::high_resolution_clock::now();
       auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-      Logger::logInfo("[USMAP]", "Parsed {} Enums and {} Schemas in {} ms ", outputData.Enums.size(), outputData.Schemas.size(), us.count()/1000);
+      UsmapLog::info("[USMAP]", "Parsed {} Enums and {} Schemas in {} ms ", outputData.Enums.size(),
+                     outputData.Schemas.size(), us.count() / 1000);
       return true;
     } catch (const std::exception &e) {
-      Logger::logError("[USMAP]", "Exception während des Parsings: {}", e.what());
+      UsmapLog::err("Exception während des Parsings: {}", e.what());
       return false;
     }
   }
@@ -57,7 +62,7 @@ namespace SAA {
     uint16_t magic = 0;
     file.read(reinterpret_cast<char *>(&magic), sizeof(magic));
     if (magic != USMAP_MAGIC) {
-      Logger::logError("[USMAP]", "Ungültige Magic Number: {:#x}", magic);
+      UsmapLog::err("Ungültige Magic Number: {:#x}", magic);
       return false;
     }
 
@@ -88,8 +93,8 @@ namespace SAA {
 
       uint32_t netCL = 0;
       file.read(reinterpret_cast<char *>(&netCL), sizeof(netCL)); // 4 Bytes
-      Logger::logError("[USMAP]", "Version: UE4: {} UE5: {}", pkg.FileVersionUE4,
-                       static_cast<uint32_t>(pkg.FileVersionUE5));
+      UsmapLog::err("Version: UE4: {} UE5: {}", pkg.FileVersionUE4,
+                    static_cast<uint32_t>(pkg.FileVersionUE5));
     }
 
     // Kompressionsinfos
@@ -110,7 +115,7 @@ namespace SAA {
     std::vector<uint8_t> compressedData(m_compressedSize);
     file.read(reinterpret_cast<char *>(compressedData.data()), m_compressedSize);
     if (file.gcount() != static_cast<std::streamsize>(m_compressedSize)) {
-      Logger::logError("[USMAP]", "Konnte komprimierte Daten nicht vollständig lesen.");
+      UsmapLog::err("Konnte komprimierte Daten nicht vollständig lesen.");
       return false;
     }
 

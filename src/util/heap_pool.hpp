@@ -6,7 +6,6 @@
 #include <atomic>
 #include <cassert>
 #include <memory>
-#include <thread>
 #include <vector>
 #include "heap_storage.hpp"
 

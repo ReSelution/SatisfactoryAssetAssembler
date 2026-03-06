@@ -160,6 +160,7 @@ target_include_directories(SAA_Structs
 target_link_libraries(SAA_Structs
         PUBLIC
         SAA_Util
+        StructuredChaos
         SAA_Assets
         SAA_Parser
         PRIVATE

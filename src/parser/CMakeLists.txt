@@ -28,4 +28,5 @@ target_link_libraries(SAA_Parser
         SAA_Assets
         SAA_Lib
         SAA_VFS
+        StructuredChaos
 )

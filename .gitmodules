@@ -10,3 +10,6 @@
 [submodule "external/fastgltf"]
 	path = external/fastgltf
 	url = https://github.com/spnda/fastgltf
+[submodule "external/StructuredChaos"]
+	path = external/StructuredChaos
+	url = git@github.com:ReSelution/StructuredChaos.git

@@ -5,7 +5,6 @@
 #pragma once
 #include <cstdint>
 
-#include "logger.hpp"
 
 #include "core/name.hpp"
 

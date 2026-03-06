@@ -5,10 +5,8 @@
 #include "property_holder.hpp"
 
 #include "AssetFileParser.hpp"
-#include "core/f_guid.hpp"
 #include "core/hash.hpp"
 #include "f_property_tag.hpp"
-#include "logger.hpp"
 #include "PropertyTracker.hpp"
 #include "property_parser.hpp"
 #include "thread_arena.hpp"

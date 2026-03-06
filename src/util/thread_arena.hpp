@@ -2,7 +2,7 @@
 #include <memory_resource>
 
 class ThreadArena {
-  static constexpr size_t BufferSize = 16 * 1024;
+  static constexpr size_t BufferSize = 8 * 1024;
 public:
   struct Storage {
     char buffer[BufferSize];

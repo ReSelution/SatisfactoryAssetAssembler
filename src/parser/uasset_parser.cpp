@@ -4,7 +4,6 @@
 #include "IOStoreReader.hpp"
 #include "heap_pool.hpp"
 #include "io_global_data.hpp"
-#include "logger.hpp"
 #include "ue/object_factory.hpp"
 #include "vfs_entry.hpp"
 
@@ -115,7 +114,6 @@ namespace SAA {
       m_storeEntry = entry->second;
       return;
     }
-    Logger::logError("[UASSET]", "StoreEntry not found for {}", name);
   }
 
   void UAssetParser::parseBulkDataMap(ByteCursor &cursor) {

@@ -16,25 +16,13 @@
 #include "UsmapReader.hpp"
 #include "crawler.hpp"
 #include "io_global_data.hpp"
-#include "logger.hpp"
 
-#ifdef _WIN32
-#include <windows.h>
-
-#else
-#include <dlfcn.h>
-
-#endif
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(ProviderLog, "SAA", "Provider")
 
 namespace SAA {
-  static constexpr const char *LOGGER_PROVIDER = "[Provider]";
-  static constexpr const char *LOGGER_OODLE = "[Oodle]";
-
   SatisfactoryDataProvider::SatisfactoryDataProvider(const std::filesystem::path &baseInstallPath) {
-    Logger::Logger::getInstance().initLogger(LOGGER_PROVIDER);
-    Logger::Logger::getInstance().initLogger(LOGGER_OODLE);
-
-    Logger::logInfo(LOGGER_PROVIDER, "Starte Datei-Suche in {}", baseInstallPath.string());
+    ProviderLog::info("Searching in {}", baseInstallPath.string());
 
     findAllParsableFiles(baseInstallPath);
 
@@ -42,14 +30,11 @@ namespace SAA {
   }
 
   bool SatisfactoryDataProvider::load() {
-
-    auto start = std::chrono::high_resolution_clock::now();
-
+    auto t = ProviderLog::time("Loaded in {}");
     auto usmapFuture = std::async(std::launch::async, [&] { return m_UsmapParser->parse(m_usmapData); });
-
     auto globalDataFuture = std::async(std::launch::async, [&] { return m_globalDataParser->parse(m_globalData); });
 
-    std::vector<std::future<void>> parsableFutures;
+    std::vector<std::future<void> > parsableFutures;
     parsableFutures.reserve(m_Parsers.size());
     std::vector<Vfs> childVFS;
     childVFS.reserve(m_Parsers.size());
@@ -70,13 +55,11 @@ namespace SAA {
       m_vfs.mergeChild(child);
     }
 
-    Logger::logInfo("[Provider]", "VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
+    ProviderLog::info("VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
     // m_vfs.dumpToText("output/filesEntry.txt");
     usmapFuture.get();
     globalDataFuture.get();
-    auto end = std::chrono::high_resolution_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[Provider]", "Loadedin {} ms", us.count() / 1000.0);
+
     return true;
   }
 
@@ -100,12 +83,12 @@ namespace SAA {
   }
 
   void SatisfactoryDataProvider::findAllParsableFiles(const std::filesystem::path &folder) {
-    auto start = std::chrono::high_resolution_clock::now();
-
     if (!std::filesystem::exists(folder) || !std::filesystem::is_directory(folder)) {
-      Logger::logWarn(LOGGER_PROVIDER, "Pfad {} ist ungültig.", folder.string());
+      ProviderLog::warn("Pfad {} ist ungültig.", folder.string());
       return;
     }
+    auto t = ProviderLog::time("Loaded Files in {}");
+
 
     std::vector<std::string> subFolders = {"FactoryGame/Content/Paks", "CommunityResources"};
     for (const auto &sub: subFolders) {
@@ -138,17 +121,15 @@ namespace SAA {
               m_Parsers[basename] = std::make_unique<IOStoreReader>(path, ucasPath);
             }
           } else {
-            Logger::logWarn(LOGGER_PROVIDER, "UTOC gefunden, aber keine passende UCAS: {}", path.string());
+            ProviderLog::warn("UTOC with no UCAS: {}", path.string());
           }
         } else if (ext == ".usmap") {
           m_UsmapParser = std::make_unique<UsmapReader>(path);
         }
       }
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[Files]", "{} ms", us.count() / 1000.0);
   }
 
-  SatisfactoryDataProvider::~SatisfactoryDataProvider() {}
+  SatisfactoryDataProvider::~SatisfactoryDataProvider() {
+  }
 } // namespace SAP

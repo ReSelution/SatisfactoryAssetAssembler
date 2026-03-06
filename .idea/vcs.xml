@@ -2,9 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/StructuredChaos" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/StructuredChaos/external/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/bcdec" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/fastgltf" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/simdjson" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/stb" vcs="Git" />
   </component>

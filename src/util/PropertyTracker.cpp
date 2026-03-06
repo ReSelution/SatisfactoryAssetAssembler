@@ -6,6 +6,9 @@
 
 #include "ue/properties/f_property_tag.hpp"
 
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(PropertyTrackerLog, "SAA", "Tracker")
+
 namespace SAA {
 #ifndef NDEBUG
 
@@ -38,17 +41,17 @@ namespace SAA {
       for (auto &[hash, prop]: seen) {
         if (handled.find(hash) == handled.end()) {
           if (!anyMissingAtAll) {
-            Logger::logInfo("[Tracker]", "=== Fehlende Property-Mappings ===");
+            PropertyTrackerLog::info("=== missing Property-Mappings ===");
             anyMissingAtAll = true;
           }
 
           if (!classHeaderPrinted) {
-            Logger::logInfo("[Tracker]", "Klasse: {}", className);
+            PropertyTrackerLog::warn("Class: {}", className);
             classHeaderPrinted = true;
           }
 
-          Logger::logWarn("[Tracker]", "{}: {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
-                          prop.tag.PropertyTypeName.text());
+          PropertyTrackerLog::warn("[Tracker]", "{}: {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
+                                   prop.tag.PropertyTypeName.text());
         }
       }
     }

@@ -4,16 +4,9 @@
 
 #include "ue/asset_object.hpp"
 
-#include "logger.hpp"
 #include "uasset_parser.hpp"
-
-#include "core/f_color.hpp"
-#include "core/f_text.hpp"
-#include "core/per_quality_level_props.hpp"
-
 #include "usmap/f_usmap_mapping_data.hpp"
 
-#include "core/math/f_vector.hpp"
 
 namespace SAA {
   void Object::parse() {

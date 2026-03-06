@@ -86,6 +86,7 @@ target_link_libraries(SAA_Assets
         SAA_Lib
         SAA_Exporter
         SAA_Localization
+        StructuredChaos
 )
 
 target_include_directories(SAA_Assets

@@ -5,7 +5,7 @@ project(SatisfactoryAssetParser LANGUAGES CXX)
 # -------------------------------------------------------------------------
 # 1. Globale Einstellungen & Performance
 # -------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -14,9 +14,9 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 # -------------------------------------------------------------------------
 # 2. Third Party (External)
 # -------------------------------------------------------------------------
-add_subdirectory(external/spdlog)
 add_subdirectory(external/cityhash)
 add_subdirectory(external/fastgltf)
+add_subdirectory(external/StructuredChaos)
 
 # -------------------------------------------------------------------------
 # 3. Core Module (Subdirectories)
@@ -42,13 +42,11 @@ add_library(SAA_Util STATIC
 
 target_sources(SAA_Util
         PUBLIC
-        src/util/logger.hpp
         src/util/shared_cache.hpp
         src/util/byte_cursor.hpp
         src/util/thread_arena.hpp
         src/util/heap_storage.hpp
         PRIVATE
-        src/util/logger.cpp
         src/util/byte_cursor.cpp
         src/util/thread_arena.cpp
         src/util/heap_storage.cpp
@@ -91,11 +89,11 @@ target_link_libraries(SAA_Lib
         SAA_Structs
         SAA_Parser
         SAA_Reader
+        StructuredChaos
         SAA_Crawler
         # Whole Archive for Asset-Factory Registration
         $<LINK_LIBRARY:WHOLE_ARCHIVE,SAA_Assets> #DONT REMOVE !!!
         PRIVATE
-        spdlog::spdlog
 )
 
 # -------------------------------------------------------------------------
@@ -104,16 +102,30 @@ target_link_libraries(SAA_Lib
 add_executable(AssetRipperTest src/main.cpp)
 target_link_libraries(AssetRipperTest PRIVATE SAA_Lib)
 
-if(WIN32)
-    target_link_libraries(AssetRipperTest PRIVATE
-            "-static-libgcc"
-            "-static-libstdc++"
-            "-static"
-            "pthread"
-    )
-    set_target_properties(AssetRipperTest PROPERTIES
-            LINK_FLAGS "-static -static-libgcc -static-libstdc++"
-    )
+if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    if(MSVC)
+        add_compile_options(/O2 /arch:AVX2 /fp:fast /GL)
+        add_link_options(/LTCG)
+    else()
+        add_compile_options(
+                -O3
+                -march=native
+                -flto
+                -fno-exceptions
+                -fno-rtti
+                -ffast-math
+        )
+        add_link_options(
+                -flto
+                -static              # Linkt alles statisch
+                -static-libgcc       # Speziell für die GCC Runtime
+                -static-libstdc++    # Speziell für die C++ Standard Library
+        )
+    endif()
+
+else()
+    message(STATUS "SAA: Debug build detected - skipping heavy optimizations.")
+    add_compile_options(-g -O0)
 endif()
 
 

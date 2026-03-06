@@ -8,6 +8,7 @@
 #include "ue/static_mesh/static_mesh.hpp"
 
 #include "material/material_exporter.hpp"
+LOG_ALIAS(MeshExporterLog, "SAA", "Mesh Exporter")
 
 namespace SAA {
   template<typename T>
@@ -39,10 +40,10 @@ namespace SAA {
     accessor.byteOffset = 0;
 
     // Mapping von C++ Typen auf glTF Enums
-    if constexpr (std::is_same_v<T, FVector_f> || std::is_same_v<T, fastgltf::math::vec<float, 3>>) {
+    if constexpr (std::is_same_v<T, FVector_f> || std::is_same_v<T, fastgltf::math::vec<float, 3> >) {
       accessor.type = fastgltf::AccessorType::Vec3;
       accessor.componentType = fastgltf::ComponentType::Float;
-    } else if constexpr (std::is_same_v<T, fastgltf::math::vec<float, 2>>) {
+    } else if constexpr (std::is_same_v<T, fastgltf::math::vec<float, 2> >) {
       accessor.type = fastgltf::AccessorType::Vec2;
       accessor.componentType = fastgltf::ComponentType::Float;
     } else if constexpr (std::is_same_v<T, uint32_t>) {
@@ -170,9 +171,9 @@ namespace SAA {
         appendData(binaryBuffer, &gUV, 1);
       }
 
-      auto posAcc = createAccessor<fastgltf::math::vec<float, 2>>(asset, binaryBuffer, offset,
-                                                                  static_cast<size_t>(lod.vertexBuffer.numVertices),
-                                                                  fastgltf::BufferTarget::ArrayBuffer);
+      auto posAcc = createAccessor<fastgltf::math::vec<float, 2> >(asset, binaryBuffer, offset,
+                                                                   static_cast<size_t>(lod.vertexBuffer.numVertices),
+                                                                   fastgltf::BufferTarget::ArrayBuffer);
       std::string attrName = "TEXCOORD_" + std::to_string(setIdx);
       primitive.attributes.emplace_back(fastgltf::Attribute{attrName.c_str(), posAcc});
     }
@@ -193,8 +194,8 @@ namespace SAA {
       fastgltf::math::vec<float, 3> gN = {n.x(), n.z(), n.y()};
       appendData(binaryBuffer, &gN, 1);
     }
-    auto posAcc = createAccessor<fastgltf::math::vec<float, 3>>(
-        asset, binaryBuffer, offset, lod.vertexBuffer.numVertices, fastgltf::BufferTarget::ArrayBuffer);
+    auto posAcc = createAccessor<fastgltf::math::vec<float, 3> >(
+      asset, binaryBuffer, offset, lod.vertexBuffer.numVertices, fastgltf::BufferTarget::ArrayBuffer);
 
     primitive.attributes.emplace_back(fastgltf::Attribute{"NORMAL", posAcc});
   }
@@ -351,7 +352,7 @@ namespace SAA {
     auto result = exporter.writeGltfBinary(asset, path, fastgltf::ExportOptions::None);
 
     if (result != fastgltf::Error::None) {
-      Logger::logError("[Exporter]", " Failed to write Gltf binary file:{}", fastgltf::getErrorName(result));
+      MeshExporterLog::err(" Failed to write Gltf binary file:{}", fastgltf::getErrorName(result));
     }
   }
 } // namespace SAP

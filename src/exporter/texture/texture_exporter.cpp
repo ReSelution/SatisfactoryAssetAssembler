@@ -3,13 +3,11 @@
 //
 
 #include "texture_exporter.hpp"
-
 #include <fstream>
-
-#include "logger.hpp"
 #include "texture_decoder.hpp"
 
-#include "AssetFileParser.hpp"
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(TexExLog, "SAA", "TextureExporter")
 
 namespace SAA {
   void TextureExporter::exportAsset(Texture *texture) {
@@ -70,7 +68,7 @@ namespace SAA {
         break;
       }
       default:
-        Logger::logError("[TextureExporter]", "Unknown texture format {}", to_string(texture->m_format));
+       TexExLog::err("Unknown texture format {}", to_string(texture->m_format));
     }
   }
 
@@ -105,7 +103,7 @@ namespace SAA {
       file.write(reinterpret_cast<const char *>(data.data.data()), data.data.size());
       file.close();
     } else [[unlikely]] {
-      Logger::logError("[TextureExporter]", "Failed to open file for writing: {}", path);
+     TexExLog::err("Failed to open file for writing: {}", path);
     }
   }
 } // namespace SAP

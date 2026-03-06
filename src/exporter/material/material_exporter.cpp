@@ -4,11 +4,13 @@
 
 #include "material_exporter.hpp"
 
-#include <map>
 
 #include "texture/texture_exporter.hpp"
 
 #include "ue/material/material_instance_constant.hpp"
+
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(MaterialExporterLog, "SAA", "MaterialExporter")
 
 namespace SAA {
   void MaterialExporter::encodeMaterial(GltfMaterial &gltfMaterial, Material *material) {
@@ -21,7 +23,7 @@ namespace SAA {
   }
 
   void MaterialExporter::encodeMaterial(GltfMaterial &gltfMaterial, MaterialInstance *material) {
-    Logger::logInfo("MaterialExporter", "MaterialInstance encodeing not implementet");
+    MaterialExporterLog::err("MaterialInstance encodeing not implementet");
   }
 
   void MaterialExporter::encodeMaterial(GltfMaterial &gltfMaterial, MaterialInstanceConstant *material) {
@@ -57,13 +59,13 @@ namespace SAA {
       gltfMaterial.normals.emplace_back(std::move(texData));
     } else if (type.find("_Rough") != std::string::npos || type.find("Mask") != std::string::npos ||
                type.find("_MREO") != std::string::npos ||
-               type.find("_Forms") != std::string::npos) { // "Forms" ist UE5 Standard bei Satisfactory
+               type.find("_Forms") != std::string::npos) {
+      // "Forms" ist UE5 Standard bei Satisfactory
       gltfMaterial.metallicRoughness.emplace_back(std::move(texData));
     } else if (type.find("Noise") != std::string::npos || type.find("Weather") != std::string::npos ||
                type.find("Debug") != std::string::npos) {
-      Logger::logInfo("[MaterialExporter]", "Skipping auxiliary texture: {}", type);
     } else {
-      Logger::logError("[MaterialExporter]", "Unknown texture group: {} -> {} ", textureType, texData.name);
+      MaterialExporterLog::err("Unknown texture group: {} -> {} ", textureType, texData.name);
     }
   }
 } // namespace SAP

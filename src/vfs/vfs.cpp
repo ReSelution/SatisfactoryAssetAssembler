@@ -2,7 +2,6 @@
 
 #include <fstream>
 
-#include "logger.hpp"
 #include "vfs_entry.hpp"
 
 namespace SAA {

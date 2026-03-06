@@ -8,9 +8,10 @@
 
 #include "AssetParser.hpp"
 #include "vfs.hpp"
-
 #include "ue/asset_object.hpp"
-#include "PropertyTracker.hpp"
+
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(CrawlerLog, "SAA", "CRAWLER")
 
 namespace SAA {
   Crawler::Crawler() {
@@ -40,11 +41,11 @@ namespace SAA {
     createFileQueue(parser);
     parser.processQueue(this);
     DBG_PRINT_MISSING();
-    Logger::logInfo("[CRAWLER]", "Found {} Buildings", m_buildable.size());
-    Logger::logInfo("[CRAWLER]", "Found {} Recipes", m_recipes.size());
-    Logger::logInfo("[CRAWLER]", "Found {} Items", m_items.size());
-    Logger::logInfo("[CRAWLER]", "Found {} Schematics", m_schematics.size());
-    Logger::logInfo("[CRAWLER]", "Found {} Resources", m_resources.size());
+    CrawlerLog::info("Found {} Buildings", m_buildable.size());
+    CrawlerLog::info("Found {} Recipes", m_recipes.size());
+    CrawlerLog::info("Found {} Items", m_items.size());
+    CrawlerLog::info("Found {} Schematics", m_schematics.size());
+    CrawlerLog::info("Found {} Resources", m_resources.size());
   }
 
   void Crawler::onParsed(std::shared_ptr<AssetFileParser> &parser) {

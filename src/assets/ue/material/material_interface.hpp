@@ -9,6 +9,8 @@
 #include "structs/gltf_material.hpp"
 
 #include "ue/textures/texture.hpp"
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(MatIntLog, "SAA", "MaterialInterface")
 
 namespace SAA {
   class MaterialInterface : public UnrealMaterial {
@@ -26,14 +28,16 @@ namespace SAA {
     };
 
   public:
-    MaterialInterface(std::string_view classname = "MaterialInterface") : UnrealMaterial(classname) {};
+    MaterialInterface(std::string_view classname = "MaterialInterface") : UnrealMaterial(classname) {
+    };
 
     void exportToGltf(GltfMaterial &out) override {
-      Logger::logError("[GLTF]", "Export to Gltf not implentet for {}", getClassName());
+      MatIntLog::err("Export to Gltf not implemented for {}", getClassName());
     };
 
   protected:
     void parse() override;
+
     std::weak_ptr<Texture> m_flattenedTexture;
     std::vector<FMaterialTextureInfo> m_textureStreamingData;
     std::optional<PropertyHolder> cachedExpressionData;

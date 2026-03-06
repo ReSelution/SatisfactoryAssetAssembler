@@ -7,7 +7,6 @@
 #include "texture/texture_exporter.hpp"
 #include "assets/textures/f_opt_texture_platfrom_data.hpp"
 #include "assets/textures/pixel_format.hpp"
-#include "logger.hpp"
 #include "uasset_parser.hpp"
 
 namespace SAA {

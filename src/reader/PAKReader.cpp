@@ -3,18 +3,19 @@
 #include "Reader.hpp"
 #include "ThroughputStats.hpp"
 #include "byte_cursor.hpp"
-#include "logger.hpp"
 #include "vfs.hpp"
 
+#include "logger/chaos_logger.hpp"
+LOG_ALIAS(PakLog, "SAA", "PAK")
+
 namespace SAA {
-  PAKReader::PAKReader(const std::filesystem::path& path) : Reader(Reader::Type::PAK, path), m_pakFile(path) {}
+  PAKReader::PAKReader(const std::filesystem::path &path) : Reader(Reader::Type::PAK, path), m_pakFile(path) {
+  }
 
   bool PAKReader::load() {
-    auto start = std::chrono::high_resolution_clock::now();
+    auto name = m_Path.filename().string();
+    auto t = PakLog::time("Loaded {1} in {0}", name );
     readPaKInfo();
-    auto end = std::chrono::high_resolution_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[PAK]", "Loaded {} in {} ms", m_Path.string(), us.count() / 1000.0);
     return true;
   }
 
@@ -112,7 +113,10 @@ namespace SAA {
   }
 
   bool PAKReader::mountVFS(Vfs *vfs) {
-    auto start = std::chrono::high_resolution_clock::now();
+    int32_t fileCount;
+    auto name = m_Path.filename().string();
+    auto t = PakLog::time("{1}: Mounted {2} in {0}", name, fileCount);
+
     ByteCursor index(m_pakFile.getSpan(m_pakInfo.indexOffset, m_pakInfo.indexSize));
     index.setAbsoluteOffset(m_pakInfo.indexOffset);
     auto mountPoint = index.readFString(stringStorage.get());
@@ -120,7 +124,7 @@ namespace SAA {
       mountPoint = mountPoint.substr(9); // Relativen Pfad entfernen
     }
 
-    auto fileCount = index.read<int32_t>();
+    fileCount = index.read<int32_t>();
     vfs->reservePak(fileCount);
     m_pakEntries.reserve(fileCount);
     index += 8; // PathHashSeed
@@ -165,9 +169,7 @@ namespace SAA {
       }
       pathBuffer.resize(oldLen);
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    Logger::logInfo("[PAK]", "{}: Mounted {} in {} ms", m_Path.string(), fileCount, us.count() / 1000.0);
+
     return true;
   }
 
@@ -192,7 +194,7 @@ namespace SAA {
 
       bool succes = Decompressor::decompress(src, dst, entry.compressionMethod);
       if (!succes) {
-        Logger::logError("[PAKReader]", "Error decompressing entry {}.", index);
+        PakLog::err("Error decompressing entry {}.", index);
         return {};
       }
     }

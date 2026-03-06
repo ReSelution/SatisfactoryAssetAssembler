@@ -18,6 +18,7 @@ target_link_libraries(SAA_Crawler
         SAA_Reader
         SAA_Exporter
         SAA_VFS
+        StructuredChaos
 )
 
 target_include_directories(SAA_Crawler
