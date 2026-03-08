@@ -8,9 +8,8 @@
 #include <deque>
 #include <span>
 #include <stdexcept>
-#include <vector>
 
-#include "heap_storage.hpp"
+#include "cache/chaos_slab.hpp"
 
 namespace SAA {
   class AssetFileParser;
@@ -46,7 +45,7 @@ namespace SAA {
     FName readFName();
     bool testReadFName();
 
-    std::span<std::string_view> loadNameBatch(HeapStorage *utf16Storage);
+    std::span<std::string_view> loadNameBatch(SC::ChaosSlab *utf16Storage);
 
     template<typename T>
     std::span<const T> readArrayView();
@@ -61,7 +60,7 @@ namespace SAA {
       return sub;
     }
     std::string_view readFString();
-    std::string_view readFString(HeapStorage *utf16Storage);
+    std::string_view readFString(SC::ChaosSlab *utf16Storage);
 
     template<typename T>
     T read() {
@@ -79,6 +78,13 @@ namespace SAA {
 
     bool readBool() { return static_cast<bool>(read<uint32_t>()); }
     bool readFlag() { return static_cast<bool>(read<uint8_t>()); }
+
+    std::string_view readStrView() {
+      auto len = read<uint8_t>();
+      std::string_view str=  {reinterpret_cast<const char *>(m_buffer.data() + m_cursor), len};
+      m_cursor += len;
+      return str;
+    }
 
     template<typename T>
     std::span<const T> readBulkArray() {

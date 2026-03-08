@@ -34,6 +34,8 @@ namespace SAA {
 
     void queueFile(std::string_view path);
     void processQueue(Crawler *crawler = nullptr, uint32_t threadCount = 0);
+    void parseAsset(std::string_view path, const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed);
+
     std::shared_ptr<AssetFileParser> loadPackage(const FPackageId &pkg);
     Vfs *getVfs() const { return m_vfs; };
 
@@ -42,7 +44,6 @@ namespace SAA {
     [[nodiscard]] const FUsmapMappingData *mappings() const { return m_mappings; }
     [[nodiscard]] const GlobalData *globalData() const { return m_globalData; }
     void workerThread(const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed);
-    void parseAsset(std::string_view path, const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed);
 
     std::shared_ptr<AssetFileParser> createParser(const UnifiedVfsEntry *vfsEntry);
     Vfs *m_vfs;

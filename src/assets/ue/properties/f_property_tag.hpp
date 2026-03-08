@@ -406,7 +406,7 @@ namespace SAA {
 
     const auto &val = std::get<std::pmr::vector<FPropertyValue> >(it->second.Tag.data);
 
-    auto *vector = m_owner->storage()->make<std::pmr::vector<T> >(m_owner->storage()->memoryResource());
+    auto *vector = m_owner->storage()->make<std::pmr::vector<T> >(m_owner->storage()->resource());
     vector->reserve(val.size());
 
     for (const auto &[data]: val) {
@@ -423,7 +423,7 @@ namespace SAA {
 
     const auto &val = std::get<std::pmr::vector<FPropertyValue> >(it->second.Tag.data);
 
-    auto *vector = m_owner->storage()->make<std::pmr::vector<T> >(m_owner->storage()->memoryResource());
+    auto *vector = m_owner->storage()->make<std::pmr::vector<T> >(m_owner->storage()->resource());
     vector->reserve(val.size());
 
     for (const auto &[data]: val) {

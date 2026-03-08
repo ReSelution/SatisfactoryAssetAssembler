@@ -4,7 +4,7 @@
 
 #include "AssetParser.hpp"
 #include "property_parser.hpp"
-#include "thread_arena.hpp"
+#include "cache/chaos_tls_slab.hpp"
 #include "core/EClassSerializationControlExtension.hpp"
 
 
@@ -42,14 +42,14 @@ namespace SAA {
     }
 
     auto name = cursor.readFName();
-    auto *firstNode = ThreadArena::make<FPropertyTypeNameNode>(
+    auto *firstNode = SC::ChaosTLSSlab<>::make<FPropertyTypeNameNode>(
       name, cursor.read<int32_t>());
 
     int32_t nodeCount = 1;
     int32_t remaining = firstNode->innerCount;
     while (remaining > 0) {
       name = cursor.readFName();
-      const auto *node = ThreadArena::make<FPropertyTypeNameNode>(name, cursor.read<int32_t>());
+      const auto *node = SC::ChaosTLSSlab<>::make<FPropertyTypeNameNode>(name, cursor.read<int32_t>());
       remaining += node->innerCount - 1;
       nodeCount++;
     }
@@ -84,7 +84,7 @@ namespace SAA {
   template<>
   FPropertyTagData *PP6::parsePropertyTagData(EPropertyTagType type, std::span<FPropertyTypeNameNode> typeName,
                                               const FName &name) {
-    auto *data = ThreadArena::make<FPropertyTagData>();
+    auto *data = SC::ChaosTLSSlab<>::make<FPropertyTagData>();
     data->Name = name;
 
     switch (type) {
@@ -277,7 +277,7 @@ namespace SAA {
       tag.TagData = tagData->InnerTypeData;
     }
 
-    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->memoryResource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
     vec.reserve(lenght);
 
     switch (arrayType) {
@@ -308,7 +308,7 @@ namespace SAA {
 
   template<>
   PropertyHolder PP6::parseFallbackStruct(ByteCursor &cursor) {
-    PropertyHolder structFallback(cursor.m_owner->storage()->memoryResource());
+    PropertyHolder structFallback(cursor.m_owner->storage()->resource());
     while (true) {
       auto tag = parsePropertyTag(cursor);
       if (tag.Name.isNone()) {
@@ -522,7 +522,7 @@ namespace SAA {
       parsePropertyValue(cursor, keyTag, ReadType::MAP, 0);
     }
 
-    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->memoryResource());
+    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->resource());
     auto entries = cursor.read<uint32_t>();
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {

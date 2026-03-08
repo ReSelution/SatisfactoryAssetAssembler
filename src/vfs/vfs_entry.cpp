@@ -23,7 +23,7 @@ namespace SAA {
     return CityHash64(reinterpret_cast<const char *>(buffer), len * sizeof(char16_t));
   }
 
-  std::span<uint8_t> IOVfsEntry::read(HeapStorage *storage) const { return owningReader->readChunk(storage, chunkId); }
+  std::span<uint8_t> IOVfsEntry::read(SC::ChaosSlab *storage) const { return owningReader->readChunk(storage, chunkId); }
 
-  std::span<uint8_t> PAKVfsEntry::read(HeapStorage *storage) const { return owningReader->readFile(storage,index); }
+  std::span<uint8_t> PAKVfsEntry::read(SC::ChaosSlab *storage) const { return owningReader->readFile(storage,index); }
 } // namespace SAP

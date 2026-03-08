@@ -2,7 +2,6 @@
 
 #include "AssetParser.hpp"
 #include "IOStoreReader.hpp"
-#include "heap_pool.hpp"
 #include "io_global_data.hpp"
 #include "ue/object_factory.hpp"
 #include "vfs_entry.hpp"
@@ -144,7 +143,7 @@ namespace SAA {
   void UAssetParser::parseExports(ByteCursor &cursor) {
     cursor = m_summary.ExportMapOffset;
     m_exportMap = cursor.readArray<FExportMapEntry>(m_summary.exportCount());
-    m_exportHashToIndex = std::pmr::unordered_map<uint64_t, uint32_t>(m_storage->memoryResource());
+    m_exportHashToIndex = std::pmr::unordered_map<uint64_t, uint32_t>(m_storage->resource());
     m_exportHashToIndex.reserve(m_exportMap.size());
     for (int i = 0; i < m_exportMap.size(); i++) {
       m_exportHashToIndex.emplace(m_exportMap[i].PublicExportHash, i);
@@ -184,7 +183,7 @@ namespace SAA {
 
   void UAssetParser::processExports() {
     m_exportObjects = m_storage->allocateSpan<Object *>(m_exportMap.size());
-    m_nameToIndex = std::pmr::unordered_map<std::string_view, uint32_t>(m_storage->memoryResource());
+    m_nameToIndex = std::pmr::unordered_map<std::string_view, uint32_t>(m_storage->resource());
     m_nameToIndex.reserve(m_exportMap.size());
     for (const auto &entry: m_exportBundleEntries) {
       processExportEntry(entry);
@@ -234,6 +233,8 @@ namespace SAA {
       cursor += m_summary.HeaderSize + exportMapEntry.CookedSerialOffset;
       cursor.setAbsoluteOffset(m_summary.CookedHeaderSize - m_summary.HeaderSize);
       obj->setCursor(cursor);
+      obj->outer(resolveObject(exportMapEntry, exportMapEntry.OuterIndex));
+      obj->super(resolveObject(exportMapEntry, exportMapEntry.SuperIndex));
       m_exportObjects[entry.LocalExportIndex] = obj;
       m_nameToIndex[obj->objName()] = entry.LocalExportIndex;
     }

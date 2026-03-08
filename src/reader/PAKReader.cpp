@@ -1,8 +1,8 @@
 #include "PAKReader.hpp"
 
 #include "Reader.hpp"
-#include "ThroughputStats.hpp"
 #include "byte_cursor.hpp"
+#include "stats.hpp"
 #include "vfs.hpp"
 
 #include "logger/chaos_logger.hpp"
@@ -173,7 +173,7 @@ namespace SAA {
     return true;
   }
 
-  std::span<uint8_t> PAKReader::readFile(HeapStorage *storage, uint32_t index) const {
+  std::span<uint8_t> PAKReader::readFile(SC::ChaosSlab *storage, uint32_t index) const {
     auto &entry = m_pakEntries[index];
 
     std::span<uint8_t> uncompressedData = storage->allocateSpan(entry.uncompressedSize);
@@ -198,8 +198,8 @@ namespace SAA {
         return {};
       }
     }
-    ThroughputStats::totalDecompressedBytes.fetch_add(uncompressedData.size(), std::memory_order_relaxed);
-    ThroughputStats::totalCompressedBytes.fetch_add(entry.compressedSize, std::memory_order_relaxed);
+    DecompressedThroughput::record(uncompressedData.size());
+    CompressedThroughput::record(entry.compressedSize);
     return uncompressedData;
   }
 } // namespace SAP

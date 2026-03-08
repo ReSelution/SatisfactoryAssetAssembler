@@ -23,7 +23,7 @@ namespace SAA {
 #include <psapi.h>
 
   void dumpModuleMemory(HMODULE hMod, const std::string &filename) {
-    Logger::logInfo("[DUMP]", "Dumping...");
+    OodleLog::info("Dumping...");
 
     if (!hMod) return;
 
@@ -36,16 +36,14 @@ namespace SAA {
       if (dumpFile.is_open()) {
         dumpFile.write(reinterpret_cast<const char *>(baseAddr), imageSize);
         dumpFile.close();
-        Logger::logInfo("[DUMP]", "Module dumped to: {} (Size: {} bytes)", filename, imageSize);
+        OodleLog::info("Module dumped to: {} (Size: {} bytes)", filename, imageSize);
       } else {
-        Logger::logError("[DUMP]", "Failed to create dump file!");
+        OodleLog::err("Failed to create dump file!");
       }
     }
   }
 
   static uint8_t *findPattern(uint8_t *start, size_t size, const std::vector<uint8_t> &pattern) {
-    auto startTime = std::chrono::high_resolution_clock::now();
-
     if (pattern.empty() || size < pattern.size()) return nullptr;
 
     // 1. Finde das erste Byte im Pattern, das KEINE Wildcard ist
@@ -81,9 +79,6 @@ namespace SAA {
       }
 
       if (match) {
-        auto end = std::chrono::high_resolution_clock::now();
-        auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - startTime);
-        Logger::logInfo("[OODLE]", "Pattern Found in {} ms", us.count() / 1000.0);
         return potentialMatch;
       }
 
@@ -96,7 +91,7 @@ namespace SAA {
 #endif
 
   void OodleLoader::loadOodle(const std::filesystem::path &gamePath) {
-    auto t = OodleLog::time( "Found in {}");
+    auto t = OodleLog::time("Found in {}");
 
     std::string libName;
 #ifdef _WIN32
@@ -116,7 +111,7 @@ namespace SAA {
 #ifdef _WIN32
     if (decompressFunc == nullptr) {
       std::filesystem::path coreDllPath = gamePath / "Engine/Binaries/Win64/FactoryGameSteam-Core-Win64-Shipping.dll";
-      Logger::logInfo("[OODLE]", "Searching Oodle in Game Core...");
+      OodleLog::info("Searching Oodle in Game Core...");
       std::filesystem::path binPath = coreDllPath.parent_path();
       SetDllDirectoryW(binPath.wstring().c_str());
 
@@ -144,21 +139,21 @@ namespace SAA {
           auto base = static_cast<uint8_t *>(modInfo.lpBaseOfDll);
           uint8_t *addr = findPattern(base, modInfo.SizeOfImage, pattern);
           if (addr) {
-            Logger::logInfo("[OODLE]", "Pattern found at offset: 0x{:X}",
-                            (uintptr_t) addr - (uintptr_t) modInfo.lpBaseOfDll);
+            OodleLog::info("Pattern found at offset: 0x{:X}",
+                           (uintptr_t) addr - (uintptr_t) modInfo.lpBaseOfDll);
 
             uint8_t *realStart = addr;
             while (realStart > base && *(realStart - 1) == 0x3E) {
               realStart--;
             }
-            Logger::logInfo("[OODLE]", "Found at: 0x{:X}, Function Start: 0x{:X}",
-                            (uintptr_t) addr, (uintptr_t) realStart);
+            OodleLog::info("Found at: 0x{:X}, Function Start: 0x{:X}",
+                           (uintptr_t) addr, (uintptr_t) realStart);
 
             decompressFunc = reinterpret_cast<OodleLZ_Decompress>(realStart);
           }
         }
       } else {
-        Logger::logError("[OODLE]", "LoadLibraryExW failed! Error: {}", GetLastError());
+        OodleLog::info("LoadLibraryExW failed! Error: {}", GetLastError());
       }
     }
 

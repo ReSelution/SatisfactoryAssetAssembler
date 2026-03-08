@@ -22,31 +22,35 @@ namespace SAA {
     uint32_t nameIndex;
     uint32_t extraIndex;
 
-    [[nodiscard]] std::string_view fromNameMap(std::span<std::string_view> map, HeapStorage *storage) const {
+    [[nodiscard]] std::string_view fromNameMap(std::span<std::string_view> map, SC::ChaosSlab *storage) const {
       auto index = NameIndex();
-      if (index >= map.size() || index < 0)
+
+      if (index < 0 || static_cast<size_t>(index) >= map.size()) {
         return "None";
-
-      if (extraIndex == 0)
-        return map[index];
-
-      std::string_view base = map[index];
-
-      size_t maxLen = base.size() + 1 + 10 + 1;
-      char *buf = static_cast<char *>(storage->allocateRaw(maxLen));
-
-      char *curr = buf;
-      std::memcpy(curr, base.data(), base.size());
-      curr += base.size();
-      *curr++ = '_';
-
-      auto res = std::to_chars(curr, buf + maxLen, extraIndex - 1);
-      if (res.ec == std::errc{}) {
-        curr = res.ptr;
       }
 
-      size_t finalLen = curr - buf;
-      return {buf, finalLen};
+      std::string_view base = map[index];
+      if (extraIndex == 0) {
+        return base;
+      }
+      constexpr size_t maxSuffix = 1 + 10;
+      const uint32_t baseSize = base.size();
+      size_t totalSize = baseSize + maxSuffix;
+      auto buf = storage->allocateSpan<char>(totalSize);
+      std::memcpy(buf.data(), base.data(), baseSize);
+
+      char* ptr = buf.data();
+      ptr += base.size();
+
+      *ptr = '_';
+      ptr++;
+
+    auto [next, ec] = std::to_chars(ptr, buf.data() + buf.size(), extraIndex - 1);
+    if (ec != std::errc{}) {
+        return base;
+    }
+      size_t finalLen = next - buf.data();
+    return {buf.data(), finalLen};
     }
 
     [[nodiscard]] uint32_t NameIndex() const { return nameIndex & IndexMask; }

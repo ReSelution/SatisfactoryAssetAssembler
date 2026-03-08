@@ -4,6 +4,8 @@
 
 #include "ue/asset_object.hpp"
 
+#include <cassert>
+
 #include "uasset_parser.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 

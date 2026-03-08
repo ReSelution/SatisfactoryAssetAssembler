@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "vfs_entry.hpp"
+#include "core/hash.hpp"
 
 #include "io/f_io_chunk_id.hpp"
 
@@ -15,12 +16,6 @@ namespace SAA {
   constexpr uint32_t MAX_PATH_SIZE = 160 * sizeof(char);
   constexpr  uint32_t  IOSTORE_ENTR_SIZE = MAX_PATH_SIZE +  sizeof(IOVfsEntry);
   constexpr  uint32_t  PAK_ENTR_SIZE = MAX_PATH_SIZE +  sizeof(PAKVfsEntry);
-
-  struct IdentityHash {
-    size_t operator()(uint64_t v) const {
-      return static_cast<size_t>(v);
-    }
-  };
 
   struct VfsStorage {
     std::vector<std::unique_ptr<std::pmr::monotonic_buffer_resource>> threadResources;

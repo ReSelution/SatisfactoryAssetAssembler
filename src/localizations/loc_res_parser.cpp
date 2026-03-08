@@ -22,7 +22,7 @@ namespace SAA {
   }
 
   void LocResParser::parse() {
-    m_storage = std::make_unique<HeapStorage>();
+    m_storage = std::make_unique<SC::ChaosSlab>();
     auto data = m_vfsEntry->read(m_storage.get());
     ByteCursor cursor(data);
     auto magic = cursor.read<FGuid>();

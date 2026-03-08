@@ -3,14 +3,16 @@
 //
 
 #pragma once
-#include <deque>
 #include <memory>
 #include <random>
 #include <unordered_map>
 
-#include "heap_storage.hpp"
 
 #include "core/f_guid.hpp"
+
+namespace SC {
+  class ChaosSlab;
+}
 
 namespace SAA {
   class UnifiedVfsEntry;
@@ -38,7 +40,7 @@ namespace SAA {
     const UnifiedVfsEntry *m_vfsEntry;
     LocManager *m_manager;
     std::unordered_map<std::string, std::string> cultures;
-    std::unique_ptr<HeapStorage> m_storage{};
+    std::unique_ptr<SC::ChaosSlab> m_storage{};
 
     std::string nativeLocResPATH;
     std::string nativeCulture;

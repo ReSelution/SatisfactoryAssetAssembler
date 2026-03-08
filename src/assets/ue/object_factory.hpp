@@ -12,7 +12,7 @@
   namespace {                                                                                                          \
     struct TYPE##_Registrar {                                                                                          \
       TYPE##_Registrar() {                                                                                             \
-        SAA::ObjectFactory::Register(#TYPE, [](HeapStorage *storage) -> Object * { return storage->make<TYPE>(); });   \
+        SAA::ObjectFactory::Register(#TYPE, [](SC::ChaosSlab *storage) -> Object * { return storage->make<TYPE>(); });   \
       }                                                                                                                \
     };                                                                                                                 \
     static TYPE##_Registrar g_##TYPE##_registrar;                                                                      \
@@ -21,14 +21,14 @@
 namespace SAA {
   class ObjectFactory {
   public:
-    using Factory = Object *(*) (HeapStorage * storage);
+    using Factory = Object *(*) (SC::ChaosSlab * storage);
 
     static bool Register(std::string_view name, Factory factory) {
       s_map[name] = factory;
       return true;
     }
 
-    static Object *Create(std::string_view name, HeapStorage *storage) {
+    static Object *Create(std::string_view name, SC::ChaosSlab *storage) {
       auto it = s_map.find(name);
       return (it != s_map.end()) ? it->second(storage) : nullptr;
     }

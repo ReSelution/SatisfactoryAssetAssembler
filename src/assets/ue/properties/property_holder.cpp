@@ -9,33 +9,34 @@
 #include "f_property_tag.hpp"
 #include "PropertyTracker.hpp"
 #include "property_parser.hpp"
-#include "thread_arena.hpp"
+#include "cache/chaos_tls_slab.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAA {
-  PropertyHolder::PropertyHolder(std::string_view className): m_className(className) {}
+  PropertyHolder::PropertyHolder(std::string_view className) : m_className(className) {
+  }
 
-  PropertyHolder::PropertyHolder(std::pmr::memory_resource *resource): m_properties(resource) {}
+  PropertyHolder::PropertyHolder(std::pmr::memory_resource *resource) : m_properties(resource) {
+  }
 
   void PropertyHolder::parseProperties(ByteCursor &cursor) {
-    m_properties = std::pmr::unordered_map<uint32_t, FPropertyTag>(m_owner->storage()->memoryResource());
+    m_properties = std::pmr::unordered_map<uint32_t, FPropertyTag, IdentityHash>(m_owner->storage()->resource());
     m_properties.reserve(10);
     auto ver = m_owner->mappings()->pkgVersion.FileVersionUE5;
-    switch (ver){
+    switch (ver) {
       case EUE5Version::UE5_3:
         PropertyParser<EUE5Version::UE5_3>::parse(this, cursor);
         break;
       case EUE5Version::UE5_6:
         PropertyParser<EUE5Version::UE5_6>::parse(this, cursor);
         break;
-        default:
+      default:
         break;
     }
-
   }
 
 
-  void PropertyHolder::releaseResources() { ThreadArena::reset(); }
+  void PropertyHolder::releaseResources() { SC::ChaosTLSSlab<>::reset(); }
 
   PropertyHolder PropertyHolder::parseFallbackStruct(ByteCursor &cursor) {
     return {};

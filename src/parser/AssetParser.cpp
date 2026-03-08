@@ -10,10 +10,8 @@
 
 #include "IOStoreReader.hpp"
 #include "Reader.hpp"
-#include "ThroughputStats.hpp"
 
 #include "crawler.hpp"
-#include "heap_pool.hpp"
 #include "puplic/arena/registery.hpp"
 
 #include "logger/chaos_logger.hpp"
@@ -42,16 +40,14 @@ namespace SAA {
     if (threadCount == 0) {
       threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
     }
-    HeapPool::init(threadCount * 4, 8 * 1024);
-    Registry::init(2048 * 1024);
+
     m_parserCache.reserve(m_vfs->entries().size());
     APLog::info("Start Parsing of {} files on {} Threads with {} KB cache Size  ",
-                m_JobQueue.size(), threadCount, HeapPool::getBufferSize() / 1024.0);
+                m_JobQueue.size(), threadCount, SC::ChaosSlabPool::getBufferSize() / 1024.0);
     std::vector<Crawler> crawlers;
     crawlers.reserve(threadCount);
 
     auto t = APLog::time("[AssetParser]", "Parsing finished: {} ms");
-    ThroughputStats::start();
     for (uint32_t i = 0; i < threadCount; ++i) {
       if (crawler) {
         auto &child = crawlers.emplace_back(crawler->getChild());
@@ -77,12 +73,7 @@ namespace SAA {
     m_ThreadPool.clear();
 
 
-    APLog::info(
-      "Durchsatz: Decompresed: {:.2f} MB/s Compressed: {:.2f} MB/s (Decompressed: {:.2f} GB, On Disk: {:.2f} GB)",
-      ThroughputStats::getMBPerSecondDecompressed(),
-      ThroughputStats::getMBPerSecondCompressed(),
-      ThroughputStats::totalDecompressedBytes.load() / (1024.0 * 1024.0 * 1024.0),
-      ThroughputStats::totalCompressedBytes.load() / (1024.0 * 1024.0 * 1024.0));
+
   }
 
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(const FPackageId &pkg) {
@@ -108,6 +99,7 @@ namespace SAA {
       parseAsset(path, onParsed);
     }
   }
+
 
   void AssetParser::parseAsset(std::string_view path,
                                const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed) {

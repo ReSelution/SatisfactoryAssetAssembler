@@ -36,6 +36,7 @@ namespace SAA {
     virtual void exportAsset();
 
     void safeParse();
+
     void safeExport();
 
     void setOwner(AssetFileParser *parser);
@@ -49,12 +50,32 @@ namespace SAA {
     std::string_view objName() const { return m_objName; }
     std::string_view path() const { return m_owner->path(); }
 
+    [[nodiscard]] Object *outer() const {
+      return m_outer;
+    }
+
+    void outer(Object *outer) {
+      m_outer = outer;
+    }
+
+    [[nodiscard]] Object *super() const {
+      return m_super;
+    }
+
+    void super(Object *super) {
+      m_super = super;
+    }
+
   protected:
     virtual void parse();
+
     virtual void exprt();
 
     ByteCursor m_cursor{};
-    std::unique_ptr<Object> m_outer = nullptr;
+    Object *m_outer = nullptr;
+
+  protected:
+    Object *m_super = nullptr;
 
   private:
     static constexpr uint32_t HASH = fnv1a("Object");

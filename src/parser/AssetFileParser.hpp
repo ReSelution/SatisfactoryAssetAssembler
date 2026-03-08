@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-#include "heap_pool.hpp"
+#include "cache/chaos_slab_pool.hpp"
 #include "io/packages/f_byte_bulk_data.hpp"
 #include "io/packages/f_export_map_entry.hpp"
 #include "io/packages/f_file_summary.hpp"
@@ -95,13 +95,13 @@ namespace SAA {
     virtual void exportAssets() const = 0;
 
     std::vector<std::shared_ptr<AssetFileParser>> &importetParser() { return m_importedParsers; }
-    HeapStorage *storage() const { return m_storage.get(); }
+    SC::ChaosSlab *storage() const { return m_storage.get(); }
 
   protected:
     virtual void parse() = 0;
     AssetParser *m_assetParser;
     std::vector<std::shared_ptr<AssetFileParser>> m_importedParsers;
-    std::unique_ptr<HeapStorage> m_storage;
+    std::unique_ptr<SC::ChaosSlab> m_storage;
 
   private:
     Reader *m_reader = nullptr;
@@ -133,7 +133,7 @@ namespace SAA {
     }
     ParserState expected = ParserState::NONE;
     if (m_state.compare_exchange_strong(expected, ParserState::PARSING, std::memory_order_acq_rel)) {
-      m_storage = HeapPool::acquire();
+      m_storage = SC::ChaosSlabPool::acquire();
       parse();
       {
         std::lock_guard<std::mutex> lock(m_mutex);

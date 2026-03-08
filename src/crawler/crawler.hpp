@@ -40,7 +40,7 @@ namespace SAA {
 
   private:
     bool hitTestAsset(std::shared_ptr<AssetFileParser> &parser);
-    void createFileQueue(AssetParser &parser);
+    auto createFileQueue(AssetParser &parser);
     bool shouldAdd(std::string_view path);
 
     // Keeping the Parser Alive for Cache
@@ -49,6 +49,8 @@ namespace SAA {
     std::vector<std::shared_ptr<AssetFileParser>> m_items;
     std::vector<std::shared_ptr<AssetFileParser>> m_schematics;
     std::vector<std::shared_ptr<AssetFileParser>> m_resources;
+
+    std::vector<Crawler> m_childs;
 
   };
 } // namespace SAP

@@ -7,7 +7,7 @@
 #include "vfs_entry.hpp"
 
 namespace SAA {
-  AssetFileParser::~AssetFileParser() { HeapPool::release(m_storage);}
+  AssetFileParser::~AssetFileParser() { SC::ChaosSlabPool::release(m_storage);}
   const FUsmapMappingData *AssetFileParser::mappings() const { return m_assetParser->mappings(); }
   const GlobalData *AssetFileParser::globalData() const { return m_assetParser->globalData(); }
 

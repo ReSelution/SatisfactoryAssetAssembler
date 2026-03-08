@@ -15,7 +15,7 @@ namespace SAA {
   std::map<std::string, std::map<uint64_t, PropertyInfo> > PropertyTracker::m_allSeen{};
 
   void PropertyTracker::registerMap(std::string_view className,
-                                    std::pmr::unordered_map<uint32_t, FPropertyTag> &props) {
+                                    std::pmr::unordered_map<uint32_t, FPropertyTag, IdentityHash> &props) {
     if (className == "Struct") { return; }
     std::string cls(className);
     std::lock_guard<std::mutex> lock(m_mutex);

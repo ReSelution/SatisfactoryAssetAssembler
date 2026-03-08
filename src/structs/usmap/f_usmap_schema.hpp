@@ -11,9 +11,9 @@
 
 namespace SAA {
   struct FUsmapSchema {
-    std::string Name;
-    std::string SuperName;
-    std::unordered_map<uint16_t, FUsmapPropertyData> Properties; // Key: Property Index (nicht Name!)
+    std::string_view Name;
+    std::string_view SuperName;
+    std::pmr::unordered_map<uint16_t, FUsmapPropertyData> Properties; // Key: Property Index (nicht Name!)
   };
 
 } // namespace SAP

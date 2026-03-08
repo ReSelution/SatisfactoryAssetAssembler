@@ -4,10 +4,10 @@
 
 #include "byte_cursor.hpp"
 
-#include <deque>
+#include <cassert>
 
 #include "AssetFileParser.hpp"
-#include "heap_storage.hpp"
+#include "cache/chaos_slab.hpp"
 
 #include "core/name.hpp"
 
@@ -61,7 +61,7 @@ namespace SAA {
     return name.index < m_owner->nameMap().size() && name.number < 256;
   }
 
-  std::span<std::string_view> ByteCursor::loadNameBatch(HeapStorage *utf16Storage) {
+  std::span<std::string_view> ByteCursor::loadNameBatch(SC::ChaosSlab *utf16Storage) {
     auto count = read<uint32_t>();
     if (count == 0)
       return {};
@@ -83,7 +83,7 @@ namespace SAA {
 
       if (header.IsUtf16()) {
         auto chars = readArray<char16_t>(length);
-        auto res = utf16Storage->utf16ToUtf8Arena(chars);
+        auto res = utf16Storage->utf16ToUtf8(chars);
         entries[i] = res;
       } else {
         const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
@@ -98,7 +98,7 @@ namespace SAA {
     return readFString(m_owner->storage());
   }
 
-  std::string_view ByteCursor::readFString(HeapStorage *utf16Storage) {
+  std::string_view ByteCursor::readFString(SC::ChaosSlab *utf16Storage) {
     auto length = read<int32_t>();
     if (length == 0)
       return {};
@@ -116,7 +116,7 @@ namespace SAA {
       const char16_t *utf16Source = reinterpret_cast<const char16_t *>(m_buffer.data() + m_cursor);
       std::span<const char16_t> src(utf16Source, absLength - 1);
       assert(utf16Storage != nullptr);
-      result = utf16Storage->utf16ToUtf8Arena(src);
+      result = utf16Storage->utf16ToUtf8(src);
     } else {
       if (absLength > 1) {
         result = std::string_view(reinterpret_cast<const char *>(m_buffer.data() + m_cursor), absLength - 1);

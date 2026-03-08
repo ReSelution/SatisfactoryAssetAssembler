@@ -6,7 +6,6 @@
     <mapping directory="$PROJECT_DIR$/external/StructuredChaos/external/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/bcdec" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/fastgltf" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/stb" vcs="Git" />
   </component>
 </project>

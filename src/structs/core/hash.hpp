@@ -19,3 +19,15 @@ T hashEnum(std::string_view value) {
   static_assert(std::is_enum<T>::value, "T must be an enum");
   return static_cast<T>(fnv1a(value));
 }
+
+struct IdentityHash {
+  using is_transparent = void;
+
+  [[nodiscard]] size_t operator()(uint32_t value) const noexcept {
+    return value;
+  }
+
+  size_t operator()(uint64_t v) const {
+    return v;
+  }
+};

@@ -53,7 +53,7 @@ namespace SAA {
 
     bool operator!=(const UnifiedVfsEntry &other) const { return !this->operator==(other); }
 
-    virtual std::span<uint8_t> read(HeapStorage *storage) const { return {}; };
+    virtual std::span<uint8_t> read(SC::ChaosSlab *storage) const { return {}; };
   };
 
   class IOVfsEntry : public UnifiedVfsEntry {
@@ -74,7 +74,7 @@ namespace SAA {
 
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
 
-    std::span<uint8_t> read(HeapStorage *storage) const override;
+    std::span<uint8_t> read(SC::ChaosSlab *storage) const override;
   };
 
   class PAKVfsEntry : public UnifiedVfsEntry {
@@ -86,6 +86,6 @@ namespace SAA {
         UnifiedVfsEntry(path, VFS_EntryType::PAKVfsEntry), index(index), owningReader(owningReader) {};
 
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
-    std::span<uint8_t> read(HeapStorage *storage) const override;
+    std::span<uint8_t> read(SC::ChaosSlab *storage) const override;
   };
 } // namespace SAP

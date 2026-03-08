@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="8" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="3" type="long" />
+    <option name="/Default/Environment/UserInterface/HierarchyView/ViewStyle/@EntryValue" value="SuperTypes" type="string" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue" value="CppFormatterOtherPage" type="string" />
@@ -34,67 +35,86 @@
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Crawler" />
       <config projectName="SatisfactoryAssetParser" targetName="AssetRipperTest" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Exporter" />
+      <config projectName="SatisfactoryAssetParser" targetName="AssetRipperTestWin" />
       <config projectName="SatisfactoryAssetParser" targetName="CITY_HASH" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Localization" />
     </generated>
   </component>
-  <component name="CMakeSettings">
+  <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" />
-      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" />
-      <configuration PROFILE_NAME="Release-Windows" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Windows" GENERATION_OPTIONS="-DCMAKE_EXE_LINKER_FLAGS=&quot;-static -static-libgcc -static-libstdc++&quot;" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja -DCMAKE_EXE_LINKER_FLAGS=&quot;-fuse-ld=mold&quot;" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja  -DCMAKE_EXE_LINKER_FLAGS=&quot;-fuse-ld=mold&quot;" />
+      <configuration PROFILE_NAME="Release-Windows" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Windows" GENERATION_OPTIONS="-G Ninja -DCMAKE_SYSTEM_NAME=Windows" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="Added ThreadID in threading">
-      <change afterPath="$PROJECT_DIR$/external/StructuredChaos" afterDir="false" />
+    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="Change Logging to ChaosLogger">
+      <change afterPath="$PROJECT_DIR$/src/util/stats.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitmodules" beforeDir="false" afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/cache/chaos_slab.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/cache/chaos_slab.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/cache/chaos_slab_pool.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/cache/chaos_slab_pool.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/logger/chaos_logger.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/logger/chaos_logger.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/stats/chaos_map_counter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/stats/chaos_map_counter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/threading/chaos_threading.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/threading/chaos_threading.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/threading/chaos_threading.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/threading/chaos_threading.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/spdlog" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/asset_object.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/f_material_texture_info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/f_material_texture_info.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/ue/material/material_interface.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/material/material_interface.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/object_factory.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/object_factory.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/f_property_tag.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/f_property_tag.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/ue/textures/texture.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/textures/texture.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/crawler/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_holder.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1009.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1009.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1017.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ue/properties/property_parser_1017.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/crawler/crawler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/crawler/crawler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/decompress/Decompressor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/decompress/Decompressor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/decompress/oodle_loader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/decompress/oodle_loader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/material/material_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/material/material_exporter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/meshes/mesh_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/meshes/mesh_exporter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/texture/texture_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/texture/texture_exporter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/localizations/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/localizations/loc_manager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_manager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/localizations/loc_meta_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_meta_parser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_meta_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_meta_parser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localizations/loc_res_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_res_parser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/AssetParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/AssetParser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetParser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/reader/PAKReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/PAKReader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/PAKReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/PAKReader.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/reader/Reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/Reader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/Reader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/Reader.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/reader/UsmapReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/UsmapReader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/file_reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/file_reader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/io_global_data.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/io_global_data.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/UsmapReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/UsmapReader.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/hash.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/hash.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/core/name.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/name.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/usmap/f_usmap_mapping_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_mapping_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/usmap/f_usmap_property_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_property_data.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/usmap/f_usmap_schema.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/usmap/f_usmap_schema.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/util/PropertyTracker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/PropertyTracker.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/util/PropertyTracker.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/PropertyTracker.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/heap_pool.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/heap_pool.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/logger.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/logger.hpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/shared_cache.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/shared_cache.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/thread_arena.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/thread_arena.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/vfs/vfs.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/ThroughputStats.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/byte_cursor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/byte_cursor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/byte_cursor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/byte_cursor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_pool.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_pool.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_storage.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/heap_storage.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/thread_arena.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/thread_arena.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs_entry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs_entry.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs_entry.hpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +124,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
@@ -146,7 +166,8 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;CMake Application.AssetRipperTest.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.AssetRipperTest.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake Application.AssetRipperTestWin.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -167,7 +188,7 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C++&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -180,12 +201,17 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.AssetRipperTest">
-    <configuration name="AssetRipperTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="AssetRipperTest">
+    <configuration name="AssetRipperTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="AssetRipperTest">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CITY_HASH" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="CITY_HASH" CONFIG_NAME="Release-Windows">
+    <configuration name="AssetRipperTestWin" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="cmake-build-release-windows/bin/AssetRipperTest.exe" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTestWin" CONFIG_NAME="Release-Windows" RUN_PATH="/usr/bin/wine">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CITY_HASH" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="CITY_HASH" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -245,32 +271,33 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="fastgltf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="fastgltf" CONFIG_NAME="Release-Windows">
+    <configuration name="fastgltf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="fastgltf" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="spdlog" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="spdlog" CONFIG_NAME="Release-Windows">
+    <configuration name="spdlog" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="spdlog" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
+      <item itemvalue="CMake Application.AssetRipperTestWin" />
       <item itemvalue="CMake Application.AssetRipperTest" />
-      <item itemvalue="CMake Application.SAA_Lib" />
-      <item itemvalue="CMake Application.SAA_Util" />
       <item itemvalue="CMake Application.CITY_HASH" />
-      <item itemvalue="CMake Application.fastgltf" />
-      <item itemvalue="CMake Application.StructuredChaos" />
-      <item itemvalue="CMake Application.spdlog" />
       <item itemvalue="CMake Application.SAA_Assets" />
       <item itemvalue="CMake Application.SAA_Crawler" />
       <item itemvalue="CMake Application.SAA_Exporter" />
+      <item itemvalue="CMake Application.SAA_Lib" />
       <item itemvalue="CMake Application.SAA_Localization" />
       <item itemvalue="CMake Application.SAA_Parser" />
       <item itemvalue="CMake Application.SAA_Reader" />
       <item itemvalue="CMake Application.SAA_Structs" />
+      <item itemvalue="CMake Application.SAA_Util" />
       <item itemvalue="CMake Application.SAA_VFS" />
+      <item itemvalue="CMake Application.StructuredChaos" />
+      <item itemvalue="CMake Application.fastgltf" />
+      <item itemvalue="CMake Application.spdlog" />
     </list>
   </component>
   <component name="TaskManager">
@@ -288,7 +315,18 @@
       <workItem from="1772631619011" duration="609000" />
       <workItem from="1772680037858" duration="4659000" />
       <workItem from="1772786728427" duration="12493000" />
-      <workItem from="1772810064777" duration="1530000" />
+      <workItem from="1772810064777" duration="3876000" />
+      <workItem from="1772816839969" duration="2836000" />
+      <workItem from="1772819870804" duration="1244000" />
+      <workItem from="1772895256525" duration="8030000" />
+      <workItem from="1772903305540" duration="46000" />
+      <workItem from="1772903361793" duration="79000" />
+      <workItem from="1772903456367" duration="162000" />
+      <workItem from="1772903623925" duration="107000" />
+      <workItem from="1772903748666" duration="1239000" />
+      <workItem from="1772905891197" duration="168000" />
+      <workItem from="1772906070802" duration="12117000" />
+      <workItem from="1772926766417" duration="12491000" />
     </task>
     <task id="LOCAL-00001" summary="Renaming to SatisfactoryAssetAssembler (SAA)">
       <option name="closed" value="true" />
@@ -322,7 +360,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772810159935</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Change Logging to ChaosLogger">
+      <option name="closed" value="true" />
+      <created>1772814338522</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1772814338522</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -333,12 +379,24 @@
     <isAutomaticFoundErrors value="true" />
     <isAutomaticReloadCMake value="true" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Renaming to SatisfactoryAssetAssembler (SAA)" />
     <MESSAGE value="changed Namespace to SAA" />
     <MESSAGE value="License stuff" />
     <MESSAGE value="Added ThreadID in threading" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added ThreadID in threading" />
+    <MESSAGE value="Change Logging to ChaosLogger" />
+    <option name="LAST_COMMIT_MESSAGE" value="Change Logging to ChaosLogger" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -347,6 +405,11 @@
           <url>file://$PROJECT_DIR$/src/assets/ue/material/f_material_texture_info.hpp</url>
           <line>30</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/exporter/fg/fg_exporter.cpp</url>
+          <line>36</line>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

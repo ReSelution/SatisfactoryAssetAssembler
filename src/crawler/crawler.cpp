@@ -7,10 +7,13 @@
 #include <algorithm>
 
 #include "AssetParser.hpp"
+#include "stats.hpp"
 #include "vfs.hpp"
 #include "ue/asset_object.hpp"
 
 #include "logger/chaos_logger.hpp"
+#include "puplic/arena/registery.hpp"
+#include "threading/chaos_threading.hpp"
 LOG_ALIAS(CrawlerLog, "SAA", "CRAWLER")
 
 namespace SAA {
@@ -37,15 +40,55 @@ namespace SAA {
     m_resources.shrink_to_fit();
   }
 
+  auto Crawler::createFileQueue(AssetParser &parser) {
+    Vfs *vfs = parser.getVfs();
+    std::vector<std::string_view> batch;
+    batch.reserve(vfs->entries().size());
+    for (const auto &entry: vfs->entries()) {
+      if (shouldAdd(entry.second->path)) {
+        batch.emplace_back(entry.second->path);
+      }
+    }
+    return SC::ChaosThreading::enqueueBatch(SC::ChaosThreading::Priority::Normal,
+                                            batch.begin(), batch.end(), [&parser, this](int id, std::string_view path) {
+                                              parser.parseAsset(path, [&child = m_childs[id]](std::shared_ptr<AssetFileParser> &file) {
+                                                child.onParsed(file);
+                                              });
+                                            });
+  }
+
+
   void Crawler::crawl(AssetParser &parser) {
-    createFileQueue(parser);
-    parser.processQueue(this);
+    for (int i = 0; i < SC::ChaosThreading::getNumThreads(); ++i) {
+      m_childs.emplace_back(getChild());
+    }
+    size_t files;
+    auto t = CrawlerLog::time("Parsed {1} Files in {0}", files);
+    SC::ChaosSlabPool::init(SC::ChaosThreading::getNumThreads() * 4, 8 * 1024);
+    Registry::init(2048 * 1024);
+    DecompressedThroughput::reset();
+    CompressedThroughput::reset();
+    auto futures = createFileQueue(parser);
+    files = futures.size();
+    for (auto &fut: futures) {
+      fut.wait();
+    }
+    for (auto & m_child : m_childs) {
+      mergeWithChild(m_child);
+    }
+    t.stop();
+    DecompressedThroughput::stop();
+    CompressedThroughput::stop();
     DBG_PRINT_MISSING();
     CrawlerLog::info("Found {} Buildings", m_buildable.size());
     CrawlerLog::info("Found {} Recipes", m_recipes.size());
     CrawlerLog::info("Found {} Items", m_items.size());
     CrawlerLog::info("Found {} Schematics", m_schematics.size());
     CrawlerLog::info("Found {} Resources", m_resources.size());
+
+    CrawlerLog::stats<DecompressedThroughput,CompressedThroughput>("Crawled");
+    SC::ChaosGlobal::report_all();
+
   }
 
   void Crawler::onParsed(std::shared_ptr<AssetFileParser> &parser) {
@@ -90,15 +133,6 @@ namespace SAA {
     return false;
   }
 
-  void Crawler::createFileQueue(AssetParser &parser) {
-    Vfs *vfs = parser.getVfs();
-
-    for (const auto &entry: vfs->entries()) {
-      if (shouldAdd(entry.second->path)) {
-        parser.queueFile(entry.second->path);
-      }
-    }
-  }
 
   bool Crawler::shouldAdd(std::string_view path) {
     return std::any_of(filterList.begin(), filterList.end(),

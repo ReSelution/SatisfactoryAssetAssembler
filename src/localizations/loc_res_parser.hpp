@@ -4,19 +4,20 @@
 
 #pragma once
 
-#include <deque>
 #include <memory>
-#include <string>
+#include <span>
 #include <unordered_map>
-#include <vector>
 
-#include "heap_storage.hpp"
 
 #include "core/f_guid.hpp"
 
 #include "localization/f_entry.hpp"
 #include "localization/f_text_key.hpp"
 #include "localization/f_text_localization_resource_string.hpp"
+
+namespace SC {
+  class ChaosSlab;
+}
 
 namespace SAA {
   class UnifiedVfsEntry;
@@ -45,7 +46,7 @@ namespace SAA {
     std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> &getMap() { return entries; }
 
   private:
-    std::unique_ptr<HeapStorage> m_storage;
+    std::unique_ptr<SC::ChaosSlab> m_storage;
     const UnifiedVfsEntry *m_vfsEntry;
     LocManager *m_manager = nullptr;
     std::span<FTextLocalizationResourceString> localizedStringArray;

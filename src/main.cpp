@@ -9,7 +9,7 @@ int main() {
   SC::ChaosThreading::init();
   std::filesystem::path gamePath =
       "/home/oleub/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Satisfactory/";
- // gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
+ gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
 
   auto start = std::chrono::high_resolution_clock::now();
   SAA::SatisfactoryDataProvider provider(gamePath);

@@ -5,9 +5,11 @@
 #include <string>
 #include <vector>
 
+#include "cache/chaos_slab.hpp"
 #include "usmap/enums.hpp"
 
 namespace SAA {
+  class ByteCursor;
   struct ParseContext;
   struct FUsmapMappingData;
   struct FUsmapPropertyData;
@@ -16,50 +18,37 @@ namespace SAA {
   class UsmapReader {
   public:
     explicit UsmapReader(std::filesystem::path path);
+
     bool parse(FUsmapMappingData &outputData);
 
   private:
     // --- Haupt-Phasen des Parsings ---
-    bool readHeader(std::ifstream &file, FUsmapMappingData &outputData);
-    bool readAndDecompress(std::ifstream &file);
+    bool readHeader(ByteCursor &cursor, FUsmapMappingData &outputData);
+
+    bool readAndDecompress(ByteCursor &cursor, FUsmapMappingData &outData);
 
     // --- Parsing der Datenblöcke ---
-    void parseNameMap(size_t &cursor, FUsmapMappingData &outData);
-    void parseEnums(size_t &cursor, FUsmapMappingData &outData);
-    void parseSchemas(size_t &cursor, FUsmapMappingData &outData);
+    void parseNameMap(ByteCursor &cursor, FUsmapMappingData &outData);
 
-    std::vector<std::string_view> readEnumValues(size_t &cursor);
+    void parseEnums(ByteCursor &cursor, FUsmapMappingData &outData);
 
-    FUsmapSchema readSingleSchema(size_t &cursor);
+    void parseSchemas(ByteCursor &cursor, FUsmapMappingData &outData);
 
-    void readAndAddProperty(size_t &cursor, FUsmapSchema &schema);
+    std::span<std::string_view> readEnumValues(ByteCursor &cursor, FUsmapMappingData &outData);
 
-    std::shared_ptr<FUsmapPropertyData> parsePropertyType(size_t &cursor);
+    FUsmapSchema readSingleSchema(ByteCursor &cursor, FUsmapMappingData &outData);
 
-    void checkBounds(size_t cursor, size_t size) const;
+    void readAndAddProperty(ByteCursor &cursor, FUsmapMappingData &outData, FUsmapSchema &schema);
 
-    uint8_t readByte(size_t &cursor);
+    FUsmapPropertyData *parsePropertyType(ByteCursor &cursor, FUsmapMappingData &outData);
 
-    uint16_t readUInt16(size_t &cursor);
+    std::string_view readName(ByteCursor &cursor);
 
-    uint32_t readUInt32(size_t &cursor);
-
-    uint64_t readUInt64(size_t &cursor);
-
-    std::string_view readName(size_t &cursor);
-
-    // --- Member Variablen ---
     std::filesystem::path m_Path;
     EUsmapVersion m_version{EUsmapVersion::INITIAL};
 
-    // Puffer für dekomprimierte Daten
-    std::vector<uint8_t> m_Buffer;
-    std::vector<std::string_view> m_TempNameMap;
 
-    // Header Infos
-    EUsmapCompressionMethod m_compressionMethod{EUsmapCompressionMethod::NONE};
-    uint32_t m_compressedSize = 0;
-    uint32_t m_decompressedSize = 0;
+    std::span<uint8_t> m_data;
+    std::span<std::string_view> m_tempNameMap;
   };
-
 } // namespace SAP

@@ -3,9 +3,8 @@
 #include <cstdint>
 #include <filesystem>
 #include <utility>
-#include <vector>
 
-#include "heap_storage.hpp"
+#include "cache/chaos_slab.hpp"
 
 namespace SAA {
   class Vfs;
@@ -36,7 +35,7 @@ namespace SAA {
     virtual bool mountVFS(Vfs *vfs) = 0;
     uint64_t initBufferSize;
     double alocMutipilyer = 1.1;
-    std::unique_ptr<HeapStorage> m_storage{};
+    std::unique_ptr<SC::ChaosSlab> m_storage{};
 
   protected:
     std::filesystem::path m_Path;

@@ -20,7 +20,7 @@ namespace SAA {
 
     bool load() override;
     bool mountVFS(Vfs *vfs) override;
-    std::span<uint8_t> readFile(HeapStorage *storage, uint32_t index) const;
+    std::span<uint8_t> readFile(SC::ChaosSlab *storage, uint32_t index) const;
 
   private:
     void readPaKInfo();
@@ -30,6 +30,6 @@ namespace SAA {
     FileReader m_pakFile;
     FPakInfo m_pakInfo{};
     std::vector<FPakEntry> m_pakEntries;
-    std::unique_ptr<HeapStorage> stringStorage;
+    std::unique_ptr<SC::ChaosSlab> stringStorage;
   };
 } // namespace SAP

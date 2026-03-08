@@ -9,8 +9,8 @@
 
 #include "Decompressor.hpp"
 #include "Reader.hpp"
-#include "ThroughputStats.hpp"
 #include "byte_cursor.hpp"
+#include "stats.hpp"
 #include "core/constants.hpp"
 #include "io/f_io_directory_index_enty.hpp"
 #include "io/f_io_file_index_entry.hpp"
@@ -413,7 +413,7 @@ namespace SAA {
     return true;
   }
 
-  std::span<uint8_t> IOStoreReader::readChunk(HeapStorage *storage, const FIoChunkId &chunkId) const {
+  std::span<uint8_t> IOStoreReader::readChunk(SC::ChaosSlab *storage, const FIoChunkId &chunkId) const {
     FIoOffsetAndLength offsetLenght{};
     if (!resolveChunk(chunkId, offsetLenght)) {
       IOStoreLog::err("Chunk {} not found.", chunkId.chunkIndex);
@@ -453,8 +453,8 @@ namespace SAA {
     }
 
     std::span<const uint8_t> compressedData = m_ucasReader.getSpan(compressedOffset, compressedSize);
-    ThroughputStats::totalDecompressedBytes.fetch_add(dst.size(), std::memory_order_relaxed);
-    ThroughputStats::totalCompressedBytes.fetch_add(compressedSize, std::memory_order_relaxed);
+    DecompressedThroughput::record(dst.size());
+    CompressedThroughput::record(compressedSize);
     return Decompressor::decompress(compressedData, dst, compressionMethod);
   }
 } // namespace SAP

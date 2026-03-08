@@ -8,7 +8,6 @@
 #include <string>
 
 namespace SAA {
-
   enum class EUsmapPropertyType : uint8_t {
     BYTE_PROPERTY = 0,
     BOOL_PROPERTY = 1,
@@ -42,18 +41,16 @@ namespace SAA {
     UNKNOWN = 255
   };
 
-#pragma pack(push, 1)
   struct FUsmapPropertyData {
     std::string_view Name;
-    uint16_t SchemaIndex; // Index in der internen Liste beim Parsen
-    uint8_t ArraySize;    // Für statische Arrays
+    uint16_t SchemaIndex;
+    uint8_t ArraySize;
     EUsmapPropertyType Type;
 
     std::string_view StructName;
     std::string_view EnumName;
-    std::shared_ptr<FUsmapPropertyData> InnerType;
-    std::shared_ptr<FUsmapPropertyData> ValueType; // Nur für MapProperty
+    FUsmapPropertyData *InnerType;
+    FUsmapPropertyData *ValueType;
   };
 
-#pragma pack(pop)
 } // namespace SAP

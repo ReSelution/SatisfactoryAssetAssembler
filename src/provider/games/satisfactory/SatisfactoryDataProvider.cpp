@@ -18,6 +18,7 @@
 #include "io_global_data.hpp"
 
 #include "logger/chaos_logger.hpp"
+#include "threading/chaos_threading.hpp"
 LOG_ALIAS(ProviderLog, "SAA", "Provider")
 
 namespace SAA {
@@ -31,20 +32,27 @@ namespace SAA {
 
   bool SatisfactoryDataProvider::load() {
     auto t = ProviderLog::time("Loaded in {}");
-    auto usmapFuture = std::async(std::launch::async, [&] { return m_UsmapParser->parse(m_usmapData); });
-    auto globalDataFuture = std::async(std::launch::async, [&] { return m_globalDataParser->parse(m_globalData); });
 
     std::vector<std::future<void> > parsableFutures;
-    parsableFutures.reserve(m_Parsers.size());
+    parsableFutures.reserve(m_Parsers.size() + 2);
+    // m_UsmapParser->parse(m_usmapData);
+    parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&](int id) { m_UsmapParser->parse(m_usmapData); }));
+    parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&](int id) {
+      m_globalDataParser->parse(m_globalData);
+    }));
+
+
     std::vector<Vfs> childVFS;
     childVFS.reserve(m_Parsers.size());
+    for (int i = 0; i < SC::ChaosThreading::getNumThreads(); i++) {
+      childVFS.emplace_back(m_vfs.getChild());
+    }
 
     for (const auto &val: m_Parsers | std::views::values) {
       auto *currentParser = val.get();
-      auto &child = childVFS.emplace_back(m_vfs.getChild());
-      parsableFutures.emplace_back(std::async(std::launch::async, [currentParser, &child] {
+      parsableFutures.emplace_back(SC::ChaosThreading::enqueue([currentParser, &childVFS](int id) {
         currentParser->load();
-        currentParser->mountVFS(&child);
+        currentParser->mountVFS(&childVFS[id]);
       }));
     }
 
@@ -56,10 +64,6 @@ namespace SAA {
     }
 
     ProviderLog::info("VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
-    // m_vfs.dumpToText("output/filesEntry.txt");
-    usmapFuture.get();
-    globalDataFuture.get();
-
     return true;
   }
 

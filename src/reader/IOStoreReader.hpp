@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <span>
 #include <unordered_map>
-#include <vector>
 
 #include "byte_cursor.hpp"
 #include "Decompressor.hpp"
@@ -28,7 +27,7 @@ namespace SAA {
     IOStoreReader &operator=(IOStoreReader &&) = delete;
 
     bool load() override;
-    std::span<uint8_t> readChunk(HeapStorage *storage, const FIoChunkId &chunkId) const;
+    std::span<uint8_t> readChunk(SC::ChaosSlab *storage, const FIoChunkId &chunkId) const;
     bool mountVFS(Vfs *vfs) override;
 
     const FIoContainerHeader *containerHeader() const { return &m_containerHeader; }

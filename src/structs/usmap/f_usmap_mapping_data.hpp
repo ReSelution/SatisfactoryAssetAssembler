@@ -5,16 +5,18 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include "f_usmap_schema.hpp"
 #include "version.hpp"
 
+#include "cache/chaos_slab.hpp"
+
 namespace SAA {
   struct FUsmapMappingData {
+    SC::ChaosSlab storage;
     FPackageFileVersion pkgVersion;
-    std::vector<std::string_view> NameMap;
-    std::unordered_map<std::string, std::vector<std::string_view>> Enums;
-    std::unordered_map<std::string, FUsmapSchema> Schemas;
+    std::span<std::string_view> NameMap;
+    std::pmr::unordered_map<std::string_view, std::span<std::string_view>> Enums;
+    std::pmr::unordered_map<std::string_view, FUsmapSchema> Schemas;
   };
 } // namespace SAP

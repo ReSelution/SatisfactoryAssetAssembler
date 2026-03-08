@@ -4,7 +4,7 @@
 
 #include "f_property_tag.hpp"
 #include "property_parser.hpp"
-#include "thread_arena.hpp"
+#include "cache/chaos_tls_slab.hpp"
 
 namespace SAA {
   template<>
@@ -48,7 +48,7 @@ namespace SAA {
       parsePropertyValue(cursor, keyTag, ReadType::MAP, 0);
     }
 
-    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->memoryResource());
+    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->resource());
     auto entries = cursor.read<uint32_t>();
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {
@@ -61,7 +61,7 @@ namespace SAA {
 
   template<>
   FPropertyTagData *PropertyParser<EUE5Version::UE5_3>::parsePropertyTagData(ByteCursor &cursor, EPropertyTagType type) {
-    auto *data = ThreadArena::make<FPropertyTagData>();
+    auto *data = SC::ChaosTLSSlab<>::make<FPropertyTagData>();
     switch (type) {
       case EPropertyTagType::Struct: {
         data->structName = cursor.readFName();
@@ -457,7 +457,7 @@ namespace SAA {
 
   template<>
   PropertyHolder PropertyParser<EUE5Version::UE5_3>::parseFallbackStruct(ByteCursor &cursor) {
-    PropertyHolder structFallback(cursor.m_owner->storage()->memoryResource());
+    PropertyHolder structFallback(cursor.m_owner->storage()->resource());
     while (true) {
       auto tag = parsePropertyTag(cursor);
       if (tag.Name.isNone()) {
@@ -486,7 +486,7 @@ namespace SAA {
       tag = parsePropertyTag(cursor);
     }
 
-    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->memoryResource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
     vec.reserve(lenght);
 
     switch (arrayType) {
@@ -530,7 +530,7 @@ namespace SAA {
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseSetPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData) {
     if (tagData->InnerTypeData == nullptr && tagData->InnerType == EPropertyTagType::Struct) {
       if (tagData->Name.text() == "AnimSequenceInstances" || tagData->Name.text() == "PostProcessInstances") {
-        tagData->InnerTypeData = ThreadArena::make<FPropertyTagData>();
+        tagData->InnerTypeData = SC::ChaosTLSSlab<>::make<FPropertyTagData>();
         tagData->InnerTypeData->Type = EPropertyTagType::Struct;
         tagData->InnerTypeData->StructType = static_cast<ESatisfactoryStruct>(fnv1a("Guid"));
       }
@@ -545,7 +545,7 @@ namespace SAA {
       parsePropertyValue(cursor, tag, ReadType::ARRAY, 0);
     }
     num = cursor.read<uint32_t>();
-    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->memoryResource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
     vec.reserve(num);
     for (int i = 0; i < num; i++) {
       vec.emplace_back(parsePropertyValue(cursor, tag, ReadType::ARRAY, 0));

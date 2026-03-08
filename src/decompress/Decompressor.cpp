@@ -91,7 +91,7 @@ namespace SAA {
     }
 
     uint64_t decodedSize = OodleApi::decompressFunc(src.data(), static_cast<long>(src.size()), dst.data(),
-                                                    static_cast<long>(dst.size()), 0, 0,
+                                                    static_cast<long>(dst.size()), 1, 0,
                                                     0, nullptr, 0, nullptr, nullptr, nullptr, 0,
                                                     0);
 

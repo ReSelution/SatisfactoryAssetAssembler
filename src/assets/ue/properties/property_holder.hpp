@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "byte_cursor.hpp"
+#include "core/hash.hpp"
 
 namespace SAA {
   struct FPropertyValue;
@@ -21,6 +22,8 @@ namespace SAA {
     ARRAY,
   };
 
+
+
   class PropertyHolder {
   public:
     virtual ~PropertyHolder() = default;
@@ -28,7 +31,7 @@ namespace SAA {
     PropertyHolder(std::string_view className = "PropertyHolder");;
 
     PropertyHolder(std::pmr::memory_resource *resource);;
-    std::pmr::unordered_map<uint32_t, FPropertyTag> m_properties;
+    std::pmr::unordered_map<uint32_t, FPropertyTag, IdentityHash> m_properties;
 
     void parseProperties(ByteCursor &cursor);
 

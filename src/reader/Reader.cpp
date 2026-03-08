@@ -2,11 +2,11 @@
 
 #include <fstream>
 
-#include "heap_storage.hpp"
+#include "cache/chaos_slab.hpp"
 
 namespace SAA {
   bool Reader::load() {
-    m_storage = std::make_unique<HeapStorage>(initBufferSize * alocMutipilyer);
+    m_storage = std::make_unique<SC::ChaosSlab>(alocMutipilyer * initBufferSize);
 
     return true;
   }
@@ -17,7 +17,7 @@ namespace SAA {
     auto data = m_storage->allocateSpan(stream.tellg());
     stream.seekg(0, std::ios::beg);
     stream.read(reinterpret_cast<char *>(data.data()), static_cast<std::streamsize>(data.size()));
-
+    stream.close();
     return data;
   }
 } // namespace SAP
