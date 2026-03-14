@@ -59,12 +59,12 @@ namespace SAA {
     void processExports();
 
     void processExportEntry(const FExportBundleEntry &entry);
-    Object* resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index);
+    Object* resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy);
     Object* resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) override;
-    Object* resolveScriptImport(const FExportMapEntry &entry, const FPackageObjectIndex &index);
-    Object* resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index) ;
+    Object* resolveScriptImport(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy);
+    Object* resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy) ;
     Object* resolvePackageExport(const uint64_t &publicExportHash) override;
-    Object* constructObject(const FExportMapEntry &entry, Struct* ustruct);
+    Object* constructObject(const FExportMapEntry &entry, Struct* ustruct, bool copy);
     std::span<Object*> exportMap() override;
 
     const FIoContainerHeader *m_containerHeader{nullptr};

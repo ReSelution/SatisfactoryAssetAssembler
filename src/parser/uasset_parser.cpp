@@ -1,5 +1,7 @@
 #include "uasset_parser.hpp"
 
+#include <algorithm>
+
 #include "AssetParser.hpp"
 #include "IOStoreReader.hpp"
 #include "io_global_data.hpp"
@@ -7,7 +9,10 @@
 #include "vfs_entry.hpp"
 
 #include "io/packages/f_zen_package_versioning_info.hpp"
+#include "logger/chaos_logger.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
+
+LOG_ALIAS(uLOG, "SAA", "UASSET")
 
 namespace SAA {
   UAssetParser::UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry) : AssetFileParser(
@@ -31,7 +36,13 @@ namespace SAA {
     processExports();
   }
 
-  std::string_view UAssetParser::nameFromMap(uint32_t index) { return m_nameMap[index]; }
+  std::string_view UAssetParser::nameFromMap(uint32_t index) {
+    if (m_nameMap.size() <= index) {
+      return "None";
+    }
+    return m_nameMap[index];
+  }
+
   std::span<std::string_view> UAssetParser::nameMap() { return m_nameMap; }
 
   std::string_view UAssetParser::getMappedName(FMappedName name) {
@@ -61,16 +72,19 @@ namespace SAA {
   }
 
   Object *UAssetParser::resolveIndex(int32_t index) {
-    if (index == 0) {
-      return {};
-    }
+    Object *ret = nullptr;
+
     if (index < 0 && (-index - 1) < m_importMap.size()) {
-      return resolveObject({}, m_importMap[(-index - 1)]);
+      ret =  resolveObject({}, m_importMap[(-index - 1)], false);
+
     }
-    if (index > 0 && index - 1 < m_exportMap.size()) {
-      return resolveExportObject({}, m_exportMap[index - 1].ClassIndex);
+    else if (index > 0 && index - 1 < m_exportMap.size()) {
+      ret =  resolveExportObject({}, m_exportMap[index - 1].ClassIndex);
     }
-    return {};
+    if (ret != nullptr && ret->getClassName() == "FGColoredInstanceMeshProxy") {
+      int debug;
+    }
+    return ret;
   }
 
   Object *UAssetParser::resolveSoftObj(std::string_view assetName) {
@@ -158,10 +172,17 @@ namespace SAA {
 
   void UAssetParser::loadImportedPackages() {
     m_importedParsers.reserve(m_storeEntry.importedPackage.size());
+    // std::vector<std::string_view> paths;
+    // paths.reserve(m_storeEntry.importedPackage.size());
     for (const auto &pkgId: m_storeEntry.importedPackage) {
-      const auto parser = m_assetParser->loadPackage(pkgId);
+      const auto &parser = m_assetParser->loadPackage(pkgId);
       m_importedParsers.emplace_back(parser);
+      // paths.emplace_back(parser->path());
     }
+    // std::ranges::sort(paths);
+    // for (const auto &path: paths) {
+    //   uLOG::info("PATH: {}", path);
+    // }
   }
 
   void UAssetParser::processImportes() {
@@ -183,6 +204,7 @@ namespace SAA {
 
   void UAssetParser::processExports() {
     m_exportObjects = m_storage->allocateSpan<Object *>(m_exportMap.size());
+    std::ranges::for_each(m_exportObjects, [](auto &obj) { obj = nullptr; });
     m_nameToIndex = std::pmr::unordered_map<std::string_view, uint32_t>(m_storage->resource());
     m_nameToIndex.reserve(m_exportMap.size());
     for (const auto &entry: m_exportBundleEntries) {
@@ -201,7 +223,7 @@ namespace SAA {
   void UAssetParser::exportAssets() const {
     for (auto obj: m_exportObjects) {
       if (obj) {
-        obj->exportAsset();
+        obj->safeExport();
       }
     }
   }
@@ -223,31 +245,31 @@ namespace SAA {
   }
 
   void UAssetParser::processExportEntry(const FExportBundleEntry &entry) {
-    if (entry.CommandType != EExportCommandType::Serialize) {
+    if (entry.CommandType != EExportCommandType::Create) {
       return;
     }
     auto &exportMapEntry = m_exportMap[entry.LocalExportIndex];
-    if (auto obj = resolveObject(exportMapEntry, exportMapEntry.ClassIndex)) {
+    if (auto obj = resolveObject(exportMapEntry, exportMapEntry.ClassIndex, true)) {
       ByteCursor cursor = getAsset().subspan(0, m_summary.HeaderSize + exportMapEntry.CookedSerialOffset +
                                                 exportMapEntry.CookedSerialSize);
       cursor += m_summary.HeaderSize + exportMapEntry.CookedSerialOffset;
       cursor.setAbsoluteOffset(m_summary.CookedHeaderSize - m_summary.HeaderSize);
       obj->setCursor(cursor);
-      obj->outer(resolveObject(exportMapEntry, exportMapEntry.OuterIndex));
-      obj->super(resolveObject(exportMapEntry, exportMapEntry.SuperIndex));
+      obj->outer(resolveObject(exportMapEntry, exportMapEntry.OuterIndex, false));
+      obj->super(resolveObject(exportMapEntry, exportMapEntry.SuperIndex, false));
       m_exportObjects[entry.LocalExportIndex] = obj;
       m_nameToIndex[obj->objName()] = entry.LocalExportIndex;
     }
   }
 
-  Object *UAssetParser::resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) {
+  Object *UAssetParser::resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy) {
     switch (index.GetType()) {
       case EType::Export:
         return resolveExportObject(entry, index);
       case EType::ScriptImport:
-        return resolveScriptImport(entry, index);
+        return resolveScriptImport(entry, index, copy);
       case EType::PackageImport:
-        return resolvePackageImport(entry, index);
+        return resolvePackageImport(entry, index, copy);
       default:
         return nullptr;
     }
@@ -258,11 +280,12 @@ namespace SAA {
     if (index.TypeAndId >= m_exportObjects.size()) {
       return nullptr;
     }
-    return m_exportObjects[index.TypeAndId];
+    auto obj = m_exportObjects[index.TypeAndId];
+    return obj;
   }
 
   Object *UAssetParser::resolveScriptImport(const FExportMapEntry &entry,
-                                            const FPackageObjectIndex &index) {
+                                            const FPackageObjectIndex &index, bool copy) {
     const auto &scriptEntry = globalData()->ScriptObjectEntriesMap.at(index);
     auto clasName = getMappedName(scriptEntry.ObjectName);
     auto objName = getMappedName(entry.ObjectName);
@@ -280,20 +303,24 @@ namespace SAA {
       ByteCursor cursor = getAsset();
       cursor += m_summary.HeaderSize + entry.CookedSerialOffset;
       ustruct->setCursor(cursor);
-      return constructObject(entry, ustruct);
+      return constructObject(entry, ustruct, copy);
     }
 
     return obj;
   }
 
   Object *UAssetParser::resolvePackageImport(const FExportMapEntry &entry,
-                                             const FPackageObjectIndex &index) {
+                                             const FPackageObjectIndex &index, bool copy) {
     auto packageImportRef = FPackageImportReference::fromObjIndex(index);
     if (packageImportRef.importedPackageIndex < m_importedParsers.size()) {
       auto const &hash = m_importedPublicExportHashes[packageImportRef.importedPublicExportHashIndex];
 
       if (auto parser = m_importedParsers[packageImportRef.importedPackageIndex]) {
+
         auto obj = parser->resolvePackageExport(hash);
+        if (!copy) {
+          return obj;
+        }
         if (!obj) {
           return nullptr;
         }
@@ -320,13 +347,13 @@ namespace SAA {
   }
 
   Object *UAssetParser::constructObject(const FExportMapEntry &entry,
-                                        Struct *ustruct) {
+                                        Struct *ustruct, bool copy) {
     ustruct->safeParse();
     if (ustruct->m_superStructIndex < 0 || (-ustruct->m_superStructIndex - 1) <= m_importMap.size()) {
-      return resolveObject(entry, m_importMap[-ustruct->m_superStructIndex - 1]);
+      return resolveObject(entry, m_importMap[-ustruct->m_superStructIndex - 1], copy);
     }
     if (ustruct->m_superStructIndex > 0 && ustruct->m_superStructIndex <= m_exportMap.size()) {
-      return ustruct->m_owner->resolveExportObject(entry, m_exportMap[ustruct->m_superStructIndex - 1].ClassIndex);
+      return this->resolveExportObject(entry, m_exportMap[ustruct->m_superStructIndex - 1].ClassIndex);
     }
     return nullptr;
   }
