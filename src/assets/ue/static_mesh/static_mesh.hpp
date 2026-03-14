@@ -18,7 +18,6 @@ namespace SAA {
 
   public:
     StaticMesh(std::string_view classname = "StaticMesh") : Object(classname) {};
-    void exportAsset() override;
 
   protected:
     void parse() override;

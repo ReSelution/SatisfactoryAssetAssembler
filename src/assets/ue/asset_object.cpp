@@ -22,7 +22,17 @@ namespace SAA {
   void Object::exprt() {
   }
 
-  void Object::exportAsset() {}
+  Object::Object(Object *other) : PropertyHolder(other->m_className){
+    other->safeParse();
+    m_objName = other->m_objName;
+    m_owner = other->m_owner;
+    m_state = other->m_state.load(std::memory_order_acquire);
+    m_cursor = other->m_cursor;
+    m_properties = std::move(other->m_properties);
+    other->m_inner = this;
+    m_super = other;
+  }
+
 
   void Object::safeParse() {
     if (m_state.load(std::memory_order_acquire) == ObjectState::PARSED) {

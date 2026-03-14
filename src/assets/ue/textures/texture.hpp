@@ -37,7 +37,6 @@ namespace SAA {
 
     Texture(std::string_view className = "Texture");
 
-    void exportAsset() override;
     virtual void decodeTexture(ExportedTextureData &data);
 
   private:

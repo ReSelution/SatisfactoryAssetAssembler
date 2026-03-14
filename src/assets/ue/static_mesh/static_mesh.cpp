@@ -38,7 +38,6 @@ namespace SAA {
     parseStaticMaterials();
   }
 
-  void StaticMesh::exportAsset() { MeshExporter::exportAsset(this); }
 
   void StaticMesh::parseDistanceFieldVolumeData() {
     auto stripDataFlags = m_cursor.read<FStripDataFlags>();

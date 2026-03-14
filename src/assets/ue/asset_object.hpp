@@ -25,15 +25,15 @@ namespace SAA {
     };
 
   public:
-    explicit Object(std::string_view className = "Object") : PropertyHolder(className) {
-    };
+    explicit Object(std::string_view className = "Object") : PropertyHolder(className) {};
+    explicit Object(Object* other);
 
     virtual ~Object() = default;
+
 
     [[nodiscard]] std::string_view getClassName() const { return m_className; }
     virtual uint32_t getClassHash() { return HASH; }
 
-    virtual void exportAsset();
 
     void safeParse();
 
@@ -53,7 +53,6 @@ namespace SAA {
     [[nodiscard]] Object *outer() const {
       return m_outer;
     }
-
     void outer(Object *outer) {
       m_outer = outer;
     }
@@ -66,6 +65,18 @@ namespace SAA {
       m_super = super;
     }
 
+    SC::ChaosSlab * storage() const {
+      return m_owner->storage();
+    }
+
+ [[nodiscard]] Object * inner() const {
+  return m_inner;
+    }
+
+    void setInner(Object *inner) {
+      m_inner = inner;
+    }
+
   protected:
     virtual void parse();
 
@@ -73,9 +84,8 @@ namespace SAA {
 
     ByteCursor m_cursor{};
     Object *m_outer = nullptr;
-
-  protected:
     Object *m_super = nullptr;
+    Object *m_inner = nullptr;
 
   private:
     static constexpr uint32_t HASH = fnv1a("Object");

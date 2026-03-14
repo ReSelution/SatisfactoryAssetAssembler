@@ -30,7 +30,6 @@ namespace SAA {
     m_cursor += 2; // Skip FStripDataFlags
   }
 
-  void Texture::exportAsset() { TextureExporter::exportAsset(this); }
 
   void Texture::decodeTexture(ExportedTextureData &data) { TextureExporter::decodeTexture(data, this); }
 
