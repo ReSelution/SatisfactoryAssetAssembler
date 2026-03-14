@@ -39,13 +39,14 @@ namespace SAA {
     virtual ~UnifiedVfsEntry() = default;
     std::string_view path;
     uint64_t hash;
-    VFS_EntryType type;
 
-    UnifiedVfsEntry(std::string_view pathRef, VFS_EntryType type) :
-        path{pathRef}, type(type) {
+    UnifiedVfsEntry(std::string_view pathRef) :
+        path{pathRef} {
       hash = hashPath(path);
     };
     static uint64_t hashPath(std::string_view path);
+
+    [[nodiscard]] virtual VFS_EntryType getEntryType() const { return VFS_EntryType::UnifiedVfsEntry; }
 
     [[nodiscard]] virtual bool isValid() const { return false; };
 
@@ -60,31 +61,36 @@ namespace SAA {
   public:
     FIoChunkId chunkId;
     IOStoreReader *owningReader;
-
     IOVfsEntry(const std::string_view path, FIoChunkId chunkId,  IOStoreReader *owningReader) :
-        UnifiedVfsEntry(path,  VFS_EntryType::IOVfsEntry), chunkId{chunkId}, owningReader(owningReader) {};
+        UnifiedVfsEntry(path), chunkId{chunkId}, owningReader(owningReader) {};
+
+    [[nodiscard]] VFS_EntryType getEntryType() const override { return VFS_EntryType::IOVfsEntry; }
+
+
+    [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
+
+    std::span<uint8_t> read(SC::ChaosSlab *storage) const override;
 
     bool operator==(const UnifiedVfsEntry &other) const override {
-      if (other.type == VFS_EntryType::IOVfsEntry) {
-        auto entry = reinterpret_cast<const IOVfsEntry *>(&other);
+      if ( other.getEntryType() == VFS_EntryType::IOVfsEntry) {
+        auto entry = static_cast<const IOVfsEntry *>(&other);
         return entry->chunkId == chunkId && entry->owningReader == owningReader;
       }
       return false;
     }
 
-    [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
-
-    std::span<uint8_t> read(SC::ChaosSlab *storage) const override;
   };
 
   class PAKVfsEntry : public UnifiedVfsEntry {
   public:
+    static constexpr VFS_EntryType type = VFS_EntryType::PAKVfsEntry;
     uint32_t index;
     PAKReader *owningReader;
 
     PAKVfsEntry(const std::string_view &path, uint32_t index,  PAKReader *owningReader) :
-        UnifiedVfsEntry(path, VFS_EntryType::PAKVfsEntry), index(index), owningReader(owningReader) {};
+        UnifiedVfsEntry(path), index(index), owningReader(owningReader) {};
 
+    VFS_EntryType getEntryType() const override { return VFS_EntryType::PAKVfsEntry; }
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
     std::span<uint8_t> read(SC::ChaosSlab *storage) const override;
   };

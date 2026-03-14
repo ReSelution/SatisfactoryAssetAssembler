@@ -1,13 +1,13 @@
 #include "vfs.hpp"
 
+#include <algorithm>
 #include <fstream>
+#include <ranges>
 
 #include "vfs_entry.hpp"
 
 namespace SAA {
-
   void Vfs::mergeChild(Vfs &child) {
-
     m_vfsMap.merge(child.m_vfsMap);
     m_pkgMap.merge(child.m_pkgMap);
     std::ranges::move(child.m_storage.threadResources, std::back_inserter(m_storage.threadResources));
@@ -19,33 +19,42 @@ namespace SAA {
     m_pkgMap.reserve(m_vfsMap.size() + size);
     m_storage.reserveIOStore(size);
   }
+
   void Vfs::reservePak(size_t size) {
     m_vfsMap.reserve(m_vfsMap.size() + size);
     m_storage.reservePAK(size);
-
   }
 
 
   void Vfs::mountEntry(IOStoreReader *parser, std::string_view pathStr, const FIoChunkId &chunkId) {
     auto persistenPath = m_storage.persistString(pathStr);
 
-    auto entry = m_storage.make<IOVfsEntry>(persistenPath, chunkId,parser);
+    auto entry = m_storage.make<IOVfsEntry>(persistenPath, chunkId, parser);
     m_vfsMap.emplace(entry->hash, entry);
     m_pkgMap.emplace(chunkId.asPackageId().Id, entry);
   }
 
-  void Vfs::mountEntry(PAKReader *parser,  std::string_view pathStr, uint32_t index) {
+  void Vfs::mountEntry(PAKReader *parser, std::string_view pathStr, uint32_t index) {
     auto persistenPath = m_storage.persistString(pathStr);
     auto entry = m_storage.make<PAKVfsEntry>(persistenPath, index, parser);
     m_vfsMap.emplace(entry->hash, std::move(entry));
   }
 
-  void Vfs::dumpToText(std::string_view path) {
-    std::filesystem::path tmpPath(path);
+  void Vfs::dumpToText(std::string_view filepath) {
+    std::filesystem::path tmpPath(filepath);
     create_directories(tmpPath.parent_path());
-    auto fileStream = std::ofstream(std::string(path));
-    for (auto &entry: m_vfsMap) {
-      fileStream <<  entry.second->path << "\n";
+    auto fileStream = std::ofstream(std::string(filepath));
+
+    auto pathView = m_vfsMap | std::views::values
+                    | std::views::transform([](const auto &entry) {
+                      return entry->path;
+                    });
+    std::vector<std::string> sortedPaths{pathView.begin(), pathView.end()};
+    std::ranges::sort(sortedPaths);
+
+
+    for (auto &path: sortedPaths) {
+      fileStream << path << "\n";
     }
     fileStream.close();
   }

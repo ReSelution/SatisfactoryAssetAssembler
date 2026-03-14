@@ -6,20 +6,20 @@
 #include "IOStoreReader.hpp"
 #include "PAKReader.hpp"
 #include "city.h"
+#include "vfs.hpp"
 
 namespace SAA {
   uint64_t UnifiedVfsEntry::hashPath(const std::string_view path) {
-    char16_t buffer[512];
-    const size_t len = std::min(path.length(), (size_t) 511);
+
+    char16_t buffer[MAX_PATH_SIZE];
+    const size_t len = std::min(path.length(), MAX_PATH_SIZE);
 
     for (size_t i = 0; i < len; ++i) {
-      // Lowercase + UTF16-Promoting in einem Schritt
-      const auto uc = static_cast<unsigned char>(path[i]);
-      char lc = static_cast<char>(uc + (((uc - 'A' < 26u) ? 1u : 0u) << 5));
+      const auto uc = static_cast<char>(path[i]);
+      char lc = (uc >= 'A' && uc <= 'Z') ? static_cast<char>(uc + 32) : uc;
       buffer[i] = static_cast<char16_t>(lc);
     }
 
-    // CityHash64 direkt auf dem lokalen Buffer ausführen
     return CityHash64(reinterpret_cast<const char *>(buffer), len * sizeof(char16_t));
   }
 
