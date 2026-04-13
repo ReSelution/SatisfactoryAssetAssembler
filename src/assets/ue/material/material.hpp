@@ -9,21 +9,21 @@
 #include "assets/material/e_material_shading_model.hpp"
 #include "assets/material/e_translucency_lighting_mode.hpp"
 
-#include "ue/object_factory.hpp"
+#include "object_factory.hpp"
 
 namespace SAA {
   class Material : public MaterialInterface {
     friend class MaterialExporter;
-    enum class EMaterialInterface : uint32_t {
-      TwoSided = fnv1a("TwoSided"),
-      bDisableDepthTest = fnv1a("bDisableDepthTest"),
-      bIsMasked = fnv1a("bIsMasked"),
-      Expressions = fnv1a("Expressions"),
-      BlendMode = fnv1a("BlendMode"),
-      TranslucencyLightingMode = fnv1a("TranslucencyLightingMode"),
-      ShadingModel = fnv1a("ShadingModel"),
-      OpacityMaskClipValue = fnv1a("OpacityMaskClipValue"),
-    };
+      enum class EMaterialInterface : uint64_t {
+          TwoSided                 = "TwoSided"_h,
+          bDisableDepthTest        = "bDisableDepthTest"_h,
+          bIsMasked                = "bIsMasked"_h,
+          Expressions              = "Expressions"_h,
+          BlendMode                = "BlendMode"_h,
+          TranslucencyLightingMode = "TranslucencyLightingMode"_h,
+          ShadingModel             = "ShadingModel"_h,
+          OpacityMaskClipValue     = "OpacityMaskClipValue"_h,
+      };
 
   public:
     Material(std::string_view classname = "Material") : MaterialInterface(classname) {};
@@ -45,4 +45,4 @@ namespace SAA {
   };
 
   SAA_REGISTER_ASSET(Material)
-} // namespace SAP
+} 

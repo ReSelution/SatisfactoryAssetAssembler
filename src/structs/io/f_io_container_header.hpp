@@ -4,8 +4,6 @@
 
 #pragma once
 #include <cstdint>
-#include <unordered_map>
-#include <vector>
 
 #include "core/package.hpp"
 #include "f_file_package_store_entry.hpp"
@@ -45,4 +43,4 @@ namespace SAA {
     // Not Used by Satisfactory
     FIoContainerHeaderSoftPackageReferences softPackageReferences;
   };
-} // namespace SAP
+} 

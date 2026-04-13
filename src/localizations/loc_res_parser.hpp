@@ -16,7 +16,7 @@
 #include "localization/f_text_localization_resource_string.hpp"
 
 namespace SC {
-  class ChaosSlab;
+  class ChaosBumpArena;
 }
 
 namespace SAA {
@@ -46,10 +46,10 @@ namespace SAA {
     std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> &getMap() { return entries; }
 
   private:
-    std::unique_ptr<SC::ChaosSlab> m_storage;
+    std::unique_ptr<SC::ChaosBumpArena> m_storage;
     const UnifiedVfsEntry *m_vfsEntry;
     LocManager *m_manager = nullptr;
     std::span<FTextLocalizationResourceString> localizedStringArray;
     std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> entries;
   };
-} // namespace SAP
+} 

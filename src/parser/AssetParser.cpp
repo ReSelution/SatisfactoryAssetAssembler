@@ -15,6 +15,7 @@
 #include "puplic/arena/registery.hpp"
 
 #include "logger/chaos_logger.hpp"
+#include "threading/chaos_threading.hpp"
 LOG_ALIAS(APLog, "SAA", "AssetParser")
 
 namespace SAA {
@@ -27,54 +28,6 @@ namespace SAA {
                                                                                                           this) {
   }
 
-  void AssetParser::queueFile(std::string_view path) {
-    {
-      std::lock_guard lock(m_QueueMutex);
-      m_JobQueue.emplace(path);
-    }
-  }
-
-  void AssetParser::processQueue(Crawler *crawler, uint32_t threadCount) {
-    m_localizationManager.setCulture("de");
-    m_localizationManager.load();
-    if (threadCount == 0) {
-      threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
-    }
-
-    m_parserCache.reserve(m_vfs->entries().size());
-    APLog::info("Start Parsing of {} files on {} Threads with {} KB cache Size  ",
-                m_JobQueue.size(), threadCount, SC::ChaosSlabPool::getBufferSize() / 1024.0);
-    std::vector<Crawler> crawlers;
-    crawlers.reserve(threadCount);
-
-    auto t = APLog::time("[AssetParser]", "Parsing finished: {} ms");
-    for (uint32_t i = 0; i < threadCount; ++i) {
-      if (crawler) {
-        auto &child = crawlers.emplace_back(crawler->getChild());
-        m_ThreadPool.emplace_back(&AssetParser::workerThread, this,
-                                  [&child](std::shared_ptr<AssetFileParser> &parser) { child.onParsed(parser); });
-      } else {
-        m_ThreadPool.emplace_back(&AssetParser::workerThread, this,
-                                  [](std::shared_ptr<AssetFileParser> &parser) {
-                                    parser->loadExports();
-                                  });
-      }
-    }
-
-    for (uint32_t i = 0; i < threadCount; ++i) {
-      if (m_ThreadPool[i].joinable()) {
-        m_ThreadPool[i].join();
-        if (crawler) {
-          crawler->mergeWithChild(crawlers[i]);
-        }
-      }
-    }
-
-    m_ThreadPool.clear();
-
-
-
-  }
 
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(const FPackageId &pkg) {
     auto vfsEntry = m_vfs->readPkg(pkg);
@@ -83,21 +36,6 @@ namespace SAA {
       return nullptr;
     }
     return createParser(vfsEntry);
-  }
-
-  void AssetParser::workerThread(const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed) {
-    while (true) {
-      std::string path;
-      {
-        std::lock_guard lock(m_QueueMutex);
-        if (m_JobQueue.empty()) {
-          return; // keine Jobs mehr, Thread beendet sich
-        }
-        path = m_JobQueue.front();
-        m_JobQueue.pop();
-      }
-      parseAsset(path, onParsed);
-    }
   }
 
 
@@ -119,11 +57,12 @@ namespace SAA {
   }
 
   std::shared_ptr<AssetFileParser> AssetParser::createParser(const UnifiedVfsEntry *vfsEntry) {
-    if (auto shared = m_parserCache.get(vfsEntry->hash).lock()) {
+    ZoneScopedN("CreateParser");
+    if (auto shared = m_parserCache.getLocked(vfsEntry->hash)) {
       return shared;
     }
 
-    switch (vfsEntry->type) {
+    switch (vfsEntry->getEntryType()) {
       case VFS_EntryType::IOVfsEntry: {
         const std::string_view fullPath = vfsEntry->path;
         bool isUAsset = fullPath.ends_with(".uasset");
@@ -160,7 +99,7 @@ namespace SAA {
 
         parser->setReader(entry->owningReader);
 
-        if (auto shared = m_parserCache.get(vfsEntry->hash).lock()) {
+        if (auto shared = m_parserCache.getLocked(vfsEntry->hash)) {
           return shared;
         }
         m_parserCache.insert(asset->hash, parser);
@@ -175,7 +114,4 @@ namespace SAA {
     }
     return nullptr;
   }
-
-  AssetParser::~AssetParser() {
-  }
-} // namespace SAP
+} 

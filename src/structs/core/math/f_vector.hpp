@@ -7,15 +7,18 @@
 
 namespace SAA {
 #pragma pack(push, 1)
-  struct FVector_f {
+
+
+
+  // Float Vectors
+  struct FVector2F {
+    float x, y;
+  };
+
+  struct FVector3F {
     float x, y, z;
   };
-
-  struct FVector4d {
-    double x, y, z, w;
-  };
-
-  struct FVector4_f {
+  struct FVector4F {
     float x, y, z, w;
   };
 
@@ -23,13 +26,14 @@ namespace SAA {
     double x, y, z;
   };
 
-  struct FVector2F {
-    float x, y;
-  };
-
+//double
   struct FVector2D {
     double x, y;
   };
+  struct FVector4d {
+    double x, y, z, w;
+  };
+
 
   struct FIntVector {
     int32_t x, y, z;
@@ -45,4 +49,4 @@ namespace SAA {
 #pragma pack(pop)
 
   static_assert(sizeof(FVector) == 24 && "Sizeof FVector Wrong");
-} // namespace SAP
+} 

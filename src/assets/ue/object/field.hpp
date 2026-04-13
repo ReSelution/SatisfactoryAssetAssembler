@@ -3,15 +3,15 @@
 //
 
 #pragma once
-#include "ue/asset_object.hpp"
+#include "asset_object.hpp"
 
 namespace SAA {
   class Field : public Object {
   public:
-    Field(std::string_view className = "Field") : Object(className) {};
+    Field(std::string_view className = "Field", uint64_t clsHash = StaticHASH) : Object(className, clsHash) {};
 
   protected:
     void parse() override;
   };
 
-} // namespace SAP
+} 

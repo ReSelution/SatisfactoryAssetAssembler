@@ -5,12 +5,12 @@
 #pragma once
 #include <cstdint>
 
-#include "ue/asset_object.hpp"
+#include "asset_object.hpp"
 
 namespace SAA {
   struct ItemAmount {
-    static constexpr uint32_t Amount = fnv1a("Amount");
-    static constexpr uint32_t ItemClass = fnv1a("ItemClass");
+    static constexpr uint64_t Amount = "Amount"_h;
+    static constexpr uint64_t ItemClass = "ItemClass"_h;
     int32_t amount;
     Object *object;
 

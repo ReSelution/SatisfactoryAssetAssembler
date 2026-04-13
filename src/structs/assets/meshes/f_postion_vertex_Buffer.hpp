@@ -13,13 +13,13 @@ namespace SAA {
   struct FPositionVertexBuffer {
     int32_t numVertices;
     int32_t stride;
-    std::span<const FVector_f> vertices;
+    std::span<const FVector3F> vertices;
     static FPositionVertexBuffer parse(ByteCursor &cursor) {
       FPositionVertexBuffer result;
       result.stride = cursor.read<int32_t>();
       result.numVertices = cursor.read<int32_t>();
-      result.vertices = cursor.readBulkArray<FVector_f>();
+      result.vertices = cursor.readBulkArray<FVector3F>();
       return result;
     }
   };
-} // namespace SAP
+} 

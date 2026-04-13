@@ -25,4 +25,4 @@ namespace SAA {
     float roughnessFactor = 1.0f;
     float metallicFactor = 1.0f;
   };
-} // namespace SAP
+} 

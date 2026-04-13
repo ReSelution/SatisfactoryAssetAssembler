@@ -18,4 +18,4 @@ namespace SAA {
       cachedExpressionData = parseFallbackStruct(m_cursor);
     }
   }
-} // namespace SAP
+} 

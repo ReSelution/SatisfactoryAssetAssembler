@@ -39,7 +39,7 @@ namespace SAA {
     if (m_fd == -1)
       return false;
 
-    m_data = ::mmap(nullptr, m_size, PROT_READ, MAP_PRIVATE, m_fd, 0);
+    m_data = ::mmap(nullptr, m_size, PROT_READ, MAP_SHARED, m_fd, 0);
 
     if (m_data != MAP_FAILED) {
       ::madvise(m_data, m_size, MADV_WILLNEED | MADV_SEQUENTIAL | MADV_HUGEPAGE);
@@ -74,4 +74,4 @@ namespace SAA {
     m_fd = -1;
 #endif
   }
-} // namespace SAP
+} 

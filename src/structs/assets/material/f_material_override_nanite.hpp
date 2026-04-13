@@ -15,4 +15,4 @@ namespace SAA {
     bool enabled;
     Object* overrideMaterial;
   };
-} // namespace SAP
+} 

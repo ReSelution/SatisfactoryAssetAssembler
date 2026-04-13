@@ -9,4 +9,4 @@ namespace SAA {
   public:
     TextureRenderTarget(std::string classname = "TextureRenderTarget") : Texture(classname) {}
   };
-} // namespace SAP
+} 

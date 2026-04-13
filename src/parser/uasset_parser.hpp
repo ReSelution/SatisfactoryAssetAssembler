@@ -13,82 +13,110 @@
 #include "version.hpp"
 
 namespace SAA {
-  class IOVfsEntry;
-  class Object;
-  class AssetParser;
+    class IOVfsEntry;
 
-  class UAssetParser final : public AssetFileParser {
-  public:
-    UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry);
-    ~UAssetParser() override = default;
+    class Object;
 
-    [[nodiscard]] std::string_view nameFromMap(uint32_t index) override;
-    std::span<std::string_view> nameMap() override;
-    std::string_view getMappedName(FMappedName name);
+    class AssetParser;
 
-    [[nodiscard]] const FZenPackageSummary &getSummary() const;
-    [[nodiscard]] std::span<std::string_view> getNameMap() const;
+    class UAssetParser final : public AssetFileParser {
+    public:
+        UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry);
 
-    [[nodiscard]] std::span<const FBulkDataMapEntry> bulkDataMap() const { return m_bulkDataMap; };
+        ~UAssetParser() override = default;
 
-    FByteBulkData parseFByteBulkData(ByteCursor &cursor) override;
+        [[nodiscard]] std::string_view nameFromMap(uint32_t index) override;
 
-    Object* resolveIndex(int32_t index) override;
-    Object* resolveSoftObj(std::string_view assetName) override;
+        std::span<std::string_view> nameMap() override;
 
-    void loadExports() const override;
-    void exportAssets() const override;
-    void reset() override;
+        std::string_view getMappedName(FMappedName name) const;
 
-  protected:
-    void parse() override;
+        [[nodiscard]] const FZenPackageSummary &getSummary() const;
 
-  private:
-    // ---- high level pipeline ----
-    void parseSummary(ByteCursor &cursor);
-    void parseVersioning(ByteCursor &cursor);
-    void parseCellOffsets(ByteCursor &cursor);
-    void parseNameMap(ByteCursor &cursor);
-    void resolveStoreEntry();
-    void parseBulkDataMap(ByteCursor &cursor);
-    void parseImports(ByteCursor &cursor);
-    void parseExports(ByteCursor &cursor);
-    void parseExportBundles(ByteCursor &cursor);
-    void loadImportedPackages();
-    void processImportes();
-    void processExports();
+        [[nodiscard]] std::span<std::string_view> getNameMap() const;
 
-    void processExportEntry(const FExportBundleEntry &entry);
-    Object* resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy);
-    Object* resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) override;
-    Object* resolveScriptImport(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy);
-    Object* resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy) ;
-    Object* resolvePackageExport(const uint64_t &publicExportHash) override;
-    Object* constructObject(const FExportMapEntry &entry, Struct* ustruct, bool copy);
-    std::span<Object*> exportMap() override;
+        [[nodiscard]] std::span<const FBulkDataMapEntry> bulkDataMap() const { return m_bulkDataMap; };
 
-    const FIoContainerHeader *m_containerHeader{nullptr};
+        FByteBulkData parseFByteBulkData(ByteCursor &cursor) override;
 
-    // ---- summary / version ----
-    FZenPackageSummary m_summary{};
-    FPackageFileVersion m_version{};
-    FZenPackageCellOffsets m_cellOffsets{};
+        Object *resolveIndex(int32_t index) override;
 
-    // ---- name & store ----
-    std::span<std::string_view> m_nameMap;
-    FFilePackageStoreEntry m_storeEntry{};
+        Object *resolveSoftObj(std::string_view assetName) override;
 
-    // ---- data maps ----
-    std::span<const FBulkDataMapEntry> m_bulkDataMap;
-    std::span<const FPackageObjectIndex> m_importMap;
-    std::span<const uint64_t> m_importedPublicExportHashes;
-    std::span<const FExportMapEntry> m_exportMap;
-    std::pmr::unordered_map<uint64_t, uint32_t> m_exportHashToIndex;
-    std::span<const FExportBundleEntry> m_exportBundleEntries;
-    std::pmr::unordered_map<std::string_view, uint32_t> m_nameToIndex;
+        void loadExports() const override;
 
-    // ---- imported assets ----
-    std::span<Object *> m_importObjects;
-    std::span<Object *> m_exportObjects;
-  };
-} // namespace SAP
+        void exportAssets() const override;
+
+        void reset() override;
+
+    protected:
+        void parse() override;
+
+    private:
+        // ---- high level pipeline ----
+        void parseSummary(ByteCursor &cursor);
+
+        void parseVersioning(ByteCursor &cursor);
+
+        void parseCellOffsets(ByteCursor &cursor);
+
+        void parseNameMap(ByteCursor &cursor);
+
+        void resolveStoreEntry();
+
+        void parseBulkDataMap(ByteCursor &cursor);
+
+        void parseImports(ByteCursor &cursor);
+
+        void parseExports(ByteCursor &cursor);
+
+        void parseExportBundles(ByteCursor &cursor);
+
+        void loadImportedPackages();
+
+        void processExports();
+
+        void processExportEntry(const FExportBundleEntry &entry);
+
+        Object *resolveObject(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy);
+
+        Object *resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) override;
+
+        Object *resolveScriptImport(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy);
+
+        Object *resolvePackageImport(const FExportMapEntry &entry, const FPackageObjectIndex &index, bool copy);
+
+        Object *resolvePackageExport(const uint64_t &publicExportHash) override;
+
+        Object *constructObject(const FExportMapEntry &entry, Struct *ustruct, bool copy);
+
+        std::span<Object *> exportMap() override;
+
+        const FIoContainerHeader *m_containerHeader{nullptr};
+
+        // ---- summary / version ----
+        FZenPackageSummary m_summary{};
+        FPackageFileVersion m_version{};
+        FZenPackageCellOffsets m_cellOffsets{};
+
+        // ---- name & store ----
+        std::span<std::string_view> m_nameMap;
+        FFilePackageStoreEntry m_storeEntry{};
+
+        // ---- data maps ----
+        std::span<const FBulkDataMapEntry> m_bulkDataMap;
+        std::span<const FPackageObjectIndex> m_importMap;
+        std::span<const uint64_t> m_importedPublicExportHashes;
+        std::span<const FExportMapEntry> m_exportMap;
+
+        using exportDenseMap = ankerl::unordered_dense::pmr::map<uint64_t, uint32_t, SC::IdentityHash>;
+        exportDenseMap m_exportHashToIndex;
+        using nameDenseMap = ankerl::unordered_dense::pmr::map<std::string_view, uint32_t, SC::IdentityHash>;
+        nameDenseMap m_nameToIndex;
+        std::span<const FExportBundleEntry> m_exportBundleEntries;
+
+        // ---- imported assets ----
+        std::span<Object *> m_importObjects;
+        std::span<Object *> m_exportObjects;
+    };
+}

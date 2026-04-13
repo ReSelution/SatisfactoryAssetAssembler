@@ -4,6 +4,7 @@
 
 #pragma once
 #include <cstdint>
+#include <string>
 
 namespace SAA {
   enum class ETextFlag : uint32_t {
@@ -96,4 +97,4 @@ namespace SAA {
     std::string_view key;
     std::string_view sourceString;
   };
-} // namespace SAP
+} 

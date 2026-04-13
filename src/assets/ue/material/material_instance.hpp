@@ -8,7 +8,7 @@
 #include "assets/material/f_material_instance_base_property_overrides.hpp"
 #include "assets/material/f_static_parameter_set.hpp"
 
-#include "ue/object_factory.hpp"
+#include "../../object_factory.hpp"
 
 namespace SAA {
   class MaterialInstance : public MaterialInterface {
@@ -31,4 +31,4 @@ namespace SAA {
   };
 
   SAA_REGISTER_ASSET(MaterialInstance)
-} // namespace SAP
+} 

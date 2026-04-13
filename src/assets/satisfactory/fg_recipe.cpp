@@ -8,7 +8,7 @@
 
 namespace SAA {
   void FGRecipe::exprt() {
-    mRecipeExport = FGExporter::encode(this);
+    FGExporter::encodeRecipe(this);
   }
 
   void FGRecipe::parse() {
@@ -32,4 +32,4 @@ namespace SAA {
     mIngredients = getArray<ItemAmount>(RecipeProps::Ingredients, &ItemAmount::get);
 
   }
-} // namespace SAP
+} 

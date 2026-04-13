@@ -173,7 +173,7 @@ namespace SAA {
     return true;
   }
 
-  std::span<uint8_t> PAKReader::readFile(SC::ChaosSlab *storage, uint32_t index) const {
+  std::span<uint8_t> PAKReader::readFile(SC::ChaosBumpArena *storage, uint32_t index) const {
     auto &entry = m_pakEntries[index];
 
     std::span<uint8_t> uncompressedData = storage->allocateSpan(entry.uncompressedSize);
@@ -198,8 +198,8 @@ namespace SAA {
         return {};
       }
     }
-    DecompressedThroughput::record(uncompressedData.size());
-    CompressedThroughput::record(entry.compressedSize);
+    CHAOS_RECORD(DecompressedThroughput, uncompressedData.size())
+    CHAOS_RECORD(CompressedThroughput, entry.compressedSize)
     return uncompressedData;
   }
-} // namespace SAP
+} 

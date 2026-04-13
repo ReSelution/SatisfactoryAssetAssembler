@@ -3,7 +3,9 @@
 #include <cstdint>
 #include <filesystem>
 #include <span>
-#include <unordered_map>
+
+#include "hash/hash.hpp"
+#include <ankerl/unordered_dense.h>
 
 #include "byte_cursor.hpp"
 #include "Decompressor.hpp"
@@ -17,62 +19,84 @@
 #include "io/f_io_store_toc_header.hpp"
 
 namespace SAA {
-  class IOStoreReader : public Reader {
-  public:
-    IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath);
+    class IOStoreReader : public Reader {
+    public:
+        IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath);
 
-    IOStoreReader(const IOStoreReader &) = delete;
-    IOStoreReader(IOStoreReader &&) = delete;
-    IOStoreReader &operator=(const IOStoreReader &) = delete;
-    IOStoreReader &operator=(IOStoreReader &&) = delete;
+        IOStoreReader(const IOStoreReader &) = delete;
 
-    bool load() override;
-    std::span<uint8_t> readChunk(SC::ChaosSlab *storage, const FIoChunkId &chunkId) const;
-    bool mountVFS(Vfs *vfs) override;
+        IOStoreReader(IOStoreReader &&) = delete;
 
-    const FIoContainerHeader *containerHeader() const { return &m_containerHeader; }
+        IOStoreReader &operator=(const IOStoreReader &) = delete;
 
-  private:
-    std::span<uint8_t> utocBuffer;
-    void parseHeader(ByteCursor &cursor);
-    void parseChunkIds(ByteCursor &cursor);
-    void parseOffsetLengths(ByteCursor &cursor);
-    void parsePerfectHashTable(ByteCursor &cursor);
-    void parseCompressionBlocks(ByteCursor &cursor);
-    void parseCompressionMethods(ByteCursor &cursor);
-    void parseSignatures(ByteCursor &cursor);
-    void parseDirectoryIndex(ByteCursor &cursor);
-    void parseTocMetas(ByteCursor &cursor);
+        IOStoreReader &operator=(IOStoreReader &&) = delete;
 
-    bool readContainerHeader();
-    static void readFilePackageStoreEntry(ByteCursor &cursor,FFilePackageStoreEntry *entry ,EIoContainerHeaderVersion version);
+        bool load() override;
 
-    static FIoContainerHeaderSoftPackageReferences readSoftPackageReferences(ByteCursor &cursor);
-    void parseDirectoryPathList();
-    void createChunkLookupTable();
+        std::span<uint8_t> readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const;
 
-    bool resolveChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
-    bool resolveImperfectChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
+        bool mountVFS(Vfs *vfs) override;
 
-    bool readBlock(const FIoStoreTocCompressedBlockEntry &blockEntry, std::span<uint8_t> dst) const;
+        const FIoContainerHeader *containerHeader() const { return &m_containerHeader; }
 
-    FileReader m_ucasReader;
+    private:
+        std::span<uint8_t> utocBuffer;
 
-    FIoStoreTocHeader m_TocHeader{};
-    std::span<const FIoStoreTocCompressedBlockEntry> m_compressionBlocks;
-    std::span<CompressionMethod> m_CompressionMethods;
-    std::span<const uint8_t> m_DirectoryIndexBuffer;
-    std::span<std::string_view> m_DirectoryPaths;
+        void parseHeader(ByteCursor &cursor);
 
-    std::span<const int32_t> m_ChunkPerfectHashSeeds;
-    std::span<const uint32_t> m_ChunkIndicesWithoutPerfectHash;
+        void parseChunkIds(ByteCursor &cursor);
 
-    std::span<const FIoChunkId> m_ChunkIds;
-    std::span<const FIoOffsetAndLength> m_ChunkOffsetLengths;
+        void parseOffsetLengths(ByteCursor &cursor);
 
-    std::unordered_map<FIoChunkId, FIoOffsetAndLength> m_ImperfectChunkOffsetMap;
+        void parsePerfectHashTable(ByteCursor &cursor);
 
-    FIoContainerHeader m_containerHeader{};
+        void parseCompressionBlocks(ByteCursor &cursor);
 
-  };
-} // namespace SAP
+        void parseCompressionMethods(ByteCursor &cursor);
+
+        void parseSignatures(ByteCursor &cursor);
+
+        void parseDirectoryIndex(ByteCursor &cursor);
+
+        void parseTocMetas(ByteCursor &cursor);
+
+        bool readContainerHeader();
+
+        static void
+        readFilePackageStoreEntry(ByteCursor &cursor, FFilePackageStoreEntry *entry, EIoContainerHeaderVersion version);
+
+        static FIoContainerHeaderSoftPackageReferences readSoftPackageReferences(ByteCursor &cursor);
+
+        void parseDirectoryPathList();
+
+        void createChunkLookupTable();
+
+        bool resolveChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
+
+        bool resolveImperfectChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
+
+        bool readBlock(const FIoStoreTocCompressedBlockEntry &blockEntry, std::span<uint8_t> dst) const;
+
+        FileReader m_ucasReader;
+
+        FIoStoreTocHeader m_TocHeader{};
+        std::span<const FIoStoreTocCompressedBlockEntry> m_compressionBlocks;
+        std::span<CompressionMethod> m_CompressionMethods;
+        std::span<const uint8_t> m_DirectoryIndexBuffer;
+        std::span<std::string_view> m_DirectoryPaths;
+
+        std::span<const int32_t> m_ChunkPerfectHashSeeds;
+        std::span<const uint32_t> m_ChunkIndicesWithoutPerfectHash;
+
+        std::span<const FIoChunkId> m_ChunkIds;
+        std::span<const FIoOffsetAndLength> m_ChunkOffsetLengths;
+
+        using denseMap = ankerl::unordered_dense::map<FIoChunkId,FIoOffsetAndLength>;
+
+        denseMap m_ImperfectChunkOffsetMap;
+
+
+        FIoContainerHeader m_containerHeader{};
+
+    };
+} 

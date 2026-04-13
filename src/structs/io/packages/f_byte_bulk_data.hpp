@@ -12,4 +12,4 @@ namespace SAA {
     ByteCursor bulkCursor;
   };
 
-} // namespace SAP
+} 

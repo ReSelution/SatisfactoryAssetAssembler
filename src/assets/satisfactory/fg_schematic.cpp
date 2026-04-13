@@ -13,6 +13,8 @@ namespace SAA {
     DBG_MARK_HANDLED(m_className, Schematic::AdditionalDependencies);
     DBG_MARK_HANDLED(m_className, Schematic::RelevantShopSchematics);
     DBG_MARK_HANDLED(m_className, Schematic::IsPlayerSpecific);
+    DBG_MARK_HANDLED(m_className, Schematic::DependenciesBlocksAccess);
+    DBG_MARK_HANDLED(m_className, Schematic::SchematicUnlockTag);
 
     mDisplayName = get<FText>(Schematic::DisplayName);
     mDescription = get<FText>(Schematic::Description);
@@ -34,4 +36,4 @@ namespace SAA {
     auto icon = get<PropertyHolder>(Schematic::SchematicIcon);
 
   }
-} // namespace SAP
+} 

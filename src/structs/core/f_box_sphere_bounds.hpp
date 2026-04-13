@@ -13,4 +13,4 @@ namespace SAA {
     double sphereRadius;
   };
 #pragma pack(pop)
-} // namespace SAP
+} 

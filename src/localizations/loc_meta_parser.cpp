@@ -10,16 +10,17 @@
 #include "loc_manager.hpp"
 #include "vfs_entry.hpp"
 #include "logger/chaos_logger.hpp"
+#include "memory/chaos_arena_pool.hpp"
+#include "memory/chaos_bump_arena.hpp"
 
 LOG_ALIAS(LocMetaLog, "SAA", "LOCMETA");
 
 namespace SAA {
-  std::string cleanPath(std::string path) {
+  std::string_view cleanPath(std::string_view path) {
     constexpr std::string_view posixSuffix = "-POSIX";
     size_t pos = path.find(posixSuffix);
-
-    if (pos != std::string::npos) {
-      path.erase(pos, posixSuffix.length());
+    if (pos != std::string_view ::npos) {
+      path = std::string_view {path.data(), pos};
     }
     return path;
   }
@@ -28,7 +29,8 @@ namespace SAA {
       m_manager(manager), m_vfsEntry(vfsEntry) {}
 
   void LocMetaParser::parse() {
-    m_storage = std::make_unique<SC::ChaosSlab>(512);
+    m_storage = std::make_unique<SC::ChaosBumpArena>(1024);
+    char stackBuffer[512];
     auto data = m_vfsEntry->read(m_storage.get());
     ByteCursor cursor(data);
     auto magic = cursor.read<FGuid>();
@@ -56,10 +58,19 @@ namespace SAA {
       for (auto i = 0; i < count; i++) {
         auto currentCulture = cursor.readFString(m_storage.get());
         m_manager->registerCulture(currentCulture);
-        std::string path;
-        path.reserve(prefix.size() + currentCulture.size() + suffix.size());
-        path.append(prefix).append(currentCulture).append(suffix);
-        cultures.emplace(currentCulture, cleanPath(path));
+
+        size_t totalSize = prefix.size() + currentCulture.size() + suffix.size();
+        std::memcpy(stackBuffer, prefix.data(), prefix.size());
+        std::memcpy(stackBuffer + prefix.size(), currentCulture.data(), currentCulture.size());
+        std::memcpy(stackBuffer + prefix.size() + currentCulture.size(), suffix.data(), suffix.size());
+        std::string_view cleaned = cleanPath({stackBuffer,totalSize});
+
+
+        auto arenaMem = m_storage->allocateSpan<char>(cleaned.size());
+        std::memcpy(arenaMem.data(), cleaned.data(), cleaned.size());
+        std::string_view persistentPath(arenaMem.data(), arenaMem.size());
+
+        cultures.emplace(currentCulture, persistentPath);
       }
     }
   }
@@ -73,4 +84,4 @@ namespace SAA {
 
     return {false, ""};
   }
-} // namespace SAP
+} 

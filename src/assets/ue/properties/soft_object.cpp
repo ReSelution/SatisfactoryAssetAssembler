@@ -2,7 +2,7 @@
 // Created by oleub on 26.02.26.
 //
 #include "soft_object.hpp"
-#include "ue/asset_object.hpp"
+#include "asset_object.hpp"
 
 namespace SAA {
   Object *SoftObj::resolve(AssetParser *assetParser) {

@@ -4,32 +4,31 @@
 
 #include "AssetParser.hpp"
 #include "property_parser.hpp"
-#include "cache/chaos_tls_slab.hpp"
 #include "core/EClassSerializationControlExtension.hpp"
 
 
 namespace SAA {
   template<>
-  void PP6::parse(PropertyHolder *holder, ByteCursor &cursor) {
+  void PP6::parse(PropertyHolder *holder, ByteCursor &cursor, SC::ChaosBumpArena *storage) {
     auto controlByte = cursor.read<EClassSerializationControlExtension>();
     if (hasFlag(controlByte, EClassSerializationControlExtension::OverridableSerializationInformation)) {
       auto op = cursor.read<uint8_t>();
     }
 
     while (true) {
-      auto tag = parsePropertyTag(cursor);
+      auto tag = parsePropertyTag(cursor, storage);
       if (tag.Name.isNone()) {
         return;
       }
       auto final = cursor.tell() + tag.Size;
-      tag.Tag = parsePropertyValue(cursor, tag, ReadType::NORMAL, tag.Size);
+      tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
       cursor = final;
-      holder->m_properties.emplace(fnv1a(tag.Name.text()), std::move(tag));
+      holder->m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
     }
   }
 
   template<>
-  FPropertyTag PP6::parsePropertyTag(ByteCursor &cursor) {
+  FPropertyTag PP6::parsePropertyTag(ByteCursor &cursor, SC::ChaosBumpArena *storage) {
 #ifndef NDEBUG
     int debug = cursor.tell();
     (void) debug;
@@ -42,30 +41,22 @@ namespace SAA {
     }
 
     auto name = cursor.readFName();
-    auto *firstNode = SC::ChaosTLSSlab<>::make<FPropertyTypeNameNode>(
-      name, cursor.read<int32_t>());
+    std::pmr::vector<FPropertyTypeNameNode> typeName(storage->resource());
+    typeName.reserve(10);
+    typeName.emplace_back(name, cursor.read<int32_t>());
 
     int32_t nodeCount = 1;
-    int32_t remaining = firstNode->innerCount;
+    int32_t remaining = typeName[0].innerCount;
     while (remaining > 0) {
       name = cursor.readFName();
-      const auto *node = SC::ChaosTLSSlab<>::make<FPropertyTypeNameNode>(name, cursor.read<int32_t>());
-      remaining += node->innerCount - 1;
+      auto &[Name, innerCount] = typeName.emplace_back(name, cursor.read<int32_t>());
+      remaining += innerCount - 1;
       nodeCount++;
     }
-    /**
- * THE SPAN TRICK:
- * Exploits the strict linear allocation of the ThreadLocal Arena.
- * Since 'ThreadArena::make' guarantees contiguous memory for sequential calls
- * on the same thread, we can treat individually allocated nodes as a packed array.
- * This avoids 'std::vector' overhead/reallocations while parsing recursive
- * trees into a cache-friendly, flat 'std::span'.
- */
-    auto typeName = std::span(firstNode, nodeCount);
 
     tag.PropertyTypeName = typeName[0].Name;
-    tag.PropertyType = hashEnum<EPropertyTagType>(tag.PropertyTypeName.text());
-    tag.TagData = parsePropertyTagData(tag.PropertyType, typeName, tag.PropertyTypeName);
+    tag.PropertyType = SC::hash<EPropertyTagType>(tag.PropertyTypeName.text());
+    tag.TagData = parsePropertyTagData(storage, tag.PropertyType, typeName, tag.PropertyTypeName);
     tag.Size = cursor.read<uint32_t>();
     tag.Flags = cursor.read<EPropertyTagFlags>();
     if (hasFlag(tag.Flags, EPropertyTagFlags::BoolTrue)) { tag.TagData->BoolValue = true; }
@@ -82,16 +73,17 @@ namespace SAA {
   }
 
   template<>
-  FPropertyTagData *PP6::parsePropertyTagData(EPropertyTagType type, std::span<FPropertyTypeNameNode> typeName,
+  FPropertyTagData *PP6::parsePropertyTagData(SC::ChaosBumpArena *storage, EPropertyTagType type,
+                                              std::span<FPropertyTypeNameNode> typeName,
                                               const FName &name) {
-    auto *data = SC::ChaosTLSSlab<>::make<FPropertyTagData>();
+    auto *data = storage->make<FPropertyTagData>();
     data->Name = name;
 
     switch (type) {
       case EPropertyTagType::Struct: {
         if (const auto pram = getParameter(typeName, 0); !pram.empty()) {
           data->structName = pram[0].Name;
-          data->StructType = hashEnum<ESatisfactoryStruct>(data->structName.text());
+          data->StructType = SC::hash<ESatisfactoryStruct>(data->structName.text());
         }
 
         break;
@@ -111,9 +103,9 @@ namespace SAA {
       case EPropertyTagType::Array:
       case EPropertyTagType::Set: {
         if (const auto pram = getParameter(typeName, 0); !pram.empty()) {
-          data->InnerType = hashEnum<EPropertyTagType>(pram[0].Name.text());
+          data->InnerType = SC::hash<EPropertyTagType>(pram[0].Name.text());
           if (data->InnerType != EPropertyTagType::None && pram[0].innerCount != 0) {
-            data->InnerTypeData = parsePropertyTagData(data->InnerType, pram, pram[0].Name);
+            data->InnerTypeData = parsePropertyTagData(storage, data->InnerType, pram, pram[0].Name);
           }
         }
 
@@ -124,13 +116,13 @@ namespace SAA {
         const auto valType = getParameter(typeName, 1);
 
         if (!keyType.empty() && !valType.empty()) {
-          data->InnerType = hashEnum<EPropertyTagType>(keyType[0].Name.text());
+          data->InnerType = SC::hash<EPropertyTagType>(keyType[0].Name.text());
           if (data->InnerType != EPropertyTagType::None && keyType[0].innerCount != 0) {
-            data->InnerTypeData = parsePropertyTagData(data->InnerType, keyType, keyType[0].Name);
+            data->InnerTypeData = parsePropertyTagData(storage, data->InnerType, keyType, keyType[0].Name);
           }
-          data->ValueType = hashEnum<EPropertyTagType>(valType[0].Name.text());
+          data->ValueType = SC::hash<EPropertyTagType>(valType[0].Name.text());
           if (data->ValueType != EPropertyTagType::None && valType[0].innerCount != 0) {
-            data->ValueTypeData = parsePropertyTagData(data->ValueType, valType, valType[0].Name);
+            data->ValueTypeData = parsePropertyTagData(storage, data->ValueType, valType, valType[0].Name);
           }
         }
         break;
@@ -142,25 +134,27 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parsePropertyValue(ByteCursor &cursor, FPropertyTag &tag, ReadType readType,
+  FPropertyValue PP6::parsePropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTag &tag,
+                                         ReadType readType,
                                          uint32_t size) {
     FPropertyValue val;
+    // PropsTroughput::record(1);
     switch (tag.PropertyType) {
       case EPropertyTagType::Struct: {
-        val = parseStructPropertyValue(cursor, tag.TagData, readType, size);
+        val = parseStructPropertyValue(cursor, storage, tag.TagData, readType, size);
         break;
       }
       case EPropertyTagType::Array: {
-        val = parseArrayPropertyValue(cursor, tag.TagData, readType, size);
+        val = parseArrayPropertyValue(cursor, storage, tag.TagData, readType, size);
         break;
       }
       case EPropertyTagType::Map: {
-        val = parseMapProperty(cursor, tag.TagData, size);
+        val = parseMapProperty(cursor, storage, tag.TagData, size);
         break;
       }
 
       case EPropertyTagType::Bool: {
-        val = PP3::parseBoolPropertyValue(cursor, tag.TagData, readType);
+        val = PP3::parseBoolPropertyValue(cursor, storage, tag.TagData, readType);
         break;
       }
       case EPropertyTagType::Byte: {
@@ -174,16 +168,16 @@ namespace SAA {
         break;
       }
       case EPropertyTagType::Text: {
-        val = PP3::parseTextPropertyValue(cursor);
+        val = PP3::parseTextPropertyValue(cursor, storage);
         break;
       }
       case EPropertyTagType::Interface:
       case EPropertyTagType::Object: {
-        val = PP3::parseObjectPropertyValue(cursor);
+        val = PP3::parseObjectPropertyValue(cursor, storage);
         break;
       }
       case EPropertyTagType::Set: {
-        val = PP3::parseSetPropertyValue(cursor, tag.TagData);
+        val = PP3::parseSetPropertyValue(cursor, storage, tag.TagData);
         break;
       }
       case EPropertyTagType::Delegate: {
@@ -238,7 +232,7 @@ namespace SAA {
       }
 
       case EPropertyTagType::SoftObject: {
-       val.data = SoftObj{
+        val.data = SoftObj{
           cursor.readFName(),
           cursor.readFName(),
           cursor.readArray<uint8_t>(),
@@ -264,7 +258,8 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parseArrayPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData, ReadType type,
+  FPropertyValue PP6::parseArrayPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData,
+                                              ReadType type,
                                               uint32_t size) {
     FPropertyValue val;
     auto arrayType = tagData->InnerType;
@@ -273,25 +268,27 @@ namespace SAA {
 
     auto lenght = cursor.read<uint32_t>();
     FPropertyTag tag;
-    if (arrayType == EPropertyTagType::Struct) {
-      tag.TagData = tagData->InnerTypeData;
-    }
+
 
     std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
     vec.reserve(lenght);
 
     switch (arrayType) {
       case EPropertyTagType::Byte: {
+        // Check if elements are larger than 1 byte to detect Enum arrays (FNames)
         if (size == sizeof(uint32_t) ? false : (size - sizeof(uint32_t)) / lenght > 1) {
           tag.PropertyType = EPropertyTagType::Enum;
         } else {
           tag.PropertyType = EPropertyTagType::Byte;
         }
         for (int i = 0; i < lenght; i++) {
-          vec.emplace_back(parsePropertyValue(cursor, tag, type, tag.Size));
+          vec.emplace_back(parsePropertyValue(cursor, storage, tag, type, tag.Size));
         }
         val.data = std::move(vec);
         return val;
+      }
+      case EPropertyTagType::Struct: {
+        tag.TagData = tagData->InnerTypeData;
       }
       default: {
         tag.PropertyType = arrayType;
@@ -299,7 +296,7 @@ namespace SAA {
     }
     type = ReadType::ARRAY;
     for (int i = 0; i < lenght; i++) {
-      vec.emplace_back(parsePropertyValue(cursor, tag, type, tag.Size));
+      vec.emplace_back(parsePropertyValue(cursor, storage, tag, type, tag.Size));
     }
     val.data = std::move(vec);
 
@@ -307,16 +304,18 @@ namespace SAA {
   }
 
   template<>
-  PropertyHolder PP6::parseFallbackStruct(ByteCursor &cursor) {
-    PropertyHolder structFallback(cursor.m_owner->storage()->resource());
+  PropertyHolder PP6::parseFallbackStruct(ByteCursor &cursor, SC::ChaosBumpArena *storage) {
+    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, SC::IdentityHash>;
+    auto props = cursor.m_owner->storage()->make<denseMap>(cursor.m_owner->storage()->resource());
+    PropertyHolder structFallback(props);
     while (true) {
-      auto tag = parsePropertyTag(cursor);
+      auto tag = parsePropertyTag(cursor, storage);
       if (tag.Name.isNone()) {
         break;
       };
       auto pos = cursor.tell();
-      tag.Tag = parsePropertyValue(cursor, tag, ReadType::NORMAL, tag.Size);
-      structFallback.m_properties.emplace(fnv1a(tag.Name.text()), std::move(tag));
+      tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
+      structFallback.m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
       tag.TagData = nullptr;
       cursor = tag.Size + pos;
     }
@@ -324,7 +323,8 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, FPropertyTagData *tagData, ReadType type,
+  FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData,
+                                               ReadType type,
                                                uint32_t size) {
     FPropertyValue val;
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
@@ -352,7 +352,7 @@ namespace SAA {
         break;
       }
       case ESatisfactoryStruct::Vector3f: {
-        val.data = cursor.read<FVector_f>();
+        val.data = cursor.read<FVector3F>();
         break;
       }
       case ESatisfactoryStruct::Vector2D: {
@@ -366,6 +366,9 @@ namespace SAA {
       case ESatisfactoryStruct::Quat: {
         val.data = cursor.read<FQuat>();
         break;
+      }
+      case ESatisfactoryStruct::Box3f: {
+        val.data = cursor.read<FBox3f>();
       }
       case ESatisfactoryStruct::Box2f: {
         val.data = cursor.read<FBox2f>();
@@ -433,11 +436,13 @@ namespace SAA {
       case ESatisfactoryStruct::SmartName:
 
       // Data Bloat
+      case ESatisfactoryStruct::Transform:
       case ESatisfactoryStruct::DateTime:
       case ESatisfactoryStruct::FrameNumber:
       case ESatisfactoryStruct::FGServerCertificate:
       case ESatisfactoryStruct::PerPlatformFrameRate:
       case ESatisfactoryStruct::ShaderValueTypeHandle:
+      case ESatisfactoryStruct::GameplayTagContainer:
       case ESatisfactoryStruct::InventoryItem: {
         cursor += size;
         break;
@@ -498,18 +503,19 @@ namespace SAA {
       default:
         // #ifndef NDEBUG
         //         if (tagData) {
-        //           Logger::logInfo("[PropertyHolder]", "Parsing Struct: {} as Fallback @ {}", tagData->structName.text(),
+        //           propertyLOG::info("Parsing Struct: {} as Fallback @ {}", tagData->structName.text(),
         //                           cursor.tell());
         //         }
         // #endif
-        val.data = parseFallbackStruct(cursor);
+        val.data = parseFallbackStruct(cursor, storage);
         break;
     }
     return val;
   }
 
   template<>
-  FPropertyValue PP6::parseMapProperty(ByteCursor &cursor, FPropertyTagData *tagData, uint32_t size) {
+  FPropertyValue PP6::parseMapProperty(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData,
+                                       uint32_t size) {
     if (!tagData->InnerTypeData && !tagData->ValueTypeData) {
       cursor += size;
       return {};
@@ -519,15 +525,15 @@ namespace SAA {
 
     auto keysToRemove = cursor.read<int32_t>();
     for (auto i = 0; i < keysToRemove; i++) {
-      parsePropertyValue(cursor, keyTag, ReadType::MAP, 0);
+      parsePropertyValue(cursor, storage, keyTag, ReadType::MAP, 0);
     }
 
     std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->resource());
     auto entries = cursor.read<uint32_t>();
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {
-      vec.emplace_back(parsePropertyValue(cursor, keyTag, ReadType::MAP, 0),
-                       parsePropertyValue(cursor, valueTag, ReadType::MAP, 0));
+      vec.emplace_back(parsePropertyValue(cursor, storage, keyTag, ReadType::MAP, 0),
+                       parsePropertyValue(cursor, storage, valueTag, ReadType::MAP, 0));
     }
 
     return {.data = std::move(vec)};

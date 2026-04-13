@@ -6,7 +6,9 @@
 
 #include "AssetFileParser.hpp"
 #include "puplic/arena/registery.hpp"
-#include "satisfactory/fg_item_descriptor.hpp"
+#include "../../assets/satisfactory/building/fg_building_base.hpp"
+#include "satisfactory/fg_factory.hpp"
+#include "../../assets/satisfactory/items/fg_item_descriptor.hpp"
 #include "satisfactory/fg_recipe.hpp"
 #include "stats/chaos_map_counter.hpp"
 #include "stats/chaos_stats.hpp"
@@ -16,56 +18,93 @@ REGISTER_CHAOS_STAT(ItemTracker)
 
 
 namespace SAA {
-  Recipe *FGExporter::encode(FGRecipe *recipe) {
-    auto ex = Registry::write<Recipe>(
-      recipe->mManufactoringDuration,
-      recipe->mManualManufacturingMultiplier,
-      recipe->mVariablePowerConsumptionFactor,
-      recipe->mDisplayNameOverride,
-      recipe->mVariablePowerConsumptionConstant,
-      recipe->mDisplayName,
-      recipe->mProducedIn,
-      recipe->mProduct
-    );
+    void FGExporter::encodeRecipe(FGRecipe *recipe) {
+        auto e = getEntity(recipe);
+//    auto ex = Registry::write<Recipe>(
+//      recipe->mManufactoringDuration,
+//      recipe->mManualManufacturingMultiplier,
+//      recipe->mVariablePowerConsumptionFactor,
+//      recipe->mDisplayNameOverride,
+//      recipe->mVariablePowerConsumptionConstant,
+//      recipe->mDisplayName,
+//      recipe->mProducedIn,
+//      recipe->mProduct
+//    );
 
-    for (auto &item: recipe->mIngredients) {
-      ItemTracker::record(item.object->getClassName());
+//    for (auto &ing: recipe->mIngredients) {
+//      auto obj = FGFactory::createBase(ing.object);
+//      CHAOS_RECORD(ItemTracker, obj->getClassName())
+//      obj->safeParse();
+//      obj->addUsedIn(ex);
+//    }
+//    for (auto &pro: recipe->mProduct) {
+//      auto obj = FGFactory::createBase(pro.object);
+//      CHAOS_RECORD(ItemTracker, obj->getClassName())
+//      obj->safeParse();
+//      obj->addProducedIn(ex);
+//    }
+//
     }
-    for (auto &item: recipe->mProduct) {
-      ItemTracker::record(item.object->getClassName());
-      if (item.object->super()) {
-        int debug;
-      }
 
+
+    void FGExporter::encodeItem(FGItemBase *descriptor) {
+        auto e = getEntity(descriptor);
+//        Object *scanFor = nullptr;
+//    if (descriptor->mClassToScanFor.has_value()) {
+//      scanFor = descriptor->mClassToScanFor->resolve(descriptor->m_owner->assetParser());
+//    }
+//    auto ex = Registry::write<ItemDescriptor>(
+//      descriptor->mDisplayName,
+//      descriptor->mDescription,
+//      descriptor->mAbbreviatedDisplayName,
+//      descriptor->mCategory,
+//      descriptor->mPersistentBigIcon,
+//      descriptor->mSmallIcon,
+//      descriptor->mConveyorMesh,
+//      descriptor->mCompassTexture,
+//      descriptor->mDepositMesh,
+//      descriptor->mStackSize,
+//      descriptor->mForm,
+//      descriptor->mFluidColor,
+//      descriptor->mGasColor,
+//      descriptor->mPingColor,
+//      descriptor->mEnergyValue,
+//      descriptor->mRadioactiveDecay,
+//      descriptor->mCanBeDiscarded,
+//      descriptor->mIsAlienItem,
+//      descriptor->mItemIndex,
+//      descriptor->mScannableType,
+//      scanFor,
+//      descriptor->mScannerDisplayText,
+//      descriptor->mRequiredSchematic
+//    );
     }
 
-
-    return ex;
-  }
-
-  ItemDescriptor *FGExporter::encode(FGItemDescriptor *descriptor) {
-    auto ex = Registry::write<ItemDescriptor>(
-      descriptor->mDisplayName,
-      descriptor->mDescription,
-      descriptor->mAbbreviatedDisplayName,
-      descriptor->mCategory,
-      descriptor->mPersistentBigIcon,
-      descriptor->mSmallIcon,
-      descriptor->mConveyorMesh,
-      descriptor->mStackSize,
-      descriptor->mForm,
-      descriptor->mFluidColor,
-      descriptor->mGasColor,
-      descriptor->mEnergyValue,
-      descriptor->mRadioactiveDecay,
-      descriptor->mCanBeDiscarded,
-      descriptor->mIsAlienItem,
-      descriptor->mItemIndex,
-      descriptor->mScannableType,
-      descriptor->mClassToScanFor,
-      descriptor->mScannerDisplayText,
-      descriptor->mRequiredSchematic
-    );
-    return ex;
-  }
-} // SAP
+    void FGExporter::encodeBuilding(FGBuildingBase *buildingBase) {
+        auto e = getEntity(buildingBase);
+//        auto building = FGFactory::createBuilding(buildingBase->mBuildableClass);
+//        building->safeParse();
+//        auto ex = Registry::write<Building>(
+//                building->mDisplayName,
+//                building->mDescription,
+//                buildingBase->mCategory,
+//                buildingBase->mPersistentBigIcon,
+//                buildingBase->mSmallIcon,
+//                buildingBase->mSubCategories,
+//                buildingBase->mConveyorMesh,
+//                buildingBase->mStackSize,
+//                building->mPowerInfo,
+//                building->mInventorySizeX,
+//                building->mInventorySizeY,
+//                building->mPowerConsumption,
+//                building->mPowerConsumptionExp,
+//                building->mPowerProduction,
+//                building->mVariablePowerProductionConstant,
+//                building->mPowerConsumptionCurve,
+//                building->mProductionShardBoostMultiplier,
+//                building->mProductionShardSlotSize,
+//                building->mAllowedResources,
+//                building->mAllowedResourceForms
+//        );
+    }
+}

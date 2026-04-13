@@ -14,4 +14,4 @@ namespace SAA {
     std::array<FPackedNormal, 3> normals;
     std::span<const FMeshUVFloat> UVs;
   };
-} // namespace SAP
+} 

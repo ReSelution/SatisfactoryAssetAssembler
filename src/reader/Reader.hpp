@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>
 #include <filesystem>
+#include <span>
 #include <utility>
 
-#include "cache/chaos_slab.hpp"
+#include "memory/chaos_arena_pool.hpp"
 
 namespace SAA {
   class Vfs;
@@ -35,7 +35,7 @@ namespace SAA {
     virtual bool mountVFS(Vfs *vfs) = 0;
     uint64_t initBufferSize;
     double alocMutipilyer = 1.1;
-    std::unique_ptr<SC::ChaosSlab> m_storage{};
+    std::unique_ptr<SC::ChaosBumpArena> m_storage{};
 
   protected:
     std::filesystem::path m_Path;
@@ -46,4 +46,4 @@ namespace SAA {
   private:
     Type m_type;
   };
-} // namespace SAP
+} 

@@ -38,4 +38,4 @@ namespace SAA {
     std::vector<FVirtualTextureTileOffsetData> tileOffsetData;
     std::span<const FLinearColor> layerFallbackColors;
   };
-} // namespace SAP
+} 

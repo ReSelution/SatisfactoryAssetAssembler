@@ -68,4 +68,4 @@ namespace SAA {
       MaterialExporterLog::err("Unknown texture group: {} -> {} ", textureType, texData.name);
     }
   }
-} // namespace SAP
+} 

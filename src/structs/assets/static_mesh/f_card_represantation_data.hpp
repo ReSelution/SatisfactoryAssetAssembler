@@ -10,11 +10,11 @@
 namespace SAA {
 #pragma pack(push, 1)
   struct FLumenCardOBB {
-    FVector_f axisX;
-    FVector_f axisY;
-    FVector_f axisZ;
-    FVector_f origin;
-    FVector_f extent;
+    FVector3F axisX;
+    FVector3F axisY;
+    FVector3F axisZ;
+    FVector3F origin;
+    FVector3F extent;
   };
 
   struct FLumenCardBuildData {
@@ -38,4 +38,4 @@ namespace SAA {
       };
     }
   };
-} // namespace SAP
+} 

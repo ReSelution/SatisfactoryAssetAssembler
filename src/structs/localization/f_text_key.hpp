@@ -13,7 +13,7 @@ namespace SAA {
 
     bool operator==(const FTextKey &other) const noexcept { return strHash == other.strHash; }
   };
-} // namespace SAP
+} 
 namespace std {
   template<>
   struct hash<SAA::FTextKey> {

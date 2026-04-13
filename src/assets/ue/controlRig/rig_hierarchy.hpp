@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "ue/asset_object.hpp"
-#include "ue/object_factory.hpp"
+#include "asset_object.hpp"
+#include "object_factory.hpp"
 
 namespace SAA {
 
@@ -15,4 +15,4 @@ namespace SAA {
     void parse() override;
   };
   SAA_REGISTER_ASSET(RigHierarchy)
-} // namespace SAP
+} 

@@ -9,7 +9,10 @@
 #include <span>
 #include <stdexcept>
 
-#include "cache/chaos_slab.hpp"
+
+namespace SC {
+  class ChaosBumpArena;
+}
 
 namespace SAA {
   class AssetFileParser;
@@ -18,8 +21,10 @@ namespace SAA {
   class ByteCursor {
   public:
     ByteCursor() = default;
-    explicit ByteCursor(std::span<const uint8_t> buf, SAA::AssetFileParser *owner = nullptr) :
-        m_buffer(buf), m_owner(owner) {}
+
+    explicit ByteCursor(std::span<const uint8_t> buf, AssetFileParser *owner = nullptr) : m_owner(owner),
+                                                                                          m_buffer(buf) {
+    }
 
     [[nodiscard]] size_t size() const { return m_buffer.size(); }
     [[nodiscard]] size_t absOffset() const { return m_absoluteOffset; }
@@ -27,12 +32,12 @@ namespace SAA {
     void setAbsoluteOffset(size_t offset) { m_absoluteOffset = offset; }
 
     [[nodiscard]] std::span<const uint8_t> buffer() const { return m_buffer; }
-    AssetFileParser *m_owner;
+    AssetFileParser *m_owner = nullptr;
 
     [[nodiscard]] size_t tell() const { return m_cursor; }
     [[nodiscard]] size_t remaining() const { return m_buffer.size() - m_cursor; }
 
-    void skip(size_t bytes) { seek(m_cursor + bytes); }
+    void skip(int64_t bytes) { seek(m_cursor + bytes); }
 
     void seek(size_t newPos);
 
@@ -43,9 +48,12 @@ namespace SAA {
     }
 
     FName readFName();
+
     bool testReadFName();
 
-    std::span<std::string_view> loadNameBatch(SC::ChaosSlab *utf16Storage);
+    std::span<std::string_view> loadNameBatch();
+
+    std::span<std::string_view> loadNameBatch(SC::ChaosBumpArena *utf16Storage);
 
     template<typename T>
     std::span<const T> readArrayView();
@@ -59,15 +67,18 @@ namespace SAA {
       sub.setAbsoluteOffset(m_absoluteOffset + offset);
       return sub;
     }
+
     std::string_view readFString();
-    std::string_view readFString(SC::ChaosSlab *utf16Storage);
+
+    std::string_view readFString(SC::ChaosBumpArena *utf16Storage);
 
     template<typename T>
     T read() {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
 
       if (m_cursor + sizeof(T) > m_buffer.size())[[unlikely]]{
-        throw std::runtime_error("Buffer Overflow");
+        throw std::runtime_error(
+          "Buffer Overflow @ " + std::to_string(m_cursor) + "/" + std::to_string(m_buffer.size()));
       }
 
       T val;
@@ -81,7 +92,7 @@ namespace SAA {
 
     std::string_view readStrView() {
       auto len = read<uint8_t>();
-      std::string_view str=  {reinterpret_cast<const char *>(m_buffer.data() + m_cursor), len};
+      std::string_view str = {reinterpret_cast<const char *>(m_buffer.data() + m_cursor), len};
       m_cursor += len;
       return str;
     }
@@ -121,27 +132,37 @@ namespace SAA {
       return out;
     }
 
-    ByteCursor &operator+=(size_t bytes) {
+    template<typename T>
+      requires std::is_integral_v<T>
+    ByteCursor &operator+=(T bytes) {
       skip(bytes);
       return *this;
     }
 
-    ByteCursor &operator=(size_t bytes) {
+    template<typename T>
+      requires std::is_integral_v<T>
+    ByteCursor &operator=(T bytes) {
       seek(bytes);
       return *this;
     }
 
-    friend ByteCursor operator+(ByteCursor c, size_t bytes) {
+    template<typename T>
+      requires std::is_integral_v<T>
+    friend ByteCursor operator+(ByteCursor c, T bytes) {
       c += bytes;
       return c;
     }
 
-    ByteCursor &operator-=(size_t bytes) {
+    template<typename T>
+      requires std::is_integral_v<T>
+    ByteCursor &operator-=(T bytes) {
       skip(-bytes);
       return *this;
     }
 
-    friend ByteCursor operator-(ByteCursor c, size_t bytes) {
+    template<typename T>
+      requires std::is_integral_v<T>
+    friend ByteCursor operator-(ByteCursor c, T bytes) {
       c -= bytes;
       return c;
     }
@@ -164,4 +185,4 @@ namespace SAA {
     m_cursor = initialPos + sizeof(uint32_t) * 2;
     return out;
   }
-} // namespace SAP
+} 

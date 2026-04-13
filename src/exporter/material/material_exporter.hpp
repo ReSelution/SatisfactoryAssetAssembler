@@ -22,4 +22,4 @@ namespace SAA {
   private:
     static void addTexture(GltfMaterial &gltfMaterial, std::string_view textureType, ExportedTextureData &texData);
   };
-} // namespace SAP
+} 

@@ -16,8 +16,10 @@
 #include "UsmapReader.hpp"
 #include "crawler.hpp"
 #include "io_global_data.hpp"
+#include "PropertyTracker.hpp"
 
 #include "logger/chaos_logger.hpp"
+#include "puplic/arena/registery.hpp"
 #include "threading/chaos_threading.hpp"
 LOG_ALIAS(ProviderLog, "SAA", "Provider")
 
@@ -50,19 +52,22 @@ namespace SAA {
 
     for (const auto &val: m_Parsers | std::views::values) {
       auto *currentParser = val.get();
-      parsableFutures.emplace_back(SC::ChaosThreading::enqueue([currentParser, &childVFS](int id) {
+      parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&,currentParser](int id) {
+        auto &child = childVFS[id];
         currentParser->load();
-        currentParser->mountVFS(&childVFS[id]);
+        currentParser->mountVFS(&child);
+        m_vfs.mergeChild(child);
+
       }));
     }
 
     for (auto &f: parsableFutures)
       f.wait();
 
-    for (auto &child: childVFS) {
-      m_vfs.mergeChild(child);
-    }
-
+//    for (auto &child: childVFS) {
+//      m_vfs.mergeChild(std::mobe);
+//    }
+    // m_vfs.dumpToText("output/files.txt");
     ProviderLog::info("VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
     return true;
   }
@@ -75,15 +80,12 @@ namespace SAA {
 
   void SatisfactoryDataProvider::test() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-    parser.queueFile("FactoryGame/Content/FactoryGame/Recipes/Assembler/Recipe_IronPlateReinforced.uasset");
-
-    // for (auto &[hash, entry]: m_vfs.entries()) {
-    //   if (entry->path.ends_with(".uasset")) {
-    //     parser.queueFile(entry->path);
-    //   }
-    // }
-
-    parser.processQueue();
+    Registry::init(1024);
+    parser.parseAsset("FactoryGame/Content/FactoryGame/Buildable/Factory/ResourceSink/Build_ResourceSink.uasset", [](std::shared_ptr<AssetFileParser> &file){
+      file->loadExports();
+      file->exportAssets();
+    });
+    DBG_PRINT_MISSING();
   }
 
   void SatisfactoryDataProvider::findAllParsableFiles(const std::filesystem::path &folder) {
@@ -136,4 +138,4 @@ namespace SAA {
 
   SatisfactoryDataProvider::~SatisfactoryDataProvider() {
   }
-} // namespace SAP
+} 

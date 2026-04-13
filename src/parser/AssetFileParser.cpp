@@ -7,11 +7,66 @@
 #include "vfs_entry.hpp"
 
 namespace SAA {
-  AssetFileParser::~AssetFileParser() { SC::ChaosSlabPool::release(m_storage);}
+  AssetFileParser::~AssetFileParser() { AssetFileParser::reset(); }
+
+  void AssetFileParser::reset() {
+    if (m_storage) {
+      SC::ChaosArenaPool::release(m_storage);
+    }
+    m_state.store(ParserState::NONE, std::memory_order_release);
+  }
+
+  void AssetFileParser::safeParse() {
+    if (m_state.load(std::memory_order_acquire) == ParserState::LOADED) {
+      return;
+    }
+    ParserState expected = ParserState::NONE;
+    if (m_state.compare_exchange_strong(expected, ParserState::PARSING, std::memory_order_acq_rel)) {
+      m_storage = SC::ChaosArenaPool::acquire();
+      {
+        ZoneScopedN("AssetFileParser::parsing")
+        parse();
+      }
+      {
+        std::lock_guard lock(m_mutex);
+        m_state.store(ParserState::LOADED, std::memory_order_release);
+      }
+      m_cv.notify_all();
+      return;
+    }
+    ZoneScopedN("AssetFileParser::waiting")
+    std::unique_lock lock(m_mutex);
+    m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ParserState::LOADED; });
+  }
+
+  void AssetFileParser::safeReset() {
+    if (m_state.load(std::memory_order_acquire) == ParserState::NONE) {
+      return;
+    }
+    ParserState current = m_state.load(std::memory_order_relaxed);
+    while (current != ParserState::NONE && current != ParserState::RESETTING) {
+      if (m_state.compare_exchange_strong(current, ParserState::RESETTING, std::memory_order_acq_rel)) {
+        reset();
+
+        {
+          std::lock_guard lock(m_mutex);
+          m_state.store(ParserState::NONE, std::memory_order_release);
+        }
+        m_cv.notify_all();
+        return;
+      }
+    }
+
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_cv.wait(lock, [this] {
+      return m_state.load(std::memory_order_acquire) == ParserState::NONE;
+    });
+  }
+
   const FUsmapMappingData *AssetFileParser::mappings() const { return m_assetParser->mappings(); }
   const GlobalData *AssetFileParser::globalData() const { return m_assetParser->globalData(); }
 
-  AssetParser * AssetFileParser::assetParser() const {
+  AssetParser *AssetFileParser::assetParser() const {
     return m_assetParser;
   }
 
@@ -34,4 +89,4 @@ namespace SAA {
     }
     return ByteCursor(m_bulk);
   }
-} // namespace SAP
+} 

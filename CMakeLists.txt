@@ -1,6 +1,24 @@
 cmake_minimum_required(VERSION 3.24)
 project(SatisfactoryAssetParser LANGUAGES CXX)
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    message(STATUS "ccache gefunden und aktiviert.")
+endif()
 include(CheckCXXCompilerFlag)
+
+# -------------------------------------------------------------------------
+# 1. Globale Einstellungen & Performance
+# -------------------------------------------------------------------------
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
+option(ENABLE_ASAN "Enable AddressSanitizer (ASan)" OFF)
+
 
 if (WIN32 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(SAA_TARGETING_WINDOWS TRUE)
@@ -8,7 +26,6 @@ if (WIN32 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
         add_link_options("-static")
         add_link_options("-static-libgcc")
         add_link_options("-static-libstdc++")
-
     endif ()
 else ()
     set(SAA_TARGETING_WINDOWS FALSE)
@@ -34,21 +51,54 @@ if (NOT MSVC)
 
     message(STATUS "[SAA] Using Linker: ${_SAA_LINKER}")
 endif ()
-# -------------------------------------------------------------------------
-# 1. Globale Einstellungen & Performance
-# -------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
+set(SAA_SANITIZER_FLAGS "")
+if (ENABLE_ASAN)
+    if (MSVC)
+        set(SAA_SANITIZER_FLAGS "/fsanitize=address")
+        add_link_options("/incremental:no")
+        message(STATUS "[SAA] ASan enabled for MSVC")
+    else ()
+        set(SAA_SANITIZER_FLAGS "-fsanitize=address" "-fno-omit-frame-pointer")
+        message(STATUS "[SAA] ASan enabled for GCC/Clang")
+    endif ()
+
+    # Apply to all targets automatically
+    add_compile_options(${SAA_SANITIZER_FLAGS})
+    add_link_options(${SAA_SANITIZER_FLAGS})
+endif ()
+
+add_library(SAA_Lib STATIC)
+
+if (NOT MSVC)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT supported OUTPUT error)
+    if(supported)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(STATUS "IPO/LTO is not supported: ${error}")
+    endif()
+
+    if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_options(SAA_Lib PUBLIC  -O3 -march=native -fno-rtti)
+    else()
+        target_compile_options(SAA_Lib PUBLIC -g -O0)
+        message(STATUS "[SAA] Debug mode: Optimizations disabled")
+    endif()
+endif()
 
 # -------------------------------------------------------------------------
 # 2. Third Party (External)
 # -------------------------------------------------------------------------
-add_subdirectory(external/cityhash)
-add_subdirectory(external/fastgltf)
+if(NOT TARGET StructuredChaos)
 add_subdirectory(external/StructuredChaos)
+endif ()
+add_subdirectory(external/cityhash)
+include(cmake/dependencies.cmake)
+
+
+
+
 
 # -------------------------------------------------------------------------
 # 3. Core Module (Subdirectories)
@@ -69,7 +119,8 @@ add_library(SAA_Util STATIC
 
         src/util/PropertyTracker.hpp
         src/util/PropertyTracker.cpp
-        src/util/stats.hpp)
+        src/util/stats.hpp
+)
 
 target_sources(SAA_Util
         PUBLIC
@@ -90,7 +141,7 @@ target_link_libraries(SAA_Util
 # -------------------------------------------------------------------------
 # 5. SAA_Lib: Der "High-Level" Wrapper & Provider
 # -------------------------------------------------------------------------
-add_library(SAA_Lib STATIC)
+
 
 target_sources(SAA_Lib
         PUBLIC
@@ -112,14 +163,15 @@ target_include_directories(SAA_Lib
 
 target_link_libraries(SAA_Lib
         PUBLIC
-        SAA_Util
-        SAA_Structs
         SAA_Parser
         SAA_Reader
-        StructuredChaos
         SAA_Crawler
+
         # Whole Archive for Asset-Factory Registration
         $<LINK_LIBRARY:WHOLE_ARCHIVE,SAA_Assets>
+        StructuredChaos
+        SAA_Util
+        SAA_Structs
         PRIVATE
 )
 
@@ -132,49 +184,25 @@ if (NOT SAA_TARGETING_WINDOWS)
     target_link_libraries(AssetRipperTest PRIVATE
             SAA_Lib
             StructuredChaos
+            mimalloc-static
     )
     set_target_properties(AssetRipperTest PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-            OUTPUT_NAME "AssetRipperTest"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
+            OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
     )
 else ()
     add_executable(AssetRipperTestWin src/main.cpp)
     target_link_libraries(AssetRipperTestWin PRIVATE
             SAA_Lib
             StructuredChaos
+            mimalloc-static
     )
     set_target_properties(AssetRipperTestWin PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-            OUTPUT_NAME "AssetRipperTest"
-            CROSSCOMPILING_EMULATOR "${WINE_EXECUTABLE}"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
+            OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
     )
     set_target_properties(AssetRipperTestWin PROPERTIES LINK_FLAGS "-Wl,--subsystem,console")
-endif ()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    if (MSVC)
-        add_compile_options(/O2 /arch:AVX2 /fp:fast /GL)
-        add_link_options(/LTCG)
-    else ()
-        add_compile_options(
-                -O3
-                -march=native
-                -flto
-                -fno-exceptions
-                -fno-rtti
-                -ffast-math
-        )
-        add_link_options(
-                -flto
-        )
-        if (SAA_TARGETING_WINDOWS AND SAA_HAS_LLD)
-            add_link_options("-Wl,/opt:lldlto=2") # Speed up LTO linking on LLD if supported
-        endif ()
-    endif ()
-
-else ()
-    message(STATUS "SAA: Debug build detected - skipping heavy optimizations.")
-    add_compile_options(-g -O0)
 endif ()
 
 

@@ -33,6 +33,8 @@
 #include "AssetFileParser.hpp"
 #include "PropertyTracker.hpp"
 #include "soft_object.hpp"
+#include "memory/chaos_bump_arena.hpp"
+#include "hash/hash.hpp"
 
 
 namespace SAA {
@@ -40,149 +42,150 @@ namespace SAA {
   class Object;
   struct FPropertyTag;
 
-  enum class ESatisfactoryStruct : uint32_t {
-    Unknown = 0,
-    Guid = fnv1a("Guid"),
-    IntPoint = fnv1a("IntPoint"),
-    Vector = fnv1a("Vector"),
-    Vector4d = fnv1a("Vector4d"),
-    Vector3f = fnv1a("Vector3f"),
-    Vector2f = fnv1a("Vector2f"),
-    Rotator = fnv1a("Rotator"),
-    Quat = fnv1a("Quat"),
-    Box = fnv1a("Box"),
-    Transform = fnv1a("Transform"),
-    KAggregateGeom = fnv1a("KAggregateGeom"),
-    KBoxElem = fnv1a("KBoxElem"),
-    KConvexElem = fnv1a("KConvexElem"),
-    BodyInstance = fnv1a("BodyInstance"),
-    CollisionResponse = fnv1a("CollisionResponse"),
-    ResponseChannel = fnv1a("ResponseChannel"),
-    StaticMaterial = fnv1a("StaticMaterial"),
-    MeshUVChannelInfo = fnv1a("MeshUVChannelInfo"),
-    BoxSphereBounds = fnv1a("BoxSphereBounds"),
-    LinearColor = fnv1a("LinearColor"),
-    ScalarParameterValue = fnv1a("ScalarParameterValue"),
-    VectorParameterValue = fnv1a("VectorParameterValue"),
-    TextureParameterValue = fnv1a("TextureParameterValue"),
-    MaterialParameterInfo = fnv1a("MaterialParameterInfo"),
-    MaterialInstanceBasePropertyOverrides = fnv1a("MaterialInstanceBasePropertyOverrides"),
-    MaterialTextureInfo = fnv1a("MaterialTextureInfo"),
-    StaticParameterSetRuntimeData = fnv1a("StaticParameterSetRuntimeData"),
-    StaticSwitchParameter = fnv1a("StaticSwitchParameter"),
-    MaterialCachedParameterEntry = fnv1a("MaterialCachedParameterEntry"),
-    Color = fnv1a("Color"),
-    RichCurveKey = fnv1a("RichCurveKey"),
-    Vector4 = fnv1a("Vector4"),
-    DeprecateSlateVector2D = fnv1a("DeprecateSlateVector2D"),
-    Vector2D = fnv1a("Vector2D"),
-    SkeletalMeshSamplingLODBuiltData = fnv1a("SkeletalMeshSamplingLODBuiltData"),
-    PerPlatformFloat = fnv1a("PerPlatformFloat"),
-    KeyHandleMap = fnv1a("KeyHandleMap"),
-    CompressedRichCurve = fnv1a("CompressedRichCurve"),
-    IntVector = fnv1a("IntVector"),
-    MaterialOverrideNanite = fnv1a("MaterialOverrideNanite"),
-    NiagaraUserRedirectionParameterStore = fnv1a("NiagaraUserRedirectionParameterStore"),
-    VehicleInputRateConfig = fnv1a("VehicleInputRateConfig"),
-    PerPlatformInt = fnv1a("PerPlatformInt"),
-    PerQualityLevelFloat = fnv1a("PerQualityLevelFloat"),
-    PerQualityLevelInt = fnv1a("PerQualityLevelInt"),
-    IntVector2D = fnv1a("IntVector2D"),
-    SoftClassPath = fnv1a("SoftClassPath"),
-    InventoryItem = fnv1a("InventoryItem"),
-    SoftObjectPath = fnv1a("SoftObjectPath"),
-    MovieSceneFrameRange = fnv1a("MovieSceneFrameRange"),
-    FontData = fnv1a("FontData"),
-    MovieSceneEvaluationFieldEntityTree = fnv1a("MovieSceneEvaluationFieldEntityTree"),
-    FontCharacter = fnv1a("FontCharacter"),
-    FrameNumber = fnv1a("FrameNumber"),
-    MovieSceneFloatChannel = fnv1a("MovieSceneFloatChannel"),
-    Box2f = fnv1a("Box2f"),
-    MovieSceneTrackIdentifier = fnv1a("MovieSceneTrackIdentifier"),
-    LevelSequenceObjectReferenceMap = fnv1a("LevelSequenceObjectReferenceMap"),
-    SmartName = fnv1a("SmartName"),
-    DateTime = fnv1a("DateTime"),
-    FGServerCertificate = fnv1a("FGServerCertificate"),
-    PerPlatformFrameRate = fnv1a("PerPlatformFrameRate"),
-    ShaderValueTypeHandle = fnv1a("ShaderValueTypeHandle"),
+    enum class ESatisfactoryStruct : SC::h64 {
+        Unknown = 0,
+        Guid = "Guid"_h,
+        IntPoint = "IntPoint"_h,
+        Vector = "Vector"_h,
+        Vector4d = "Vector4d"_h,
+        Vector3f = "Vector3f"_h,
+        Vector2f = "Vector2f"_h,
+        Rotator = "Rotator"_h,
+        Quat = "Quat"_h,
+        Box = "Box"_h,
+        Transform = "Transform"_h,
+        KAggregateGeom = "KAggregateGeom"_h,
+        KBoxElem = "KBoxElem"_h,
+        KConvexElem = "KConvexElem"_h,
+        BodyInstance = "BodyInstance"_h,
+        CollisionResponse = "CollisionResponse"_h,
+        ResponseChannel = "ResponseChannel"_h,
+        StaticMaterial = "StaticMaterial"_h,
+        MeshUVChannelInfo = "MeshUVChannelInfo"_h,
+        BoxSphereBounds = "BoxSphereBounds"_h,
+        LinearColor = "LinearColor"_h,
+        ScalarParameterValue = "ScalarParameterValue"_h,
+        VectorParameterValue = "VectorParameterValue"_h,
+        TextureParameterValue = "TextureParameterValue"_h,
+        MaterialParameterInfo = "MaterialParameterInfo"_h,
+        MaterialInstanceBasePropertyOverrides = "MaterialInstanceBasePropertyOverrides"_h,
+        MaterialTextureInfo = "MaterialTextureInfo"_h,
+        StaticParameterSetRuntimeData = "StaticParameterSetRuntimeData"_h,
+        StaticSwitchParameter = "StaticSwitchParameter"_h,
+        MaterialCachedParameterEntry = "MaterialCachedParameterEntry"_h,
+        Color = "Color"_h,
+        RichCurveKey = "RichCurveKey"_h,
+        Vector4 = "Vector4"_h,
+        Box3f = "Box3f"_h,
+        DeprecateSlateVector2D = "DeprecateSlateVector2D"_h,
+        Vector2D = "Vector2D"_h,
+        SkeletalMeshSamplingLODBuiltData = "SkeletalMeshSamplingLODBuiltData"_h,
+        PerPlatformFloat = "PerPlatformFloat"_h,
+        KeyHandleMap = "KeyHandleMap"_h,
+        CompressedRichCurve = "CompressedRichCurve"_h,
+        IntVector = "IntVector"_h,
+        MaterialOverrideNanite = "MaterialOverrideNanite"_h,
+        NiagaraUserRedirectionParameterStore = "NiagaraUserRedirectionParameterStore"_h,
+        VehicleInputRateConfig = "VehicleInputRateConfig"_h,
+        PerPlatformInt = "PerPlatformInt"_h,
+        PerQualityLevelFloat = "PerQualityLevelFloat"_h,
+        PerQualityLevelInt = "PerQualityLevelInt"_h,
+        IntVector2D = "IntVector2D"_h,
+        SoftClassPath = "SoftClassPath"_h,
+        InventoryItem = "InventoryItem"_h,
+        SoftObjectPath = "SoftObjectPath"_h,
+        MovieSceneFrameRange = "MovieSceneFrameRange"_h,
+        FontData = "FontData"_h,
+        MovieSceneEvaluationFieldEntityTree = "MovieSceneEvaluationFieldEntityTree"_h,
+        FontCharacter = "FontCharacter"_h,
+        FrameNumber = "FrameNumber"_h,
+        MovieSceneFloatChannel = "MovieSceneFloatChannel"_h,
+        Box2f = "Box2f"_h,
+        MovieSceneTrackIdentifier = "MovieSceneTrackIdentifier"_h,
+        LevelSequenceObjectReferenceMap = "LevelSequenceObjectReferenceMap"_h,
+        SmartName = "SmartName"_h,
+        DateTime = "DateTime"_h,
+        FGServerCertificate = "FGServerCertificate"_h,
+        PerPlatformFrameRate = "PerPlatformFrameRate"_h,
+        ShaderValueTypeHandle = "ShaderValueTypeHandle"_h,
 
-    // --- Niagara ---
-    NiagaraVariable = fnv1a("NiagaraVariable"),
-    NiagaraVariableBase = fnv1a("NiagaraVariableBase"),
-    NiagaraVariableWithOffset = fnv1a("NiagaraVariableWithOffset"),
-    NiagaraDataChannelVariable = fnv1a("NiagaraDataChannelVariable"),
-    NiagaraDataInterfaceGPUParamInfo = fnv1a("NiagaraDataInterfaceGPUParamInfo"),
-    NiagaraScript = fnv1a("NiagaraScript"),
-    NiagaraScriptExecutionParameterStore = fnv1a("NiagaraScriptExecutionParameterStore"),
+        // --- Niagara ---
+        NiagaraVariable = "NiagaraVariable"_h,
+        NiagaraVariableBase = "NiagaraVariableBase"_h,
+        NiagaraVariableWithOffset = "NiagaraVariableWithOffset"_h,
+        NiagaraDataChannelVariable = "NiagaraDataChannelVariable"_h,
+        NiagaraDataInterfaceGPUParamInfo = "NiagaraDataInterfaceGPUParamInfo"_h,
+        NiagaraScript = "NiagaraScript"_h,
+        NiagaraScriptExecutionParameterStore = "NiagaraScriptExecutionParameterStore"_h,
 
-    // --- MovieScene / Sequencer ---
-    MovieSceneSequenceID = fnv1a("MovieSceneSequenceID"),
-    MovieSceneEvaluationKey = fnv1a("MovieSceneEvaluationKey"),
-    MovieSceneEventParameters = fnv1a("MovieSceneEventParameters"),
-    MovieSceneSegment = fnv1a("MovieSceneSegment"),
-    MovieSceneSegmentIdentifier = fnv1a("MovieSceneSegmentIdentifier"),
-    MovieSceneTrackFieldData = fnv1a("MovieSceneTrackFieldData"),
-    MovieSceneSubSequenceTree = fnv1a("MovieSceneSubSequenceTree"),
-    MovieSceneSequenceInstanceDataPtr = fnv1a("MovieSceneSequenceInstanceDataPtr"),
-    MovieSceneEvalTemplatePtr = fnv1a("MovieSceneEvalTemplatePtr"),
-    MovieSceneTrackImplementationPtr = fnv1a("MovieSceneTrackImplementationPtr"),
-    SectionEvaluationDataTree = fnv1a("SectionEvaluationDataTree"),
-    MovieSceneDoubleChannel = fnv1a("MovieSceneDoubleChannel"),
-    MovieSceneTrackIdentifiers = fnv1a("MovieSceneTrackIdentifiers"),
-    MovieSceneByteChannel = fnv1a("MovieSceneByteChannel"),
-  };
+        // --- MovieScene / Sequencer ---
+        MovieSceneSequenceID = "MovieSceneSequenceID"_h,
+        MovieSceneEvaluationKey = "MovieSceneEvaluationKey"_h,
+        MovieSceneEventParameters = "MovieSceneEventParameters"_h,
+        MovieSceneSegment = "MovieSceneSegment"_h,
+        MovieSceneSegmentIdentifier = "MovieSceneSegmentIdentifier"_h,
+        MovieSceneTrackFieldData = "MovieSceneTrackFieldData"_h,
+        MovieSceneSubSequenceTree = "MovieSceneSubSequenceTree"_h,
+        MovieSceneSequenceInstanceDataPtr = "MovieSceneSequenceInstanceDataPtr"_h,
+        MovieSceneEvalTemplatePtr = "MovieSceneEvalTemplatePtr"_h,
+        MovieSceneTrackImplementationPtr = "MovieSceneTrackImplementationPtr"_h,
+        SectionEvaluationDataTree = "SectionEvaluationDataTree"_h,
+        MovieSceneDoubleChannel = "MovieSceneDoubleChannel"_h,
+        MovieSceneTrackIdentifiers = "MovieSceneTrackIdentifiers"_h,
+        MovieSceneByteChannel = "MovieSceneByteChannel"_h,
+        GameplayTagContainer = "GameplayTagContainer"_h,
+    };
 
+    enum class EPropertyTagType : uint64_t {
+        Unknown = 0,
+        None = "None"_h,
+        Array = "ArrayProperty"_h,
+        AssetObject = "AssetObjectProperty"_h,
+        AssetClass = "AssetClassProperty"_h,
+        Bool = "BoolProperty"_h,
+        Byte = "ByteProperty"_h,
+        Class = "ClassProperty"_h,
+        Delegate = "DelegateProperty"_h,
+        Double = "DoubleProperty"_h,
+        Enum = "EnumProperty"_h,
+        FieldPath = "FieldPathProperty"_h,
+        Float = "FloatProperty"_h,
+        Int16 = "Int16Property"_h,
+        Int64 = "Int64Property"_h,
+        Int8 = "Int8Property"_h,
+        Int = "IntProperty"_h,
+        Interface = "InterfaceProperty"_h,
+        LazyObject = "LazyObjectProperty"_h,
+        Map = "MapProperty"_h,
+        MulticastDelegate = "MulticastDelegateProperty"_h,
+        MulticastInline = "MulticastInlineDelegateProperty"_h,
+        MulticastSparse = "MulticastSparseDelegateProperty"_h,
+        Name = "NameProperty"_h,
+        Object = "ObjectProperty"_h,
+        Set = "SetProperty"_h,
+        SoftClass = "SoftClassProperty"_h,
+        SoftObject = "SoftObjectProperty"_h,
+        Str = "StrProperty"_h,
+        Utf8Str = "Utf8StrProperty"_h,
+        Struct = "StructProperty"_h,
+        Text = "TextProperty"_h,
+        UInt16 = "UInt16Property"_h,
+        UInt32 = "UInt32Property"_h,
+        UInt64 = "UInt64Property"_h,
+        WeakObject = "WeakObjectProperty"_h,
+        Optional = "OptionalProperty"_h,
 
-  enum class EPropertyTagType : uint32_t {
-    Unknown = 0,
-    None = fnv1a("None"),
-    Array = fnv1a("ArrayProperty"),
-    AssetObject = fnv1a("AssetObjectProperty"),
-    AssetClass = fnv1a("AssetClassProperty"),
-    Bool = fnv1a("BoolProperty"),
-    Byte = fnv1a("ByteProperty"),
-    Class = fnv1a("ClassProperty"),
-    Delegate = fnv1a("DelegateProperty"),
-    Double = fnv1a("DoubleProperty"),
-    Enum = fnv1a("EnumProperty"),
-    FieldPath = fnv1a("FieldPathProperty"),
-    Float = fnv1a("FloatProperty"),
-    Int16 = fnv1a("Int16Property"),
-    Int64 = fnv1a("Int64Property"),
-    Int8 = fnv1a("Int8Property"),
-    Int = fnv1a("IntProperty"),
-    Interface = fnv1a("InterfaceProperty"),
-    LazyObject = fnv1a("LazyObjectProperty"),
-    Map = fnv1a("MapProperty"),
-    MulticastDelegate = fnv1a("MulticastDelegateProperty"),
-    MulticastInline = fnv1a("MulticastInlineDelegateProperty"),
-    MulticastSparse = fnv1a("MulticastSparseDelegateProperty"),
-    Name = fnv1a("NameProperty"),
-    Object = fnv1a("ObjectProperty"),
-    Set = fnv1a("SetProperty"),
-    SoftClass = fnv1a("SoftClassProperty"),
-    SoftObject = fnv1a("SoftObjectProperty"),
-    Str = fnv1a("StrProperty"),
-    Utf8Str = fnv1a("Utf8StrProperty"),
-    Struct = fnv1a("StructProperty"),
-    Text = fnv1a("TextProperty"),
-    UInt16 = fnv1a("UInt16Property"),
-    UInt32 = fnv1a("UInt32Property"),
-    UInt64 = fnv1a("UInt64Property"),
-    WeakObject = fnv1a("WeakObjectProperty"),
-    Optional = fnv1a("OptionalProperty"),
+        VerseString = "VerseStringProperty"_h,
+        VerseFunction = "VerseFunctionProperty"_h,
+        VerseDynamic = "VerseDynamicProperty"_h,
 
-    VerseString = fnv1a("VerseStringProperty"),
-    VerseFunction = fnv1a("VerseFunctionProperty"),
-    VerseDynamic = fnv1a("VerseDynamicProperty"),
+        Custom_FD = "CustomProperty_FD"_h,
+        Custom_FE = "CustomProperty_FE"_h,
+        GbxDefPtr = "GbxDefPtrProperty"_h,
+        GameDataHandle = "GameDataHandleProperty"_h,
+    };
 
-    Custom_FD = fnv1a("CustomProperty_FD"),
-    Custom_FE = fnv1a("CustomProperty_FE"),
-    GbxDefPtr = fnv1a("GbxDefPtrProperty"),
-    GameDataHandle = fnv1a("GameDataHandleProperty"),
-  };
-
-  struct FPropertyTypeNameNode {
+  struct alignas(8) FPropertyTypeNameNode {
     FName Name;
     int32_t innerCount;
   };
@@ -333,9 +336,9 @@ namespace SAA {
 
       FName, FGuid, SoftObj,
 
-      FVector, FVector_f, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
+      FVector, FVector3F, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
 
-      FQuat, FBox, FBox2f, FLinearColor, FText, FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
+      FQuat, FBox, FBox2f, FBox3f,FLinearColor, FText, FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
 
       std::pmr::vector<FPropertyValue>, std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> >,
       FWeightedRandomSampler>;
@@ -375,19 +378,19 @@ namespace SAA {
 #endif
 
   template<typename T>
-  std::optional<T> PropertyHolder::get(uint32_t hash) const {
+  std::optional<T> PropertyHolder::get(uint64_t hash) const {
     DBG_MARK_HANDLED(m_className, hash);
-    auto it = m_properties.find(hash);
-    if (it == m_properties.end())
+    auto it = m_properties->find(hash);
+    if (it == m_properties->end())
       return std::nullopt;
     return std::get<T>(it->second.Tag.data);
   }
 
   template<typename T, typename Func>
-  std::optional<T> PropertyHolder::get(uint32_t hash, Func &&processor) const {
+  std::optional<T> PropertyHolder::get(uint64_t hash, Func &&processor) const {
     DBG_MARK_HANDLED(m_className, hash);
-    auto it = m_properties.find(hash);
-    if (it == m_properties.end())
+    auto it = m_properties->find(hash);
+    if (it == m_properties->end())
       return std::nullopt;
 
     if (const auto *prop = std::get_if<PropertyHolder>(&it->second.Tag.data)) {
@@ -398,11 +401,11 @@ namespace SAA {
   }
 
   template<typename T>
-  std::span<T> PropertyHolder::getArray(uint32_t hash) const {
+  std::span<T> PropertyHolder::getArray(uint64_t hash) const {
     DBG_MARK_HANDLED(m_className, hash);
-    auto it = m_properties.find(hash);
+    auto it = m_properties->find(hash);
 
-    if (it == m_properties.end()) return {};
+    if (it == m_properties->end()) return {};
 
     const auto &val = std::get<std::pmr::vector<FPropertyValue> >(it->second.Tag.data);
 
@@ -416,10 +419,10 @@ namespace SAA {
   }
 
   template<typename T, typename Func>
-  std::span<T> PropertyHolder::getArray(uint32_t hash, Func &&processor) const {
+  std::span<T> PropertyHolder::getArray(uint64_t hash, Func &&processor) const {
     DBG_MARK_HANDLED(m_className, hash);
-    auto it = m_properties.find(hash);
-    if (it == m_properties.end()) return {};
+    auto it = m_properties->find(hash);
+    if (it == m_properties->end()) return {};
 
     const auto &val = std::get<std::pmr::vector<FPropertyValue> >(it->second.Tag.data);
 
@@ -431,4 +434,4 @@ namespace SAA {
     }
     return *vector;
   }
-} // namespace SAP
+} 

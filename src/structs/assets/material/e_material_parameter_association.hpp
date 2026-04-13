@@ -6,9 +6,9 @@
 #include <cstdint>
 
 namespace SAA {
-  enum class EMaterialParameterAssociation : uint32_t {
-    LayerParameter = fnv1a("LayerParameter"),
-    BlendParameter = fnv1a("BlendParameter"),
-    GlobalParameter = fnv1a("GlobalParameter"),
-  };
+    enum class EMaterialParameterAssociation : uint64_t {
+        LayerParameter = "LayerParameter"_h,
+        BlendParameter = "BlendParameter"_h,
+        GlobalParameter = "GlobalParameter"_h,
+    };
 }

@@ -5,8 +5,9 @@
 #pragma once
 #include <deque>
 #include <filesystem>
-#include <unordered_map>
 #include <vector>
+#include "hash/hash.hpp"
+#include <ankerl/unordered_dense.h>
 
 #include "core/name.hpp"
 #include "core/package.hpp"
@@ -22,7 +23,9 @@ namespace SAA {
 
   struct GlobalData {
     std::span<std::string_view> globalNameMap;
-    std::unordered_map<FPackageObjectIndex, FScriptObjectEntry> ScriptObjectEntriesMap;
+      using denseMap = ankerl::unordered_dense::map<FPackageObjectIndex, FScriptObjectEntry>;
+
+      denseMap ScriptObjectEntriesMap;
   };
 
   class IOGlobalData {
@@ -35,4 +38,4 @@ namespace SAA {
   private:
     std::unique_ptr<IOStoreReader> storeParser;
   };
-} // namespace SAP
+} 

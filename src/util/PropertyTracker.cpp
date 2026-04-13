@@ -15,14 +15,14 @@ namespace SAA {
   std::map<std::string, std::map<uint64_t, PropertyInfo> > PropertyTracker::m_allSeen{};
 
   void PropertyTracker::registerMap(std::string_view className,
-                                    std::pmr::unordered_map<uint32_t, FPropertyTag, IdentityHash> &props) {
+                                    denseMap *props) {
     if (className == "Struct") { return; }
     std::string cls(className);
     std::lock_guard<std::mutex> lock(m_mutex);
     ++m_classInstanceCount[cls];
     auto &classData = m_allSeen[cls];
 
-    for (auto &[key, tag]: props) {
+    for (auto &[key, tag]: *props) {
       auto &info = classData[key];
       if (info.count == 0) {
         info.tag = tag;
@@ -46,12 +46,12 @@ namespace SAA {
           }
 
           if (!classHeaderPrinted) {
-            PropertyTrackerLog::warn("Class: {}", className);
+            PropertyTrackerLog::err("Class: {}", className);
             classHeaderPrinted = true;
           }
 
-          PropertyTrackerLog::warn("[Tracker]", "{}: {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
-                                   prop.tag.PropertyTypeName.text());
+          PropertyTrackerLog::warn( "{} : {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
+                                    prop.tag.PropertyTypeName.text());
         }
       }
     }

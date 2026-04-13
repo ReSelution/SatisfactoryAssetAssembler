@@ -37,6 +37,7 @@ target_link_libraries(SAA_Exporter
         SAA_Structs
         SAA_Reader
         fastgltf::fastgltf
+        EnTT
         StructuredChaos
 )
 

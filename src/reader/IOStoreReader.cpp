@@ -5,7 +5,6 @@
 #include <cstring>
 #include <fstream>
 #include <span>
-#include <unordered_map>
 
 #include "Decompressor.hpp"
 #include "Reader.hpp"
@@ -20,6 +19,7 @@
 #include "vfs.hpp"
 
 #include "logger/chaos_logger.hpp"
+#include "memory/chaos_bump_arena.hpp"
 LOG_ALIAS(IOStoreLog, "SAA", "IOSTORE")
 
 namespace SAA {
@@ -413,7 +413,7 @@ namespace SAA {
     return true;
   }
 
-  std::span<uint8_t> IOStoreReader::readChunk(SC::ChaosSlab *storage, const FIoChunkId &chunkId) const {
+  std::span<uint8_t> IOStoreReader::readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const {
     FIoOffsetAndLength offsetLenght{};
     if (!resolveChunk(chunkId, offsetLenght)) {
       IOStoreLog::err("Chunk {} not found.", chunkId.chunkIndex);
@@ -435,7 +435,6 @@ namespace SAA {
       }
       offset += size;
     }
-
     return uncompressedData;
   }
 
@@ -453,8 +452,8 @@ namespace SAA {
     }
 
     std::span<const uint8_t> compressedData = m_ucasReader.getSpan(compressedOffset, compressedSize);
-    DecompressedThroughput::record(dst.size());
-    CompressedThroughput::record(compressedSize);
+    CHAOS_RECORD(DecompressedThroughput, dst.size())
+    CHAOS_RECORD(CompressedThroughput, compressedSize)
     return Decompressor::decompress(compressedData, dst, compressionMethod);
   }
-} // namespace SAP
+} 

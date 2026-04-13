@@ -5,28 +5,36 @@
 #include "provider/games/satisfactory/SatisfactoryDataProvider.hpp"
 #include "threading/chaos_threading.hpp"
 
-int main() {
+
+LOG_ALIAS(mainLog, "SAA", "TEST")
+
+void setWorkingDirectory(const char* argv0) {
+  namespace fs = std::filesystem;
+  fs::path exePath = std::filesystem::canonical(argv0);
+  fs::path projectRoot = exePath.parent_path().parent_path();
+  fs::current_path(projectRoot);
+
+}
+
+int main(int argc, char** argv) {
+  if (argc > 0) {
+    setWorkingDirectory(argv[0]);
+  }
+  if (std::filesystem::current_path().filename() != "SatisfactoryAssetAssembler") {
+    throw std::runtime_error("Wrong working Directory");
+  }
+
+
+  auto t = mainLog::time(spdlog::level::err, "Finished in {}");
+
   SC::ChaosThreading::init();
   std::filesystem::path gamePath =
       "/home/oleub/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Satisfactory/";
- gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
-
-  auto start = std::chrono::high_resolution_clock::now();
+  //gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
   SAA::SatisfactoryDataProvider provider(gamePath);
+  provider.load();
 
-
-  if (provider.load()) {
-    auto end = std::chrono::high_resolution_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "SAP Lib init in: " << us.count() / 1000 << "ms" << '\n';
-  } else {
-    std::cerr << "FEHLER: SAP-Initialisierung fehlgeschlagen. Prüfen Sie Pfade und Oodle/Mappings." << '\n';
-    return 1;
-  }
   // provider.test();
   provider.crawl();
-  auto end = std::chrono::high_resolution_clock::now();
-  auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-  std::cout << "SAP Bibliothek Fertig: " << us.count() / 1000.0 << " ms\n";
   return 0;
 }

@@ -13,7 +13,7 @@
 
 #include "structs/exported_texture_data.hpp"
 
-#include "ue/asset_object.hpp"
+#include "asset_object.hpp"
 
 namespace SAA {
   class TextureExporter;
@@ -26,13 +26,13 @@ namespace SAA {
     friend TextureExporter;
 
   public:
-    enum class ETextureProperty : uint32_t {
-      LightingGuid = fnv1a("LightingGuid"),
-      CompressionSettings = fnv1a("CompressionSettings"),
-      LODGroup = fnv1a("LODGroup"),
-      Filter = fnv1a("Filter"),
-      SRGB = fnv1a("SRGB"),
-      AssetUserData = fnv1a("AssetUserData"),
+    enum class ETextureProperty : uint64_t {
+        LightingGuid        = "LightingGuid"_h,
+        CompressionSettings = "CompressionSettings"_h,
+        LODGroup            = "LODGroup"_h,
+        Filter              = "Filter"_h,
+        SRGB                = "SRGB"_h,
+        AssetUserData       = "AssetUserData"_h,
     };
 
     Texture(std::string_view className = "Texture");
@@ -65,4 +65,4 @@ namespace SAA {
 
     FTexture2DMipMap parseTexture2dMipMap(ByteCursor &cursor, bool parseMipData = true);
   };
-} // namespace SAP
+} 

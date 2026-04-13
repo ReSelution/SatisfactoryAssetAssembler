@@ -40,7 +40,7 @@ namespace SAA {
     accessor.byteOffset = 0;
 
     // Mapping von C++ Typen auf glTF Enums
-    if constexpr (std::is_same_v<T, FVector_f> || std::is_same_v<T, fastgltf::math::vec<float, 3> >) {
+    if constexpr (std::is_same_v<T, FVector3F> || std::is_same_v<T, fastgltf::math::vec<float, 3> >) {
       accessor.type = fastgltf::AccessorType::Vec3;
       accessor.componentType = fastgltf::ComponentType::Float;
     } else if constexpr (std::is_same_v<T, fastgltf::math::vec<float, 2> >) {
@@ -133,13 +133,13 @@ namespace SAA {
 
       // 1. Vertices konvertieren (UE Z-Up -> glTF Y-Up)
       constexpr float UNIT_SCALE = 0.01f;
-      std::vector<FVector_f> convertedVertices;
+      std::vector<FVector3F> convertedVertices;
       convertedVertices.reserve(count);
       for (const auto &v: lod.positionVertexBuffer.vertices) {
         convertedVertices.push_back({v.x * UNIT_SCALE, v.z * UNIT_SCALE, v.y * UNIT_SCALE});
       }
       appendData(binaryBuffer, convertedVertices.data(), count);
-      auto posAcc = createAccessor<FVector_f>(asset, binaryBuffer, offset, count, fastgltf::BufferTarget::ArrayBuffer);
+      auto posAcc = createAccessor<FVector3F>(asset, binaryBuffer, offset, count, fastgltf::BufferTarget::ArrayBuffer);
       const auto &b = mesh->m_renderData.bounds;
       for (int i = 0; i < 8; ++i) {
         // Erzeugt alle Kombinationen von +/- Extent
@@ -355,4 +355,4 @@ namespace SAA {
       MeshExporterLog::err(" Failed to write Gltf binary file:{}", fastgltf::getErrorName(result));
     }
   }
-} // namespace SAP
+} 

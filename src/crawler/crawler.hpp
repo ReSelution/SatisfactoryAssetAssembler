@@ -7,27 +7,34 @@
 
 #include "AssetFileParser.hpp"
 
-#include "core/hash.hpp"
+#include "hash/hash.hpp"
 
 
 namespace SAA {
   class Crawler {
-    enum class HIT_TEST_CLASS_HASH : uint32_t {
+      enum class HIT_TEST_CLASS_HASH : uint64_t {
 
-      // --- REZEPTE & FORSCHUNG ---
-      FGRecipe = fnv1a("FGRecipe"),
-      FGSchematic = fnv1a("FGSchematic"),
+          // --- REZEPTE & FORSCHUNG ---
+          FGRecipe                 = "FGRecipe"_h,
+          FGSchematic              = "FGSchematic"_h,
 
-      // --- ITEMS & DESKRIPTOREN ---
-      FGItemDescriptor = fnv1a("FGItemDescriptor"),
-      FGItemDescriptorBiomass = fnv1a("FGItemDescriptorBiomass"),
-      FGResourceDescriptor = fnv1a("FGResourceDescriptor"),
-      FGBuildingDescriptor = fnv1a("FGBuildingDescriptor"), // Item-Form von Gebäuden
-
-    };
+          // --- ITEMS & DESKRIPTOREN ---
+          FGItemDescriptor         = "FGItemDescriptor"_h,
+          FGItemDescriptorBiomass  = "FGItemDescriptorBiomass"_h,
+          FGResourceDescriptor     = "FGResourceDescriptor"_h,
+          FGBuildingDescriptor     = "FGBuildingDescriptor"_h,
+      };
 
   public:
     Crawler();
+    ~Crawler() {
+      m_childs.clear();
+
+      m_buildable.clear();
+      m_recipes.clear();
+      m_items.clear();
+      m_resources.clear();
+    }
     static Crawler getChild();
     void mergeWithChild(Crawler &child);
     void crawl(AssetParser &parser);
@@ -53,4 +60,4 @@ namespace SAA {
     std::vector<Crawler> m_childs;
 
   };
-} // namespace SAP
+} 

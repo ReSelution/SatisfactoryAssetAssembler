@@ -5,8 +5,8 @@
 #pragma once
 #include "structs/gltf_material.hpp"
 
-#include "ue/asset_object.hpp"
-#include "ue/object_factory.hpp"
+#include "asset_object.hpp"
+#include "object_factory.hpp"
 
 namespace SAA {
   class UnrealMaterial : public Object {
@@ -16,4 +16,4 @@ namespace SAA {
   };
 
   SAA_REGISTER_ASSET(UnrealMaterial)
-} // namespace SAP
+} 

@@ -2,10 +2,80 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/atomic_queue-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/entt-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/fastgltf-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/hwy-build/googletest-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/hwy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/mimalloc-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/pfr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/tracy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-asan-relwithdebinfo/_deps/unordered_dense-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/atomic_queue-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/entt-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/fastgltf-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/hwy-build/googletest-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/hwy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/mimalloc-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/pfr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/tracy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-minsizerel/_deps/atomic_queue-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-minsizerel/_deps/entt-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-minsizerel/_deps/mimalloc-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-minsizerel/_deps/pfr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-minsizerel/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/atomic_queue-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/entt-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/fastgltf-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/hwy-build/googletest-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/hwy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/mimalloc-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/pfr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/tracy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/unordered_dense-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/atomic_queue-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/entt-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/fastgltf-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/hwy-build/googletest-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/hwy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/mimalloc-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/pfr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/tracy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-windows/_deps/unordered_dense-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/atomic_queue-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/entt-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/fastgltf-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/hwy-build/googletest-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/hwy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/mimalloc-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/pfr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/tracy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/unordered_dense-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/atomic_queue-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/entt-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/fastgltf-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/hwy-build/googletest-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/hwy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/mimalloc-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/pfr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/tracy-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/unordered_dense-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/StructuredChaos" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/StructuredChaos/external/spdlog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/StructuredChaos/external/tracy" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/bcdec" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/fastgltf" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/stb" vcs="Git" />
   </component>
 </project>

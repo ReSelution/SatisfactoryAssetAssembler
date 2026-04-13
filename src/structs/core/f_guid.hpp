@@ -18,4 +18,4 @@ namespace SAA {
     bool operator!=(const FGuid &other) const { return !(*this == other); }
   };
 #pragma pack(pop)
-} // namespace SAP
+} 

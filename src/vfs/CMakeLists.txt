@@ -21,5 +21,4 @@ target_link_libraries(SAA_VFS
         SAA_Util
         SAA_Reader
         PRIVATE
-        CITY_HASH
 )

@@ -5,22 +5,22 @@
 #pragma once
 
 namespace SAA {
-  enum class EMaterialShadingModel : uint32_t {
-    MSM_Unlit = fnv1a("MSM_Unlit"),
-    MSM_DefaultLit = fnv1a("MSM_DefaultLit"),
-    MSM_Subsurface = fnv1a("MSM_Subsurface"),
-    MSM_PreintegratedSkin = fnv1a("MSM_PreintegratedSkin"),
-    MSM_ClearCoat = fnv1a("MSM_ClearCoat"),
-    MSM_SubsurfaceProfile = fnv1a("MSM_SubsurfaceProfile"),
-    MSM_TwoSidedFoliage = fnv1a("MSM_TwoSidedFoliage"),
-    MSM_Hair = fnv1a("MSM_Hair"),
-    MSM_Cloth = fnv1a("MSM_Cloth"),
-    MSM_Eye = fnv1a("MSM_Eye"),
-    MSM_SingleLayerWater = fnv1a("MSM_SingleLayerWater"),
-    MSM_ThinTranslucent = fnv1a("MSM_ThinTranslucent"),
-    MSM_Strata = fnv1a("MSM_Strata"),
-    MSM_NUM = fnv1a("MSM_NUM"),
-    MSM_FromMaterialExpression = fnv1a("MSM_FromMaterialExpression"),
-    MSM_MAX = fnv1a("MSM_MAX")
-  };
+    enum class EMaterialShadingModel : uint64_t {
+        MSM_Unlit = "MSM_Unlit"_h,
+        MSM_DefaultLit = "MSM_DefaultLit"_h,
+        MSM_Subsurface = "MSM_Subsurface"_h,
+        MSM_PreintegratedSkin = "MSM_PreintegratedSkin"_h,
+        MSM_ClearCoat = "MSM_ClearCoat"_h,
+        MSM_SubsurfaceProfile = "MSM_SubsurfaceProfile"_h,
+        MSM_TwoSidedFoliage = "MSM_TwoSidedFoliage"_h,
+        MSM_Hair = "MSM_Hair"_h,
+        MSM_Cloth = "MSM_Cloth"_h,
+        MSM_Eye = "MSM_Eye"_h,
+        MSM_SingleLayerWater = "MSM_SingleLayerWater"_h,
+        MSM_ThinTranslucent = "MSM_ThinTranslucent"_h,
+        MSM_Strata = "MSM_Strata"_h,
+        MSM_NUM = "MSM_NUM"_h,
+        MSM_FromMaterialExpression = "MSM_FromMaterialExpression"_h,
+        MSM_MAX = "MSM_MAX"_h,
+    };
 }

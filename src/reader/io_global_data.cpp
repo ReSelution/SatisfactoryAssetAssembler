@@ -37,4 +37,4 @@ namespace SAA {
     globalNameMapSize = data.globalNameMap.size();
     scriptObjectEntriesSize = data.ScriptObjectEntriesMap.size();
   }
-} // namespace SAP
+} 

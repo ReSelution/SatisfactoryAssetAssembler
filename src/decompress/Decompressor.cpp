@@ -99,8 +99,8 @@ namespace SAA {
       DecomLog::err("Oodle Dekompression fehlgeschlagen.");
       return false;
     }
-    if (decodedSize < dst.size()) {
-      DecomLog::err("Oodle decompression just decompressed {} bytes of the expected {} bytes",
+    if (decodedSize !=  dst.size()) {
+      DecomLog::err("Oodle decompression decompressed {} bytes of the expected {} bytes",
                     decodedSize, dst.size());
     }
 
@@ -114,4 +114,4 @@ namespace SAA {
 
   bool Decompressor::decompressLZ4(std::span<const uint8_t> src, std::span<uint8_t> dst) { return false; }
   bool Decompressor::decompressGzip(std::span<const uint8_t> src, std::span<uint8_t> dst) { return false; }
-} // namespace SAP
+} 

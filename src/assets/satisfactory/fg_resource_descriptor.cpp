@@ -4,39 +4,45 @@
 
 #include "fg_resource_descriptor.hpp"
 
+#include "fg/fg_exporter.hpp"
+
 namespace SAA {
   void FGResourceDescriptor::parse() {
     Object::parse();
     // Irrelevantes entsorgen
-    DBG_MARK_HANDLED(m_className, Resource::CachedStackSize);
-    DBG_MARK_HANDLED(m_className, Resource::RememberPickUp);
-    DBG_MARK_HANDLED(m_className, Resource::ManualMiningAudioName);
-    DBG_MARK_HANDLED(m_className, Resource::ManualMiningParticle);
-    DBG_MARK_HANDLED(m_className, Resource::FactoryMiningParticle);
-    DBG_MARK_HANDLED(m_className, Resource::DestroyedParticle);
-    DBG_MARK_HANDLED(m_className, Resource::DepositMaterial);
-    DBG_MARK_HANDLED(m_className, Resource::DepositMesh);
-    DBG_MARK_HANDLED(m_className, Resource::DecalMaterial);
+    DBG_MARK_HANDLED(m_className, Item::CachedStackSize);
+    DBG_MARK_HANDLED(m_className, Item::RememberPickUp);
+    DBG_MARK_HANDLED(m_className, Item::ManualMiningAudioName);
+    DBG_MARK_HANDLED(m_className, Item::ManualMiningParticle);
+    DBG_MARK_HANDLED(m_className, Item::FactoryMiningParticle);
+    DBG_MARK_HANDLED(m_className, Item::DestroyedParticle);
+    DBG_MARK_HANDLED(m_className, Item::DepositMaterial);
+    DBG_MARK_HANDLED(m_className, Item::DepositMesh);
+    DBG_MARK_HANDLED(m_className, Item::DecalMaterial);
 
     // Relevante Daten für den Solver
-    mDisplayName = get<FText>(Resource::DisplayName);
-    mDescription = get<FText>(Resource::Description);
-    mAbbreviatedDisplayName = get<FText>(Resource::AbbreviatedDisplayName);
+    mDisplayName = get<FText>(Base::DisplayName);
+    mDescription = get<FText>(Base::Description);
+    mAbbreviatedDisplayName = get<FText>(Item::AbbreviatedDisplayName);
 
-    mCategory = get<Object *>(Resource::Category);
-    mForm = get<FName>(Resource::Form);
-    mEnergyValue = get<float>(Resource::EnergyValue).value_or(0.0f);
-    mRadioactiveDecay = get<float>(Resource::RadioactiveDecay).value_or(0.0f);
+    mCategory = get<Object *>(Item::Category);
+    mForm = get<FName>(Item::Form);
+    mEnergyValue = get<float>(Item::EnergyValue).value_or(0.0f);
+    mRadioactiveDecay = get<float>(Item::RadioactiveDecay).value_or(0.0f);
 
     // Icons & Visuals (für das UI des Calculators)
-    mPersistentBigIcon = get<Object *>(Resource::PersistentBigIcon);
-    mSmallIcon = get<Object *>(Resource::SmallIcon);
-    mCompassTexture = get<Object *>(Resource::CompassTexture);
-    mPingColor = get<FLinearColor>(Resource::PingColor);
-    mConveyorMesh = get<Object *>(Resource::ConveyorMesh);
-    mIsAlienItem = get<bool>(Resource::IsAlienItem).value_or(false);
-    mStackSize = get<FName>(Resource::StackSize);
-    mFluidColor = get<FColor>(Resource::FluidColor);
-    mDepositMesh = get<Object *>(Resource::DepositMesh);
+    mPersistentBigIcon = get<Object *>(Item::PersistentBigIcon);
+    mSmallIcon = get<Object *>(Item::SmallIcon);
+    mCompassTexture = get<Object *>(Item::CompassTexture);
+    mPingColor = get<FLinearColor>(Item::PingColor);
+    mConveyorMesh = get<Object *>(Item::ConveyorMesh);
+    mIsAlienItem = get<bool>(Item::IsAlienItem).value_or(false);
+    mStackSize = get<FName>(Item::StackSize);
+    mFluidColor = get<FColor>(Item::FluidColor);
+    mDepositMesh = get<Object *>(Item::DepositMesh);
   }
-} // namespace SAP
+
+  void FGResourceDescriptor::exprt() {
+    FGExporter::encodeItem(this);
+  }
+} 

@@ -36,12 +36,12 @@ namespace SAA {
   void Texture::parseCookedPlatformData(ByteCursor &cursor, bool parseMipData) {
     auto pixelFormatName = cursor.readFName();
     while (!pixelFormatName.isNone()) {
-      auto pixelFormat = hashEnum<EPixelFormat>(pixelFormatName.text());
+      auto pixelFormat = SC::hash<EPixelFormat>(pixelFormatName.text());
       auto skipOffset = +cursor.tell() + cursor.absOffset() + cursor.read<uint64_t>();
 
       if (m_format == EPixelFormat::PF_Unknown) {
         parsePlatformData(cursor, parseMipData);
-        m_format = hashEnum<EPixelFormat>(pixelFormatName.text());
+        m_format = SC::hash<EPixelFormat>(pixelFormatName.text());
       }
 
       pixelFormatName = cursor.readFName();
@@ -137,7 +137,7 @@ namespace SAA {
 
     m_vtData.layerTypes.resize(m_vtData.numLayers);
     for (auto i = 0; i < m_vtData.numLayers; i++) {
-      m_vtData.layerTypes.emplace_back(hashEnum<EPixelFormat>(asset.readFString()));
+      m_vtData.layerTypes.emplace_back(SC::hash<EPixelFormat>(asset.readFString()));
     }
 
     m_vtData.layerFallbackColors = asset.readArray<FLinearColor>(m_vtData.numLayers);
@@ -160,4 +160,4 @@ namespace SAA {
       m_vtData.chunks.emplace_back(std::move(chunk));
     }
   }
-} // namespace SAP
+} 

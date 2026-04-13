@@ -19,4 +19,4 @@ namespace SAA {
               .densities = cursor.readArray<float>(TEXSTREAM_MAX_NUM_UVCHANNELS)};
     }
   };
-} // namespace SAP
+} 

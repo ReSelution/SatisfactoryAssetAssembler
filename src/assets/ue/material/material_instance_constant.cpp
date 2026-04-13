@@ -25,4 +25,4 @@ namespace SAA {
   }
 
   void MaterialInstanceConstant::exportToGltf(GltfMaterial &out) { MaterialExporter::encodeMaterial(out, this); }
-} // namespace SAP
+} 

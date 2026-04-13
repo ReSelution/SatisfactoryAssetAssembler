@@ -19,4 +19,4 @@ namespace SAA {
     static std::vector<uint8_t> cropRGBA(const std::vector<uint8_t> &src, uint32_t srcW, uint32_t srcH, uint32_t dstW,
                                          uint32_t dstH);
   };
-} // namespace SAP
+} 

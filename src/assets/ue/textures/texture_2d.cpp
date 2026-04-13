@@ -21,4 +21,4 @@ namespace SAA {
       parseCookedPlatformData(m_cursor, serializeMipData);
     }
   }
-} // namespace SAP
+} 

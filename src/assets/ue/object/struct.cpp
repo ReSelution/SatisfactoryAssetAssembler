@@ -12,4 +12,4 @@ namespace SAA {
     Field::parse();
     m_superStructIndex = m_cursor.read<int32_t>();
   }
-} // namespace SAP
+} 

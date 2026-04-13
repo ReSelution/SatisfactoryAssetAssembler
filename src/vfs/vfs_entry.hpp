@@ -13,20 +13,7 @@ namespace SAA {
   class PAKReader;
   class IOStoreReader;
 
-  inline uint64_t fnv1a_lowercase(std::string_view str) {
-    uint64_t hash = 0xcbf29ce484222325;
-    for (char c: str) {
-      char lc;
-      if ((c >= 'A' && c <= 'Z')) {
-        lc = c + 32;
-      } else {
-        lc = c;
-      }
-      hash ^= static_cast<uint64_t>(lc);
-      hash *= 0x100000001b3;
-    }
-    return hash;
-  }
+
 
   enum class VFS_EntryType : uint8_t {
     IOVfsEntry,
@@ -54,7 +41,7 @@ namespace SAA {
 
     bool operator!=(const UnifiedVfsEntry &other) const { return !this->operator==(other); }
 
-    virtual std::span<uint8_t> read(SC::ChaosSlab *storage) const { return {}; };
+    virtual std::span<uint8_t> read(SC::ChaosBumpArena *storage) const { return {}; };
   };
 
   class IOVfsEntry : public UnifiedVfsEntry {
@@ -69,7 +56,7 @@ namespace SAA {
 
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
 
-    std::span<uint8_t> read(SC::ChaosSlab *storage) const override;
+    std::span<uint8_t> read(SC::ChaosBumpArena *storage) const override;
 
     bool operator==(const UnifiedVfsEntry &other) const override {
       if ( other.getEntryType() == VFS_EntryType::IOVfsEntry) {
@@ -92,6 +79,6 @@ namespace SAA {
 
     VFS_EntryType getEntryType() const override { return VFS_EntryType::PAKVfsEntry; }
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
-    std::span<uint8_t> read(SC::ChaosSlab *storage) const override;
+    std::span<uint8_t> read(SC::ChaosBumpArena *storage) const override;
   };
-} // namespace SAP
+} 

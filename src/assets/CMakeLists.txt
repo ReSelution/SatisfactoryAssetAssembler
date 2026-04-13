@@ -11,13 +11,21 @@ add_library(SAA_Assets STATIC
         ue/properties/property_parser_1017.cpp
         ue/properties/soft_object.cpp
         ue/properties/soft_object.hpp
-        satisfactory/fg_descriptor.cpp
-        satisfactory/fg_descriptor.hpp)
+        satisfactory/items/fg_item_base.cpp
+        satisfactory/items/fg_item_base.hpp
+        satisfactory/fg_factory.cpp
+        satisfactory/fg_factory.hpp
+        satisfactory/building/fg_building_base.cpp
+        satisfactory/building/fg_building_base.hpp
+        satisfactory/fg_descriptor_base.cpp
+        satisfactory/fg_descriptor_base.hpp
+        satisfactory/fg_equipment_descriptor.cpp
+        satisfactory/fg_equipment_descriptor.hpp)
 
 target_sources(SAA_Assets
         PUBLIC
-        ue/asset_object.hpp
-        ue/object_factory.hpp
+        asset_object.hpp
+        object_factory.hpp
         ue/object/field.hpp
         ue/object/struct.hpp
         ue/object/class.hpp
@@ -31,8 +39,8 @@ target_sources(SAA_Assets
 
 target_sources(SAA_Assets
         PRIVATE
-        ue/asset_object.cpp
-        ue/object_factory.cpp
+        asset_object.cpp
+        object_factory.cpp
         ue/object/field.cpp
         ue/object/struct.cpp
         ue/object/class.cpp
@@ -66,14 +74,14 @@ target_sources(SAA_Assets
         # Satisfactory Specifics
         satisfactory/fg_recipe.cpp
         satisfactory/fg_recipe.hpp
-        satisfactory/fg_item_descriptor.cpp
-        satisfactory/fg_item_descriptor.hpp
-        satisfactory/fg_item_descriptor_biomass.cpp
-        satisfactory/fg_item_descriptor_biomass.hpp
+        satisfactory/items/fg_item_descriptor.cpp
+        satisfactory/items/fg_item_descriptor.hpp
+        satisfactory/items/fg_item_descriptor_biomass.cpp
+        satisfactory/items/fg_item_descriptor_biomass.hpp
         satisfactory/fg_resource_descriptor.cpp
         satisfactory/fg_resource_descriptor.hpp
-        satisfactory/fg_building_descriptor.cpp
-        satisfactory/fg_building_descriptor.hpp
+        satisfactory/building/fg_building_descriptor.cpp
+        satisfactory/building/fg_building_descriptor.hpp
         satisfactory/fg_schematic.cpp
         satisfactory/fg_schematic.hpp
 )

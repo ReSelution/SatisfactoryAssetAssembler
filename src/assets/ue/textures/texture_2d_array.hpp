@@ -5,7 +5,7 @@
 #pragma once
 #include "texture.hpp"
 
-#include "ue/object_factory.hpp"
+#include "../../object_factory.hpp"
 
 namespace SAA {
   class Texture2DArray : public SAA::Texture {
@@ -19,4 +19,4 @@ namespace SAA {
     void parse() override;
   };
   SAA_REGISTER_ASSET(Texture2DArray)
-} // namespace SAP
+} 

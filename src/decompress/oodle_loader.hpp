@@ -22,4 +22,4 @@ namespace SAA {
                                                         0x41, 0x57, 0x48, 0x81, 0xEC, 0xC8, 0x00, 0x00, 0x00};
     static OodleLZ_Decompress loadLib(std::filesystem::path const &path);
   };
-} // namespace SAP
+} 

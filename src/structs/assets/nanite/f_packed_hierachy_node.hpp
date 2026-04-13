@@ -14,4 +14,4 @@ namespace SAA {
     std::array<FHierarchyNodeSlice, NANITE_MAX_BVH_NODE_FANOUT> slices;
   };
 #pragma pack(pop)
-} // namespace SAP
+} 

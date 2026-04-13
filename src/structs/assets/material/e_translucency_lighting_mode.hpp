@@ -4,15 +4,16 @@
 
 #pragma once
 #include <cstdint>
+#include "hash/hash.hpp"
 
 namespace SAA {
-  enum class ETranslucencyLightingMode : uint32_t {
-    TLM_VolumetricNonDirectional = fnv1a("TLM_VolumetricNonDirectional"),
-    TLM_VolumetricDirectional = fnv1a("TLM_VolumetricDirectional"),
-    TLM_VolumetricPerVertexNonDirectional = fnv1a("TLM_VolumetricPerVertexNonDirectional"),
-    TLM_VolumetricPerVertexDirectional = fnv1a("TLM_VolumetricPerVertexDirectional"),
-    TLM_Surface = fnv1a("TLM_Surface"),
-    TLM_SurfacePerPixelLighting = fnv1a("TLM_SurfacePerPixelLighting"),
-    TLM_MAX = fnv1a("TLM_MAX")
-  };
+    enum class ETranslucencyLightingMode : uint64_t {
+        TLM_VolumetricNonDirectional          = "TLM_VolumetricNonDirectional"_h,
+        TLM_VolumetricDirectional             = "TLM_VolumetricDirectional"_h,
+        TLM_VolumetricPerVertexNonDirectional = "TLM_VolumetricPerVertexNonDirectional"_h,
+        TLM_VolumetricPerVertexDirectional    = "TLM_VolumetricPerVertexDirectional"_h,
+        TLM_Surface                           = "TLM_Surface"_h,
+        TLM_SurfacePerPixelLighting           = "TLM_SurfacePerPixelLighting"_h,
+        TLM_MAX                               = "TLM_MAX"_h
+    };
 }

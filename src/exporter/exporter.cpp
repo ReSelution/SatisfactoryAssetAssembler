@@ -4,6 +4,8 @@
 
 #include "exporter.hpp"
 
+#include "asset_object.hpp"
+
 namespace SAA {
   bool Exporter::checkPath(std::filesystem::path path) {
     std::filesystem::path dir(path.parent_path());
@@ -12,4 +14,16 @@ namespace SAA {
     }
     return std::filesystem::exists(path);
   }
-} // namespace SAP
+
+  SC::ChaosEntity Exporter::getEntity(Object *obj) {
+    if (obj->entity) {
+      return obj->entity;
+    }
+    SC::ChaosSpinLockGuard lock(obj->entityCreationLock);
+    if (obj->entity) {
+      return obj->entity;
+    }
+    obj->entity = reg.create();
+    return obj->entity;
+  }
+} 

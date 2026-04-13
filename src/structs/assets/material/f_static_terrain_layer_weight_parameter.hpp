@@ -10,4 +10,4 @@ namespace SAA {
     uint32_t weightMapIndex;
     bool weightBasedBlend;
   };
-} // namespace SAP
+} 

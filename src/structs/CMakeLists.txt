@@ -4,6 +4,8 @@
 add_library(SAA_Structs STATIC
         assets/satisfactory/ItemAmount.hpp
         core/EClassSerializationControlExtension.hpp
+        core/hash.cpp
+
 )
 
 # ------------------------------------------------------------------------------
@@ -144,6 +146,7 @@ target_sources(SAA_Structs
 target_sources(SAA_Structs
         PRIVATE
         core/package.cpp
+        core/name.cpp
 
 )
 
@@ -161,8 +164,6 @@ target_link_libraries(SAA_Structs
         PUBLIC
         SAA_Util
         StructuredChaos
-        SAA_Assets
-        SAA_Parser
         PRIVATE
         CITY_HASH
 )

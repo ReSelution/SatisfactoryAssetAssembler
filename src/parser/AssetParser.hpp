@@ -20,7 +20,7 @@ namespace SAA {
   struct FPackageId;
   class Reader;
   class AssetFileParser;
-} // namespace SAP
+}
 
 namespace SAA {
   struct AssetParseResult;
@@ -30,10 +30,8 @@ namespace SAA {
   class AssetParser {
   public:
     explicit AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData);
-    ~AssetParser();
+    ~AssetParser() = default;
 
-    void queueFile(std::string_view path);
-    void processQueue(Crawler *crawler = nullptr, uint32_t threadCount = 0);
     void parseAsset(std::string_view path, const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed);
 
     std::shared_ptr<AssetFileParser> loadPackage(const FPackageId &pkg);
@@ -43,7 +41,6 @@ namespace SAA {
     friend class AssetFileParser;
     [[nodiscard]] const FUsmapMappingData *mappings() const { return m_mappings; }
     [[nodiscard]] const GlobalData *globalData() const { return m_globalData; }
-    void workerThread(const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed);
 
     std::shared_ptr<AssetFileParser> createParser(const UnifiedVfsEntry *vfsEntry);
     Vfs *m_vfs;
@@ -52,10 +49,7 @@ namespace SAA {
 
     LocManager m_localizationManager;
 
-    std::queue<std::string_view> m_JobQueue;
-    std::mutex m_QueueMutex;
-    std::vector<std::thread> m_ThreadPool;
-    ShardedCache<uint64_t, std::weak_ptr<AssetFileParser>> m_parserCache;
+    ShardedCache<uint64_t, AssetFileParser> m_parserCache;
     std::shared_mutex m_cacheMutex;
   };
-} // namespace SAP
+} 

@@ -86,4 +86,4 @@ namespace SAA {
     FBulkDataCookedIndex cookedIndex;
   };
 #pragma pack(pop)
-} // namespace SAP
+} 

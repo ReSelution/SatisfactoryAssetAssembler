@@ -3,12 +3,11 @@
 //
 
 #pragma once
-#include "version.hpp"
 
-#include "ue/asset_object.hpp"
-#include "ue/object_factory.hpp"
+#include "asset_object.hpp"
+#include "object_factory.hpp"
 
 namespace SAA {
   class StaticMeshSocket : public Object {};
   SAA_REGISTER_ASSET(StaticMeshSocket)
-} // namespace SAP
+} 

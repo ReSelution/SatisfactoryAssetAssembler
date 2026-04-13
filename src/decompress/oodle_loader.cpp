@@ -180,7 +180,13 @@ namespace SAA {
     if (!handle) {
       return nullptr;
     }
+      typedef int64_t (*Oodle_SetUsageWarnings)(uint32_t  state);
+
+    auto func = reinterpret_cast<Oodle_SetUsageWarnings>(dlsym(handle, "Oodle_SetUsageWarnings"));
+    func(1);
+
+
     return reinterpret_cast<OodleLZ_Decompress>(dlsym(handle, "OodleLZ_Decompress"));
 #endif
   }
-} // namespace SAP
+} 

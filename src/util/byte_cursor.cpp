@@ -7,36 +7,12 @@
 #include <cassert>
 
 #include "AssetFileParser.hpp"
-#include "cache/chaos_slab.hpp"
-
+#include "memory/chaos_bump_arena.hpp"
 #include "core/name.hpp"
-
-inline std::string utf16ToUtf8(const std::span<const char16_t> &input) {
-  if (input.empty())
-    return "";
-
-  std::string out;
-  out.reserve(input.size()); // Optimistische Annahme: Meist 1:1 Größe bei ASCII
-
-  for (unsigned short cp: input) {
-    if (cp < 0x80) {
-      out.push_back(static_cast<char>(cp));
-    } else if (cp < 0x800) {
-      out.push_back(static_cast<char>(0xC0 | (cp >> 6)));
-      out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
-    } else {
-      // Für alles über 0x800 (Standard-Sonderzeichen)
-      out.push_back(static_cast<char>(0xE0 | (cp >> 12)));
-      out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
-      out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
-    }
-  }
-  return out;
-}
 
 namespace SAA {
   void ByteCursor::seek(size_t newPos) {
-    if (newPos > m_buffer.size() && newPos > 0) [[unlikely]] {
+    if (newPos > m_buffer.size()) [[unlikely]] {
       throw std::runtime_error("ByteCursor seek out of range");
     }
     m_cursor = newPos;
@@ -61,15 +37,18 @@ namespace SAA {
     return name.index < m_owner->nameMap().size() && name.number < 256;
   }
 
-  std::span<std::string_view> ByteCursor::loadNameBatch(SC::ChaosSlab *utf16Storage) {
+  std::span<std::string_view> ByteCursor::loadNameBatch() {
+    assert(nullptr != m_owner);
+    return loadNameBatch(m_owner->storage());
+  }
+
+
+  std::span<std::string_view> ByteCursor::loadNameBatch(SC::ChaosBumpArena *utf16Storage) {
     auto count = read<uint32_t>();
     if (count == 0)
       return {};
 
-    m_cursor += sizeof(uint32_t); // numStringBytes
-    m_cursor += sizeof(uint64_t); // hashVersion
-    m_cursor += count * sizeof(uint64_t); // hashes
-
+    seek(m_cursor + sizeof(uint32_t)+sizeof(uint64_t)+count * sizeof(uint64_t) );
 
     assert(utf16Storage != nullptr);
 
@@ -95,10 +74,11 @@ namespace SAA {
   }
 
   std::string_view ByteCursor::readFString() {
+    assert(nullptr != m_owner);
     return readFString(m_owner->storage());
   }
 
-  std::string_view ByteCursor::readFString(SC::ChaosSlab *utf16Storage) {
+  std::string_view ByteCursor::readFString(SC::ChaosBumpArena *utf16Storage) {
     auto length = read<int32_t>();
     if (length == 0)
       return {};
@@ -126,4 +106,4 @@ namespace SAA {
     m_cursor += byteSize;
     return result;
   }
-} // namespace SAP
+} 

@@ -4,10 +4,10 @@
 #include <set>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 
 #include "core/hash.hpp"
-
+#include "hash/hash.hpp"
+#include "ankerl/unordered_dense.h"
 
 namespace SAA {
 #ifndef NDEBUG
@@ -16,7 +16,8 @@ namespace SAA {
 
     class PropertyTracker {
     public:
-        static void registerMap(std::string_view className, std::pmr::unordered_map<uint32_t, FPropertyTag, IdentityHash> &props);
+        using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, SC::IdentityHash>;
+        static void registerMap(std::string_view className, denseMap *props);
 
         static void markHandled(std::string_view className, uint64_t propHash) {
             std::lock_guard<std::mutex> lock(m_mutex);

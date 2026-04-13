@@ -123,14 +123,15 @@ namespace SAA {
 
   void UsmapReader::parseEnums(ByteCursor &cursor, FUsmapMappingData &outData) {
     uint32_t enumCount = cursor.read<uint32_t>();
-    outData.Enums = std::pmr::unordered_map<std::string_view, std::span<std::string_view> >(outData.storage.resource());
+    using denseMapEnums = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, SC::IdentityHash>;
+    outData.Enums = denseMapEnums(outData.storage.resource());
     outData.Enums.reserve(enumCount);
 
     for (uint32_t i = 0; i < enumCount; ++i) {
       std::string_view enumName = readName(cursor);
       auto values = readEnumValues(cursor, outData);
 
-      outData.Enums.emplace(std::move(std::string(enumName)), std::move(values));
+      outData.Enums.emplace(SC::hash(enumName), std::move(values));
     }
   }
 
@@ -161,12 +162,13 @@ namespace SAA {
 
   void UsmapReader::parseSchemas(ByteCursor &cursor, FUsmapMappingData &outData) {
     uint32_t schemaCount = cursor.read<uint32_t>();
-    outData.Schemas = std::pmr::unordered_map<std::string_view, FUsmapSchema>(outData.storage.resource());
+    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, SC::IdentityHash>;
+    outData.Schemas = denseMapSchemas (outData.storage.resource());
     outData.Schemas.reserve(schemaCount);
 
     for (uint32_t i = 0; i < schemaCount; ++i) {
       FUsmapSchema schema = readSingleSchema(cursor, outData);
-      outData.Schemas.emplace(schema.Name, std::move(schema));
+      outData.Schemas.emplace(SC::hash(schema.Name), std::move(schema));
     }
   }
 
@@ -252,4 +254,4 @@ namespace SAA {
     }
     return m_tempNameMap[index];
   }
-} // namespace SAP
+} 

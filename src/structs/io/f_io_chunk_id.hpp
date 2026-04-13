@@ -23,7 +23,7 @@ namespace SAA {
     }
   };
 #pragma pack(pop)
-} // namespace SAP
+} 
 
 namespace std {
   template<>

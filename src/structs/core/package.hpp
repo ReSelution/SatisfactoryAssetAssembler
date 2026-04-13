@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 #include <string>
-
+#include "hash/hash.hpp"
 #include "name.hpp"
 
 namespace SAA {
@@ -51,18 +51,18 @@ namespace SAA {
     };
   };
 #pragma pack(pop)
-} // namespace SAP
+} 
 
 namespace std {
   template<>
   struct hash<SAA::FPackageId> {
-    size_t operator()(const SAA::FPackageId &id) const noexcept { return std::hash<uint64_t>{}(id.Id); }
+    size_t operator()(const SAA::FPackageId &id) const noexcept { return static_cast<size_t>(id.Id); }
   };
 
   template<>
   struct hash<SAA::FPackageObjectIndex> {
     size_t operator()(const SAA::FPackageObjectIndex &index) const noexcept {
-      return hash<uint64_t>{}(index.TypeAndId);
+      return SC::hash(index.TypeAndId);
     }
   };
 } // namespace std

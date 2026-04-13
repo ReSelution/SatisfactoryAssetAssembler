@@ -4,46 +4,45 @@
 
 #pragma once
 #include "assets/satisfactory/ItemAmount.hpp"
-#include "ue/asset_object.hpp"
-#include "ue/object_factory.hpp"
+#include "asset_object.hpp"
+#include "object_factory.hpp"
 
 namespace SAA {
   class FGSchematic : public Object {
     struct Schematic {
-    // Identität & Fortschritt
-    static constexpr uint32_t DisplayName                 = fnv1a("mDisplayName");
-    static constexpr uint32_t Description                 = fnv1a("mDescription");
-    static constexpr uint32_t TechTier                    = fnv1a("mTechTier");
-    static constexpr uint32_t Type                        = fnv1a("mType");           // Enum: Milestone, MAM, Shop
-    static constexpr uint32_t SchematicCategory           = fnv1a("mSchematicCategory");
-    static constexpr uint32_t SubCategories               = fnv1a("mSubCategories");
-    static constexpr uint32_t MenuPriority                = fnv1a("mMenuPriority");
+        static constexpr uint64_t DisplayName                = "mDisplayName"_h;
+        static constexpr uint64_t Description                = "mDescription"_h;
+        static constexpr uint64_t TechTier                   = "mTechTier"_h;
+        static constexpr uint64_t Type                       = "mType"_h;           // Enum: Milestone, MAM, Shop
+        static constexpr uint64_t SchematicCategory          = "mSchematicCategory"_h;
+        static constexpr uint64_t SubCategories              = "mSubCategories"_h;
+        static constexpr uint64_t MenuPriority               = "mMenuPriority"_h;
 
-    // Kosten & Freischaltung (Simplex-Input)
-    static constexpr uint32_t Cost                        = fnv1a("mCost");           // Array von ItemAmounts
-    static constexpr uint32_t Unlocks                     = fnv1a("mUnlocks");        // Enthält FGUnlockRecipe!
-    static constexpr uint32_t TimeToComplete              = fnv1a("mTimeToComplete");
+        // Kosten & Freischaltung (Simplex-Input)
+        static constexpr uint64_t Cost                       = "mCost"_h;           // Array von ItemAmounts
+        static constexpr uint64_t Unlocks                    = "mUnlocks"_h;        // Enthält FGUnlockRecipe!
+        static constexpr uint64_t TimeToComplete             = "mTimeToComplete"_h;
 
-    // Logik & Abhängigkeiten (Dein Forschungsbaum)
-    static constexpr uint32_t DependsOnSchematic          = fnv1a("mDependsOnSchematic");
-    static constexpr uint32_t SchematicDependencies       = fnv1a("mSchematicDependencies");
-    static constexpr uint32_t AdditionalDependencies      = fnv1a("mAdditionalSchematicDependencies");
-    static constexpr uint32_t DependenciesBlocksAccess    = fnv1a("mDependenciesBlocksSchematicAccess");
-    static constexpr uint32_t HiddenUntilDepsMet          = fnv1a("mHiddenUntilDependenciesMet");
+        // Logik & Abhängigkeiten (Dein Forschungsbaum)
+        static constexpr uint64_t DependsOnSchematic         = "mDependsOnSchematic"_h;
+        static constexpr uint64_t SchematicDependencies      = "mSchematicDependencies"_h;
+        static constexpr uint64_t AdditionalDependencies     = "mAdditionalSchematicDependencies"_h;
+        static constexpr uint64_t DependenciesBlocksAccess   = "mDependenciesBlocksSchematicAccess"_h;
+        static constexpr uint64_t HiddenUntilDepsMet         = "mHiddenUntilDependenciesMet"_h;
+        static constexpr uint64_t SchematicUnlockTag         = "mSchematicUnlockTag"_h;
 
-    // UI & Meta
-    static constexpr uint32_t SchematicIcon               = fnv1a("mSchematicIcon");
-    static constexpr uint32_t SmallSchematicIcon          = fnv1a("mSmallSchematicIcon");
-    static constexpr uint32_t RelevantShopSchematics      = fnv1a("mRelevantShopSchematics");
-    static constexpr uint32_t RelevantEvents              = fnv1a("mRelevantEvents");
-    static constexpr uint32_t StatisticGameplayTag        = fnv1a("mStatisticGameplayTag");
-    static constexpr uint32_t IsPlayerSpecific            = fnv1a("mIsPlayerSpecific");
+        // UI & Meta
+        static constexpr uint64_t SchematicIcon              = "mSchematicIcon"_h;
+        static constexpr uint64_t SmallSchematicIcon         = "mSmallSchematicIcon"_h;
+        static constexpr uint64_t RelevantShopSchematics     = "mRelevantShopSchematics"_h;
+        static constexpr uint64_t RelevantEvents             = "mRelevantEvents"_h;
+        static constexpr uint64_t StatisticGameplayTag       = "mStatisticGameplayTag"_h;
+        static constexpr uint64_t IsPlayerSpecific           = "mIsPlayerSpecific"_h;
 };
   public:
-    FGSchematic(std::string_view classname = "FGSchematic") : Object(classname) {}
-    uint32_t getClassHash() override { return HASH; };
+    FGSchematic(std::string_view classname = "FGSchematic", uint64_t clsHash = StaticHASH) : Object(classname, clsHash) {}
 
-    static constexpr uint32_t HASH = fnv1a("FGSchematic");
+    static constexpr uint64_t StaticHASH = "FGSchematic"_h;
   protected:
     void parse() override;
 
@@ -72,4 +71,4 @@ namespace SAA {
 
   };
   SAA_REGISTER_ASSET(FGSchematic)
-} // namespace SAP
+} 

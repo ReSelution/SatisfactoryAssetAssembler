@@ -1,12 +1,13 @@
 #include "Reader.hpp"
 
 #include <fstream>
+#include <span>
 
-#include "cache/chaos_slab.hpp"
+#include "memory/chaos_bump_arena.hpp"
 
 namespace SAA {
   bool Reader::load() {
-    m_storage = std::make_unique<SC::ChaosSlab>(alocMutipilyer * initBufferSize);
+    m_storage = std::make_unique<SC::ChaosBumpArena>(alocMutipilyer * initBufferSize);
 
     return true;
   }
@@ -20,4 +21,4 @@ namespace SAA {
     stream.close();
     return data;
   }
-} // namespace SAP
+} 

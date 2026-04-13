@@ -15,33 +15,36 @@
 
 namespace SAA {
 
-  class SatisfactoryDataProvider {
-  public:
-    SatisfactoryDataProvider(const std::filesystem::path &baseInstallPath);
+    class SatisfactoryDataProvider {
+    public:
+        SatisfactoryDataProvider(const std::filesystem::path &baseInstallPath);
 
-    ~SatisfactoryDataProvider();
+        ~SatisfactoryDataProvider();
 
-    SatisfactoryDataProvider(const SatisfactoryDataProvider &) = delete;
+        SatisfactoryDataProvider(const SatisfactoryDataProvider &) = delete;
 
-    SatisfactoryDataProvider(SatisfactoryDataProvider &&) = delete;
+        SatisfactoryDataProvider(SatisfactoryDataProvider &&) = delete;
 
-    SatisfactoryDataProvider &operator=(const SatisfactoryDataProvider &) = delete;
+        SatisfactoryDataProvider &operator=(const SatisfactoryDataProvider &) = delete;
 
-    SatisfactoryDataProvider &operator=(SatisfactoryDataProvider &&) = delete;
+        SatisfactoryDataProvider &operator=(SatisfactoryDataProvider &&) = delete;
 
-    bool load();
-    void crawl();
-    void test();
+        bool load();
 
-  private:
-    Vfs m_vfs;
-    std::unique_ptr<UsmapReader> m_UsmapParser = nullptr;
-    std::unique_ptr<IOGlobalData> m_globalDataParser = nullptr;
-    std::unordered_map<std::string, std::unique_ptr<Reader>> m_Parsers;
+        void crawl();
 
-    void findAllParsableFiles(const std::filesystem::path &folder);
+        void test();
 
-    FUsmapMappingData m_usmapData;
-    GlobalData m_globalData;
-  };
-} // namespace SAP
+    private:
+
+        Vfs m_vfs;
+        std::unique_ptr<UsmapReader> m_UsmapParser = nullptr;
+        std::unique_ptr<IOGlobalData> m_globalDataParser = nullptr;
+        std::unordered_map<std::string, std::unique_ptr<Reader>> m_Parsers;
+
+        void findAllParsableFiles(const std::filesystem::path &folder);
+
+        FUsmapMappingData m_usmapData;
+        GlobalData m_globalData;
+    };
+} 

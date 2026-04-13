@@ -26,4 +26,4 @@ namespace SAA {
     static void encodeBytes(ExportedTextureData &data);
     static void saveTextures(std::string_view path, ExportedTextureData &data);
   };
-} // namespace SAP
+} 

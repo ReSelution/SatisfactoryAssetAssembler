@@ -10,6 +10,7 @@
 #include <span>
 
 #include "puplic/structs/meta_export.hpp"
+#include "threading/chaos_spin_lock.hpp"
 
 struct MetaExport;
 
@@ -40,8 +41,7 @@ namespace SAA {
 
     static void init(size_t bufferSize);
 
-    template<typename T, typename... Args>
-      requires std::derived_from<T, MetaExport>
+    template<typename T, typename... Args> requires std::derived_from<T, MetaExport>
     static T *write(Args &&... args);
 
     template<typename T>
@@ -56,10 +56,9 @@ namespace SAA {
     static void *internal_allocate(size_t size);
 
     static inline std::unique_ptr<uint8_t[]> backingBuffer;
-    static inline std::unique_ptr<std::pmr::monotonic_buffer_resource> pool;
+    static inline std::unique_ptr<SC::ChaosMonotonicResource> pool;
     static inline std::array<std::vector<void *>, static_cast<size_t>(ExportType::COUNT)> registry;
-    static inline std::atomic_flag m_allocLock = ATOMIC_FLAG_INIT;
-    static inline std::atomic_flag m_registryLock = ATOMIC_FLAG_INIT;
+    static inline SC::ChaosSpinLock m_registryLock;
     static inline bool initialized = false;
   };
 
@@ -71,6 +70,8 @@ namespace SAA {
     std::byte *currentDataPtr = static_cast<std::byte *>(ptr) + sizeof(T);
 
     auto transformed = std::make_tuple([&]<typename Tpram>(Tpram &&arg) {
+      using Decayed = std::decay_t<Tpram>;
+      static_assert(std::is_trivially_destructible_v<Decayed>);
       if constexpr (is_span_v<Tpram>) {
         if (!arg.empty()) {
           std::memcpy(currentDataPtr, arg.data(), arg.size_bytes());
@@ -89,10 +90,9 @@ namespace SAA {
      result = new(ptr) T({},std::forward<T0>(finalArgs)...);
     }, std::move(transformed));
 
-    while (m_registryLock.test_and_set(std::memory_order_acquire)) {
-    }
+    m_registryLock.lock();
     registry[static_cast<size_t>(T::Kind)].push_back(ptr);
-    m_registryLock.clear();
+    m_registryLock.unlock();
     return result;
   }
 } // SAP

@@ -3,78 +3,28 @@
 //
 
 #pragma once
-#include "fg_descriptor.hpp"
-#include "ue/asset_object.hpp"
-#include "ue/object_factory.hpp"
+#include "items/fg_item_base.hpp"
+#include "asset_object.hpp"
+#include "object_factory.hpp"
 
 namespace SAA {
-  class FGResourceDescriptor : public FGDescriptor {
+  class FGResourceDescriptor : public FGItemBase {
     struct Resource {
-      // Identität & Navigation
-      static constexpr uint32_t DisplayName = fnv1a("mDisplayName");
-      static constexpr uint32_t Description = fnv1a("mDescription");
-      static constexpr uint32_t AbbreviatedDisplayName = fnv1a("mAbbreviatedDisplayName");
-      static constexpr uint32_t Category = fnv1a("mCategory");
-      static constexpr uint32_t CompassTexture = fnv1a("mCompassTexture");
-      static constexpr uint32_t PingColor = fnv1a("mPingColor");
 
-      // Physikalische Form & Mining
-      static constexpr uint32_t Form = fnv1a("mForm"); // Fest, Flüssig, Gas
-      static constexpr uint32_t StackSize = fnv1a("mStackSize");
-      static constexpr uint32_t EnergyValue = fnv1a("mEnergyValue"); // Kohle/Uran
-      static constexpr uint32_t RadioactiveDecay = fnv1a("mRadioactiveDecay");
-
-      // Assets (Mining-Effekte & Meshes)
-      static constexpr uint32_t PersistentBigIcon = fnv1a("mPersistentBigIcon");
-      static constexpr uint32_t SmallIcon = fnv1a("mSmallIcon");
-      static constexpr uint32_t ConveyorMesh = fnv1a("mConveyorMesh");
-      static constexpr uint32_t DepositMesh = fnv1a("mDepositMesh");
-      static constexpr uint32_t DepositMaterial = fnv1a("mDepositMaterial");
-      static constexpr uint32_t DecalMaterial = fnv1a("mDecalMaterial");
-      static constexpr uint32_t FluidColor = fnv1a("mFluidColor");
-
-      // Partikel & Sound (Meist nur für das "Feeling" wichtig)
-      static constexpr uint32_t FactoryMiningParticle = fnv1a("mFactoryMiningParticle");
-      static constexpr uint32_t ManualMiningParticle = fnv1a("mManualMiningParticle");
-      static constexpr uint32_t ManualMiningAudioName = fnv1a("mManualMiningAudioName");
-      static constexpr uint32_t DestroyedParticle = fnv1a("mDestroyedParticle");
-
-      // Irrelevant / Tracker-Noise
-      static constexpr uint32_t CachedStackSize = fnv1a("mCachedStackSize");
-      static constexpr uint32_t RememberPickUp = fnv1a("mRememberPickUp");
-      static constexpr uint32_t IsAlienItem = fnv1a("mIsAlienItem");
     };
 
   public:
-    explicit FGResourceDescriptor(const std::string_view className = "FGResourceDescriptor") : FGDescriptor(className) {
+    explicit FGResourceDescriptor(const std::string_view className = "FGResourceDescriptor", uint64_t clsHash = StaticHASH) : FGItemBase(className, clsHash) {
     }
 
 
-    uint32_t getClassHash() override { return HASH; };
-    static constexpr uint32_t HASH = fnv1a("FGResourceDescriptor");
+    static constexpr uint64_t StaticHASH = "FGResourceDescriptor"_h;
 
   protected:
     void parse() override;
 
-  private:
-    std::optional<FText> mDisplayName;
-    std::optional<FText> mDescription;
-    std::optional<FText> mAbbreviatedDisplayName;
-
-    std::optional<Object *> mCategory;
-    std::optional<Object *> mPersistentBigIcon;
-    std::optional<Object *> mSmallIcon;
-    std::optional<Object *> mConveyorMesh;
-    std::optional<FName> mForm;
-    float mEnergyValue{};
-    float mRadioactiveDecay{};
-    std::optional<Object *> mCompassTexture;
-    std::optional<Object *> mDepositMesh;
-    std::optional<FLinearColor> mPingColor;
-    std::optional<FColor> mFluidColor;
-    std::optional<FName> mStackSize;
-    bool mIsAlienItem{};
+    void exprt() override;
   };
 
   SAA_REGISTER_ASSET(FGResourceDescriptor)
-} // namespace SAP
+} 

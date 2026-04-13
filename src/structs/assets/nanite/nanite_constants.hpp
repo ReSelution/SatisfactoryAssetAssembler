@@ -116,4 +116,4 @@ namespace SAA {
     NONE = 0x0,
     RELATIVE_ENCODING = 0x1,
   };
-} // namespace SAP
+} 

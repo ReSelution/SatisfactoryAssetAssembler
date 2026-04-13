@@ -20,4 +20,4 @@ namespace SAA {
   }
 
   void MaterialInstance::exportToGltf(GltfMaterial &gltfMaterial) { MaterialInterface::exportToGltf(gltfMaterial); }
-} // namespace SAP
+} 

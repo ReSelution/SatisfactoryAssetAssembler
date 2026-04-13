@@ -1,12 +1,9 @@
 [submodule "external/stb"]
 	path = external/stb
 	url = https://github.com/nothings/stb.git
-[submodule "external/bcdec"]
-	path = external/bcdec
-	url = https://github.com/iOrange/bcdec.git
-[submodule "external/fastgltf"]
-	path = external/fastgltf
-	url = https://github.com/spnda/fastgltf
 [submodule "external/StructuredChaos"]
 	path = external/StructuredChaos
 	url = git@github.com:ReSelution/StructuredChaos.git
+[submodule "external/bcdec"]
+	path = external/bcdec
+	url = https://github.com/iOrange/bcdec.git

@@ -9,12 +9,17 @@
 namespace SAA {
   class Struct : public Field {
   public:
-    Struct(std::string_view classname = "Struct") : Field(classname) {};
+    Struct(std::string_view classname = "Struct", uint64_t clsHash = StaticHASH) : Field(classname, clsHash) {};
 
     AssetFileParser *m_owner = nullptr;
     int32_t m_superStructIndex{};
 
+    static constexpr  uint64_t StaticHASH = "Struct"_h;
+
+
   protected:
+
+
     void parse() override;
   };
-} // namespace SAP
+} 

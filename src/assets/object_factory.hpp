@@ -3,37 +3,42 @@
 //
 
 #pragma once
-#include <string>
-#include <unordered_map>
 
+#include "hash/hash.hpp"
+#include <ankerl/unordered_dense.h>
 #include "asset_object.hpp"
 
 #define SAA_REGISTER_ASSET(TYPE)                                                                                       \
   namespace {                                                                                                          \
     struct TYPE##_Registrar {                                                                                          \
       TYPE##_Registrar() {                                                                                             \
-        SAA::ObjectFactory::Register(#TYPE, [](SC::ChaosSlab *storage) -> Object * { return storage->make<TYPE>(); });   \
+        SAA::ObjectFactory::Register(#TYPE, [](SC::ChaosBumpArena *storage) -> Object * { return storage->make<TYPE>(); });   \
       }                                                                                                                \
     };                                                                                                                 \
     static TYPE##_Registrar g_##TYPE##_registrar;                                                                      \
   }
 
 namespace SAA {
-  class ObjectFactory {
-  public:
-    using Factory = Object *(*) (SC::ChaosSlab * storage);
+    class ObjectFactory {
 
-    static bool Register(std::string_view name, Factory factory) {
-      s_map[name] = factory;
-      return true;
-    }
+    public:
+        using Factory = Object *(*)(SC::ChaosBumpArena *storage);
+        using denseMap = ankerl::unordered_dense::map<std::string_view, Factory, SC::IdentityHash>;
 
-    static Object *Create(std::string_view name, SC::ChaosSlab *storage) {
-      auto it = s_map.find(name);
-      return (it != s_map.end()) ? it->second(storage) : nullptr;
-    }
+        static bool Register(std::string_view name, Factory factory) {
+            map()[name] = factory;
+            return true;
+        }
 
-  private:
-    static inline std::unordered_map<std::string_view, Factory> s_map;
-  };
-} // namespace SAP
+        static Object *Create(std::string_view name, SC::ChaosBumpArena *storage) {
+            auto it = map().find(name);
+            return (it != map().end()) ? it->second(storage) : nullptr;
+        }
+
+    private:
+        static denseMap &map() {
+            static denseMap s_map;
+            return s_map;
+        }
+    };
+}

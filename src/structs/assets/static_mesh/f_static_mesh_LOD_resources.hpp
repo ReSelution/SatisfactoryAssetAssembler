@@ -35,4 +35,4 @@ namespace SAA {
     FRawStaticIndexBuffer adjacentIndexBuffer;
     FCardRepresentationData cardRepresentationData;
   };
-} // namespace SAP
+} 

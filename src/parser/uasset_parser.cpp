@@ -5,7 +5,7 @@
 #include "AssetParser.hpp"
 #include "IOStoreReader.hpp"
 #include "io_global_data.hpp"
-#include "ue/object_factory.hpp"
+#include "../assets/object_factory.hpp"
 #include "vfs_entry.hpp"
 
 #include "io/packages/f_zen_package_versioning_info.hpp"
@@ -13,6 +13,8 @@
 #include "usmap/f_usmap_mapping_data.hpp"
 
 LOG_ALIAS(uLOG, "SAA", "UASSET")
+DEFINE_CHAOS_STAT(ObjThrouput, "OBJs", SC::ChaosThroughput<SC::MetricUnits>)
+REGISTER_CHAOS_STAT(ObjThrouput)
 
 namespace SAA {
   UAssetParser::UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry) : AssetFileParser(
@@ -45,7 +47,7 @@ namespace SAA {
 
   std::span<std::string_view> UAssetParser::nameMap() { return m_nameMap; }
 
-  std::string_view UAssetParser::getMappedName(FMappedName name) {
+  std::string_view UAssetParser::getMappedName(FMappedName name) const {
     if (name.isGlobal()) {
       return name.fromNameMap(globalData()->globalNameMap, m_storage.get());
     }
@@ -81,16 +83,12 @@ namespace SAA {
     else if (index > 0 && index - 1 < m_exportMap.size()) {
       ret =  resolveExportObject({}, m_exportMap[index - 1].ClassIndex);
     }
-    if (ret != nullptr && ret->getClassName() == "FGColoredInstanceMeshProxy") {
-      int debug;
-    }
     return ret;
   }
 
   Object *UAssetParser::resolveSoftObj(std::string_view assetName) {
     safeParse();
-    auto iter = m_nameToIndex.find(assetName);
-    if (iter != m_nameToIndex.end()) {
+    if (auto iter = m_nameToIndex.find(assetName); iter != m_nameToIndex.end()){
       return m_exportObjects[iter->second];
     }
     return nullptr;
@@ -101,7 +99,7 @@ namespace SAA {
   void UAssetParser::parseVersioning(ByteCursor &cursor) {
     m_version = mappings()->pkgVersion;
 
-    if (m_summary.bHasVersioningInfo != 0) {
+    if (m_summary.bHasVersioningInfo != 0) [[unlikely]] {
       const auto info = cursor.read<FZenPackageVersioningInfo>();
       m_version = info.PackageVersion;
     }
@@ -116,7 +114,7 @@ namespace SAA {
     }
   }
 
-  void UAssetParser::parseNameMap(ByteCursor &cursor) { m_nameMap = cursor.loadNameBatch(m_storage.get()); }
+  void UAssetParser::parseNameMap(ByteCursor &cursor) { m_nameMap = cursor.loadNameBatch(); }
 
   void UAssetParser::resolveStoreEntry() {
     std::string_view name = getMappedName(m_summary.Name);
@@ -125,7 +123,6 @@ namespace SAA {
     auto entry = m_containerHeader->storeEntriesById.find(packageId);
     if (entry != m_containerHeader->storeEntriesById.end()) {
       m_storeEntry = entry->second;
-      return;
     }
   }
 
@@ -157,7 +154,7 @@ namespace SAA {
   void UAssetParser::parseExports(ByteCursor &cursor) {
     cursor = m_summary.ExportMapOffset;
     m_exportMap = cursor.readArray<FExportMapEntry>(m_summary.exportCount());
-    m_exportHashToIndex = std::pmr::unordered_map<uint64_t, uint32_t>(m_storage->resource());
+    m_exportHashToIndex = exportDenseMap(m_storage->resource());
     m_exportHashToIndex.reserve(m_exportMap.size());
     for (int i = 0; i < m_exportMap.size(); i++) {
       m_exportHashToIndex.emplace(m_exportMap[i].PublicExportHash, i);
@@ -171,12 +168,14 @@ namespace SAA {
   }
 
   void UAssetParser::loadImportedPackages() {
-    m_importedParsers.reserve(m_storeEntry.importedPackage.size());
+
+    m_importedParsers =  m_storage->make<std::pmr::vector<std::shared_ptr<AssetFileParser> >>(m_storage->resource());
+    m_importedParsers->reserve(m_storeEntry.importedPackage.size());
     // std::vector<std::string_view> paths;
     // paths.reserve(m_storeEntry.importedPackage.size());
     for (const auto &pkgId: m_storeEntry.importedPackage) {
       const auto &parser = m_assetParser->loadPackage(pkgId);
-      m_importedParsers.emplace_back(parser);
+      m_importedParsers->emplace_back(parser);
       // paths.emplace_back(parser->path());
     }
     // std::ranges::sort(paths);
@@ -185,31 +184,17 @@ namespace SAA {
     // }
   }
 
-  void UAssetParser::processImportes() {
-    //
-    // for (int i = 0; i < m_importMap.size(); i++) {
-    //   auto packageImportRef = FPackageImportReference::fromObjIndex(m_importMap[i]);
-    //   if (packageImportRef.importedPackageIndex < m_importedParsers.size()) {
-    //     auto const &hash = m_importedPublicExportHashes[packageImportRef.importedPublicExportHashIndex];
-    //     if (auto parser = m_importedParsers[packageImportRef.importedPackageIndex]) {
-    //       auto obj = parser->resolvePackageExport(hash);
-    //       if (obj) {
-    //         auto className = obj->getClassName();
-    //         m_nameToIndex.emplace(className, i);
-    //       }
-    //     }
-    //   }
-    // }
-  }
 
   void UAssetParser::processExports() {
     m_exportObjects = m_storage->allocateSpan<Object *>(m_exportMap.size());
-    std::ranges::for_each(m_exportObjects, [](auto &obj) { obj = nullptr; });
-    m_nameToIndex = std::pmr::unordered_map<std::string_view, uint32_t>(m_storage->resource());
+    std::memset(m_exportObjects.data(), 0, m_exportObjects.size_bytes());
+    m_nameToIndex = nameDenseMap (m_storage->resource());
     m_nameToIndex.reserve(m_exportMap.size());
     for (const auto &entry: m_exportBundleEntries) {
       processExportEntry(entry);
     }
+    CHAOS_RECORD(ObjThrouput,m_exportMap.size() )
+
   }
 
   void UAssetParser::loadExports() const {
@@ -249,7 +234,7 @@ namespace SAA {
       return;
     }
     auto &exportMapEntry = m_exportMap[entry.LocalExportIndex];
-    if (auto obj = resolveObject(exportMapEntry, exportMapEntry.ClassIndex, true)) {
+    if (auto obj = resolveObject(exportMapEntry, exportMapEntry.ClassIndex, true)) [[likely]] {
       ByteCursor cursor = getAsset().subspan(0, m_summary.HeaderSize + exportMapEntry.CookedSerialOffset +
                                                 exportMapEntry.CookedSerialSize);
       cursor += m_summary.HeaderSize + exportMapEntry.CookedSerialOffset;
@@ -277,7 +262,7 @@ namespace SAA {
 
   Object *UAssetParser::resolveExportObject(const FExportMapEntry &entry,
                                             const FPackageObjectIndex &index) {
-    if (index.TypeAndId >= m_exportObjects.size()) {
+    if (index.TypeAndId >= m_exportObjects.size()){
       return nullptr;
     }
     auto obj = m_exportObjects[index.TypeAndId];
@@ -287,19 +272,19 @@ namespace SAA {
   Object *UAssetParser::resolveScriptImport(const FExportMapEntry &entry,
                                             const FPackageObjectIndex &index, bool copy) {
     const auto &scriptEntry = globalData()->ScriptObjectEntriesMap.at(index);
-    auto clasName = getMappedName(scriptEntry.ObjectName);
+    auto className = getMappedName(scriptEntry.ObjectName);
     auto objName = getMappedName(entry.ObjectName);
-    auto obj = ObjectFactory::Create(clasName, m_storage.get());
+    auto obj = ObjectFactory::Create(className, m_storage.get());
     //Logger::logInfo("[UAssetParser]", "{} -> {}", objName, clasName);
 
     if (!obj) {
-      obj = m_storage->make<Object>(clasName);
+      obj = m_storage->make<Object>(className);
     }
     obj->setObjName(objName);
     obj->setOwner(this);
 
-    if (obj->getClassName() == "Struct") {
-      auto ustruct = reinterpret_cast<Struct *>(obj);
+    if (obj->getClassHash() == Struct::StaticHASH) {
+      auto ustruct = static_cast<Struct *>(obj);
       ByteCursor cursor = getAsset();
       cursor += m_summary.HeaderSize + entry.CookedSerialOffset;
       ustruct->setCursor(cursor);
@@ -312,17 +297,14 @@ namespace SAA {
   Object *UAssetParser::resolvePackageImport(const FExportMapEntry &entry,
                                              const FPackageObjectIndex &index, bool copy) {
     auto packageImportRef = FPackageImportReference::fromObjIndex(index);
-    if (packageImportRef.importedPackageIndex < m_importedParsers.size()) {
+    if (packageImportRef.importedPackageIndex < m_importedParsers->size()) {
       auto const &hash = m_importedPublicExportHashes[packageImportRef.importedPublicExportHashIndex];
 
-      if (auto parser = m_importedParsers[packageImportRef.importedPackageIndex]) {
+      if (auto parser = m_importedParsers->at(packageImportRef.importedPackageIndex)) {
 
         auto obj = parser->resolvePackageExport(hash);
-        if (!copy) {
+        if (! obj || !copy) {
           return obj;
-        }
-        if (!obj) {
-          return nullptr;
         }
         auto className = obj->getClassName();
         obj = ObjectFactory::Create(className, m_storage.get());
@@ -363,4 +345,4 @@ namespace SAA {
   const FZenPackageSummary &UAssetParser::getSummary() const { return m_summary; }
 
   std::span<std::string_view> UAssetParser::getNameMap() const { return m_nameMap; }
-} // namespace SAP
+}

@@ -3,10 +3,9 @@
 //
 
 #pragma once
-#include "byte_cursor.hpp"
 #include "texture.hpp"
-#include "ue/asset_object.hpp"
-#include "ue/object_factory.hpp"
+#include "asset_object.hpp"
+#include "object_factory.hpp"
 
 namespace SAA {
   class Texture2D : public Texture {
@@ -21,4 +20,4 @@ namespace SAA {
   };
 
   SAA_REGISTER_ASSET(Texture2D)
-} // namespace SAP
+} 

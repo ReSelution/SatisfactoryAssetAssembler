@@ -3,10 +3,8 @@
 //
 
 #pragma once
-#include <charconv>
 #include <cstdint>
 #include <string>
-#include <vector>
 #include "functions.hpp"
 
 namespace SAA {
@@ -22,36 +20,7 @@ namespace SAA {
     uint32_t nameIndex;
     uint32_t extraIndex;
 
-    [[nodiscard]] std::string_view fromNameMap(std::span<std::string_view> map, SC::ChaosSlab *storage) const {
-      auto index = NameIndex();
-
-      if (index < 0 || static_cast<size_t>(index) >= map.size()) {
-        return "None";
-      }
-
-      std::string_view base = map[index];
-      if (extraIndex == 0) {
-        return base;
-      }
-      constexpr size_t maxSuffix = 1 + 10;
-      const uint32_t baseSize = base.size();
-      size_t totalSize = baseSize + maxSuffix;
-      auto buf = storage->allocateSpan<char>(totalSize);
-      std::memcpy(buf.data(), base.data(), baseSize);
-
-      char* ptr = buf.data();
-      ptr += base.size();
-
-      *ptr = '_';
-      ptr++;
-
-    auto [next, ec] = std::to_chars(ptr, buf.data() + buf.size(), extraIndex - 1);
-    if (ec != std::errc{}) {
-        return base;
-    }
-      size_t finalLen = next - buf.data();
-    return {buf.data(), finalLen};
-    }
+    [[nodiscard]] std::string_view fromNameMap(std::span<std::string_view> map, SC::ChaosBumpArena *storage) const ;
 
     [[nodiscard]] uint32_t NameIndex() const { return nameIndex & IndexMask; }
 
@@ -60,25 +29,6 @@ namespace SAA {
     }
 
     [[nodiscard]] bool isGlobal() const { return ((nameIndex & TypeMask) >> TypeShift) != 0; }
-  };
-
-  struct FName {
-    uint32_t index;
-    uint32_t number;
-    std::string plainText;
-    std::string_view plainTextView;
-
-    [[nodiscard]] std::string_view text() {
-      if (number == 0) {
-        return plainTextView;
-      };
-      if (plainText.empty()) {
-        plainText = std::string(plainTextView) + "_" + std::to_string(number - 1);
-      }
-      return plainText;
-    }
-
-    [[nodiscard]] bool isNone() const { return plainTextView == "None"; }
   };
 
   struct FSerializedNameHeader {
@@ -98,4 +48,16 @@ namespace SAA {
   };
 
 #pragma pack(pop)
-} // namespace SAP
+
+  struct FName {
+    std::string_view plainTextView;
+    mutable std::string_view generatedView;
+    uint32_t index;
+    uint32_t number;
+    SC::ChaosBumpArena *slab;
+
+    [[nodiscard]] std::string_view text() const;
+
+    [[nodiscard]] bool isNone() const { return plainTextView == "None"; }
+  };
+}

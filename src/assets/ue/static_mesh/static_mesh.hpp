@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "ue/asset_object.hpp"
-#include "ue/object_factory.hpp"
+#include "asset_object.hpp"
+#include "object_factory.hpp"
 
 #include "assets/nanite/f_nanit_resources.hpp"
 #include "assets/static_mesh/f_static_material.hpp"
@@ -41,4 +41,4 @@ namespace SAA {
   };
 
   SAA_REGISTER_ASSET(StaticMesh)
-} // namespace SAP
+} 

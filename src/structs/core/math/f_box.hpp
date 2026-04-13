@@ -16,8 +16,8 @@ namespace SAA {
   };
 
   struct FBox_f {
-    FVector_f min;
-    FVector_f max;
+    FVector3F min;
+    FVector3F max;
     uint8_t isValid;
   };
 
@@ -26,5 +26,10 @@ namespace SAA {
     FVector2F max;
     uint8_t isValid;
   };
+  struct FBox3f {
+    FVector3F min;
+    FVector3F max;
+    uint8_t isValid;
+  };
 #pragma pack(pop)
-} // namespace SAP
+} 
