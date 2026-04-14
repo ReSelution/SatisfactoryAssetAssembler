@@ -6,6 +6,7 @@
 #include "vfs.hpp"
 
 #include "logger/chaos_logger.hpp"
+
 LOG_ALIAS(PakLog, "SAA", "PAK")
 
 namespace SAA {
@@ -14,7 +15,7 @@ namespace SAA {
 
   bool PAKReader::load() {
     auto name = m_Path.filename().string();
-    auto t = PakLog::time("Loaded {1} in {0}", name );
+    auto t = PakLog::time("Loaded {1} in {0}", name);
     readPaKInfo();
     return true;
   }
@@ -50,7 +51,7 @@ namespace SAA {
     for (uint32_t i = 0; i < MAX_NUM_COMRESSION_METHODE; i++) {
       auto strStart = i * COMPRESSION_METHOD_NAME_LEN;
       std::string methodName =
-          (std::string(reinterpret_cast<const char *>(methodBufferStart + strStart), COMPRESSION_METHOD_NAME_LEN));
+              (std::string(reinterpret_cast<const char *>(methodBufferStart + strStart), COMPRESSION_METHOD_NAME_LEN));
       size_t nullPos = methodName.find('\0');
       if (nullPos != std::string::npos) {
         methodName.resize(nullPos);
@@ -149,25 +150,32 @@ namespace SAA {
     ByteCursor dirIndex(m_pakFile.getSpan(dirIndexOffset, dirIndexSize));
     auto dirIndexCount = dirIndex.read<uint32_t>();
 
-    std::string pathBuffer;
-    pathBuffer.reserve(512); //
-    pathBuffer = mountPoint;
+    char pathBuffer[512];
+    memcpy(pathBuffer, mountPoint.data(), mountPoint.size());
+
+    char *pos = pathBuffer + mountPoint.size();
 
     for (uint32_t i = 0; i < dirIndexCount; i++) {
-      size_t oldLen = pathBuffer.size();
+      char *oldLen = pos;
 
-      pathBuffer += dirIndex.readFString(stringStorage.get());
+      auto str = dirIndex.readFString(stringStorage.get());
+      memcpy(pos, str.data(), str.size());
+      pos += str.size();
+
       auto fileEntries = dirIndex.read<uint32_t>();
       for (uint32_t j = 0; j < fileEntries; j++) {
-        size_t dirLen = pathBuffer.size();
-        pathBuffer += dirIndex.readFString(stringStorage.get());
+        char *dirLen = pos;
+        auto dir = dirIndex.readFString(stringStorage.get());
+        memcpy(pos, dir.data(), dir.size());
+        pos += dir.size();
 
         auto offset = dirIndex.read<uint32_t>();
         auto fileIndex = readPakEntry(encodedPakEntries, offset);
-        vfs->mountEntry(this, pathBuffer, fileIndex);
-        pathBuffer.resize(dirLen);
+        vfs->mountEntry(this, std::string_view {pathBuffer,static_cast<uint64_t>( pos - pathBuffer)}, fileIndex);
+
+        pos = dirLen;
       }
-      pathBuffer.resize(oldLen);
+      pos = oldLen;
     }
 
     return true;

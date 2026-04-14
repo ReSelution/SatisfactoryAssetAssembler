@@ -16,14 +16,20 @@ namespace SAA {
   }
 
   SC::ChaosEntity Exporter::getEntity(Object *obj) {
-    if (obj->entity) {
+
+    if (obj->entity)[[likely]] {
       return obj->entity;
     }
-    SC::ChaosSpinLockGuard lock(obj->entityCreationLock);
-    if (obj->entity) {
-      return obj->entity;
-    }
-    obj->entity = reg.create();
+//    SC::ChaosSpinLockGuard lock(obj->entityCreationLock);
+//    if (obj->entity) {
+//      return obj->entity;
+//    }
+    assert(reg != nullptr);
+    obj->entity = reg->create();
     return obj->entity;
   }
-} 
+
+  void Exporter::setECS(SC::ChaosRegistry *r) {
+    reg = r;
+  }
+}

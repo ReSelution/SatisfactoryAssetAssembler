@@ -20,6 +20,7 @@ namespace SAA {
 
     class FGExporter : public Exporter {
     public:
+
         static void encodeRecipe(FGRecipe *recipe);
 
         static void encodeItem(FGItemBase *item);

@@ -13,13 +13,17 @@
 #include "usmap/f_usmap_mapping_data.hpp"
 #include "vfs.hpp"
 
+
+namespace SC{
+  class ChaosRegistry;
+}
 namespace SAA {
 
     class SatisfactoryDataProvider {
     public:
         SatisfactoryDataProvider(const std::filesystem::path &baseInstallPath);
 
-        ~SatisfactoryDataProvider();
+        ~SatisfactoryDataProvider()= default;
 
         SatisfactoryDataProvider(const SatisfactoryDataProvider &) = delete;
 
@@ -30,11 +34,9 @@ namespace SAA {
         SatisfactoryDataProvider &operator=(SatisfactoryDataProvider &&) = delete;
 
         bool load();
-
         void crawl();
-
         void test();
-
+        static void setECS(SC::ChaosRegistry *reg);
     private:
 
         Vfs m_vfs;

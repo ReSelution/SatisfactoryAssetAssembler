@@ -4,6 +4,7 @@
 
 #include "provider/games/satisfactory/SatisfactoryDataProvider.hpp"
 #include "threading/chaos_threading.hpp"
+#include "ecs/chaos_registry.hpp"
 
 
 LOG_ALIAS(mainLog, "SAA", "TEST")
@@ -17,6 +18,8 @@ void setWorkingDirectory(const char* argv0) {
 }
 
 int main(int argc, char** argv) {
+
+  SC::ChaosRegistry reg;
   if (argc > 0) {
     setWorkingDirectory(argv[0]);
   }
@@ -32,6 +35,7 @@ int main(int argc, char** argv) {
       "/home/oleub/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Satisfactory/";
   //gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
   SAA::SatisfactoryDataProvider provider(gamePath);
+  SAA::SatisfactoryDataProvider::setECS(&reg);
   provider.load();
 
   // provider.test();

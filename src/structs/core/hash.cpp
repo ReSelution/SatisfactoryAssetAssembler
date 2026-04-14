@@ -4,7 +4,7 @@
 #include "hash.hpp"
 #include "city.h"
 
-uint64_t cityHash64_ue(const std::string_view str) {
+uint64_t SAA::cityHash64_ue(const std::string_view str) {
     char16_t buffer[512];
     const size_t len = std::min(str.length(), (size_t) 511);
 

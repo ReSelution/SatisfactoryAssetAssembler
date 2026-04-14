@@ -164,6 +164,6 @@ target_link_libraries(SAA_Structs
         PUBLIC
         SAA_Util
         StructuredChaos
-        PRIVATE
         CITY_HASH
+        PRIVATE
 )

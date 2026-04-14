@@ -38,11 +38,11 @@ namespace SAA {
   public:
     static const ExporterOptions &options() { return s_options; }
 
-
+    static void setECS(SC::ChaosRegistry* reg);
     static SC::ChaosEntity getEntity(Object *obj);
   protected:
     static bool checkPath(std::filesystem::path path);
-    static inline SC::ChaosRegistry reg;
+    static inline SC::ChaosRegistry *reg = nullptr ;
   private:
     static inline ExporterOptions s_options;
   };

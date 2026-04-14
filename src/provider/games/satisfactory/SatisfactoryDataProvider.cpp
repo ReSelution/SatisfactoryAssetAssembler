@@ -21,6 +21,7 @@
 #include "logger/chaos_logger.hpp"
 #include "puplic/arena/registery.hpp"
 #include "threading/chaos_threading.hpp"
+
 LOG_ALIAS(ProviderLog, "SAA", "Provider")
 
 namespace SAA {
@@ -37,7 +38,6 @@ namespace SAA {
 
     std::vector<std::future<void> > parsableFutures;
     parsableFutures.reserve(m_Parsers.size() + 2);
-    // m_UsmapParser->parse(m_usmapData);
     parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&](int id) { m_UsmapParser->parse(m_usmapData); }));
     parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&](int id) {
       m_globalDataParser->parse(m_globalData);
@@ -47,15 +47,15 @@ namespace SAA {
     std::vector<Vfs> childVFS;
     childVFS.reserve(m_Parsers.size());
     for (int i = 0; i < SC::ChaosThreading::getNumThreads(); i++) {
-      childVFS.emplace_back(m_vfs.getChild());
+      childVFS.emplace_back(SAA::Vfs::getChild());
     }
 
     for (const auto &val: m_Parsers | std::views::values) {
       auto *currentParser = val.get();
-      parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&,currentParser](int id) {
+      parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&, currentParser](int id) {
         auto &child = childVFS[id];
         currentParser->load();
-        currentParser->mountVFS(&child);
+        currentParser->mountVFS(&m_vfs);
         m_vfs.mergeChild(child);
 
       }));
@@ -64,10 +64,10 @@ namespace SAA {
     for (auto &f: parsableFutures)
       f.wait();
 
-//    for (auto &child: childVFS) {
-//      m_vfs.mergeChild(std::mobe);
-//    }
-    // m_vfs.dumpToText("output/files.txt");
+
+//    SC::ChaosThreading::enqueue<SC::ChaosThreading::Priority::High>([&]( int id) {
+//      m_vfs.dumpToText("output/files.txt");
+//    });
     ProviderLog::info("VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
     return true;
   }
@@ -81,10 +81,11 @@ namespace SAA {
   void SatisfactoryDataProvider::test() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
     Registry::init(1024);
-    parser.parseAsset("FactoryGame/Content/FactoryGame/Buildable/Factory/ResourceSink/Build_ResourceSink.uasset", [](std::shared_ptr<AssetFileParser> &file){
-      file->loadExports();
-      file->exportAssets();
-    });
+    parser.parseAsset("FactoryGame/Content/FactoryGame/Buildable/Factory/ResourceSink/Build_ResourceSink.uasset",
+                      [](std::shared_ptr<AssetFileParser> &file) {
+                        file->loadExports();
+                        file->exportAssets();
+                      });
     DBG_PRINT_MISSING();
   }
 
@@ -117,6 +118,7 @@ namespace SAA {
         if (ext == ".pak") {
           m_Parsers[basename] = std::make_unique<PAKReader>(path);
         } else if (ext == ".utoc") {
+
           std::filesystem::path ucasPath = path;
           ucasPath.replace_extension(".ucas");
 
@@ -136,6 +138,8 @@ namespace SAA {
     }
   }
 
-  SatisfactoryDataProvider::~SatisfactoryDataProvider() {
+
+  void SatisfactoryDataProvider::setECS(SC::ChaosRegistry *reg) {
+    Exporter::setECS(reg);
   }
-} 
+}

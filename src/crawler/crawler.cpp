@@ -67,8 +67,9 @@ namespace SAA {
             m_childs.emplace_back(getChild());
         }
         size_t files;
-        auto t = CrawlerLog::time("Parsed {1} Files in {0}", files);
-        SC::ChaosArenaPool::init(SC::ChaosThreading::getNumThreads() * 16, 16 * 1024);
+        auto threads = SC::ChaosThreading::getNumThreads();
+        auto t = CrawlerLog::time("Parsed {1} Files in {0} on {2} Threads", files,threads );
+        SC::ChaosArenaPool::init(SC::ChaosThreading::getNumThreads() * 16, 32 * 1024);
         CHAOS_RESET_ALL()
         CHAOS_RESET(DecompressedThroughput)
         CHAOS_RESET(CompressedThroughput)

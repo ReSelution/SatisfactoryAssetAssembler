@@ -50,7 +50,7 @@ namespace SAA {
                         | std::views::transform([](const auto &entry) {
             return entry->path;
         });
-        std::vector<std::string> sortedPaths{pathView.begin(), pathView.end()};
+        std::vector<std::string_view> sortedPaths{pathView.begin(), pathView.end()};
         std::ranges::sort(sortedPaths);
 
 
