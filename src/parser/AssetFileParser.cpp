@@ -77,26 +77,24 @@ namespace SAA {
     }
   };
 
-  ByteCursor AssetFileParser::getAsset() {
-    if (!m_asset && m_assetEntry) {
-      m_asset = m_assetEntry->read(m_storage.get());
-    }
-    auto cursor = m_asset->subspan(0, m_asset->size());
-    cursor.m_owner = this;
-    return cursor;
-  }
-
-  ByteCursor AssetFileParser::getBulk() {
+  GameFile *AssetFileParser::getBulkFile() {
     if (!m_bulk && m_bulkEntry) {
       m_bulk = m_bulkEntry->read(m_storage.get());
+      m_bulk->setOwner(this);
     }
-
-    auto cursor = m_bulk->subspan(0, m_bulk->size());
-    cursor.m_owner = this;
-    return cursor;
+    return m_bulk;
+  }
+  GameFile *AssetFileParser::getAssetFile() {
+    if (!m_asset && m_assetEntry) {
+      m_asset = m_assetEntry->read(m_storage.get());
+      m_asset->setOwner(this);
+    }
+    return m_asset;
   }
 
   ByteCursor AssetFileParser::getAsset(size_t offset, size_t size) {
-    return getAsset().subspan(offset, size);
+    return getAssetFile()->subspan(offset, size);
   }
+
+
 } 

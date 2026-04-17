@@ -86,10 +86,12 @@ namespace SAA {
 
     virtual FByteBulkData parseFByteBulkData(ByteCursor &cursor) = 0;
 
-    [[nodiscard]] ByteCursor getAsset();
+//    [[nodiscard]] ByteCursor getAsset();
+    [[nodiscard]] GameFile* getAssetFile();
     [[nodiscard]] ByteCursor getAsset(size_t offset, size_t size);
 
     [[nodiscard]] ByteCursor getBulk();
+    [[nodiscard]] GameFile* getBulkFile();
 
     virtual std::span<Object *> exportMap() = 0;
 
@@ -97,7 +99,7 @@ namespace SAA {
 
     virtual void exportAssets() const = 0;
 
-    std::pmr::vector<std::shared_ptr<AssetFileParser> > *importetParser() const { return m_importedParsers; }
+    [[nodiscard]] std::pmr::vector<std::shared_ptr<AssetFileParser> > *importetParser() const { return m_importedParsers; }
     [[nodiscard]] SC::ChaosBumpArena *storage() const { return m_storage.get(); }
 
   protected:

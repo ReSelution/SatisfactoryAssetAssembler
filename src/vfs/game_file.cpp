@@ -70,5 +70,48 @@ namespace SAA {
 
   }
 
+  bool GameFileImpl::isLoaded(size_t targetOffset, size_t size) {
+
+    const size_t targetEnd = targetOffset + size;
+    bool foundStart = false;
+
+    const size_t currentStart = chunkOffsetsLoaded[idx] & VALUE_MASK;
+    if (targetOffset < currentStart) [[unlikely]]{
+      idx = 0;
+    }
+
+    for (size_t i = idx; i < chunkOffsetsLoaded.size(); ++i) {
+      const uint64_t entry = chunkOffsetsLoaded[i];
+      const size_t currentChunkStart = entry & VALUE_MASK;
+      if (!foundStart) {
+        size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
+                                ? (chunkOffsetsLoaded[i + 1] & VALUE_MASK)
+                                : fileSize;
+
+        if (targetOffset >= currentChunkStart && targetOffset < nextChunkStart) {
+          idx = i;
+          foundStart = true;
+        } else {
+          continue;
+        }
+      }
+
+
+      if (!(entry & MSB_MASK)) {
+        return false;
+      }
+
+      size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
+                              ? (chunkOffsetsLoaded[i + 1] & VALUE_MASK)
+                              : fileSize;
+
+      if (nextChunkStart >= targetEnd) {
+        end = nextChunkStart-1;
+        return true;
+      }
+    }
+
+    return false;
+  }
 
 } // SAA

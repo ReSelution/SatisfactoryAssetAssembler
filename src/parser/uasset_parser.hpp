@@ -54,23 +54,23 @@ namespace SAA {
 
     private:
         // ---- high level pipeline ----
-        void parseSummary(ByteCursor &cursor);
+        void parseSummary(GameFile * file);
 
-        void parseVersioning(ByteCursor &cursor);
+        void parseVersioning(GameFile * file);
 
-        void parseCellOffsets(ByteCursor &cursor);
+        void parseCellOffsets(GameFile * file);
 
-        void parseNameMap(ByteCursor &cursor);
+        void parseNameMap(GameFile * file);
 
         void resolveStoreEntry();
 
-        void parseBulkDataMap(ByteCursor &cursor);
+        void parseBulkDataMap(GameFile * file);
 
-        void parseImports(ByteCursor &cursor);
+        void parseImports(GameFile * file);
 
-        void parseExports(ByteCursor &cursor);
+        void parseExports(GameFile * file);
 
-        void parseExportBundles(ByteCursor &cursor);
+        void parseExportBundles(GameFile * file);
 
         void loadImportedPackages();
 

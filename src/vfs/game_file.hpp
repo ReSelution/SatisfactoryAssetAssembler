@@ -21,45 +21,9 @@ namespace SAA {
 
     GameFileImpl(size_t fileSize);
 
-    [[nodiscard]] bool isLoaded(size_t targetOffset, size_t size) {
+    [[nodiscard]] bool isLoaded(size_t targetOffset, size_t size);
 
-      const size_t targetEnd = targetOffset + size;
-      bool foundStart = false;
-
-      for (size_t i = 0; i < chunkOffsetsLoaded.size(); ++i) {
-        const uint64_t entry = chunkOffsetsLoaded[i];
-        const size_t currentChunkStart = entry & VALUE_MASK;
-        if (!foundStart) {
-          size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                  ? (chunkOffsetsLoaded[i + 1] & VALUE_MASK)
-                                  : fileSize;
-
-          if (targetOffset >= currentChunkStart && targetOffset < nextChunkStart) {
-            idx = i;
-            foundStart = true;
-          } else {
-            continue;
-          }
-        }
-
-
-        if (!(entry & MSB_MASK)) {
-          return false;
-        }
-
-        size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                ? (chunkOffsetsLoaded[i + 1] & VALUE_MASK)
-                                : fileSize;
-
-        if (nextChunkStart >= targetEnd) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    void setChunkLoaded(size_t chunkIdx) {
+    void setChunkLoaded(size_t chunkIdx) const {
       chunkOffsetsLoaded[chunkIdx] |= MSB_MASK;
     }
 
@@ -71,9 +35,11 @@ namespace SAA {
   class GameFile {
   public:
     GameFile() = default;
+
     GameFile(SC::ChaosBumpArena *storage);
 
     [[nodiscard]] size_t tell() const { return m_cursor; }
+
     [[nodiscard]] size_t size() const { return impl->fileSize; }
 
     void skip(int64_t bytes) { seek(m_cursor + bytes); }
@@ -95,6 +61,7 @@ namespace SAA {
       m_cursor += sizeof(T);
       return val;
     }
+
     template<typename T>
     std::span<const T> readArrayView() {
       auto initialPos = m_cursor;
@@ -106,6 +73,7 @@ namespace SAA {
       m_cursor = initialPos + sizeof(uint32_t) * 2;
       return out;
     }
+
     template<typename T>
     std::span<const T> readArray() {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
@@ -174,22 +142,29 @@ namespace SAA {
       impl = m_storage->make<T>(std::forward<Args>(args)...);
       impl->chunkOffsetsLoaded = m_storage->allocateSpan<uint64_t>(impl->chunks());
       m_buffer = m_storage->allocateSpan(impl->fileSize);
-      return static_cast<T*>(impl);
+      return static_cast<T *>(impl);
     }
 
     [[nodiscard]] ByteCursor subspan(size_t offset, size_t size) {
-      if (!load(size))[[unlikely]]{
+      auto old = m_cursor;
+      m_cursor = offset;
+      if (!load(size))[[unlikely]] {
         throw std::runtime_error("subspan out of range");
       }
 
-      ByteCursor sub(m_buffer.subspan(offset, size));
+      ByteCursor sub(m_buffer.subspan(offset, size), m_owner);
       sub.setAbsoluteOffset(offset);
+      m_cursor = old;
       return sub;
+    }
+
+    void setOwner(AssetFileParser* ptr){
+      m_owner = ptr;
     }
 
   private:
     bool load(size_t size);
-
+    AssetFileParser* m_owner = nullptr;
     uint64_t m_cursor = 0;
     uint64_t m_idx = 0;
     uint64_t m_start = 0;

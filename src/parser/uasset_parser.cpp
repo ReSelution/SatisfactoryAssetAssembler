@@ -24,7 +24,7 @@ namespace SAA {
   }
 
   void UAssetParser::parse() {
-    auto cursor = getAsset();
+    auto cursor = getAssetFile();
 
     parseSummary(cursor);
     parseVersioning(cursor);
@@ -68,8 +68,8 @@ namespace SAA {
       data.bulkCursor = cursor.subspan(cursor.tell(), metaData.SerialSize);
       cursor += metaData.SerialSize;
     } else if (HasFlag(data.flags, EBulkDataFlags::BULKDATA_PayloadInSeperateFile)) {
-      auto bulkCursor = getBulk();
-      data.bulkCursor = bulkCursor.subspan(metaData.SerialOffset, metaData.SerialSize);
+      auto bulkFile = getBulkFile();
+      data.bulkCursor = bulkFile->subspan(metaData.SerialOffset, metaData.SerialSize);
     }
 
     return data;
@@ -96,27 +96,27 @@ namespace SAA {
     return nullptr;
   }
 
-  void UAssetParser::parseSummary(ByteCursor &cursor) { m_summary = cursor.read<FZenPackageSummary>(); }
+  void UAssetParser::parseSummary(GameFile * file) { m_summary = file->read<FZenPackageSummary>(); }
 
-  void UAssetParser::parseVersioning(ByteCursor &cursor) {
+  void UAssetParser::parseVersioning(GameFile* file) {
     m_version = mappings()->pkgVersion;
 
     if (m_summary.bHasVersioningInfo != 0) [[unlikely]] {
-      const auto info = cursor.read<FZenPackageVersioningInfo>();
+      const auto info = file->read<FZenPackageVersioningInfo>();
       m_version = info.PackageVersion;
     }
   }
 
-  void UAssetParser::parseCellOffsets(ByteCursor &cursor) {
+  void UAssetParser::parseCellOffsets(GameFile * file) {
     if (m_summary.bHasVersioningInfo == 0 && m_version.FileVersionUE5 >= EUnrealEngineObjectUE5Version::VERSE_CELLS) {
-      m_cellOffsets = cursor.read<FZenPackageCellOffsets>();
+      m_cellOffsets = file->read<FZenPackageCellOffsets>();
     } else {
       m_cellOffsets.CellImportMapOffset = m_summary.ExportBundleEntriesOffset;
       m_cellOffsets.CellExportMapOffset = m_summary.ExportBundleEntriesOffset;
     }
   }
 
-  void UAssetParser::parseNameMap(ByteCursor &cursor) { m_nameMap = cursor.loadNameBatch(); }
+  void UAssetParser::parseNameMap(GameFile * file) { m_nameMap = file->loadNameBatch(); }
 
   void UAssetParser::resolveStoreEntry() {
     std::string_view name = getMappedName(m_summary.Name);
@@ -128,34 +128,34 @@ namespace SAA {
     }
   }
 
-  void UAssetParser::parseBulkDataMap(ByteCursor &cursor) {
+  void UAssetParser::parseBulkDataMap(GameFile * file) {
     if (m_version.FileVersionUE5 < EUnrealEngineObjectUE5Version::DATA_RESOURCES) {
       return;
     }
 
     if (m_version.FileVersionUE5 >= EUE5Version::UE5_4) {
-      auto padding = cursor.read<uint64_t>();
-      cursor += padding;
+      auto padding = file->read<uint64_t>();
+      *file += padding;
     }
 
-    const auto mapSize = cursor.read<uint64_t>();
+    const auto mapSize = file->read<uint64_t>();
 
-    m_bulkDataMap = cursor.readArray<FBulkDataMapEntry>(mapSize / sizeof(FBulkDataMapEntry));
+    m_bulkDataMap = file->readArray<FBulkDataMapEntry>(mapSize / sizeof(FBulkDataMapEntry));
   }
 
-  void UAssetParser::parseImports(ByteCursor &cursor) {
-    cursor = m_summary.ImportedPublicExportHashesOffset;
+  void UAssetParser::parseImports(GameFile * file) {
+    *file = m_summary.ImportedPublicExportHashesOffset;
 
     m_importedPublicExportHashes =
-        cursor.readArray<uint64_t>((m_summary.ImportMapOffset - cursor.tell()) / sizeof(uint64_t));
+        file->readArray<uint64_t>((m_summary.ImportMapOffset - file->tell()) / sizeof(uint64_t));
 
-    cursor = m_summary.ImportMapOffset;
-    m_importMap = cursor.readArray<FPackageObjectIndex>(m_summary.importCount());
+    *file = m_summary.ImportMapOffset;
+    m_importMap = file->readArray<FPackageObjectIndex>(m_summary.importCount());
   }
 
-  void UAssetParser::parseExports(ByteCursor &cursor) {
-    cursor = m_summary.ExportMapOffset;
-    m_exportMap = cursor.readArray<FExportMapEntry>(m_summary.exportCount());
+  void UAssetParser::parseExports(GameFile * file) {
+    *file = m_summary.ExportMapOffset;
+    m_exportMap = file->readArray<FExportMapEntry>(m_summary.exportCount());
     m_exportHashToIndex = exportDenseMap(m_storage->resource());
     m_exportHashToIndex.reserve(m_exportMap.size());
     for (int i = 0; i < m_exportMap.size(); i++) {
@@ -163,10 +163,10 @@ namespace SAA {
     }
   }
 
-  void UAssetParser::parseExportBundles(ByteCursor &cursor) {
-    cursor = m_cellOffsets.CellImportMapOffset;
+  void UAssetParser::parseExportBundles(GameFile * file) {
+    *file = m_cellOffsets.CellImportMapOffset;
 
-    m_exportBundleEntries = cursor.readArray<FExportBundleEntry>(m_summary.exportCount() * 2);
+    m_exportBundleEntries = file->readArray<FExportBundleEntry>(m_summary.exportCount() * 2);
   }
 
   void UAssetParser::loadImportedPackages() {
