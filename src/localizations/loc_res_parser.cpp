@@ -25,7 +25,10 @@ namespace SAA {
     void LocResParser::parse() {
         m_storage = std::make_unique<SC::ChaosBumpArena>();
         auto data = m_vfsEntry->read(m_storage.get());
-        ByteCursor cursor(data);
+        if(!data){
+            return;
+        }
+        ByteCursor cursor;
         auto magic = cursor.read<FGuid>();
         if (magic != LOC_RES_MAGIC) {
             LocResLoc::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path,

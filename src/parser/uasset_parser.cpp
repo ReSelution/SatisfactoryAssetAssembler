@@ -25,6 +25,7 @@ namespace SAA {
 
   void UAssetParser::parse() {
     auto cursor = getAsset();
+
     parseSummary(cursor);
     parseVersioning(cursor);
     parseCellOffsets(cursor);
@@ -49,7 +50,8 @@ namespace SAA {
 
   std::string_view UAssetParser::getMappedName(FMappedName name) const {
     if (name.isGlobal()) {
-      return name.fromNameMap(globalData()->globalNameMap, m_storage.get());
+      auto &map = globalData()->globalNameMap;
+      return name.fromNameMap(map, m_storage.get());
     }
     return name.fromNameMap(m_nameMap, m_storage.get());
   }
@@ -267,6 +269,7 @@ namespace SAA {
 
   Object *UAssetParser::resolveScriptImport(const FExportMapEntry &entry,
                                             const FPackageObjectIndex &index, bool copy) {
+
     const auto &scriptEntry = globalData()->ScriptObjectEntriesMap.at(index);
     auto className = getMappedName(scriptEntry.ObjectName);
     auto objName = getMappedName(entry.ObjectName);

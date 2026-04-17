@@ -17,6 +17,7 @@
 #include "io/f_io_offset_and_lenght.hpp"
 #include "io/f_io_store_toc_Compressed_block_entry.hpp"
 #include "io/f_io_store_toc_header.hpp"
+#include "game_file.hpp"
 
 namespace SAA {
     class IOStoreReader : public Reader {
@@ -33,7 +34,7 @@ namespace SAA {
 
         bool load() override;
 
-        std::span<uint8_t> readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const;
+      GameFile* readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const;
 
         bool mountVFS(Vfs *vfs) override;
 
@@ -63,7 +64,7 @@ namespace SAA {
         bool readContainerHeader();
 
         static void
-        readFilePackageStoreEntry(ByteCursor &cursor, FFilePackageStoreEntry *entry, EIoContainerHeaderVersion version);
+        readFilePackageStoreEntry(GameFile *file, FFilePackageStoreEntry *entry, EIoContainerHeaderVersion version);
 
         static FIoContainerHeaderSoftPackageReferences readSoftPackageReferences(ByteCursor &cursor);
 

@@ -24,7 +24,6 @@ namespace SAA {
   struct GlobalData {
     std::span<std::string_view> globalNameMap;
       using denseMap = ankerl::unordered_dense::map<FPackageObjectIndex, FScriptObjectEntry>;
-
       denseMap ScriptObjectEntriesMap;
   };
 

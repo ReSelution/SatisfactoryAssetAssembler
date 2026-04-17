@@ -35,7 +35,7 @@ namespace SAA {
 
   bool SatisfactoryDataProvider::load() {
     auto t = ProviderLog::time("Loaded in {}");
-
+#ifdef NDEBUG
     std::vector<std::future<void> > parsableFutures;
     parsableFutures.reserve(m_Parsers.size() + 2);
     parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&](int id) { m_UsmapParser->parse(m_usmapData); }));
@@ -63,7 +63,27 @@ namespace SAA {
 
     for (auto &f: parsableFutures)
       f.wait();
+#else
+    // --- DEBUG MODUS: Sequenziell ---
+    ProviderLog::debug("Running in Debug mode: Sequential load.");
 
+    // 1. Basis-Parser direkt ausführen
+    m_UsmapParser->parse(m_usmapData);
+    m_globalDataParser->parse(m_globalData);
+
+    // 2. Ein einzelnes Child-VFS für den aktuellen Thread
+    auto child = SAA::Vfs::getChild();
+
+    for (const auto &val : m_Parsers | std::views::values) {
+      auto *currentParser = val.get();
+
+      currentParser->load();
+      currentParser->mountVFS(&m_vfs);
+
+      // Da wir sequenziell arbeiten, können wir direkt mergen
+      m_vfs.mergeChild(child);
+    }
+#endif
 
 //    SC::ChaosThreading::enqueue<SC::ChaosThreading::Priority::High>([&]( int id) {
 //      m_vfs.dumpToText("output/files.txt");
@@ -80,7 +100,6 @@ namespace SAA {
 
   void SatisfactoryDataProvider::test() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-    Registry::init(1024);
     parser.parseAsset("FactoryGame/Content/FactoryGame/Buildable/Factory/ResourceSink/Build_ResourceSink.uasset",
                       [](std::shared_ptr<AssetFileParser> &file) {
                         file->loadExports();

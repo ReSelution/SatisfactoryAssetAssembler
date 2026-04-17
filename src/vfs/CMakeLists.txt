@@ -1,4 +1,6 @@
-add_library(SAA_VFS STATIC)
+add_library(SAA_VFS STATIC
+        game_file.cpp
+        game_file.hpp)
 
 target_sources(SAA_VFS
         PUBLIC

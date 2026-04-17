@@ -32,7 +32,11 @@ namespace SAA {
     m_storage = std::make_unique<SC::ChaosBumpArena>(1024);
     char stackBuffer[512];
     auto data = m_vfsEntry->read(m_storage.get());
-    ByteCursor cursor(data);
+    if(!data)
+    {
+      return;
+    }
+    ByteCursor cursor;
     auto magic = cursor.read<FGuid>();
     if (magic != LOC_META_MAGIC) {
       LocMetaLog::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path, magic.A, magic.B, magic.C,

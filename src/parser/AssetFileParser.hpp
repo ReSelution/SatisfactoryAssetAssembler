@@ -10,6 +10,7 @@
 #include "io/packages/f_byte_bulk_data.hpp"
 #include "io/packages/f_export_map_entry.hpp"
 #include "io/packages/f_object_export.hpp"
+#include "game_file.hpp"
 
 namespace SAA {
   class Reader;
@@ -103,7 +104,7 @@ namespace SAA {
     virtual void parse() {
       throw std::runtime_error("AssetFileParser::parse() called");
     };
-    AssetParser *m_assetParser;
+    AssetParser *m_assetParser = nullptr;
     std::pmr::vector<std::shared_ptr<AssetFileParser> > *m_importedParsers;
     std::unique_ptr<SC::ChaosBumpArena> m_storage;
 
@@ -114,9 +115,9 @@ namespace SAA {
 
     // ---- raw data ----
     const UnifiedVfsEntry *m_assetEntry;
-    std::span<uint8_t> m_asset{};
+    GameFile* m_asset = nullptr;
     const UnifiedVfsEntry *m_bulkEntry;
-    std::span<uint8_t> m_bulk{};
+    GameFile* m_bulk = nullptr;
 
     AssetType m_type;
     ;

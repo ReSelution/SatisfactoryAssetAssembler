@@ -20,6 +20,8 @@
 
 #include "logger/chaos_logger.hpp"
 #include "memory/chaos_bump_arena.hpp"
+#include "game_file.hpp"
+
 LOG_ALIAS(IOStoreLog, "SAA", "IOSTORE")
 
 namespace SAA {
@@ -210,6 +212,7 @@ namespace SAA {
   }
 
   bool operator<(EIoStoreTocVersion lhs, uint32_t rhs) { return static_cast<uint8_t>(lhs) < rhs; }
+
   bool operator>(EIoStoreTocVersion lhs, uint32_t rhs) { return static_cast<uint8_t>(lhs) > rhs; }
 
   void IOStoreReader::parseDirectoryIndex(ByteCursor &cursor) {
@@ -217,7 +220,7 @@ namespace SAA {
     const EIoContainerFlags CONTAINER_FLAG_INDEXED = EIoContainerFlags::INDEXED;
     assert(m_TocHeader.version >= TOC_VERSION_DIRECTORY_INDEX && "TOC version is to Low");
     assert((m_TocHeader.containerFlags & CONTAINER_FLAG_INDEXED) ||
-      m_TocHeader.directoryIndexSize == 0 && "No Directory Index");
+           m_TocHeader.directoryIndexSize == 0 && "No Directory Index");
 
     m_DirectoryIndexBuffer = cursor.readArray<uint8_t>(m_TocHeader.directoryIndexSize);
   }
@@ -239,95 +242,94 @@ namespace SAA {
   bool IOStoreReader::readContainerHeader() {
     FIoChunkId chunkId{.id = m_TocHeader.containerId.id, .chunkIndex = 0, .chunkType = 6};
     FIoContainerHeader containerHeader{
-      .version = EIoContainerHeaderVersion::Initial,
+            .version = EIoContainerHeaderVersion::Initial,
     };
 
-    auto buffer = readChunk(m_storage.get(), chunkId);
-    ByteCursor cursor(buffer);
+    auto file = readChunk(m_storage.get(), chunkId);
 
-    containerHeader.magic = cursor.read<uint32_t>();
+    containerHeader.magic = file->read<uint32_t>();
     if (containerHeader.magic != IO_CONTAINER_MAGIC) {
       IOStoreLog::err("Wrong container magic. Found {:x}", containerHeader.magic);
       return false;
     }
 
-    containerHeader.version = cursor.read<EIoContainerHeaderVersion>();
-    containerHeader.containerId = cursor.read<FPackageId>();
+    containerHeader.version = file->read<EIoContainerHeaderVersion>();
+    containerHeader.containerId = file->read<FPackageId>();
 
     if (containerHeader.version < EIoContainerHeaderVersion::OptionalSegmentPackages) {
-      cursor += sizeof(uint32_t);
+      *file += sizeof(uint32_t);
     }
-    containerHeader.packageIds = cursor.readArray<FPackageId>();
+    containerHeader.packageIds = file->readArray<FPackageId>();
 
-    auto storeEntriesEnd = cursor.read<uint32_t>() + cursor.tell();
+    auto storeEntriesEnd = file->read<uint32_t>() + file->tell();
 
     containerHeader.storeEntriesById.reserve(containerHeader.packageIds.size());
     for (uint32_t i = 0; i < containerHeader.packageIds.size(); ++i) {
       const auto &[entry, insered] = containerHeader.storeEntriesById.emplace(
-        containerHeader.packageIds[i], FFilePackageStoreEntry{});
-      readFilePackageStoreEntry(cursor, &entry->second, containerHeader.version);
+              containerHeader.packageIds[i], FFilePackageStoreEntry{});
+      readFilePackageStoreEntry(file, &entry->second, containerHeader.version);
     }
-    cursor = storeEntriesEnd;
+    *file = storeEntriesEnd;
 
     if (containerHeader.version >= EIoContainerHeaderVersion::OptionalSegmentPackages) {
-      containerHeader.optionalSegmentPackageIds = cursor.readArray<FPackageId>();
+      containerHeader.optionalSegmentPackageIds = file->readArray<FPackageId>();
 
-      auto optStoreEntriesEnd = cursor.read<uint32_t>() + cursor.tell();
+      auto optStoreEntriesEnd = file->read<uint32_t>() + file->tell();
 
       containerHeader.optionalSegmentStoreEntries =
-          m_storage->allocateSpan<FFilePackageStoreEntry>(containerHeader.optionalSegmentPackageIds.size());
+              m_storage->allocateSpan<FFilePackageStoreEntry>(containerHeader.optionalSegmentPackageIds.size());
       for (uint32_t i = 0; i < containerHeader.optionalSegmentPackageIds.size(); ++i) {
-        readFilePackageStoreEntry(cursor, &containerHeader.optionalSegmentStoreEntries[i], containerHeader.version);
+        readFilePackageStoreEntry(file, &containerHeader.optionalSegmentStoreEntries[i], containerHeader.version);
       }
 
-      cursor = optStoreEntriesEnd;
+      *file = optStoreEntriesEnd;
     }
 
     if (containerHeader.version >= EIoContainerHeaderVersion::Initial) {
-      containerHeader.containerNameMap = cursor.loadNameBatch(m_storage.get());
+      containerHeader.containerNameMap = file->loadNameBatch(m_storage.get());
     }
 
     if (containerHeader.version >= EIoContainerHeaderVersion::LocalizedPackages) {
-      containerHeader.localizedPackages = cursor.readArray<FIoContainerHeaderLocalizedPackage>();
+      containerHeader.localizedPackages = file->readArray<FIoContainerHeaderLocalizedPackage>();
     }
 
-    containerHeader.packageRedirects = cursor.readArray<FIoContainerHeaderPackageRedirect>();
+    containerHeader.packageRedirects = file->readArray<FIoContainerHeaderPackageRedirect>();
 
     this->m_containerHeader = std::move(containerHeader);
     return true;
   }
 
-  void IOStoreReader::readFilePackageStoreEntry(ByteCursor &cursor, FFilePackageStoreEntry *entry,
+  void IOStoreReader::readFilePackageStoreEntry(GameFile *file, FFilePackageStoreEntry *entry,
                                                 EIoContainerHeaderVersion version) {
     if (version >= EIoContainerHeaderVersion::Initial) {
       if (version < EIoContainerHeaderVersion::NoExportInfo) {
-        entry->exportCount = cursor.read<uint32_t>();
-        entry->exportBundleCount = cursor.read<uint32_t>();
+        entry->exportCount = file->read<uint32_t>();
+        entry->exportBundleCount = file->read<uint32_t>();
       }
 
-      entry->importedPackage = cursor.readArrayView<FPackageId>();
-      entry->shaderMapHashes = cursor.readArrayView<FSHAHash>();
+      entry->importedPackage = file->readArrayView<FPackageId>();
+      entry->shaderMapHashes = file->readArrayView<FSHAHash>();
     } else {
-      cursor += 8; // ExportBundlesSize (skip 8)
-      entry->exportCount = cursor.read<uint32_t>();
-      entry->exportBundleCount = cursor.read<uint32_t>();
-      cursor += 8; // LoadOrder + Pad
-      entry->importedPackage = cursor.readArrayView<FPackageId>();
+      *file += 8; // ExportBundlesSize (skip 8)
+      entry->exportCount = file->read<uint32_t>();
+      entry->exportBundleCount = file->read<uint32_t>();
+      *file += 8; // LoadOrder + Pad
+      entry->importedPackage = file->readArrayView<FPackageId>();
     }
   }
 
-  FIoContainerHeaderSoftPackageReferences IOStoreReader::readSoftPackageReferences(ByteCursor &cursor) {
-    FIoContainerHeaderSoftPackageReferences out;
-
-    out.bContainsSoftPackageReferences = cursor.readBool();
-
-    if (out.bContainsSoftPackageReferences) {
-      out.PackageIds = cursor.readArray<FPackageId>();
-      out.PackageIndices = cursor.readArray<uint8_t>();
-    }
-
-    return out;
-  }
+//  FIoContainerHeaderSoftPackageReferences IOStoreReader::readSoftPackageReferences(ByteCursor &cursor) {
+//    FIoContainerHeaderSoftPackageReferences out;
+//
+//    out.bContainsSoftPackageReferences = file->readBool();
+//
+//    if (out.bContainsSoftPackageReferences) {
+//      out.PackageIds = file->readArray<FPackageId>();
+//      out.PackageIndices = file->readArray<uint8_t>();
+//    }
+//
+//    return out;
+//  }
 
   void IOStoreReader::parseDirectoryPathList() {
     if (m_DirectoryIndexBuffer.empty()) {
@@ -413,29 +415,77 @@ namespace SAA {
     return true;
   }
 
-  std::span<uint8_t> IOStoreReader::readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const {
+  GameFile *IOStoreReader::readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const {
     FIoOffsetAndLength offsetLenght{};
     if (!resolveChunk(chunkId, offsetLenght)) {
       IOStoreLog::err("Chunk {} not found.", chunkId.chunkIndex);
       return {};
     }
 
-    uint64_t index = offsetLenght.offset() / m_TocHeader.compressionBlockSize;
-    const uint64_t lenght = offsetLenght.length();
-    auto uncompressedData = storage->allocateSpan(lenght);
-    auto uncompressedSpan = std::span(uncompressedData);
-    for (uint64_t offset = 0; offset < lenght; index++) {
-      auto &block = m_compressionBlocks[index];
-      auto size = block.uncompressedSize();
-      auto dst = uncompressedSpan.subspan(offset, size);
-      bool success = readBlock(block, dst);
-      if (!success) {
-        IOStoreLog::err("Error with Block {}.", index);
-        return {};
+    struct IOStoreFile : GameFileImpl {
+      const IOStoreReader *reader;
+      std::span<const FIoStoreTocCompressedBlockEntry> compressionBlocks;
+
+      IOStoreFile(size_t fileSize, const IOStoreReader *reader,
+                  std::span<const FIoStoreTocCompressedBlockEntry> blocks) : GameFileImpl(fileSize),
+                                                                             reader(reader), compressionBlocks(blocks) {
+
       }
+
+      uint64_t chunks() final {
+        return compressionBlocks.size();
+      }
+
+      bool load(size_t targetOffset, size_t size, std::span<uint8_t> dst) final {
+        if (isLoaded(targetOffset, size)) {
+          return true;
+        }
+
+        const size_t targetEnd = targetOffset + size;
+        if(targetEnd>fileSize){
+          throw std::runtime_error("Target out of range");
+        }
+        for (; idx < compressionBlocks.size(); ++idx) {
+          size_t offset = chunkOffsetsLoaded[idx] & VALUE_MASK;
+          if (offset >= targetEnd) {
+            break;
+          }
+
+          if (!(chunkOffsetsLoaded[idx] & MSB_MASK)) {
+            const auto &block = compressionBlocks[idx];
+            auto ret = reader->readBlock(block, dst.subspan(offset, block.uncompressedSize()));
+            if(!ret)
+              return ret;
+            setChunkLoaded(idx);
+          }
+        }
+        return true;
+      }
+    };
+
+    uint64_t index = offsetLenght.offset() / m_TocHeader.compressionBlockSize;
+    uint64_t chunks = 0;
+    const uint64_t lenght = offsetLenght.length();
+    for (uint64_t offset = 0; offset < lenght; chunks++) {
+      auto &block = m_compressionBlocks[index + chunks];
+      auto size = block.uncompressedSize();
       offset += size;
     }
-    return uncompressedData;
+
+
+    auto *file = storage->make<GameFile>(storage);
+    auto impl = file->createImpl<IOStoreFile>(offsetLenght.length(), this,
+                                              m_compressionBlocks.subspan(index, chunks));
+
+    size_t idx = 0;
+    for (uint64_t offset = 0; offset < lenght; idx++) {
+      auto &block = m_compressionBlocks[index + idx];
+      auto size = block.uncompressedSize();
+      impl->chunkOffsetsLoaded[idx] = offset;
+      offset += size;
+    }
+
+    return file;
   }
 
   bool IOStoreReader::readBlock(const FIoStoreTocCompressedBlockEntry &blockEntry, std::span<uint8_t> dst) const {

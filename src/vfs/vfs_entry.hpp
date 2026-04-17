@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "io/f_io_chunk_id.hpp"
+#include "game_file.hpp"
 
 namespace SAA {
   class PAKReader;
@@ -41,7 +42,7 @@ namespace SAA {
 
     bool operator!=(const UnifiedVfsEntry &other) const { return !this->operator==(other); }
 
-    virtual std::span<uint8_t> read(SC::ChaosBumpArena *storage) const { return {}; };
+    virtual GameFile* read(SC::ChaosBumpArena *storage) const = 0;
   };
 
   class IOVfsEntry : public UnifiedVfsEntry {
@@ -56,7 +57,7 @@ namespace SAA {
 
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
 
-    std::span<uint8_t> read(SC::ChaosBumpArena *storage) const override;
+    GameFile* read(SC::ChaosBumpArena *storage) const override;
 
     bool operator==(const UnifiedVfsEntry &other) const override {
       if ( other.getEntryType() == VFS_EntryType::IOVfsEntry) {
@@ -79,6 +80,6 @@ namespace SAA {
 
     VFS_EntryType getEntryType() const override { return VFS_EntryType::PAKVfsEntry; }
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
-    std::span<uint8_t> read(SC::ChaosBumpArena *storage) const override;
+    GameFile* read(SC::ChaosBumpArena *storage) const override;
   };
 } 

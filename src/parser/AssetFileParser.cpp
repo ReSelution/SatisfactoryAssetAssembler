@@ -64,6 +64,7 @@ namespace SAA {
   }
 
   const FUsmapMappingData *AssetFileParser::mappings() const { return m_assetParser->mappings(); }
+
   const GlobalData *AssetFileParser::globalData() const { return m_assetParser->globalData(); }
 
   AssetParser *AssetFileParser::assetParser() const {
@@ -77,17 +78,22 @@ namespace SAA {
   };
 
   ByteCursor AssetFileParser::getAsset() {
-    if (m_asset.empty() && m_assetEntry) {
+    if (!m_asset && m_assetEntry) {
       m_asset = m_assetEntry->read(m_storage.get());
     }
-    return ByteCursor(m_asset, this);
+    auto cursor = m_asset->subspan(0, m_asset->size());
+    cursor.m_owner = this;
+    return cursor;
   }
 
   ByteCursor AssetFileParser::getBulk() {
-    if (m_bulk.empty() && m_bulkEntry) {
+    if (!m_bulk && m_bulkEntry) {
       m_bulk = m_bulkEntry->read(m_storage.get());
     }
-    return ByteCursor(m_bulk);
+
+    auto cursor = m_bulk->subspan(0, m_bulk->size());
+    cursor.m_owner = this;
+    return cursor;
   }
 
   ByteCursor AssetFileParser::getAsset(size_t offset, size_t size) {

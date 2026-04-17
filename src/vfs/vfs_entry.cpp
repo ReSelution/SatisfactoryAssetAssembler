@@ -12,7 +12,8 @@ namespace SAA {
     return SC::hash_lowercase(path);
   }
 
-  std::span<uint8_t> IOVfsEntry::read(SC::ChaosBumpArena *storage) const { return owningReader->readChunk(storage, chunkId); }
+  GameFile *IOVfsEntry::read(SC::ChaosBumpArena *storage) const { return owningReader->readChunk(storage, chunkId); }
 
-  std::span<uint8_t> PAKVfsEntry::read(SC::ChaosBumpArena *storage) const { return owningReader->readFile(storage,index); }
-} 
+  GameFile *PAKVfsEntry::read(SC::ChaosBumpArena *storage) const {
+    return nullptr/*owningReader->readFile(storage,index)*/; }
+}

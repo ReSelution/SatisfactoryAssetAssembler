@@ -24,12 +24,11 @@ namespace SAA {
     auto t = GlobalDataLog::time("GlobalNameMap: {1} ScriptObjectEntriesMap {2} in {0}", globalNameMapSize,
                                  scriptObjectEntriesSize);
     storeParser->load();
-    auto buffer = storeParser->readChunk(storeParser->m_storage.get(),
+    auto file = storeParser->readChunk(storeParser->m_storage.get(),
                                          FIoChunkId{.id = 0, .chunkIndex = 0, .chunkType = 5});
-    ByteCursor cursor(buffer);
-    data.globalNameMap = cursor.loadNameBatch(storeParser->m_storage.get());
+    data.globalNameMap = file->loadNameBatch();
 
-    auto scriptObjectEntries = cursor.readArray<FScriptObjectEntry>();
+    auto scriptObjectEntries = file->readArray<FScriptObjectEntry>();
     data.ScriptObjectEntriesMap.reserve(scriptObjectEntries.size());
     for (auto &scriptObject: scriptObjectEntries) {
       data.ScriptObjectEntriesMap[scriptObject.globalIndex] = scriptObject;
