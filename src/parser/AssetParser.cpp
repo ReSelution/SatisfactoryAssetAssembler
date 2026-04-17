@@ -16,16 +16,17 @@
 
 #include "logger/chaos_logger.hpp"
 #include "threading/chaos_threading.hpp"
+
 LOG_ALIAS(APLog, "SAA", "AssetParser")
 
 namespace SAA {
   AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) : m_vfs(vfs),
                                                                                                         m_mappings(
-                                                                                                          mappings),
+                                                                                                                mappings),
                                                                                                         m_globalData(
-                                                                                                          globalData),
+                                                                                                                globalData),
                                                                                                         m_localizationManager(
-                                                                                                          this) {
+                                                                                                                this) {
   }
 
 

@@ -185,28 +185,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="A lot">
-      <change afterPath="$PROJECT_DIR$/external/cityhash/city_lowercase.hpp" afterDir="false" />
+    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="rewrote City to force inline">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/external/StructuredChaos" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/external/rapidhash/rapidhash.h" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/external/rapidhash/rapidhash.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/ecs/chaos_registry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/ecs/chaos_registry.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/ecs/chaos_registry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/ecs/chaos_registry.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/memory/chaos_monotonic_resource.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/memory/chaos_monotonic_resource.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/memory/chaos_monotonic_resource.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/memory/chaos_monotonic_resource.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/crawler/crawler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/exporter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/exporter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/exporter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/exporter.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/exporter/fg/fg_exporter.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/PAKReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/PAKReader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/core/hash.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/hash.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/core/package.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/package.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structs/core/package.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/core/package.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/vfs/vfs.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/crawler/crawler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/AssetParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetParser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/shared_cache.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/shared_cache.hpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1315,6 +1300,9 @@
       <workItem from="1776082640415" duration="7000" />
       <workItem from="1776083262806" duration="6083000" />
       <workItem from="1776165229387" duration="8000" />
+      <workItem from="1776165259232" duration="251000" />
+      <workItem from="1776424678210" duration="18000" />
+      <workItem from="1776424886993" duration="1125000" />
     </task>
     <task id="LOCAL-00001" summary="Renaming to SatisfactoryAssetAssembler (SAA)">
       <option name="closed" value="true" />
@@ -1460,7 +1448,31 @@
       <option name="project" value="LOCAL" />
       <updated>1776038621059</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Added Refactor Lowercase hash">
+      <option name="closed" value="true" />
+      <created>1776165300592</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1776165300592</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Added Stats">
+      <option name="closed" value="true" />
+      <created>1776165329117</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1776165329117</updated>
+    </task>
+    <task id="LOCAL-00021" summary="rewrote City to force inline">
+      <option name="closed" value="true" />
+      <created>1776165477990</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1776165477990</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1498,7 +1510,10 @@
     <MESSAGE value="Added Rapid ConstExpr" />
     <MESSAGE value="Enqeue Batch normal Prio" />
     <MESSAGE value="A lot" />
-    <option name="LAST_COMMIT_MESSAGE" value="A lot" />
+    <MESSAGE value="Added Refactor Lowercase hash" />
+    <MESSAGE value="Added Stats" />
+    <MESSAGE value="rewrote City to force inline" />
+    <option name="LAST_COMMIT_MESSAGE" value="rewrote City to force inline" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

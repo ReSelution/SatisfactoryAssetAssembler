@@ -43,7 +43,7 @@ namespace SAA {
         merge(child.m_resources, m_resources);
     }
 
-    auto Crawler::createFileQueue(AssetParser &parser) {
+    auto Crawler::createFileQueue(AssetParser &parser,   size_t &files) {
         Vfs *vfs = parser.getVfs();
         std::vector<std::string_view> batch;
         batch.reserve(vfs->entries().size());
@@ -52,8 +52,9 @@ namespace SAA {
                 batch.emplace_back(entry.second->path);
             }
         }
-        return SC::ChaosThreading::enqueueBatch<SC::ChaosThreading::Priority::Normal>(
-                batch.begin(), batch.end(), [&parser, this](int id, std::string_view path) {
+        files = batch.size();
+        return SC::ChaosThreading::enqueueBatch(
+                std::move(batch), [&parser, this](int id, std::string_view path) {
                     parser.parseAsset(
                             path, [this, id](std::shared_ptr<AssetFileParser> &file) {
                                 this->m_childs[id].onParsed(file);
@@ -73,11 +74,8 @@ namespace SAA {
         CHAOS_RESET_ALL()
         CHAOS_RESET(DecompressedThroughput)
         CHAOS_RESET(CompressedThroughput)
-        auto futures = createFileQueue(parser);
-        files = futures.size();
-        for (auto &fut: futures) {
-            fut.wait();
-        }
+        auto future = createFileQueue(parser, files);
+        future.wait();
         for (auto &m_child: m_childs) {
             mergeWithChild(m_child);
         }

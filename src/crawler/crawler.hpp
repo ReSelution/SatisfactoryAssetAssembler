@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include <memory>
 
 #include "AssetFileParser.hpp"
@@ -12,21 +13,22 @@
 
 namespace SAA {
   class Crawler {
-      enum class HIT_TEST_CLASS_HASH : uint64_t {
+    enum class HIT_TEST_CLASS_HASH : uint64_t {
 
-          // --- REZEPTE & FORSCHUNG ---
-          FGRecipe                 = "FGRecipe"_h,
-          FGSchematic              = "FGSchematic"_h,
+      // --- REZEPTE & FORSCHUNG ---
+      FGRecipe = "FGRecipe"_h,
+      FGSchematic = "FGSchematic"_h,
 
-          // --- ITEMS & DESKRIPTOREN ---
-          FGItemDescriptor         = "FGItemDescriptor"_h,
-          FGItemDescriptorBiomass  = "FGItemDescriptorBiomass"_h,
-          FGResourceDescriptor     = "FGResourceDescriptor"_h,
-          FGBuildingDescriptor     = "FGBuildingDescriptor"_h,
-      };
+      // --- ITEMS & DESKRIPTOREN ---
+      FGItemDescriptor = "FGItemDescriptor"_h,
+      FGItemDescriptorBiomass = "FGItemDescriptorBiomass"_h,
+      FGResourceDescriptor = "FGResourceDescriptor"_h,
+      FGBuildingDescriptor = "FGBuildingDescriptor"_h,
+    };
 
   public:
     Crawler();
+
     ~Crawler() {
       m_childs.clear();
 
@@ -35,19 +37,24 @@ namespace SAA {
       m_items.clear();
       m_resources.clear();
     }
+
     static Crawler getChild();
+
     void mergeWithChild(Crawler &child);
+
     void crawl(AssetParser &parser);
 
     void onParsed(std::shared_ptr<AssetFileParser> &parser);
 
     static constexpr std::array<std::string_view, 1> filterList = {
-        ".uasset",
+            ".uasset",
     };
 
   private:
     bool hitTestAsset(std::shared_ptr<AssetFileParser> &parser);
-    auto createFileQueue(AssetParser &parser);
+
+    auto createFileQueue(AssetParser &parser, size_t &files);
+
     bool shouldAdd(std::string_view path);
 
     // Keeping the Parser Alive for Cache

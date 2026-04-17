@@ -54,8 +54,7 @@ public:
     }
 
 
-    auto futters = SC::ChaosThreading::enqueueBatch<SC::ChaosThreading::Priority::Normal>( shardPointers.begin(),
-                                                    shardPointers.end(),
+    auto fut = SC::ChaosThreading::enqueueBatch(std::move(shardPointers),
                                                     [&atomicCount, this](int id, Shard *shard) {
                                                       shard->acquire();
                                                       size_t counter = 0;
@@ -71,9 +70,7 @@ public:
                                                     }
 
     );
-    for (auto &fut: futters) {
-      fut.wait();
-    }
+    fut.wait();
     count = atomicCount.load();
 
     // SC::ChaosThreading::wait_until_finished();
