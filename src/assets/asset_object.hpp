@@ -44,9 +44,10 @@ namespace SAA {
         const uint64_t classHash;
         uint64_t getClassHash() { return classHash; }
 
-
-
-
+        void setFileSpan(size_t off, size_t s){
+          fileOffset = off;
+          fileSize = s;
+        }
         void safeParse();
 
         SC::ChaosEntity safeExport();
@@ -54,8 +55,6 @@ namespace SAA {
         void setOwner(AssetFileParser *parser);
 
         void setObjName(std::string_view name);
-
-        void setCursor(const ByteCursor &cursor);
 
         [[nodiscard]] std::string getFullName() const;
 
@@ -105,7 +104,8 @@ namespace SAA {
 
 
     private:
-
+        size_t fileOffset = 0;
+        size_t fileSize = 0;
 
         std::string_view m_objName;
         FGuid m_objGuid{};

@@ -86,6 +86,7 @@ namespace SAA {
     virtual FByteBulkData parseFByteBulkData(ByteCursor &cursor) = 0;
 
     [[nodiscard]] ByteCursor getAsset();
+    [[nodiscard]] ByteCursor getAsset(size_t offset, size_t size);
 
     [[nodiscard]] ByteCursor getBulk();
 

@@ -89,4 +89,8 @@ namespace SAA {
     }
     return ByteCursor(m_bulk);
   }
+
+  ByteCursor AssetFileParser::getAsset(size_t offset, size_t size) {
+    return getAsset().subspan(offset, size);
+  }
 } 

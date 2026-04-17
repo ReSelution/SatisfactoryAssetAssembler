@@ -45,6 +45,7 @@ namespace SAA {
     if (m_state.compare_exchange_strong(expected, ObjectState::PARSING, std::memory_order_acq_rel)) {
       {
         ZoneScopedN("Object::parsing")
+        m_cursor = m_owner->getAsset(fileOffset, fileSize);
         parse();
       }
       {
@@ -103,11 +104,5 @@ std::string Object::getFullName() const {
 }
 
 void Object::setObjName(std::string_view name) { m_objName = name; }
-
-
-void Object::setCursor(const ByteCursor &cursor) {
-  assert(m_state.load(std::memory_order_acquire) == ObjectState::NONE);
-  m_cursor = cursor;
-}
 
 }

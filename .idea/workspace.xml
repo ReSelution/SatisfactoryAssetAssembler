@@ -185,13 +185,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="rewrote City to force inline">
+    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="SC update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/crawler/crawler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/crawler/crawler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/crawler/crawler.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/AssetParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/shared_cache.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/shared_cache.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/asset_object.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/asset_object.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/asset_object.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/asset_object.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1302,7 +1302,8 @@
       <workItem from="1776165229387" duration="8000" />
       <workItem from="1776165259232" duration="251000" />
       <workItem from="1776424678210" duration="18000" />
-      <workItem from="1776424886993" duration="1125000" />
+      <workItem from="1776424886993" duration="2318000" />
+      <workItem from="1776427551214" duration="450000" />
     </task>
     <task id="LOCAL-00001" summary="Renaming to SatisfactoryAssetAssembler (SAA)">
       <option name="closed" value="true" />
@@ -1472,7 +1473,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776165477990</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="SC update">
+      <option name="closed" value="true" />
+      <created>1776426898442</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1776426898442</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1513,7 +1522,8 @@
     <MESSAGE value="Added Refactor Lowercase hash" />
     <MESSAGE value="Added Stats" />
     <MESSAGE value="rewrote City to force inline" />
-    <option name="LAST_COMMIT_MESSAGE" value="rewrote City to force inline" />
+    <MESSAGE value="SC update" />
+    <option name="LAST_COMMIT_MESSAGE" value="SC update" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

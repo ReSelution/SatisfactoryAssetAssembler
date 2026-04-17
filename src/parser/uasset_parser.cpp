@@ -235,11 +235,7 @@ namespace SAA {
     }
     auto &exportMapEntry = m_exportMap[entry.LocalExportIndex];
     if (auto obj = resolveObject(exportMapEntry, exportMapEntry.ClassIndex, true)) [[likely]] {
-      ByteCursor cursor = getAsset().subspan(0, m_summary.HeaderSize + exportMapEntry.CookedSerialOffset +
-                                                exportMapEntry.CookedSerialSize);
-      cursor += m_summary.HeaderSize + exportMapEntry.CookedSerialOffset;
-      cursor.setAbsoluteOffset(m_summary.CookedHeaderSize - m_summary.HeaderSize);
-      obj->setCursor(cursor);
+      obj->setFileSpan(m_summary.HeaderSize + exportMapEntry.CookedSerialOffset, exportMapEntry.CookedSerialSize );
       obj->outer(resolveObject(exportMapEntry, exportMapEntry.OuterIndex, false));
       obj->super(resolveObject(exportMapEntry, exportMapEntry.SuperIndex, false));
       m_exportObjects[entry.LocalExportIndex] = obj;
@@ -285,9 +281,7 @@ namespace SAA {
 
     if (obj->getClassHash() == Struct::StaticHASH) {
       auto ustruct = static_cast<Struct *>(obj);
-      ByteCursor cursor = getAsset();
-      cursor += m_summary.HeaderSize + entry.CookedSerialOffset;
-      ustruct->setCursor(cursor);
+      ustruct->setFileSpan( m_summary.HeaderSize + entry.CookedSerialOffset, entry.CookedSerialSize);
       return constructObject(entry, ustruct, copy);
     }
 
