@@ -23,155 +23,65 @@
   </component>
   <component name="CMakeRunConfigurationManager">
     <generated>
-      <config projectName="SatisfactoryAssetParser" targetName="targets_test" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc-obj-target" />
-      <config projectName="SatisfactoryAssetParser" targetName="mask_slide_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="crypto_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="mask_convert_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="minmax_test" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_VFS" />
-      <config projectName="SatisfactoryAssetParser" targetName="float_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="arithmetic_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="base_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="skeleton_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="compare_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="expand_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="logical_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="swizzle_block_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="convert_test" />
       <config projectName="SatisfactoryAssetParser" targetName="CITY_HASH" />
-      <config projectName="SatisfactoryAssetParser" targetName="sort_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousStart" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="fastgltf" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc-test-api-fill" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalConfigure" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="test_util_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="foreach_vec_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="count_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="topology_test" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyStart" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="demote_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalStart" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="shuffle4_test" />
       <config projectName="SatisfactoryAssetParser" targetName="AssetRipperTestWin" />
-      <config projectName="SatisfactoryAssetParser" targetName="find_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="in_range_float_to_int_conv_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="masked_arithmetic_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="mul_by_pow2_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="sums_abs_diff_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="matvec_test" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Util" />
-      <config projectName="SatisfactoryAssetParser" targetName="saturated_test" />
       <config projectName="SatisfactoryAssetParser" targetName="rapidHash" />
-      <config projectName="SatisfactoryAssetParser" targetName="rotate_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="blockwise_combine_test" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyMemCheck" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="gmock" />
       <config projectName="SatisfactoryAssetParser" targetName="Nightly" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc-test-stress-dynamic" />
-      <config projectName="SatisfactoryAssetParser" targetName="copy_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="minmax_magnitude_test" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlySubmit" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="reduction_test" />
       <config projectName="SatisfactoryAssetParser" targetName="TracyClient" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalTest" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="blockwise_shift_test" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyMemoryCheck" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyUpdate" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="memory_test" />
       <config projectName="SatisfactoryAssetParser" targetName="Continuous" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="spdlog" />
-      <config projectName="SatisfactoryAssetParser" targetName="bench_sort" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalMemCheck" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="hwy_contrib" />
-      <config projectName="SatisfactoryAssetParser" targetName="bit_pack_test" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Exporter" />
-      <config projectName="SatisfactoryAssetParser" targetName="minmax128_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="gmock_main" />
-      <config projectName="SatisfactoryAssetParser" targetName="random_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="resize_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalUpdate" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="slide_up_down_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="highway_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousTest" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc-test-api" />
-      <config projectName="SatisfactoryAssetParser" targetName="mask_mem_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="abort_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="dot_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalSubmit" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Structs" />
       <config projectName="SatisfactoryAssetParser" targetName="hwy_test" />
       <config projectName="SatisfactoryAssetParser" targetName="hwy_list_targets" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Lib" />
-      <config projectName="SatisfactoryAssetParser" targetName="mul_pairwise_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="sign_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="truncate_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousUpdate" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="thread_pool_test" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc-obj" />
-      <config projectName="SatisfactoryAssetParser" targetName="perf_counters_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="concat_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="fma_test" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Localization" />
-      <config projectName="SatisfactoryAssetParser" targetName="div_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousCoverage" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc-static" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc-test-stress" />
-      <config projectName="SatisfactoryAssetParser" targetName="auto_tune_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="mask_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="mul_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalBuild" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="widen_mul_test" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Parser" />
-      <config projectName="SatisfactoryAssetParser" targetName="compress_test" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Reader" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousSubmit" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="swizzle_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="spin_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="image_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="mask_set_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ExperimentalCoverage" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyBuild" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="if_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="bit_set_test" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyTest" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="masked_minmax_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="interleaved_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="complex_arithmetic_test" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Assets" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyConfigure" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="Experimental" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="hwy" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousBuild" folderName="CTestDashboardTargets" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousConfigure" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="cast_test" />
       <config projectName="SatisfactoryAssetParser" targetName="ContinuousMemCheck" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="math_test" />
       <config projectName="SatisfactoryAssetParser" targetName="mimalloc" />
-      <config projectName="SatisfactoryAssetParser" targetName="transform_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="combine_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="nanobenchmark_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="gtest" />
-      <config projectName="SatisfactoryAssetParser" targetName="sort_unit_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="unroller_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="shift_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="gtest_main" />
-      <config projectName="SatisfactoryAssetParser" targetName="table_test" />
       <config projectName="SatisfactoryAssetParser" targetName="StructuredChaos" />
-      <config projectName="SatisfactoryAssetParser" targetName="mask_combine_test" />
       <config projectName="SatisfactoryAssetParser" targetName="glm" />
       <config projectName="SatisfactoryAssetParser" targetName="SAA_Crawler" />
-      <config projectName="SatisfactoryAssetParser" targetName="hwy_profiler_example" />
-      <config projectName="SatisfactoryAssetParser" targetName="reverse_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="blockwise_test" />
       <config projectName="SatisfactoryAssetParser" targetName="AssetRipperTest" />
-      <config projectName="SatisfactoryAssetParser" targetName="dup128_vec_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="aligned_allocator_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="bit_permute_test" />
-      <config projectName="SatisfactoryAssetParser" targetName="hwy_benchmark" />
-      <config projectName="SatisfactoryAssetParser" targetName="minmax_number_test" />
       <config projectName="SatisfactoryAssetParser" targetName="NightlyCoverage" folderName="CTestDashboardTargets" />
-      <config projectName="SatisfactoryAssetParser" targetName="tuple_test" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -186,26 +96,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="preps for File Streaming">
-      <change afterPath="$PROJECT_DIR$/src/vfs/game_file.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/vfs/game_file.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/external/StructuredChaos" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/external/StructuredChaos/cmake/dependencies.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/cmake/dependencies.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/localizations/loc_meta_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_meta_parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/localizations/loc_res_parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/io_global_data.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/io_global_data.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reader/io_global_data.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/io_global_data.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/vfs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/vfs/vfs_entry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs_entry.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/vfs/vfs_entry.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs_entry.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/game_file.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/game_file.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -216,7 +110,7 @@
     <option name="clangTidyViaClangd" value="false" />
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -230,7 +124,7 @@
         <entry key="$PROJECT_DIR$/external/StructuredChaos/external/tracy" value="master" />
       </map>
     </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/external/StructuredChaos" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -283,7 +177,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "C/C++ File.main.cpp.executor": "Run",
-    "CMake Application.AssetRipperTest.executor": "Debug",
+    "CMake Application.AssetRipperTest.executor": "Run",
     "CMake Application.AssetRipperTestWin.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.props.executor": "Run",
@@ -329,510 +223,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.AssetRipperTest">
-    <configuration name="abort_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="abort_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="abort_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="aligned_allocator_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="aligned_allocator_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="aligned_allocator_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="arithmetic_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="arithmetic_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="arithmetic_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="auto_tune_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="auto_tune_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="auto_tune_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="base_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="base_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="base_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="bench_sort" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="bench_sort" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="bench_sort" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="bit_pack_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="bit_pack_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="bit_pack_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="bit_permute_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="bit_permute_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="bit_permute_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="bit_set_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="bit_set_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="bit_set_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="blockwise_combine_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="blockwise_combine_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="blockwise_combine_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="blockwise_shift_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="blockwise_shift_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="blockwise_shift_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="blockwise_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="blockwise_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="blockwise_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="cast_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="cast_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="cast_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="combine_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="combine_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="combine_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="compare_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="compare_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="compare_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="complex_arithmetic_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="complex_arithmetic_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="complex_arithmetic_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="compress_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="compress_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="compress_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="concat_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="concat_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="concat_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="convert_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="convert_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="convert_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="copy_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="copy_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="copy_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="count_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="count_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="count_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="crypto_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="crypto_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="crypto_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="demote_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="demote_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="demote_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="div_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="div_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="div_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="dot_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="dot_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="dot_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="dup128_vec_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="dup128_vec_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="dup128_vec_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="expand_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="expand_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="expand_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="find_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="find_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="find_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="float_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="float_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="float_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="fma_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="fma_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="fma_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="foreach_vec_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="foreach_vec_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="foreach_vec_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="highway_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="highway_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="highway_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="if_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="if_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="if_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="image_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="image_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="image_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="in_range_float_to_int_conv_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="in_range_float_to_int_conv_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="in_range_float_to_int_conv_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="interleaved_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="interleaved_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="interleaved_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="logical_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="logical_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="logical_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mask_combine_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mask_combine_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mask_combine_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mask_convert_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mask_convert_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mask_convert_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mask_mem_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mask_mem_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mask_mem_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mask_set_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mask_set_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mask_set_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mask_slide_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mask_slide_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mask_slide_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mask_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mask_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mask_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="masked_arithmetic_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="masked_arithmetic_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="masked_arithmetic_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="masked_minmax_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="masked_minmax_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="masked_minmax_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="math_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="math_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="math_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="matvec_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="matvec_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="matvec_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="memory_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="memory_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="memory_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="minmax128_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="minmax128_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="minmax128_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="minmax_magnitude_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="minmax_magnitude_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="minmax_magnitude_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="minmax_number_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="minmax_number_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="minmax_number_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="minmax_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="minmax_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="minmax_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mul_by_pow2_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mul_by_pow2_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mul_by_pow2_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mul_pairwise_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mul_pairwise_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mul_pairwise_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="mul_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="mul_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="mul_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="nanobenchmark_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="nanobenchmark_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="nanobenchmark_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="perf_counters_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="perf_counters_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="perf_counters_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="random_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="random_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="random_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="reduction_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="reduction_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="reduction_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="resize_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="resize_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="resize_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="reverse_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="reverse_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="reverse_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="rotate_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="rotate_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="rotate_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="saturated_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="saturated_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="saturated_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="shift_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="shift_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="shift_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="shuffle4_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="shuffle4_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="shuffle4_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="sign_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="sign_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="sign_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="skeleton_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="skeleton_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="skeleton_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="slide_up_down_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="slide_up_down_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="slide_up_down_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="sort_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="sort_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="sort_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="sort_unit_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="sort_unit_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="sort_unit_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="spin_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="spin_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="spin_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="sums_abs_diff_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="sums_abs_diff_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="sums_abs_diff_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="swizzle_block_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="swizzle_block_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="swizzle_block_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="swizzle_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="swizzle_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="swizzle_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="table_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="table_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="table_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="targets_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="targets_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="targets_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="test_util_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="test_util_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="test_util_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="thread_pool_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="thread_pool_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="thread_pool_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="topology_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="topology_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="topology_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="transform_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="transform_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="transform_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="truncate_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="truncate_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="truncate_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="tuple_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="tuple_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="tuple_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="unroller_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="unroller_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="unroller_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="widen_mul_test" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="widen_mul_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="widen_mul_test" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="AssetRipperTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="AssetRipperTest">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -983,37 +373,17 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="glm" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="glm" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="gmock" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="gmock" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="gmock_main" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="gmock_main" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="gtest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="gtest" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="gtest_main" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="gtest_main" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="hwy" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="hwy" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="hwy_benchmark" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="hwy_benchmark" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="hwy_benchmark">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -1024,11 +394,6 @@
       </method>
     </configuration>
     <configuration name="hwy_list_targets" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="hwy_list_targets" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="hwy_list_targets">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="hwy_profiler_example" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="hwy_profiler_example" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="hwy_profiler_example">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -1105,102 +470,12 @@
       <item itemvalue="CMake Application.NightlyUpdate" />
       <item itemvalue="CMake Application.AssetRipperTestWin" />
       <item itemvalue="CMake Application.glm" />
-      <item itemvalue="CMake Application.gmock" />
-      <item itemvalue="CMake Application.gmock_main" />
-      <item itemvalue="CMake Application.gtest" />
-      <item itemvalue="CMake Application.gtest_main" />
       <item itemvalue="CMake Application.hwy" />
-      <item itemvalue="CMake Application.hwy_benchmark" />
       <item itemvalue="CMake Application.hwy_contrib" />
       <item itemvalue="CMake Application.hwy_list_targets" />
-      <item itemvalue="CMake Application.hwy_profiler_example" />
       <item itemvalue="CMake Application.hwy_test" />
       <item itemvalue="CMake Application.AssetRipperTest" />
       <item itemvalue="CMake Application.rapidHash" />
-      <item itemvalue="Google Test.abort_test" />
-      <item itemvalue="Google Test.aligned_allocator_test" />
-      <item itemvalue="Google Test.arithmetic_test" />
-      <item itemvalue="Google Test.auto_tune_test" />
-      <item itemvalue="Google Test.base_test" />
-      <item itemvalue="Google Test.bench_sort" />
-      <item itemvalue="Google Test.bit_pack_test" />
-      <item itemvalue="Google Test.bit_permute_test" />
-      <item itemvalue="Google Test.bit_set_test" />
-      <item itemvalue="Google Test.blockwise_combine_test" />
-      <item itemvalue="Google Test.blockwise_shift_test" />
-      <item itemvalue="Google Test.blockwise_test" />
-      <item itemvalue="Google Test.cast_test" />
-      <item itemvalue="Google Test.combine_test" />
-      <item itemvalue="Google Test.compare_test" />
-      <item itemvalue="Google Test.complex_arithmetic_test" />
-      <item itemvalue="Google Test.compress_test" />
-      <item itemvalue="Google Test.concat_test" />
-      <item itemvalue="Google Test.convert_test" />
-      <item itemvalue="Google Test.copy_test" />
-      <item itemvalue="Google Test.count_test" />
-      <item itemvalue="Google Test.crypto_test" />
-      <item itemvalue="Google Test.demote_test" />
-      <item itemvalue="Google Test.div_test" />
-      <item itemvalue="Google Test.dot_test" />
-      <item itemvalue="Google Test.dup128_vec_test" />
-      <item itemvalue="Google Test.expand_test" />
-      <item itemvalue="Google Test.find_test" />
-      <item itemvalue="Google Test.float_test" />
-      <item itemvalue="Google Test.fma_test" />
-      <item itemvalue="Google Test.foreach_vec_test" />
-      <item itemvalue="Google Test.highway_test" />
-      <item itemvalue="Google Test.if_test" />
-      <item itemvalue="Google Test.image_test" />
-      <item itemvalue="Google Test.in_range_float_to_int_conv_test" />
-      <item itemvalue="Google Test.interleaved_test" />
-      <item itemvalue="Google Test.logical_test" />
-      <item itemvalue="Google Test.mask_combine_test" />
-      <item itemvalue="Google Test.mask_convert_test" />
-      <item itemvalue="Google Test.mask_mem_test" />
-      <item itemvalue="Google Test.mask_set_test" />
-      <item itemvalue="Google Test.mask_slide_test" />
-      <item itemvalue="Google Test.mask_test" />
-      <item itemvalue="Google Test.masked_arithmetic_test" />
-      <item itemvalue="Google Test.masked_minmax_test" />
-      <item itemvalue="Google Test.math_test" />
-      <item itemvalue="Google Test.matvec_test" />
-      <item itemvalue="Google Test.memory_test" />
-      <item itemvalue="Google Test.minmax128_test" />
-      <item itemvalue="Google Test.minmax_magnitude_test" />
-      <item itemvalue="Google Test.minmax_number_test" />
-      <item itemvalue="Google Test.minmax_test" />
-      <item itemvalue="Google Test.mul_by_pow2_test" />
-      <item itemvalue="Google Test.mul_pairwise_test" />
-      <item itemvalue="Google Test.mul_test" />
-      <item itemvalue="Google Test.nanobenchmark_test" />
-      <item itemvalue="Google Test.perf_counters_test" />
-      <item itemvalue="Google Test.random_test" />
-      <item itemvalue="Google Test.reduction_test" />
-      <item itemvalue="Google Test.resize_test" />
-      <item itemvalue="Google Test.reverse_test" />
-      <item itemvalue="Google Test.rotate_test" />
-      <item itemvalue="Google Test.saturated_test" />
-      <item itemvalue="Google Test.shift_test" />
-      <item itemvalue="Google Test.shuffle4_test" />
-      <item itemvalue="Google Test.sign_test" />
-      <item itemvalue="Google Test.skeleton_test" />
-      <item itemvalue="Google Test.slide_up_down_test" />
-      <item itemvalue="Google Test.sort_test" />
-      <item itemvalue="Google Test.sort_unit_test" />
-      <item itemvalue="Google Test.spin_test" />
-      <item itemvalue="Google Test.sums_abs_diff_test" />
-      <item itemvalue="Google Test.swizzle_block_test" />
-      <item itemvalue="Google Test.swizzle_test" />
-      <item itemvalue="Google Test.table_test" />
-      <item itemvalue="Google Test.targets_test" />
-      <item itemvalue="Google Test.test_util_test" />
-      <item itemvalue="Google Test.thread_pool_test" />
-      <item itemvalue="Google Test.topology_test" />
-      <item itemvalue="Google Test.transform_test" />
-      <item itemvalue="Google Test.truncate_test" />
-      <item itemvalue="Google Test.tuple_test" />
-      <item itemvalue="Google Test.unroller_test" />
-      <item itemvalue="Google Test.widen_mul_test" />
       <item itemvalue="Python.props" />
     </list>
     <recent_temporary>

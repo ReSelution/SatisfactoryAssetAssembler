@@ -52,6 +52,7 @@ namespace SAA {
         auto res = utf16Storage->utf16ToUtf8(chars);
         entries[i] = res;
       } else {
+        load(length);
         const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
         entries[i] = {startPos, length};
         m_cursor += length;
