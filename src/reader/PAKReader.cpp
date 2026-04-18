@@ -201,9 +201,42 @@ namespace SAA {
     return true;
   }
 
-  std::span<uint8_t> PAKReader::readFile(SC::ChaosBumpArena *storage, uint32_t index) const {
-    auto &entry = m_pakEntries[index];
+  GameFile * PAKReader::readFile(SC::ChaosBumpArena *storage, uint32_t entryIndex) const {
+    auto &entry = m_pakEntries[entryIndex];
 
+    struct PAKFileImpl : GameFileImpl {
+      const PAKReader *reader;
+      const FPakEntry &entry;
+
+      PAKFileImpl(const PAKReader *r, const FPakEntry &e)
+              : GameFileImpl(e.uncompressedSize), reader(r), entry(e) {}
+
+      uint64_t chunks() final {
+        return entry.compressionMethod == CompressionMethod::None ? 1 : entry.compressedBlocks.size();
+      }
+
+      bool load(size_t &index, std::span<uint8_t> dst) final {
+        if (entry.compressionMethod == CompressionMethod::None) {
+          auto src = reader->m_pakFile.getSpan(entry.offset, entry.uncompressedSize);
+          std::memcpy(dst.data(), src.data(), entry.uncompressedSize);
+          return true;
+        }
+
+        auto &block = entry.compressedBlocks[index];
+        auto src = reader->m_pakFile.getSpan(block.compressedOffset, block.compressedSize);
+
+        bool success = Decompressor::decompress(src, dst, entry.compressionMethod);
+
+        if (success) [[likely]] {
+          CHAOS_RECORD(DecompressedThroughput, dst.size())
+          CHAOS_RECORD(CompressedThroughput, src.size())
+        }
+        return success;
+      }
+    };
+    auto *file = storage->make<GameFile>(storage);
+    auto impl = file->createImpl<PAKFileImpl>(this, entry);
+    
     std::span<uint8_t> uncompressedData = storage->allocateSpan(entry.uncompressedSize);
     auto uncompressedSpan = std::span(uncompressedData);
     if (entry.compressionMethod == CompressionMethod::None) {

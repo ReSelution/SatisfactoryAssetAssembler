@@ -1,0 +1,289 @@
+[SAA] [Tracker]: Class: FGBuildable
+[SAA] [Tracker]: mSwatchGroup : 2/17 -> ObjectProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 2/17 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableBarrierCorner
+[SAA] [Tracker]: mMeshComponentProxy : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mSize : 1/1 -> StructProperty
+[SAA] [Tracker]: Class: FGBuildableBeam
+[SAA] [Tracker]: bTiledMesh : 1/8 -> BoolProperty
+[SAA] [Tracker]: mColorSlot : 8/8 -> ByteProperty
+[SAA] [Tracker]: mSize : 8/8 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableBlueprintDesigner
+[SAA] [Tracker]: mFloorMeshTile : 3/3 -> ObjectProperty
+[SAA] [Tracker]: mTerminalMesh : 3/3 -> ObjectProperty
+[SAA] [Tracker]: mDimensions : 3/3 -> StructProperty
+[SAA] [Tracker]: mFloorMeshComponent : 3/3 -> ObjectProperty
+[SAA] [Tracker]: mTerminalHalfDepth : 3/3 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableConveyorBelt
+[SAA] [Tracker]: mMeshLength : 1/6 -> FloatProperty
+[SAA] [Tracker]: mCustomSkins : 1/6 -> ArrayProperty
+[SAA] [Tracker]: mSplineComponent : 6/6 -> ObjectProperty
+[SAA] [Tracker]: mMesh : 6/6 -> ObjectProperty
+[SAA] [Tracker]: mSpeed : 6/6 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableConveyorLift
+[SAA] [Tracker]: mBottomMesh : 1/6 -> ObjectProperty
+[SAA] [Tracker]: mTopMesh : 1/6 -> ObjectProperty
+[SAA] [Tracker]: mMidMesh : 6/6 -> ObjectProperty
+[SAA] [Tracker]: mFlipMeshOnReverse : 1/6 -> BoolProperty
+[SAA] [Tracker]: mShelfMesh : 1/6 -> ObjectProperty
+[SAA] [Tracker]: mSpeed : 6/6 -> FloatProperty
+[SAA] [Tracker]: mHalfMidMesh : 2/6 -> ObjectProperty
+[SAA] [Tracker]: mBellowMesh : 1/6 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableCornerWall
+[SAA] [Tracker]: mSwatchGroup : 4/12 -> ObjectProperty
+[SAA] [Tracker]: mMeshComponentProxy : 12/12 -> ObjectProperty
+[SAA] [Tracker]: mHeight : 12/12 -> FloatProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 4/12 -> ObjectProperty
+[SAA] [Tracker]: mSize : 12/12 -> FloatProperty
+[SAA] [Tracker]: mIsInverted : 6/12 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableCornerWallLightweight
+[SAA] [Tracker]: mSwatchGroup : 18/24 -> ObjectProperty
+[SAA] [Tracker]: mAllowPatterning : 24/24 -> BoolProperty
+[SAA] [Tracker]: mColorSlot : 24/24 -> ByteProperty
+[SAA] [Tracker]: mHeight : 24/24 -> FloatProperty
+[SAA] [Tracker]: mSize : 24/24 -> FloatProperty
+[SAA] [Tracker]: mIsInverted : 12/24 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableDockingStation
+[SAA] [Tracker]: mFuelTransferSpeed : 1/1 -> FloatProperty
+[SAA] [Tracker]: mTransferSpeed : 1/1 -> FloatProperty
+[SAA] [Tracker]: mStackTransferSize : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableDoor
+[SAA] [Tracker]: mMovementRate : 2/10 -> FloatProperty
+[SAA] [Tracker]: mWidth : 6/10 -> FloatProperty
+[SAA] [Tracker]: mSwatchGroup : 4/10 -> ObjectProperty
+[SAA] [Tracker]: mMeshComponentProxy : 10/10 -> ObjectProperty
+[SAA] [Tracker]: mHeight : 6/10 -> FloatProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 2/10 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableDroneStation
+[SAA] [Tracker]: mTransferSpeed : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableElevator
+[SAA] [Tracker]: mSpeed : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableElevatorFloorStop
+[SAA] [Tracker]: mElevatorDataStruct : 1/1 -> StructProperty
+[SAA] [Tracker]: mMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mButtonMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableFactoryBuilding
+[SAA] [Tracker]: mMeshComponentProxy : 3/3 -> ObjectProperty
+[SAA] [Tracker]: mColorSlot : 2/3 -> ByteProperty
+[SAA] [Tracker]: Class: FGBuildableFactorySimpleProducer
+[SAA] [Tracker]: mItemType : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mTimeToProduceItem : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableFloodlight
+[SAA] [Tracker]: mFixtureAngle : 1/2 -> IntProperty
+[SAA] [Tracker]: Class: FGBuildableFoundation
+[SAA] [Tracker]: mMeshComponentProxy : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mHeight : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableFoundationLightweight
+[SAA] [Tracker]: mDepth : 30/155 -> FloatProperty
+[SAA] [Tracker]: mWidth : 15/155 -> FloatProperty
+[SAA] [Tracker]: mSwatchGroup : 106/155 -> ObjectProperty
+[SAA] [Tracker]: mAllowPatterning : 78/155 -> BoolProperty
+[SAA] [Tracker]: mHeight : 155/155 -> FloatProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 152/155 -> ObjectProperty
+[SAA] [Tracker]: mIsFrame : 2/155 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableFrackingExtractor
+[SAA] [Tracker]: mItemsPerCycle : 1/1 -> IntProperty
+[SAA] [Tracker]: Class: FGBuildableGeneratorFuel
+[SAA] [Tracker]: mFuelLoadAmount : 1/4 -> IntProperty
+[SAA] [Tracker]: mSupplementalToPowerRatio : 1/4 -> FloatProperty
+[SAA] [Tracker]: mRequiresSupplementalResource : 1/4 -> BoolProperty
+[SAA] [Tracker]: mSupplementalLoadAmount : 1/4 -> IntProperty
+[SAA] [Tracker]: Class: FGBuildableGeneratorNuclear
+[SAA] [Tracker]: mSupplementalToPowerRatio : 1/1 -> FloatProperty
+[SAA] [Tracker]: mRequiresSupplementalResource : 1/1 -> BoolProperty
+[SAA] [Tracker]: mSupplementalLoadAmount : 1/1 -> IntProperty
+[SAA] [Tracker]: Class: FGBuildableJumppad
+[SAA] [Tracker]: mLaunchVelocity : 1/1 -> FloatProperty
+[SAA] [Tracker]: mLauncherBox : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mLaunchPowerCost : 1/1 -> FloatProperty
+[SAA] [Tracker]: mLauncherMeshComponent : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mDestinationMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mNumArrows : 1/1 -> IntProperty
+[SAA] [Tracker]: mPowerBankCapacity : 1/1 -> FloatProperty
+[SAA] [Tracker]: mTrajectorySplineMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableLadder
+[SAA] [Tracker]: mMaxSegmentCount : 1/1 -> IntProperty
+[SAA] [Tracker]: mWidth : 1/1 -> FloatProperty
+[SAA] [Tracker]: mMeshHeight : 1/1 -> FloatProperty
+[SAA] [Tracker]: mLadderSegmentMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableMAM
+[SAA] [Tracker]: Centrifuge Duration : 1/1 -> DoubleProperty
+[SAA] [Tracker]: mResearchMeshScale : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableManufacturer
+[SAA] [Tracker]: mOverrideProductionShardSlotSize : 5/8 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableManufacturerVariablePower
+[SAA] [Tracker]: mFluidStackSizeMultiplier : 1/3 -> IntProperty
+[SAA] [Tracker]: mOverrideProductionShardSlotSize : 3/3 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildablePassthrough
+[SAA] [Tracker]: mSwatchGroup : 1/2 -> ObjectProperty
+[SAA] [Tracker]: mMidMeshLength : 2/2 -> FloatProperty
+[SAA] [Tracker]: mMidMesh : 2/2 -> ObjectProperty
+[SAA] [Tracker]: mEndCapRotation : 1/2 -> StructProperty
+[SAA] [Tracker]: mMidMeshRotation : 2/2 -> StructProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 1/2 -> ObjectProperty
+[SAA] [Tracker]: mCapMesh : 2/2 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePassthroughPipeHyper
+[SAA] [Tracker]: mEndCapTranslation : 1/1 -> StructProperty
+[SAA] [Tracker]: mMidMeshLength : 1/1 -> FloatProperty
+[SAA] [Tracker]: mMidMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mEndCapRotation : 1/1 -> StructProperty
+[SAA] [Tracker]: mMidMeshRotation : 1/1 -> StructProperty
+[SAA] [Tracker]: mCapMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePillarLightweight
+[SAA] [Tracker]: mCustomScaleType : 3/9 -> EnumProperty
+[SAA] [Tracker]: mSwatchGroup : 2/9 -> ObjectProperty
+[SAA] [Tracker]: mScaleCustomOffset : 3/9 -> FloatProperty
+[SAA] [Tracker]: mIsSupport : 2/9 -> BoolProperty
+[SAA] [Tracker]: mColorSlot : 7/9 -> ByteProperty
+[SAA] [Tracker]: mLegacySwatch : 2/9 -> ObjectProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 2/9 -> ObjectProperty
+[SAA] [Tracker]: mSize : 9/9 -> StructProperty
+[SAA] [Tracker]: Class: FGBuildablePipeHyper
+[SAA] [Tracker]: mMeshLength : 1/1 -> FloatProperty
+[SAA] [Tracker]: mSplineComponent : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePipeHyperBooster
+[SAA] [Tracker]: mSplineComponent : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePipeReservoir
+[SAA] [Tracker]: mStorageCapacity : 2/2 -> FloatProperty
+[SAA] [Tracker]: mStackingHeight : 2/2 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildablePipeline
+[SAA] [Tracker]: mMeshLength : 2/4 -> FloatProperty
+[SAA] [Tracker]: mSplineComponent : 4/4 -> ObjectProperty
+[SAA] [Tracker]: mFluidNames : 2/4 -> ArrayProperty
+[SAA] [Tracker]: mSplineMeshMaterial : 1/4 -> ObjectProperty
+[SAA] [Tracker]: mColorSlot : 2/4 -> ByteProperty
+[SAA] [Tracker]: mMesh : 2/4 -> ObjectProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 2/4 -> ObjectProperty
+[SAA] [Tracker]: mFlowLimit : 1/4 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildablePipelineJunction
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mRadius : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildablePipelinePump
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 3/3 -> ObjectProperty
+[SAA] [Tracker]: mRadius : 3/3 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildablePoleConveyor
+[SAA] [Tracker]: mPoleVariations : 1/1 -> ArrayProperty
+[SAA] [Tracker]: Class: FGBuildablePolePipe
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 1/2 -> ObjectProperty
+[SAA] [Tracker]: mPoleVariations : 2/2 -> ArrayProperty
+[SAA] [Tracker]: Class: FGBuildablePoleStackable
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 1/3 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePortal
+[SAA] [Tracker]: mPortalTravelTimeOverDistance : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mHeatUpCycleTime : 1/1 -> FloatProperty
+[SAA] [Tracker]: mFuelSlotSize : 1/1 -> IntProperty
+[SAA] [Tracker]: mHeatUpFuelConsumptionCurve : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mActorRepresentationColor : 1/1 -> StructProperty
+[SAA] [Tracker]: mMinFuelToStartProducingAfterAbruptStop : 1/1 -> IntProperty
+[SAA] [Tracker]: mMinFuelToStartProducing : 1/1 -> IntProperty
+[SAA] [Tracker]: mHeatUpPowerConsumptionCurve : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mPowerConsumptionPerTeleportOverDistance : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePortalSatellite
+[SAA] [Tracker]: mPortalTravelTimeOverDistance : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mActorRepresentationColor : 1/1 -> StructProperty
+[SAA] [Tracker]: mPowerConsumptionPerTeleportOverDistance : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePowerBooster
+[SAA] [Tracker]: mBaseBoostPercentage : 1/1 -> FloatProperty
+[SAA] [Tracker]: mBasePowerProduction : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildablePowerPole
+[SAA] [Tracker]: mPowerPoleType : 3/11 -> EnumProperty
+[SAA] [Tracker]: mMeshComponentProxy : 11/11 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildablePowerStorage
+[SAA] [Tracker]: mMeshMesh : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mPowerStoreCapacity : 1/1 -> FloatProperty
+[SAA] [Tracker]: mPowerInputCapacity : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableRailroadAttachment
+[SAA] [Tracker]: mIsEndStop : 1/1 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableRailroadSignal
+[SAA] [Tracker]: mSignalComponent : 2/2 -> ObjectProperty
+[SAA] [Tracker]: mIsPathSignal : 1/2 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableRailroadStation
+[SAA] [Tracker]: mShouldTeleportHere : 1/2 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableRailroadSwitchControl
+[SAA] [Tracker]: mSwitchComponent : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableRailroadTrack
+[SAA] [Tracker]: mMeshLength : 2/2 -> FloatProperty
+[SAA] [Tracker]: mSplineComponent : 2/2 -> ObjectProperty
+[SAA] [Tracker]: mAllowPatterning : 2/2 -> BoolProperty
+[SAA] [Tracker]: mMesh : 2/2 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableRampLightweight
+[SAA] [Tracker]: mIsRoof : 16/78 -> BoolProperty
+[SAA] [Tracker]: mSwatchGroup : 40/78 -> ObjectProperty
+[SAA] [Tracker]: mAllowPatterning : 18/78 -> BoolProperty
+[SAA] [Tracker]: mElevation : 74/78 -> FloatProperty
+[SAA] [Tracker]: mIsDoubleRamp : 15/78 -> BoolProperty
+[SAA] [Tracker]: mHeight : 74/78 -> FloatProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 64/78 -> ObjectProperty
+[SAA] [Tracker]: mIsInverted : 16/78 -> BoolProperty
+[SAA] [Tracker]: mIsFrame : 2/78 -> BoolProperty
+[SAA] [Tracker]: Class: FGBuildableResourceExtractor
+[SAA] [Tracker]: mExtractStartupTime : 2/4 -> FloatProperty
+[SAA] [Tracker]: mItemsPerCycle : 1/4 -> IntProperty
+[SAA] [Tracker]: mExtractCycleTime : 2/4 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableSignSupport
+[SAA] [Tracker]: mPoleVariations : 5/5 -> ArrayProperty
+[SAA] [Tracker]: Class: FGBuildableSnowCannon
+[SAA] [Tracker]: mBaseMeshComponent : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableSpaceElevator
+[SAA] [Tracker]: mSwatchGroup : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableStackableShelf
+[SAA] [Tracker]: mSize : 1/1 -> StructProperty
+[SAA] [Tracker]: Class: FGBuildableStair
+[SAA] [Tracker]: mMeshComponentProxy : 2/2 -> ObjectProperty
+[SAA] [Tracker]: mHeight : 2/2 -> FloatProperty
+[SAA] [Tracker]: mSize : 2/2 -> FloatProperty
+[SAA] [Tracker]: mStairDirection : 1/2 -> EnumProperty
+[SAA] [Tracker]: Class: FGBuildableStorage
+[SAA] [Tracker]: mStackingHeight : 2/7 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableTradingPost
+[SAA] [Tracker]: mStages : 1/1 -> ArrayProperty
+[SAA] [Tracker]: mSkeletalMeshSoftPtr : 1/1 -> SoftObjectProperty
+[SAA] [Tracker]: mStorageInventorySize : 1/1 -> IntProperty
+[SAA] [Tracker]: Meshes : 1/1 -> ArrayProperty
+[SAA] [Tracker]: mGenerator1Location : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mMeshes : 1/1 -> ArrayProperty
+[SAA] [Tracker]: mGenerator2Location : 1/1 -> ObjectProperty
+[SAA] [Tracker]: Class: FGBuildableTrainPlatformCargo
+[SAA] [Tracker]: mFluidStackSizeMultiplier : 1/2 -> IntProperty
+[SAA] [Tracker]: Class: FGBuildableWalkway
+[SAA] [Tracker]: mCustomScaleType : 1/1 -> EnumProperty
+[SAA] [Tracker]: mScaleCustomOffset : 1/1 -> FloatProperty
+[SAA] [Tracker]: mMeshComponentProxy : 1/1 -> ObjectProperty
+[SAA] [Tracker]: mSize : 1/1 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableWalkwayLightweight
+[SAA] [Tracker]: mCustomScaleType : 9/10 -> EnumProperty
+[SAA] [Tracker]: mScaleCustomOffset : 9/10 -> FloatProperty
+[SAA] [Tracker]: mElevation : 3/10 -> FloatProperty
+[SAA] [Tracker]: mSize : 10/10 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableWall
+[SAA] [Tracker]: mWidth : 4/4 -> FloatProperty
+[SAA] [Tracker]: mMeshComponentProxy : 4/4 -> ObjectProperty
+[SAA] [Tracker]: mHeight : 4/4 -> FloatProperty
+[SAA] [Tracker]: mWallType : 1/4 -> EnumProperty
+[SAA] [Tracker]: Class: FGBuildableWallLightweight
+[SAA] [Tracker]: mWidth : 76/76 -> FloatProperty
+[SAA] [Tracker]: mAngularDepth : 6/76 -> FloatProperty
+[SAA] [Tracker]: mSwatchGroup : 23/76 -> ObjectProperty
+[SAA] [Tracker]: mAngledVariants : 2/76 -> ArrayProperty
+[SAA] [Tracker]: mHeight : 76/76 -> FloatProperty
+[SAA] [Tracker]: mDefaultSwatchCustomizationOverride : 23/76 -> ObjectProperty
+[SAA] [Tracker]: mWallType : 39/76 -> EnumProperty
+[SAA] [Tracker]: Class: FGBuildableWaterPump
+[SAA] [Tracker]: mFluidStackSizeMultiplier : 1/1 -> IntProperty
+[SAA] [Tracker]: mExtractStartupTime : 1/1 -> FloatProperty
+[SAA] [Tracker]: mItemsPerCycle : 1/1 -> IntProperty
+[SAA] [Tracker]: Class: FGBuildableWidgetSign
+[SAA] [Tracker]: mSignDrawSize : 10/10 -> StructProperty
+[SAA] [Tracker]: mMeshComponentProxy : 10/10 -> ObjectProperty
+[SAA] [Tracker]: mWidgetMaterial : 10/10 -> ObjectProperty
+[SAA] [Tracker]: mDefaultSignMaterial : 10/10 -> ObjectProperty
+[SAA] [Tracker]: mSignProxyPlane : 10/10 -> ObjectProperty
+[SAA] [Tracker]: mSignToSignOffset : 1/10 -> FloatProperty
+[SAA] [Tracker]: Class: FGBuildableWire
+[SAA] [Tracker]: mAllowColoring : 1/2 -> BoolProperty
+[SAA] [Tracker]: mSwatchGroup : 1/2 -> ObjectProperty
+[SAA] [Tracker]: mWireMesh : 2/2 -> ObjectProperty
+[SAA] [Tracker]: Class: FGCentralStorageContainer
+[SAA] [Tracker]: mStackingHeight : 1/1 -> FloatProperty

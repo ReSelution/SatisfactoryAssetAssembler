@@ -20,7 +20,7 @@ namespace SAA {
 
     bool load() override;
     bool mountVFS(Vfs *vfs) override;
-    std::span<uint8_t> readFile(SC::ChaosBumpArena *storage, uint32_t index) const;
+    GameFile * readFile(SC::ChaosBumpArena *storage, uint32_t index) const;
 
   private:
     void readPaKInfo();
