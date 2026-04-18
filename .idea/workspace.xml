@@ -86,7 +86,7 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja -DBUILD_TESTING:BOOL=OFF" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja -DBUILD_TESTING:BOOL=OFF -DMI_BUILD_OBJECT:BOOL=OFF -DMI_BUILD_SHARED:BOOL=OFF -DMI_BUILD_TESTS:BOOL=OFF -DMI_USE_LIBATOMIC:BOOL=OFF -DMI_DEBUG:BOOL=ON" />
       <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja -DENABLE_ASAN:BOOL=OFF  -DTRACY_ENABLE:BOOL=OFF -DBUILD_TESTING:BOOL=OFF" />
       <configuration PROFILE_NAME="Release-Windows" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Windows" GENERATION_OPTIONS="-G Ninja -DCMAKE_SYSTEM_NAME=Windows" />
       <configuration PROFILE_NAME="RelWithDebInfo" ENABLED="true" CONFIG_NAME="RelWithDebInfo" GENERATION_OPTIONS="-DTRACY_LTO:BOOL=ON" />
@@ -95,16 +95,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="Dissable Testing">
+    <list default="true" id="7d369bf6-1d01-450d-a5b7-743ab59f012d" name="Changes" comment="Chaos Update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/external/StructuredChaos/src/threading/chaos_threading.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/StructuredChaos/src/threading/chaos_threading.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/AssetFileParser.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/uasset_parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/uasset_parser.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/provider/games/satisfactory/SatisfactoryDataProvider.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/IOStoreReader.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reader/PAKReader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/reader/PAKReader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structs/io/f_io_chunk_id.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/structs/io/f_io_chunk_id.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/vfs/game_file.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/game_file.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/vfs/game_file.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/game_file.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vfs/vfs.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vfs/vfs.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +117,7 @@
     <option name="clangTidyViaClangd" value="false" />
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release-Windows" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -179,38 +181,38 @@
     <option name="showScratchesAndConsoles" value="false" />
     <option name="showVisibilityIcons" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "C/C++ File.main.cpp.executor": "Run",
-    "CMake Application.AssetRipperTest.executor": "Run",
-    "CMake Application.AssetRipperTestWin.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.props.executor": "Run",
-    "RunOnceActivity.RadMigrateCodeStyle": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "RunOnceActivity.west.config.association.type.startup.service": "true",
-    "SHELLCHECK.PATH": "/home/oleub/.local/share/JetBrains/CLion2025.3/Shell Script/shellcheck",
-    "cf.advertisement.text.overridden": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/oleub/dev/source/repos/SatisfactoryAssetAssembler/external/StructuredChaos/external/rapidhash",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "CMakeSettings",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;C/C++ File.main.cpp.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.AssetRipperTest.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.AssetRipperTestWin.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.props.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;/home/oleub/.local/share/JetBrains/CLion2025.3/Shell Script/shellcheck&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/oleub/dev/source/repos/SatisfactoryAssetAssembler/external/StructuredChaos/external/rapidhash&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/external/StructuredChaos/external/rapidhash" />
@@ -232,7 +234,7 @@
       <command value="main.cpp" />
     </option>
   </component>
-  <component name="RunManager" selected="C/C++ File.main.cpp">
+  <component name="RunManager" selected="CMake Application.AssetRipperTest">
     <configuration name="AssetRipperTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="AssetRipperTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SatisfactoryAssetParser" RUN_TARGET_NAME="AssetRipperTest">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -379,11 +381,6 @@
       </method>
     </configuration>
     <configuration name="NightlyUpdate" type="CMakeRunConfiguration" factoryName="Application" folderName="CTestDashboardTargets" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SatisfactoryAssetParser" TARGET_NAME="NightlyUpdate" CONFIG_NAME="Release-Windows">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -612,6 +609,11 @@
       <workItem from="1776448458188" duration="1841000" />
       <workItem from="1776450782518" duration="353000" />
       <workItem from="1776451306766" duration="91000" />
+      <workItem from="1776463283967" duration="6556000" />
+      <workItem from="1776470649872" duration="11000" />
+      <workItem from="1776470926927" duration="11000" />
+      <workItem from="1776471233797" duration="837000" />
+      <workItem from="1776472172819" duration="2950000" />
     </task>
     <task id="LOCAL-00001" summary="Renaming to SatisfactoryAssetAssembler (SAA)">
       <option name="closed" value="true" />
@@ -813,7 +815,23 @@
       <option name="project" value="LOCAL" />
       <updated>1776457261418</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Filesteaming implentation">
+      <option name="closed" value="true" />
+      <created>1776462605652</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1776462605652</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Chaos Update">
+      <option name="closed" value="true" />
+      <created>1776462626140</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1776462626140</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -858,7 +876,9 @@
     <MESSAGE value="preps for File Streaming" />
     <MESSAGE value="Fixed the Fucking Bug in loadnameBatch" />
     <MESSAGE value="Dissable Testing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Dissable Testing" />
+    <MESSAGE value="Filesteaming implentation" />
+    <MESSAGE value="Chaos Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Chaos Update" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

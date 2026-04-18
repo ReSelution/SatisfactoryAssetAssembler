@@ -31,14 +31,14 @@ namespace SAA {
         auto persistenPath = m_storage.persistString(pathStr);
 
         auto entry = m_storage.make<IOVfsEntry>(persistenPath, chunkId, parser);
-        m_vfsMap.emplace(entry->hash, entry);
-        m_pkgMap.emplace(chunkId.asPackageId().Id, entry);
+        m_vfsMap.emplace(entry->hash, static_cast<SAA::UnifiedVfsEntry const*>(entry));
+        m_pkgMap.emplace(chunkId.asPackageId().Id, static_cast<SAA::UnifiedVfsEntry const*>(entry));
     }
 
     void Vfs::mountEntry(PAKReader *parser, std::string_view pathStr, uint32_t index) {
         auto persistenPath = m_storage.persistString(pathStr);
         auto entry = m_storage.make<PAKVfsEntry>(persistenPath, index, parser);
-        m_vfsMap.emplace(entry->hash, std::move(entry));
+        m_vfsMap.emplace(entry->hash, static_cast<SAA::UnifiedVfsEntry const*>(entry));
     }
 
     void Vfs::dumpToText(std::string_view filepath) {

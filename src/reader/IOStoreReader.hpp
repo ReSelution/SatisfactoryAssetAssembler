@@ -20,84 +20,82 @@
 #include "game_file.hpp"
 
 namespace SAA {
-    class IOStoreReader : public Reader {
-    public:
-        IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath);
+  class IOStoreReader : public Reader {
+  public:
+    IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath);
 
-        IOStoreReader(const IOStoreReader &) = delete;
+    IOStoreReader(const IOStoreReader &) = delete;
 
-        IOStoreReader(IOStoreReader &&) = delete;
+    IOStoreReader(IOStoreReader &&) = delete;
 
-        IOStoreReader &operator=(const IOStoreReader &) = delete;
+    IOStoreReader &operator=(const IOStoreReader &) = delete;
 
-        IOStoreReader &operator=(IOStoreReader &&) = delete;
+    IOStoreReader &operator=(IOStoreReader &&) = delete;
 
-        bool load() override;
+    bool load() override;
 
-      GameFile* readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const;
+    GameFile *readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const;
 
-        bool mountVFS(Vfs *vfs) override;
+    bool mountVFS(Vfs *vfs) override;
 
-        const FIoContainerHeader *containerHeader() const { return &m_containerHeader; }
+    const FIoContainerHeader *containerHeader() const { return &m_containerHeader; }
 
-    private:
-        std::span<uint8_t> utocBuffer;
+  private:
 
-        void parseHeader(ByteCursor &cursor);
+    void parseHeader(ByteCursor &cursor);
 
-        void parseChunkIds(ByteCursor &cursor);
+    void parseChunkIds(ByteCursor &cursor);
 
-        void parseOffsetLengths(ByteCursor &cursor);
+    void parseOffsetLengths(ByteCursor &cursor);
 
-        void parsePerfectHashTable(ByteCursor &cursor);
+    void parsePerfectHashTable(ByteCursor &cursor);
 
-        void parseCompressionBlocks(ByteCursor &cursor);
+    void parseCompressionBlocks(ByteCursor &cursor);
 
-        void parseCompressionMethods(ByteCursor &cursor);
+    void parseCompressionMethods(ByteCursor &cursor);
 
-        void parseSignatures(ByteCursor &cursor);
+    void parseSignatures(ByteCursor &cursor) const;
 
-        void parseDirectoryIndex(ByteCursor &cursor);
+    void parseDirectoryIndex(ByteCursor &cursor);
 
-        void parseTocMetas(ByteCursor &cursor);
+    void parseTocMetas(ByteCursor &cursor) const;
 
-        bool readContainerHeader();
+    bool readContainerHeader();
 
-        static void
-        readFilePackageStoreEntry(GameFile *file, FFilePackageStoreEntry *entry, EIoContainerHeaderVersion version);
+    static void
+    readFilePackageStoreEntry(GameFile *file, FFilePackageStoreEntry *entry, EIoContainerHeaderVersion version);
 
-        static FIoContainerHeaderSoftPackageReferences readSoftPackageReferences(ByteCursor &cursor);
+    void parseDirectoryPathList();
 
-        void parseDirectoryPathList();
+    void createChunkLookupTable();
 
-        void createChunkLookupTable();
+    bool resolveChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
 
-        bool resolveChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
+    bool resolveImperfectChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
 
-        bool resolveImperfectChunk(const FIoChunkId &chunkId, FIoOffsetAndLength &outOffsetLength) const;
+    bool readBlock(const FIoStoreTocCompressedBlockEntry &blockEntry, std::span<uint8_t> dst) const;
 
-        bool readBlock(const FIoStoreTocCompressedBlockEntry &blockEntry, std::span<uint8_t> dst) const;
+    FileReader m_ucasReader;
+    FileReader m_utocReader;
 
-        FileReader m_ucasReader;
+    FIoStoreTocHeader m_TocHeader{};
+    std::span<const FIoStoreTocCompressedBlockEntry> m_compressionBlocks;
+    std::span<CompressionMethod> m_CompressionMethods;
+    std::span<const uint8_t> m_DirectoryIndexBuffer;
+    std::span<std::string_view> m_DirectoryPaths;
 
-        FIoStoreTocHeader m_TocHeader{};
-        std::span<const FIoStoreTocCompressedBlockEntry> m_compressionBlocks;
-        std::span<CompressionMethod> m_CompressionMethods;
-        std::span<const uint8_t> m_DirectoryIndexBuffer;
-        std::span<std::string_view> m_DirectoryPaths;
+    std::span<const int32_t> m_ChunkPerfectHashSeeds;
+    std::span<const uint32_t> m_ChunkIndicesWithoutPerfectHash;
 
-        std::span<const int32_t> m_ChunkPerfectHashSeeds;
-        std::span<const uint32_t> m_ChunkIndicesWithoutPerfectHash;
+    std::span<const FIoChunkId> m_ChunkIds;
+    std::span<const FIoOffsetAndLength> m_ChunkOffsetLengths;
 
-        std::span<const FIoChunkId> m_ChunkIds;
-        std::span<const FIoOffsetAndLength> m_ChunkOffsetLengths;
+    using denseMap = ankerl::unordered_dense::map<FIoChunkId, FIoOffsetAndLength>;
 
-        using denseMap = ankerl::unordered_dense::map<FIoChunkId,FIoOffsetAndLength>;
-
-        denseMap m_ImperfectChunkOffsetMap;
+    denseMap m_ImperfectChunkOffsetMap;
 
 
-        FIoContainerHeader m_containerHeader{};
+    FIoContainerHeader m_containerHeader{};
 
-    };
+  };
 } 

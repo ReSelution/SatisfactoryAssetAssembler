@@ -55,7 +55,7 @@ namespace SAA {
       parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&, currentParser](int id) {
         auto &child = childVFS[id];
         currentParser->load();
-        currentParser->mountVFS(&m_vfs);
+        currentParser->mountVFS(&child);
         m_vfs.mergeChild(child);
 
       }));

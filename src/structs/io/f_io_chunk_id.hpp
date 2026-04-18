@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include <cstdint>
 
 #include "core/package.hpp"
@@ -22,17 +23,15 @@ namespace SAA {
       return id == other.id && chunkIndex == other.chunkIndex && chunkType == other.chunkType;
     }
   };
+
 #pragma pack(pop)
-} 
+}
 
 namespace std {
   template<>
   struct hash<SAA::FIoChunkId> {
     size_t operator()(const SAA::FIoChunkId &id) const noexcept {
-      size_t hsh = std::hash<uint64_t>{}(id.id);
-      hsh ^= std::hash<uint32_t>{}(id.chunkIndex) + 0x9e3779b9 + (hsh << 6) + (hsh >> 2);
-      hsh ^= std::hash<uint8_t>{}(id.chunkType) + 0x9e3779b9 + (hsh << 6) + (hsh >> 2);
-      return hsh;
+      return id.id;
     }
   };
 } // namespace std

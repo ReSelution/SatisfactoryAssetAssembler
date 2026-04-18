@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.24)
 project(SatisfactoryAssetParser LANGUAGES CXX)
 
 find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
+if (CCACHE_PROGRAM)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
     set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
     message(STATUS "ccache gefunden und aktiviert.")
-endif()
+endif ()
 include(CheckCXXCompilerFlag)
 
 # -------------------------------------------------------------------------
@@ -73,31 +73,28 @@ add_library(SAA_Lib STATIC)
 if (NOT MSVC)
     include(CheckIPOSupported)
     check_ipo_supported(RESULT supported OUTPUT error)
-    if(supported)
+    if (supported)
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    else()
+    else ()
         message(STATUS "IPO/LTO is not supported: ${error}")
-    endif()
+    endif ()
 
     if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_compile_options(SAA_Lib PUBLIC  -O3 -march=native -fno-rtti)
-    else()
+        target_compile_options(SAA_Lib PUBLIC -O3 -march=native -fno-rtti)
+    else ()
         target_compile_options(SAA_Lib PUBLIC -g -O0)
         message(STATUS "[SAA] Debug mode: Optimizations disabled")
-    endif()
-endif()
+    endif ()
+endif ()
 
 # -------------------------------------------------------------------------
 # 2. Third Party (External)
 # -------------------------------------------------------------------------
-if(NOT TARGET StructuredChaos)
-add_subdirectory(external/StructuredChaos)
+if (NOT TARGET StructuredChaos)
+    add_subdirectory(external/StructuredChaos)
 endif ()
 add_subdirectory(external/cityhash)
 include(cmake/dependencies.cmake)
-
-
-
 
 
 # -------------------------------------------------------------------------
@@ -184,8 +181,11 @@ if (NOT SAA_TARGETING_WINDOWS)
     target_link_libraries(AssetRipperTest PRIVATE
             SAA_Lib
             StructuredChaos
-            mimalloc-static
+
     )
+    if (NOT ENABLE_ASAN)
+        target_link_libraries(AssetRipperTest PRIVATE mimalloc-static)
+    endif ()
     set_target_properties(AssetRipperTest PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
             OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
@@ -195,13 +195,16 @@ else ()
     target_link_libraries(AssetRipperTestWin PRIVATE
             SAA_Lib
             StructuredChaos
-            mimalloc-static
     )
-    set_target_properties(AssetRipperTestWin PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
-            OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
-    )
-    set_target_properties(AssetRipperTestWin PROPERTIES LINK_FLAGS "-Wl,--subsystem,console")
+
+    if(NOT ENABLE_ASAN)
+        target_link_libraries(AssetRipperTestWin PRIVATE   mimalloc-static)
+    endif ()
+set_target_properties(AssetRipperTestWin PROPERTIES
+RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
+OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
+)
+set_target_properties(AssetRipperTestWin PROPERTIES LINK_FLAGS "-Wl,--subsystem,console")
 
 endif ()
 

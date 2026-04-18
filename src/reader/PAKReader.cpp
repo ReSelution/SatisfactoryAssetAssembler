@@ -114,28 +114,28 @@ namespace SAA {
   }
 
   bool PAKReader::mountVFS(Vfs *vfs) {
-    int32_t fileCount;
+    int32_t fileCount = 0;
     auto name = m_Path.filename().string();
-    auto t = PakLog::time("{1}: Mounted {2} in {0}", name, fileCount);
 
     ByteCursor index(m_pakFile.getSpan(m_pakInfo.indexOffset, m_pakInfo.indexSize));
     index.setAbsoluteOffset(m_pakInfo.indexOffset);
+
     auto mountPoint = index.readFString(stringStorage.get());
     if (mountPoint.starts_with("../../..")) {
-      mountPoint = mountPoint.substr(9); // Relativen Pfad entfernen
+      mountPoint = mountPoint.substr(9);
     }
 
     fileCount = index.read<int32_t>();
     vfs->reservePak(fileCount);
     m_pakEntries.reserve(fileCount);
+
     index += 8; // PathHashSeed
-    // PathHashIndexOffset (long) + PathHashIndexSize (long) + PathHashIndexHash (20 bytes)
-    if (index.readBool())
-      index += 36;
+    if (index.readBool()) index += 36; // PathHashIndex Daten überspringen
 
     if (!index.readBool()) {
       return false;
     }
+
     auto dirIndexOffset = index.read<int64_t>();
     auto dirIndexSize = index.read<int64_t>();
     index += FSHA_HASH_SIZE;
@@ -145,37 +145,57 @@ namespace SAA {
     index += encodedPakEntries.size();
 
     auto filesNum = index.read<int32_t>();
-    assert(filesNum >= 0 && "NonEncodedEntries not Implented");
+    assert(filesNum >= 0 && "NonEncodedEntries not Implemented");
 
     ByteCursor dirIndex(m_pakFile.getSpan(dirIndexOffset, dirIndexSize));
     auto dirIndexCount = dirIndex.read<uint32_t>();
 
+    // Vorbereitung des Pfad-Buffers
     char pathBuffer[512];
-    memcpy(pathBuffer, mountPoint.data(), mountPoint.size());
+    char* const pathStart = pathBuffer;
 
+    // Mountpoint kopieren
+    memcpy(pathBuffer, mountPoint.data(), mountPoint.size());
     char *pos = pathBuffer + mountPoint.size();
 
+    // Log-Timer starten (jetzt wo fileCount bekannt ist)
+    auto t = PakLog::time("{1}: Mounted {2} entries in {0}", name, fileCount, mountPoint);
+
     for (uint32_t i = 0; i < dirIndexCount; i++) {
-      char *oldLen = pos;
+      char *dirBasePos = pos;
 
-      auto str = dirIndex.readFString(stringStorage.get());
-      memcpy(pos, str.data(), str.size());
-      pos += str.size();
-
-      auto fileEntries = dirIndex.read<uint32_t>();
-      for (uint32_t j = 0; j < fileEntries; j++) {
-        char *dirLen = pos;
-        auto dir = dirIndex.readFString(stringStorage.get());
-        memcpy(pos, dir.data(), dir.size());
-        pos += dir.size();
-
-        auto offset = dirIndex.read<uint32_t>();
-        auto fileIndex = readPakEntry(encodedPakEntries, offset);
-        vfs->mountEntry(this, std::string_view {pathBuffer,static_cast<uint64_t>( pos - pathBuffer)}, fileIndex);
-
-        pos = dirLen;
+      auto dirName = dirIndex.readFString(stringStorage.get());
+      if (!dirName.empty()) {
+        // Slash hinzufügen, falls nötig
+        if (pos > pathStart && *(pos - 1) != '/') {
+          *pos++ = '/';
+        }
+        memcpy(pos, dirName.data(), dirName.size());
+        pos += dirName.size();
       }
-      pos = oldLen;
+
+      char *pathWithDirPos = pos;
+
+      auto fileEntriesCount = dirIndex.read<uint32_t>();
+      for (uint32_t j = 0; j < fileEntriesCount; j++) {
+        auto fileName = dirIndex.readFString(stringStorage.get());
+        auto entryOffset = dirIndex.read<uint32_t>();
+
+        char *filePos = pathWithDirPos;
+        if (filePos > pathStart && *(filePos - 1) != '/') {
+          *filePos++ = '/';
+        }
+
+        memcpy(filePos, fileName.data(), fileName.size());
+        char* endOfPath = filePos + fileName.size();
+
+        // VFS Mount
+        auto fileIndex = readPakEntry(encodedPakEntries, entryOffset);
+        vfs->mountEntry(this, std::string_view{pathStart, static_cast<size_t>(endOfPath - pathStart)}, fileIndex);
+
+      }
+
+      pos = dirBasePos;
     }
 
     return true;

@@ -28,49 +28,34 @@ namespace SAA {
   IOStoreReader::IOStoreReader(std::filesystem::path utocPath,
                                const std::filesystem::path &ucasPath) : Reader(Type::IO_STORE,
                                                                                std::move(utocPath)),
-                                                                        m_ucasReader(ucasPath) {
+                                                                        m_ucasReader(ucasPath), m_utocReader(m_Path) {
     alocMutipilyer = 1.3;
   }
 
   bool IOStoreReader::load() {
     auto name = m_Path.filename().string();
-    auto t = IOStoreLog::time("Loaded {1} in {0}", name);
+    auto t_total = IOStoreLog::time("Loaded {1} in {0}", name);
+
     Reader::load();
-    utocBuffer = loadFile(m_Path);
-    ByteCursor cursor(utocBuffer);
+
+    ByteCursor cursor(m_utocReader.getSpan(0, m_utocReader.size()));
 
     parseHeader(cursor);
-
-    // 2. Chunk IDs
     parseChunkIds(cursor);
-
-    // 3. Offsets & Lengths
     parseOffsetLengths(cursor);
-
     createChunkLookupTable();
-
-    // 4. Perfect Hash Map
     parsePerfectHashTable(cursor);
-
-    // 5. Compression Blocks
     parseCompressionBlocks(cursor);
-
-    // 6. Kompressions-Methodennamen
     parseCompressionMethods(cursor);
-
-    // 7. Chunk Data List
     parseSignatures(cursor);
-
-    // 8. Directory Index
     parseDirectoryIndex(cursor);
-
     parseDirectoryPathList();
-
     parseTocMetas(cursor);
 
-    if (m_Path.filename() != "global.utoc")
+    if (m_Path.filename() != "global.utoc") {
+      auto t = IOStoreLog::time("  Step 11: readContainerHeader: {0}");
       readContainerHeader();
-
+    }
 
     return true;
   }
@@ -99,52 +84,79 @@ namespace SAA {
 
     vfs->reserveIOStore(fileEntries.size());
     entriesCount = fileEntries.size();
-    std::string pathBuffer;
-    pathBuffer.reserve(512); //
-    pathBuffer = mountPoint;
 
-    auto traverse = [&](auto &self, uint32_t dirIndex) -> void {
-      const auto &dir = dirEntries[dirIndex];
-      size_t oldLen = pathBuffer.size(); // Merken, wo wir angefangen haben
 
-      if (dir.name < m_DirectoryPaths.size()) {
-        std::string_view dName = m_DirectoryPaths[dir.name];
-        if (!dName.empty()) {
-          if (!pathBuffer.empty() && pathBuffer.back() != '/')
-            pathBuffer += '/';
-          pathBuffer += dName;
-        }
-      }
+    char pathBuffer[512];
+    char* const pathStart = pathBuffer;
+    char* current = pathBuffer;
 
-      uint32_t fileIndex = dir.firstFileEntry;
-      while (fileIndex != FIoDirectoryIndexResource_InvalidIndex) {
-        const auto &file = fileEntries[fileIndex];
+    size_t mpSize = mountPoint.size();
+    memcpy(current, mountPoint.data(), mpSize);
+    current += mpSize;
 
-        size_t pathWithDirLen = pathBuffer.size();
-        if (!pathBuffer.empty() && pathBuffer.back() != '/')
-          pathBuffer += '/';
-        pathBuffer += m_DirectoryPaths[file.name];
-
-        vfs->mountEntry(this, pathBuffer, m_ChunkIds[file.userData]);
-
-        pathBuffer.resize(pathWithDirLen);
-        fileIndex = file.nextFileEntry;
-      }
-
-      uint32_t childIndex = dir.firstChildEntry;
-      while (childIndex != FIoDirectoryIndexResource_InvalidIndex) {
-        self(self, childIndex);
-        childIndex = dirEntries[childIndex].nextSiblingEntry;
-      }
-
-      pathBuffer.resize(oldLen);
+    struct StackFrame {
+      uint32_t dirIndex;
+      char* pathPos; // Position im Buffer, an der dieses Verzeichnis startet
     };
 
-    // Starten bei Root (Index 0) mit dem MountPoint als Basis
-    if (dirEntries.size() > 0) {
-      traverse(traverse, 0);
-    }
+    std::vector<StackFrame> stack;
+    stack.reserve(64);
 
+    if (!dirEntries.empty()) {
+      stack.push_back({0, current});
+
+      while (!stack.empty()) {
+        StackFrame frame = stack.back();
+        stack.pop_back();
+
+        current = frame.pathPos;
+
+        const auto &dir = dirEntries[frame.dirIndex];
+
+        if (dir.name < m_DirectoryPaths.size()) {
+          std::string_view dName = m_DirectoryPaths[dir.name];
+          if (!dName.empty()) {
+            // Slash hinzufügen, falls nötig
+            if (current > pathStart && *(current - 1) != '/') {
+              *current++ = '/';
+            }
+            memcpy(current, dName.data(), dName.size());
+            current += dName.size();
+          }
+        }
+
+        char* currentDirEnd = current;
+
+        uint32_t fileIndex = dir.firstFileEntry;
+        while (fileIndex != FIoDirectoryIndexResource_InvalidIndex) {
+          const auto &file = fileEntries[fileIndex];
+          std::string_view fName = m_DirectoryPaths[file.name];
+
+          char* filePointer = currentDirEnd;
+
+          if (filePointer > pathStart && *(filePointer - 1) != '/') {
+            *filePointer++ = '/';
+          }
+
+          memcpy(filePointer, fName.data(), fName.size());
+          char* endOfPath = filePointer + fName.size();
+
+          // String-View für den Mount-Aufruf erstellen (ohne neue Allokation)
+          std::string_view fullPath(pathStart, endOfPath - pathStart);
+          vfs->mountEntry(this, fullPath, m_ChunkIds[file.userData]);
+
+          fileIndex = file.nextFileEntry;
+          // current bleibt auf currentDirEnd, kein Reset nötig
+        }
+
+        // 3. Kinder auf den Stack legen
+        uint32_t childIndex = dir.firstChildEntry;
+        while (childIndex != FIoDirectoryIndexResource_InvalidIndex) {
+          stack.push_back({childIndex, currentDirEnd});
+          childIndex = dirEntries[childIndex].nextSiblingEntry;
+        }
+      }
+    }
 
     return true;
   }
@@ -199,7 +211,7 @@ namespace SAA {
     }
   }
 
-  void IOStoreReader::parseSignatures(ByteCursor &cursor) {
+  void IOStoreReader::parseSignatures(ByteCursor &cursor) const {
     if (!(m_TocHeader.containerFlags & EIoContainerFlags::SIGNED)) {
       return;
     }
@@ -225,7 +237,7 @@ namespace SAA {
     m_DirectoryIndexBuffer = cursor.readArray<uint8_t>(m_TocHeader.directoryIndexSize);
   }
 
-  void IOStoreReader::parseTocMetas(ByteCursor &cursor) {
+  void IOStoreReader::parseTocMetas(ByteCursor &cursor) const {
     uint32_t entryCount = m_TocHeader.tocEntryCount;
 
     auto totalHashSize = entryCount * FSHA_HASH_SIZE;
@@ -246,7 +258,7 @@ namespace SAA {
     };
 
     auto file = readChunk(m_storage.get(), chunkId);
-
+    assert(file != nullptr);
     containerHeader.magic = file->read<uint32_t>();
     if (containerHeader.magic != IO_CONTAINER_MAGIC) {
       IOStoreLog::err("Wrong container magic. Found {:x}", containerHeader.magic);
@@ -436,30 +448,12 @@ namespace SAA {
         return compressionBlocks.size();
       }
 
-      bool load(size_t targetOffset, size_t size, std::span<uint8_t> dst) final {
-        if (isLoaded(targetOffset, size)) {
-          return true;
-        }
+      bool load(size_t &index, std::span<uint8_t> dst) final {
 
-        const size_t targetEnd = targetOffset + size;
-        if(targetEnd>fileSize){
-          throw std::runtime_error("Target out of range");
-        }
-        for (; idx < compressionBlocks.size(); ++idx) {
-          size_t offset = chunkOffsetsLoaded[idx] & VALUE_MASK;
-          if (offset >= targetEnd) {
-            break;
-          }
+        size_t offset = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
+        const auto &block = compressionBlocks[index];
+        return reader->readBlock(block, dst.subspan(offset, block.uncompressedSize()));
 
-          if (!(chunkOffsetsLoaded[idx] & MSB_MASK)) {
-            const auto &block = compressionBlocks[idx];
-            auto ret = reader->readBlock(block, dst.subspan(offset, block.uncompressedSize()));
-            if(!ret)
-              return ret;
-            setChunkLoaded(idx);
-          }
-        }
-        return true;
       }
     };
 

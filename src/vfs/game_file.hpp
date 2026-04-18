@@ -9,25 +9,27 @@
 
 namespace SAA {
 
+
   struct GameFileImpl {
-    static constexpr uint64_t MSB_MASK = 1ULL << 63;
-    static constexpr uint64_t VALUE_MASK = ~MSB_MASK;
+    static constexpr uint64_t LOADING_BIT = 1ULL << 63;
+    static constexpr uint64_t FINISHED_BIT = 1ULL << 62;
+    static constexpr uint64_t VALUE_MASK = ~(LOADING_BIT | FINISHED_BIT);
 
     const size_t fileSize;
-    size_t idx = 0;
-    size_t start = 0;
-    size_t end = 0;
-    std::span<uint64_t> chunkOffsetsLoaded{};
+    std::atomic<size_t> idx = 0;
+    std::atomic<size_t> start = 0;
+    std::atomic<size_t> end = 0;
+    std::span<std::atomic<uint64_t>> chunkOffsetsLoaded{};
 
     GameFileImpl(size_t fileSize);
 
-    [[nodiscard]] bool isLoaded(size_t targetOffset, size_t size);
+    [[nodiscard]] bool isLoaded(size_t targetOffset, size_t size, size_t &index);
 
-    void setChunkLoaded(size_t chunkIdx) const {
-      chunkOffsetsLoaded[chunkIdx] |= MSB_MASK;
-    }
+    bool tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst);
+    void waitFinished(size_t targetOffset, size_t size, size_t chunIdx);
+    bool safeLoad(size_t offset, size_t size, std::span<uint8_t> dst);
 
-    virtual bool load(size_t offset, size_t size, std::span<uint8_t> dst) = 0;
+    virtual bool load(size_t &idx, std::span<uint8_t> dst) = 0;
 
     virtual uint64_t chunks() = 0;
   };
@@ -140,7 +142,7 @@ namespace SAA {
     requires std::derived_from<T, GameFileImpl>
     T *createImpl(Args &&...args) {
       impl = m_storage->make<T>(std::forward<Args>(args)...);
-      impl->chunkOffsetsLoaded = m_storage->allocateSpan<uint64_t>(impl->chunks());
+      impl->chunkOffsetsLoaded = m_storage->allocateSpan<std::atomic<uint64_t>>(impl->chunks());
       m_buffer = m_storage->allocateSpan(impl->fileSize);
       return static_cast<T *>(impl);
     }

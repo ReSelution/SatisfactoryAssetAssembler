@@ -2,11 +2,12 @@
 // Created by oleub on 17.04.26.
 //
 
+#include <random>
 #include "game_file.hpp"
 #include "core/name.hpp"
 
 namespace SAA {
-  GameFile::GameFile(SC::ChaosBumpArena *storage):m_storage(storage) {
+  GameFile::GameFile(SC::ChaosBumpArena *storage) : m_storage(storage) {
 
   }
 
@@ -15,7 +16,7 @@ namespace SAA {
       return true;
     }
 
-    return impl->load(m_cursor, size, m_buffer);
+    return impl->safeLoad(m_cursor, size, m_buffer);
   }
 
   void GameFile::seek(size_t newPos) {
@@ -62,51 +63,51 @@ namespace SAA {
   }
 
 
-
-
   GameFileImpl::GameFileImpl(const size_t fileSize)
           : fileSize(fileSize) {
 
 
   }
 
-  bool GameFileImpl::isLoaded(size_t targetOffset, size_t size) {
+  bool GameFileImpl::isLoaded(size_t targetOffset, size_t size, size_t &index) {
 
     const size_t targetEnd = targetOffset + size;
     bool foundStart = false;
 
-    const size_t currentStart = chunkOffsetsLoaded[idx] & VALUE_MASK;
-    if (targetOffset < currentStart) [[unlikely]]{
-      idx = 0;
+    if (index == chunkOffsetsLoaded.size()) {
+      index = 0;
+    }
+    const size_t currentStart = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
+    if (targetOffset < currentStart) [[unlikely]] {
+      index = 0;
     }
 
-    for (size_t i = idx; i < chunkOffsetsLoaded.size(); ++i) {
-      const uint64_t entry = chunkOffsetsLoaded[i];
-      const size_t currentChunkStart = entry & VALUE_MASK;
+    for (size_t i = index; i < chunkOffsetsLoaded.size(); ++i) {
+      const auto &entry = chunkOffsetsLoaded[i];
+      const size_t currentChunkStart = entry.load(std::memory_order_relaxed) & VALUE_MASK;
       if (!foundStart) {
         size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                ? (chunkOffsetsLoaded[i + 1] & VALUE_MASK)
+                                ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
                                 : fileSize;
 
         if (targetOffset >= currentChunkStart && targetOffset < nextChunkStart) {
-          idx = i;
+          index = i;
           foundStart = true;
         } else {
           continue;
         }
       }
 
-
-      if (!(entry & MSB_MASK)) {
+      if (!(entry & FINISHED_BIT)) {
         return false;
       }
 
       size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                              ? (chunkOffsetsLoaded[i + 1] & VALUE_MASK)
+                              ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
                               : fileSize;
 
       if (nextChunkStart >= targetEnd) {
-        end = nextChunkStart-1;
+        end = nextChunkStart - 1;
         return true;
       }
     }
@@ -114,4 +115,59 @@ namespace SAA {
     return false;
   }
 
+  bool GameFileImpl::safeLoad(size_t targetOffset, size_t size, std::span<uint8_t> dst) {
+    auto index = idx.load(std::memory_order_relaxed);
+    if (isLoaded(targetOffset, size, index)) {
+      idx.store(index, std::memory_order_relaxed);
+      return true;
+    }
+    if (tryLoad(targetOffset, size, index, dst)) {
+      waitFinished(targetOffset, size, index);
+      return true;
+    }
+    return false;
+  }
+
+  bool GameFileImpl::tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst) {
+    for (size_t offset = targetOffset; offset < targetOffset + size;) {
+      auto &atomic = chunkOffsetsLoaded[chunIdx];
+      auto expected = atomic.load(std::memory_order_relaxed);
+
+      size_t nextChunkStart = (chunIdx + 1 < chunkOffsetsLoaded.size())
+                              ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                              : fileSize;
+      offset = nextChunkStart;
+      if (expected & FINISHED_BIT) {
+        chunIdx++;
+      };
+      if (!(expected & LOADING_BIT)) {
+        uint64_t desired = expected | LOADING_BIT;
+        if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
+          if (load(chunIdx, dst)) {
+            atomic.fetch_or(FINISHED_BIT, std::memory_order_release);
+          } else { return false; }
+        }
+        chunIdx++;
+      }
+
+    }
+
+    return true;
+  }
+
+  void GameFileImpl::waitFinished(size_t targetOffset, size_t size, size_t chunIdx) {
+    for (size_t offset = targetOffset; offset < targetOffset + size;) {
+      auto &atomic = chunkOffsetsLoaded[chunIdx];
+      size_t nextChunkStart = (chunIdx + 1 < chunkOffsetsLoaded.size())
+                              ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                              : fileSize;
+      offset = nextChunkStart;
+      while (!(atomic.load(std::memory_order_acquire) & FINISHED_BIT)) {
+#if defined(__x86_64__)
+        _mm_pause();
+#endif
+      }
+      chunIdx++;
+    }
+  }
 } // SAA
