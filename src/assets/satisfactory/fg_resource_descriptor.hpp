@@ -4,7 +4,6 @@
 
 #pragma once
 #include "items/fg_item_base.hpp"
-#include "asset_object.hpp"
 #include "object_factory.hpp"
 
 namespace SAA {

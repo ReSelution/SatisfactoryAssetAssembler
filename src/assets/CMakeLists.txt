@@ -91,7 +91,7 @@ target_link_libraries(SAA_Assets
         SAA_Structs
         SAA_Parser
         SAA_Util
-        SAA_Lib
+        SatisfactoryAssetAssembler
         SAA_Exporter
         SAA_Localization
         StructuredChaos

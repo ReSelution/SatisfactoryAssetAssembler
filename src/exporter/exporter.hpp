@@ -13,7 +13,6 @@
 #include "flags/MeshExportFlags.hpp"
 #include "flags/TextureExportFlags.hpp"
 
-
 namespace SAA {
   class Object;
 

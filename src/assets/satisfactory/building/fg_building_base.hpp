@@ -3,8 +3,7 @@
 //
 
 #pragma once
-#include "asset_object.hpp"
-#include "../fg_descriptor_base.hpp"
+#include "satisfactory/fg_descriptor_base.hpp"
 
 namespace SAA {
   struct Building;

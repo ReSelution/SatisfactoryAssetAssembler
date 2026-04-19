@@ -48,7 +48,7 @@ namespace SAA {
     if (count == 0)
       return {};
 
-    seek(m_cursor + sizeof(uint32_t)+sizeof(uint64_t)+count * sizeof(uint64_t) );
+    seek(m_cursor + sizeof(uint32_t) + sizeof(uint64_t) + count * sizeof(uint64_t));
 
     assert(utf16Storage != nullptr);
 
@@ -80,30 +80,18 @@ namespace SAA {
 
   std::string_view ByteCursor::readFString(SC::ChaosBumpArena *utf16Storage) {
     auto length = read<int32_t>();
-    if (length == 0)
-      return {};
+    if (length == 0) [[unlikely]] { return {}; }
 
-    const bool isUnicode = length < 0;
-    const auto absLength = static_cast<uint32_t>(isUnicode ? -length : length);
-    const uint32_t byteSize = absLength * (isUnicode ? 2u : 1u);
-
-    if (remaining() < byteSize)
-      throw std::runtime_error("readFString out of range");
-
-    std::string_view result;
-
-    if (isUnicode) {
-      const char16_t *utf16Source = reinterpret_cast<const char16_t *>(m_buffer.data() + m_cursor);
-      std::span<const char16_t> src(utf16Source, absLength - 1);
-      assert(utf16Storage != nullptr);
-      result = utf16Storage->utf16ToUtf8(src);
-    } else {
-      if (absLength > 1) {
-        result = std::string_view(reinterpret_cast<const char *>(m_buffer.data() + m_cursor), absLength - 1);
-      }
+    if (length < 0) {
+      const auto absLength = static_cast<uint32_t>(-length);
+      const uint32_t byteSize = absLength * 2u;
+      const auto *utf16Source = reinterpret_cast<const char16_t *>(m_buffer.data() + m_cursor);
+      m_cursor += byteSize;
+      return utf16Storage->utf16ToUtf8({utf16Source, absLength - 1});
     }
 
-    m_cursor += byteSize;
-    return result;
+    const char *asciiSource = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
+    m_cursor += length;
+    return {asciiSource, static_cast<size_t>(length - 1)};
   }
-} 
+}

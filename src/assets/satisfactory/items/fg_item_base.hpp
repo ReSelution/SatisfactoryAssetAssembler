@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../fg_descriptor_base.hpp"
+#include "satisfactory/fg_descriptor_base.hpp"
 
 namespace SAA {
   struct ItemDescriptor;
@@ -67,9 +67,9 @@ namespace SAA {
   protected:
     void parse() override;
 
-    std::optional<FText> mDisplayName;
-    std::optional<FText> mDescription;
-    std::optional<FText> mAbbreviatedDisplayName;
+    std::optional<SC::MagpieString> mDisplayName;
+    std::optional<SC::MagpieString> mDescription;
+    std::optional<SC::MagpieString> mAbbreviatedDisplayName;
 
     std::optional<Object *> mCategory;
     std::optional<Object *> mPersistentBigIcon;
@@ -90,7 +90,7 @@ namespace SAA {
 
     std::optional<FName> mScannableType;
     std::optional<SoftObj> mClassToScanFor;
-    std::optional<FText> mScannerDisplayText;
+    std::optional<SC::MagpieString> mScannerDisplayText;
     std::optional<Object *> mRequiredSchematic;
 
 

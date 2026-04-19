@@ -5,6 +5,7 @@
 #include "Reader.hpp"
 #include "file_reader.hpp"
 
+#include "game_file.hpp"
 #include "pak/f_pak_entry.hpp"
 #include "pak/f_pak_info.hpp"
 

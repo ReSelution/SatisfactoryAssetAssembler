@@ -12,7 +12,6 @@
 #include "Reader.hpp"
 
 #include "crawler.hpp"
-#include "puplic/arena/registery.hpp"
 
 #include "logger/chaos_logger.hpp"
 #include "threading/chaos_threading.hpp"
@@ -37,6 +36,10 @@ namespace SAA {
       return nullptr;
     }
     return createParser(vfsEntry);
+  }
+
+  void AssetParser::loadRes() {
+    m_localizationManager.load();
   }
 
 

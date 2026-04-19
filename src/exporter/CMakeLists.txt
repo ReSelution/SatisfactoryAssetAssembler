@@ -1,10 +1,4 @@
-add_library(SAA_Exporter STATIC
-        puplic/arena/registery.cpp
-        puplic/arena/registery.hpp
-        puplic/structs/gpu_export.hpp
-        puplic/structs/meta_export.hpp
-
-)
+add_library(SAA_Exporter STATIC)
 
 target_sources(SAA_Exporter
         PUBLIC

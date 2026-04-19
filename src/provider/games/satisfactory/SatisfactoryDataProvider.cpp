@@ -12,14 +12,14 @@
 #include "Decompressor.hpp"
 #include "IOStoreReader.hpp"
 #include "PAKReader.hpp"
-#include "Reader.hpp"
 #include "UsmapReader.hpp"
 #include "crawler.hpp"
 #include "io_global_data.hpp"
 #include "PropertyTracker.hpp"
 
+#include "exporter.hpp"
+#include "stats.hpp"
 #include "logger/chaos_logger.hpp"
-#include "puplic/arena/registery.hpp"
 #include "threading/chaos_threading.hpp"
 
 LOG_ALIAS(ProviderLog, "SAA", "Provider")
@@ -57,7 +57,6 @@ namespace SAA {
         currentParser->load();
         currentParser->mountVFS(&child);
         m_vfs.mergeChild(child);
-
       }));
     }
 
@@ -74,7 +73,7 @@ namespace SAA {
     // 2. Ein einzelnes Child-VFS für den aktuellen Thread
     auto child = SAA::Vfs::getChild();
 
-    for (const auto &val : m_Parsers | std::views::values) {
+    for (const auto &val: m_Parsers | std::views::values) {
       auto *currentParser = val.get();
 
       currentParser->load();
@@ -85,15 +84,19 @@ namespace SAA {
     }
 #endif
 
-//    SC::ChaosThreading::enqueue<SC::ChaosThreading::Priority::High>([&]( int id) {
-//      m_vfs.dumpToText("output/files.txt");
-//    });
+    //    SC::ChaosThreading::enqueue<SC::ChaosThreading::Priority::High>([&]( int id) {
+    //      m_vfs.dumpToText("output/files.txt");
+    //    });
     ProviderLog::info("VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
     return true;
   }
 
   void SatisfactoryDataProvider::crawl() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
+    CHAOS_RESET_ALL()
+    CHAOS_RESET(DecompressedThroughput)
+    CHAOS_RESET(CompressedThroughput)
+    parser.loadRes();
     Crawler crawler;
     crawler.crawl(parser);
   }
@@ -137,7 +140,6 @@ namespace SAA {
         if (ext == ".pak") {
           m_Parsers[basename] = std::make_unique<PAKReader>(path);
         } else if (ext == ".utoc") {
-
           std::filesystem::path ucasPath = path;
           ucasPath.replace_extension(".ucas");
 

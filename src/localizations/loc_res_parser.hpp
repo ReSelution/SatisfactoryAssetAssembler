@@ -6,14 +6,14 @@
 
 #include <memory>
 #include <span>
-#include <unordered_map>
-
+#include <ankerl/unordered_dense.h>
 
 #include "core/f_guid.hpp"
 
 #include "localization/f_entry.hpp"
 #include "localization/f_text_key.hpp"
 #include "localization/f_text_localization_resource_string.hpp"
+#include "localizations/magpie_translator.hpp"
 
 namespace SC {
   class ChaosBumpArena;
@@ -40,16 +40,15 @@ namespace SAA {
 
   class LocResParser {
   public:
-    LocResParser(LocManager *manager, const UnifiedVfsEntry *vfsEntry);
+    LocResParser(const UnifiedVfsEntry *vfsEntry, bool isNative = false);
 
     void parse();
-    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> &getMap() { return entries; }
 
   private:
+    bool isNative;
     std::unique_ptr<SC::ChaosBumpArena> m_storage;
     const UnifiedVfsEntry *m_vfsEntry;
-    LocManager *m_manager = nullptr;
     std::span<FTextLocalizationResourceString> localizedStringArray;
-    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> entries;
+    SC::Magpie *magpie;
   };
 } 

@@ -12,6 +12,7 @@
 #include "threading/chaos_threading.hpp"
 
 LOG_ALIAS(LocMngLog, "SAA", "LOC")
+DEFINE_CHAOS_STAT(LocResThr, "LocRes Throughput",  SC::ChaosThroughput<SC::MetricUnits>);
 
 namespace SAA {
   LocManager::LocManager(AssetParser *parser) : m_parser(parser) {
@@ -56,89 +57,53 @@ namespace SAA {
   }
 
   void LocManager::load() {
+    setCulture("de");
     if (cultureIndex == loadedIndex) {
       return;
     }
     auto *vfs = m_parser->getVfs();
     auto culture = m_cultureList.at(cultureIndex);
 
-    auto t = LocMngLog::time("Loaded Culture: {1} in {0}", culture);
-    entries.clear();
-    m_resParsersNative.clear();
-    m_cultureRes.clear();
-    m_cultureRes.reserve(m_metaParsers.size());
-    m_resParsersNative.reserve(m_metaParsers.size());
-    for (const auto &locMeta: m_metaParsers) {
-      auto nativeResPath = locMeta.getNativeRes();
-      auto vfsEntryNative = vfs->readVfs(nativeResPath);
-      if (vfsEntryNative) {
-        auto *res = &m_resParsersNative.emplace_back(this, vfsEntryNative);
-        m_jobQueue.emplace(res);
-      } else [[unlikely]]{
-        LocMngLog::err("[LOC]", "Failed to load locRes: {}", nativeResPath);
-      }
 
-      auto [isNative, resPath] = locMeta.getRes(culture);
-      if (!isNative && !resPath.empty()) {
-        auto vfsEntry = vfs->readVfs(resPath);
-        if (vfsEntry) {
-          auto *res = &m_cultureRes.emplace_back(this, vfsEntry);
-          m_jobQueue.emplace(res);
-        } else [[unlikely]]{
-          LocMngLog::err("[LOC]", "Failed to load locRes: {}", resPath);
-        }
+    std::vector<LocResParser> parsers;
+    parsers.reserve(m_metaParsers.size() * 2);
+
+    auto loadLoc = [&parsers, vfs](const std::string_view path, bool isNative = false) {
+      if (path.empty()) [[unlikely]] return;
+      if (auto vfsEntry = vfs->readVfs(path)) {
+        parsers.emplace_back(vfsEntry, isNative);
+      } else [[unlikely]] {
+        LocMngLog::err("[LOC]", "Failed to load locRes: {}", path);
+      }
+    };
+
+    for (const auto& locMeta : m_metaParsers) {
+      loadLoc(locMeta.getNativeRes(), true);
+      if (auto [isNative, resPath] = locMeta.getRes(culture); !isNative) {
+        loadLoc(resPath);
       }
     }
-
-    processCultures();
-    for (auto &res: m_cultureRes) {
-      mergeCultures(res.getMap());
+#ifndef NDEBUG
+    for (auto *parser: parsers) {
+      parser.parse();
     }
-    for (auto &res: m_resParsersNative) {
-      mergeCultures(res.getMap());
-    }
+#else
 
+
+      SC::Magpie::get()->clear();
+      auto t = SC::make_timer([magpie = SC::Magpie::get()](SC::TimeResult res) {
+        LocMngLog::info("Parsed {} Strings in {:.2f}{}", magpie->size(),  res.value, res.suffix);
+      });
+      SC::ChaosThreading::detacheBatch<SC::ChaosThreading::Priority::High>(std::move(parsers), [](int id, auto parser) {
+        parser.parse();
+      }, [timer = std::move(t)](int id) mutable {
+        timer.stop();
+      });
+
+
+#endif
     loadedIndex = cultureIndex;
+
   }
 
-  void LocManager::processCultures(uint32_t threadCount) {
-    if (threadCount == 0) {
-      threadCount = std::max(1u, (std::thread::hardware_concurrency() - 1));
-    }
-    for (uint32_t i = 0; i < threadCount; i++) {
-      m_ThreadPool.emplace_back(&LocManager::workerThread, this);
-    }
-
-    for (uint32_t i = 0; i < threadCount; ++i) {
-      if (m_ThreadPool[i].joinable()) {
-        m_ThreadPool[i].join();
-      }
-    }
-    m_ThreadPool.clear();
-  }
-
-  void LocManager::workerThread() {
-    while (true) {
-      std::unique_lock lock(m_QueueMutex);
-      if (m_jobQueue.empty()) {
-        return;
-      }
-      auto parser = m_jobQueue.front();
-      m_jobQueue.pop();
-      lock.unlock();
-      parser->parse();
-    }
-  }
-
-  void LocManager::mergeCultures(
-    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry> > &src) {
-    for (auto &[nsName, nsKeys]: src) {
-      auto dst = entries.find(nsName);
-      if (dst == entries.end()) {
-        entries[nsName] = std::move(nsKeys);
-      } else {
-        dst->second.merge(entries[nsName]);
-      }
-    }
-  }
 } // namespace SAA

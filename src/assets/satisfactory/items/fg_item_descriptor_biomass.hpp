@@ -7,7 +7,6 @@
 #include "fg_item_base.hpp"
 #include "simdjson.h"
 
-#include "asset_object.hpp"
 #include "object_factory.hpp"
 
 namespace SAA {

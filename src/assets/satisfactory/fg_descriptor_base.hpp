@@ -3,9 +3,9 @@
 //
 
 #pragma once
-
 #include "asset_object.hpp"
 #include "threading/chaos_spin_lock.hpp"
+#include "core/f_text.hpp"
 
 namespace SAA {
     struct Recipe;
@@ -46,8 +46,8 @@ namespace SAA {
         std::pmr::vector<Recipe *> *m_producedIn = nullptr;
         std::pmr::vector<Recipe *> *m_usedIn = nullptr;
 
-        std::optional<FText> mDisplayName;
-        std::optional<FText> mDescription;
+        std::optional<SC::MagpieString> mDisplayName;
+        std::optional<SC::MagpieString> mDescription;
         std::optional<Object *> mPersistentBigIcon;
         std::optional<Object *> mCategory;
         std::optional<Object *> mSmallIcon;

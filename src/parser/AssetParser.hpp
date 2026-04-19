@@ -37,6 +37,8 @@ namespace SAA {
     std::shared_ptr<AssetFileParser> loadPackage(const FPackageId &pkg);
     Vfs *getVfs() const { return m_vfs; };
 
+    void loadRes();
+
   private:
     friend class AssetFileParser;
     [[nodiscard]] const FUsmapMappingData *mappings() const { return m_mappings; }

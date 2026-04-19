@@ -15,5 +15,5 @@ namespace SAA {
   GameFile *IOVfsEntry::read(SC::ChaosBumpArena *storage) const { return owningReader->readChunk(storage, chunkId); }
 
   GameFile *PAKVfsEntry::read(SC::ChaosBumpArena *storage) const {
-    return nullptr/*owningReader->readFile(storage,index)*/; }
+    return owningReader->readFile(storage,index); }
 }

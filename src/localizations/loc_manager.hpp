@@ -10,6 +10,7 @@
 
 #include "loc_meta_parser.hpp"
 #include "loc_res_parser.hpp"
+#include "localizations/magpie_translator.hpp"
 
 namespace std {
   class thread;
@@ -24,13 +25,14 @@ namespace SAA {
     LocManager(AssetParser *parser);
 
     void setCulture(std::string_view langCode);
+
     void registerCulture(std::string_view culture);
+
     void load();
 
   private:
-    void processCultures(uint32_t threadCount = 0);
-    void workerThread();
-    void mergeCultures(std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> &culture);
+    void mergeCultures(SC::magpieMAP &culture);
+
     AssetParser *m_parser = nullptr;
 
     size_t cultureIndex = 0;
@@ -41,15 +43,6 @@ namespace SAA {
 
     std::vector<LocMetaParser> m_metaParsers;
 
-    std::vector<LocResParser> m_resParsersNative;
-    std::vector<LocResParser> m_cultureRes;
-
-    std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> entries;
-
-    // Threading
-    std::queue<LocResParser *> m_jobQueue;
-    std::mutex m_QueueMutex;
-
-    std::vector<std::thread> m_ThreadPool;
+    // std::unordered_map<FTextKey, std::unordered_map<FTextKey, FEntry>> entries;
   };
-} 
+}

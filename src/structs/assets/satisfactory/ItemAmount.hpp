@@ -4,11 +4,11 @@
 
 #pragma once
 #include <cstdint>
-
 #include "asset_object.hpp"
 
 namespace SAA {
-  struct ItemAmount {
+
+struct ItemAmount {
     static constexpr uint64_t Amount = "Amount"_h;
     static constexpr uint64_t ItemClass = "ItemClass"_h;
     int32_t amount;

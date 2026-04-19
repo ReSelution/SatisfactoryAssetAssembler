@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(SatisfactoryAssetParser LANGUAGES CXX)
+project(SatisfactoryAssetAssembler LANGUAGES CXX)
 
 find_program(CCACHE_PROGRAM ccache)
 if (CCACHE_PROGRAM)
@@ -68,21 +68,22 @@ if (ENABLE_ASAN)
     add_link_options(${SAA_SANITIZER_FLAGS})
 endif ()
 
-add_library(SAA_Lib STATIC)
+add_library(SatisfactoryAssetAssembler STATIC)
+include(CheckIPOSupported)
+check_ipo_supported(RESULT SAA_LTO_SUPPORTED OUTPUT error)
+if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_target_properties(SatisfactoryAssetAssembler PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+    message(STATUS "[SAA] LTO enabled for SAA targets.")
+else ()
+    message(STATUS "[SAA] LTO skipped: ${error}")
+endif ()
+
 
 if (NOT MSVC)
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT supported OUTPUT error)
-    if (supported)
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    else ()
-        message(STATUS "IPO/LTO is not supported: ${error}")
-    endif ()
-
     if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_compile_options(SAA_Lib PUBLIC -O3 -march=native -fno-rtti)
+        target_compile_options(SatisfactoryAssetAssembler PUBLIC -O3 -march=native -fno-rtti)
     else ()
-        target_compile_options(SAA_Lib PUBLIC -g -O0)
+        target_compile_options(SatisfactoryAssetAssembler PUBLIC -g -O0)
         message(STATUS "[SAA] Debug mode: Optimizations disabled")
     endif ()
 endif ()
@@ -136,11 +137,11 @@ target_link_libraries(SAA_Util
         spdlog::spdlog
 )
 # -------------------------------------------------------------------------
-# 5. SAA_Lib: Der "High-Level" Wrapper & Provider
+# 5. SatisfactoryAssetAssembler: Der "High-Level" Wrapper & Provider
 # -------------------------------------------------------------------------
 
 
-target_sources(SAA_Lib
+target_sources(SatisfactoryAssetAssembler
         PUBLIC
         src/provider/games/satisfactory/SatisfactoryDataProvider.hpp
         src/decompress/Decompressor.hpp
@@ -152,18 +153,17 @@ target_sources(SAA_Lib
         src/decompress/oodle_loader.cpp
 )
 
-target_include_directories(SAA_Lib
+target_include_directories(SatisfactoryAssetAssembler
         PUBLIC
         src/provider
         src/decompress
 )
 
-target_link_libraries(SAA_Lib
+target_link_libraries(SatisfactoryAssetAssembler
         PUBLIC
         SAA_Parser
         SAA_Reader
         SAA_Crawler
-
         # Whole Archive for Asset-Factory Registration
         $<LINK_LIBRARY:WHOLE_ARCHIVE,SAA_Assets>
         StructuredChaos
@@ -178,8 +178,12 @@ target_link_libraries(SAA_Lib
 
 if (NOT SAA_TARGETING_WINDOWS)
     add_executable(AssetRipperTest src/main.cpp)
+
+    if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set_target_properties(AssetRipperTest PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif ()
     target_link_libraries(AssetRipperTest PRIVATE
-            SAA_Lib
+            SatisfactoryAssetAssembler
             StructuredChaos
 
     )
@@ -192,19 +196,22 @@ if (NOT SAA_TARGETING_WINDOWS)
     )
 else ()
     add_executable(AssetRipperTestWin src/main.cpp)
+    if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set_target_properties(AssetRipperTestWin PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif ()
     target_link_libraries(AssetRipperTestWin PRIVATE
-            SAA_Lib
+            SatisfactoryAssetAssembler
             StructuredChaos
     )
 
-    if(NOT ENABLE_ASAN)
-        target_link_libraries(AssetRipperTestWin PRIVATE   mimalloc-static)
+    if (NOT ENABLE_ASAN)
+        target_link_libraries(AssetRipperTestWin PRIVATE mimalloc-static)
     endif ()
-set_target_properties(AssetRipperTestWin PROPERTIES
-RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
-OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
-)
-set_target_properties(AssetRipperTestWin PROPERTIES LINK_FLAGS "-Wl,--subsystem,console")
+    set_target_properties(AssetRipperTestWin PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
+            OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
+    )
+    set_target_properties(AssetRipperTestWin PROPERTIES LINK_FLAGS "-Wl,--subsystem,console")
 
 endif ()
 

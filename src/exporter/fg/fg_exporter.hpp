@@ -4,16 +4,14 @@
 
 #pragma once
 
-#include "../../assets/satisfactory/items/fg_item_base.hpp"
+#include "exporter.hpp"
 
 namespace SAA {
     struct Building;
-
     class FGBuildingBase;
-
     class FGItemDescriptor;
-
     class FGRecipe;
+    class FGItemBase;
 
     struct ItemDescriptor;
     struct Recipe;
@@ -22,9 +20,7 @@ namespace SAA {
     public:
 
         static void encodeRecipe(FGRecipe *recipe);
-
         static void encodeItem(FGItemBase *item);
-
         static void encodeBuilding(FGBuildingBase *buildingBase);
     };
 } // namespace SAA

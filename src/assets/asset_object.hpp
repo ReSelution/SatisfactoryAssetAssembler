@@ -7,20 +7,20 @@
 
 #include "AssetFileParser.hpp"
 #include "byte_cursor.hpp"
-#include "exporter.hpp"
 #include "core/f_guid.hpp"
 #include "core/hash.hpp"
 #include "satisfactory/fg_factory.hpp"
 
 #include "ue/properties/property_holder.hpp"
 #include "ue/properties/f_property_tag.hpp"
+#include "exporter.hpp"
 
 namespace SAA {
     class AssetFileParser;
 
     class Object : public PropertyHolder {
-        friend FGFactory;
-        friend Exporter;
+        friend class FGFactory;
+        friend class Exporter;
         enum class ObjectState : uint8_t {
             NONE,
             PARSING,

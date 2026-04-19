@@ -9,8 +9,8 @@ namespace SAA {
   }
 
   void FGDescriptorBase::parse() {
-    mDisplayName = get<FText>(Base::DisplayName);
-    mDescription = get<FText>(Base::Description);
+    mDisplayName = get<SC::MagpieString>(Base::DisplayName);
+    mDescription = get<SC::MagpieString>(Base::Description);
 
     mCategory = get<Object *>(Base::Category);
     mPersistentBigIcon = get<Object *>(Base::PersistentBigIcon);

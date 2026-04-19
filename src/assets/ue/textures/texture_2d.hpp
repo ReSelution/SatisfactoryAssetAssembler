@@ -4,7 +4,6 @@
 
 #pragma once
 #include "texture.hpp"
-#include "asset_object.hpp"
 #include "object_factory.hpp"
 
 namespace SAA {

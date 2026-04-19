@@ -3,7 +3,6 @@
 //
 
 #include "exporter.hpp"
-
 #include "asset_object.hpp"
 
 namespace SAA {

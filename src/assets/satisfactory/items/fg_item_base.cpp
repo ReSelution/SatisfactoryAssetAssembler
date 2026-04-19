@@ -17,7 +17,7 @@ namespace SAA {
     DBG_MARK_HANDLED(m_className, Item::CachedStackSize);
 
 
-    mAbbreviatedDisplayName = get<FText>(Item::AbbreviatedDisplayName);
+    mAbbreviatedDisplayName = get<SC::MagpieString>(Item::AbbreviatedDisplayName);
 
 
     // Physikalische & Logistische Daten
@@ -35,7 +35,7 @@ namespace SAA {
     // Scanning-Daten (Wichtig für Harddrive/Resource-Search Logik)
     mScannableType = get<FName>(Item::ScannableType);
     mClassToScanFor = get<SoftObj>(Item::ClassToScanFor);
-    mScannerDisplayText = get<FText>(Item::ScannerDisplayText);
+    mScannerDisplayText = get<SC::MagpieString>(Item::ScannerDisplayText);
     mRequiredSchematic = get<Object *>(Item::RequiredSchematicToScan);
   }
 } // SAP

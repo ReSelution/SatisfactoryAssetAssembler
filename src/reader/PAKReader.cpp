@@ -10,8 +10,8 @@
 LOG_ALIAS(PakLog, "SAA", "PAK")
 
 namespace SAA {
-  PAKReader::PAKReader(const std::filesystem::path &path) : Reader(Reader::Type::PAK, path), m_pakFile(path) {
-  }
+  PAKReader::PAKReader(const std::filesystem::path &path)
+      : Reader(Reader::Type::PAK, path), m_pakFile(path) {}
 
   bool PAKReader::load() {
     auto name = m_Path.filename().string();
@@ -22,7 +22,8 @@ namespace SAA {
 
   void PAKReader::readPaKInfo() {
     // Size 8a
-    auto offset = m_pakFile.size() - std::min(m_pakFile.size(), static_cast<size_t>(221));
+    auto offset =
+        m_pakFile.size() - std::min(m_pakFile.size(), static_cast<size_t>(221));
     auto length = m_pakFile.size() - offset;
     ByteCursor cursor(m_pakFile.getSpan(offset, length));
     m_pakInfo.encryptionGuid = cursor.read<FGuid>();
@@ -38,10 +39,12 @@ namespace SAA {
     m_pakInfo.compressionMethods = readCompressionMethods(cursor);
   }
 
-  std::vector<CompressionMethod> PAKReader::readCompressionMethods(ByteCursor &cursor) {
+  std::vector<CompressionMethod>
+  PAKReader::readCompressionMethods(ByteCursor &cursor) {
     constexpr uint32_t MAX_NUM_COMRESSION_METHODE = 5;
     constexpr uint32_t COMPRESSION_METHOD_NAME_LEN = 32;
-    constexpr uint32_t dataSize = MAX_NUM_COMRESSION_METHODE * COMPRESSION_METHOD_NAME_LEN;
+    constexpr uint32_t dataSize =
+        MAX_NUM_COMRESSION_METHODE * COMPRESSION_METHOD_NAME_LEN;
 
     std::vector<CompressionMethod> compressionMethods;
     compressionMethods.reserve(MAX_NUM_COMRESSION_METHODE + 1);
@@ -50,8 +53,9 @@ namespace SAA {
     const uint8_t *methodBufferStart = buffer.data();
     for (uint32_t i = 0; i < MAX_NUM_COMRESSION_METHODE; i++) {
       auto strStart = i * COMPRESSION_METHOD_NAME_LEN;
-      std::string methodName =
-              (std::string(reinterpret_cast<const char *>(methodBufferStart + strStart), COMPRESSION_METHOD_NAME_LEN));
+      std::string methodName = (std::string(
+          reinterpret_cast<const char *>(methodBufferStart + strStart),
+          COMPRESSION_METHOD_NAME_LEN));
       size_t nullPos = methodName.find('\0');
       if (nullPos != std::string::npos) {
         methodName.resize(nullPos);
@@ -70,20 +74,26 @@ namespace SAA {
     FPakEntry entry;
 
     auto bitField = cursor.read<uint32_t>();
-    auto blockSize = (bitField & 0x3f) == 0x3f ? cursor.read<uint32_t>() : (bitField & 0x3f) << 11;
+    auto blockSize = (bitField & 0x3f) == 0x3f ? cursor.read<uint32_t>()
+                                               : (bitField & 0x3f) << 11;
     auto compressionIndex = ((bitField >> 23) & 0x3f);
     entry.compressionMethod = m_pakInfo.compressionMethods[compressionIndex];
 
     auto isOffset32BitSafe = static_cast<bool>(bitField & (1 << 31));
-    entry.offset = isOffset32BitSafe ? cursor.read<uint32_t>() : cursor.read<uint64_t>();
+    entry.offset =
+        isOffset32BitSafe ? cursor.read<uint32_t>() : cursor.read<uint64_t>();
 
     auto isUncompressedSize32BitSafe = static_cast<bool>(bitField & (1 << 30));
-    entry.uncompressedSize = isUncompressedSize32BitSafe ? cursor.read<uint32_t>() : cursor.read<uint64_t>();
+    entry.uncompressedSize = isUncompressedSize32BitSafe
+                             ? cursor.read<uint32_t>()
+                             : cursor.read<uint64_t>();
 
     if (entry.compressionMethod != CompressionMethod::None) {
       auto isSize32BitSafe = static_cast<bool>(bitField & (1 << 29));
-      entry.compressedSize = isSize32BitSafe ? cursor.read<uint32_t>() : cursor.read<uint64_t>();
-    } else {
+      entry.compressedSize =
+          isSize32BitSafe ? cursor.read<uint32_t>() : cursor.read<uint64_t>();
+    }
+    else {
       entry.compressedSize = entry.uncompressedSize;
     }
 
@@ -91,21 +101,25 @@ namespace SAA {
     entry.compressedBlocks.reserve(compressionBlockCount);
     if (compressionBlockCount == 1) {
       entry.compressionBlockSize = entry.uncompressedSize;
-    } else {
+    }
+    else {
       entry.compressionBlockSize = blockSize;
     }
 
     auto structSize = sizeof(uint64_t) * 3 + sizeof(uint32_t) * 2 + 1 + 20;
     if (entry.compressionMethod != CompressionMethod::None) {
-      structSize += sizeof(uint32_t) + compressionBlockCount * 2 * sizeof(uint64_t);
+      structSize +=
+          sizeof(uint32_t) + compressionBlockCount * 2 * sizeof(uint64_t);
     }
     entry.offset += structSize;
     auto blockOffset = entry.offset;
     if (compressionBlockCount == 1) {
       entry.compressedBlocks.emplace_back(blockOffset, entry.compressedSize);
-    } else {
+    }
+    else {
       for (uint32_t i = 0; i < compressionBlockCount; i++) {
-        auto &block = entry.compressedBlocks.emplace_back(blockOffset, cursor.read<uint32_t>());
+        auto &block = entry.compressedBlocks.emplace_back(
+            blockOffset, cursor.read<uint32_t>());
         blockOffset += block.compressedSize;
       }
     }
@@ -117,7 +131,8 @@ namespace SAA {
     int32_t fileCount = 0;
     auto name = m_Path.filename().string();
 
-    ByteCursor index(m_pakFile.getSpan(m_pakInfo.indexOffset, m_pakInfo.indexSize));
+    ByteCursor index(
+        m_pakFile.getSpan(m_pakInfo.indexOffset, m_pakInfo.indexSize));
     index.setAbsoluteOffset(m_pakInfo.indexOffset);
 
     auto mountPoint = index.readFString(stringStorage.get());
@@ -130,7 +145,8 @@ namespace SAA {
     m_pakEntries.reserve(fileCount);
 
     index += 8; // PathHashSeed
-    if (index.readBool()) index += 36; // PathHashIndex Daten überspringen
+    if (index.readBool())
+      index += 36; // PathHashIndex Daten überspringen
 
     if (!index.readBool()) {
       return false;
@@ -152,14 +168,15 @@ namespace SAA {
 
     // Vorbereitung des Pfad-Buffers
     char pathBuffer[512];
-    char* const pathStart = pathBuffer;
+    char *const pathStart = pathBuffer;
 
     // Mountpoint kopieren
     memcpy(pathBuffer, mountPoint.data(), mountPoint.size());
     char *pos = pathBuffer + mountPoint.size();
 
     // Log-Timer starten (jetzt wo fileCount bekannt ist)
-    auto t = PakLog::time("{1}: Mounted {2} entries in {0}", name, fileCount, mountPoint);
+    auto t = PakLog::time("{1}: Mounted {2} entries in {0}", name, fileCount,
+                          mountPoint);
 
     for (uint32_t i = 0; i < dirIndexCount; i++) {
       char *dirBasePos = pos;
@@ -187,12 +204,14 @@ namespace SAA {
         }
 
         memcpy(filePos, fileName.data(), fileName.size());
-        char* endOfPath = filePos + fileName.size();
+        char *endOfPath = filePos + fileName.size();
 
         // VFS Mount
         auto fileIndex = readPakEntry(encodedPakEntries, entryOffset);
-        vfs->mountEntry(this, std::string_view{pathStart, static_cast<size_t>(endOfPath - pathStart)}, fileIndex);
-
+        vfs->mountEntry(this,
+                        std::string_view{pathStart, static_cast<size_t>(
+                            endOfPath - pathStart)},
+                        fileIndex);
       }
 
       pos = dirBasePos;
@@ -201,7 +220,7 @@ namespace SAA {
     return true;
   }
 
-  GameFile * PAKReader::readFile(SC::ChaosBumpArena *storage, uint32_t entryIndex) const {
+  GameFile *PAKReader::readFile(SC::ChaosBumpArena *storage, uint32_t entryIndex) const {
     auto &entry = m_pakEntries[entryIndex];
 
     struct PAKFileImpl : GameFileImpl {
@@ -209,26 +228,34 @@ namespace SAA {
       const FPakEntry &entry;
 
       PAKFileImpl(const PAKReader *r, const FPakEntry &e)
-              : GameFileImpl(e.uncompressedSize), reader(r), entry(e) {}
+          : GameFileImpl(e.uncompressedSize), reader(r), entry(e) {}
 
       uint64_t chunks() final {
-        return entry.compressionMethod == CompressionMethod::None ? 1 : entry.compressedBlocks.size();
+        return entry.compressionMethod == CompressionMethod::None
+               ? 1
+               : entry.compressedBlocks.size();
       }
 
       bool load(size_t &index, std::span<uint8_t> dst) final {
+
+        size_t offset = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
+        bool success = false;
+        std::span<const uint8_t> src;
+        size_t decompressedSize = 0;
         if (entry.compressionMethod == CompressionMethod::None) {
-          auto src = reader->m_pakFile.getSpan(entry.offset, entry.uncompressedSize);
-          std::memcpy(dst.data(), src.data(), entry.uncompressedSize);
-          return true;
+          src = reader->m_pakFile.getSpan(entry.offset, entry.uncompressedSize);
+          decompressedSize =entry.uncompressedSize;
+          success = Decompressor::decompress(src, dst.subspan(offset,decompressedSize), entry.compressionMethod);
+        }
+        else {
+          auto &block = entry.compressedBlocks[index];
+          src = reader->m_pakFile.getSpan(block.compressedOffset, block.compressedSize);
+         decompressedSize = std::min<size_t>(entry.compressionBlockSize, entry.uncompressedSize - offset);
+          success = Decompressor::decompress(src, dst.subspan(offset, decompressedSize), entry.compressionMethod);
         }
 
-        auto &block = entry.compressedBlocks[index];
-        auto src = reader->m_pakFile.getSpan(block.compressedOffset, block.compressedSize);
-
-        bool success = Decompressor::decompress(src, dst, entry.compressionMethod);
-
         if (success) [[likely]] {
-          CHAOS_RECORD(DecompressedThroughput, dst.size())
+          CHAOS_RECORD(DecompressedThroughput,decompressedSize)
           CHAOS_RECORD(CompressedThroughput, src.size())
         }
         return success;
@@ -236,31 +263,14 @@ namespace SAA {
     };
     auto *file = storage->make<GameFile>(storage);
     auto impl = file->createImpl<PAKFileImpl>(this, entry);
-    
-    std::span<uint8_t> uncompressedData = storage->allocateSpan(entry.uncompressedSize);
-    auto uncompressedSpan = std::span(uncompressedData);
-    if (entry.compressionMethod == CompressionMethod::None) {
-      auto src = m_pakFile.getSpan(entry.offset, entry.uncompressedSize);
-      Decompressor::decompress(src, uncompressedData, entry.compressionMethod);
-      return uncompressedData;
+
+    size_t offset = 0;
+
+    for (size_t i = 0; i < impl->chunks(); i++) {
+      impl->chunkOffsetsLoaded[i] = offset;
+      offset += entry.compressionBlockSize;
     }
-
-    for (uint64_t blockIndex = 0, offset = 0; offset < entry.uncompressedSize;
-         blockIndex++, offset += entry.compressionBlockSize) {
-      auto &block = entry.compressedBlocks[blockIndex];
-      auto src = m_pakFile.getSpan(block.compressedOffset, block.compressedSize);
-
-      auto uncompressedBlockSize = std::min((uint64_t) entry.compressionBlockSize, entry.uncompressedSize - offset);
-      auto dst = uncompressedSpan.subspan(offset, uncompressedBlockSize);
-
-      bool succes = Decompressor::decompress(src, dst, entry.compressionMethod);
-      if (!succes) {
-        PakLog::err("Error decompressing entry {}.", index);
-        return {};
-      }
-    }
-    CHAOS_RECORD(DecompressedThroughput, uncompressedData.size())
-    CHAOS_RECORD(CompressedThroughput, entry.compressedSize)
-    return uncompressedData;
+    return file;
   }
-} 
+
+} // namespace SAA

@@ -35,6 +35,7 @@
 #include "soft_object.hpp"
 #include "memory/chaos_bump_arena.hpp"
 #include "hash/hash.hpp"
+#include "localizations/magpie_string.hpp"
 
 
 namespace SAA {
@@ -338,7 +339,7 @@ namespace SAA {
 
       FVector, FVector3F, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
 
-      FQuat, FBox, FBox2f, FBox3f,FLinearColor, FText, FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
+      FQuat, FBox, FBox2f, FBox3f,FLinearColor, SC::MagpieString , FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
 
       std::pmr::vector<FPropertyValue>, std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> >,
       FWeightedRandomSampler>;
