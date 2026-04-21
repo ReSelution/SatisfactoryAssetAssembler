@@ -13,6 +13,8 @@
 #include "flags/MeshExportFlags.hpp"
 #include "flags/TextureExportFlags.hpp"
 
+LOG_ALIAS(exLog, "SAA", "Exporter")
+
 namespace SAA {
   class Object;
 

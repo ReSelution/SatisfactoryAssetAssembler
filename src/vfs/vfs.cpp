@@ -29,7 +29,6 @@ namespace SAA {
 
     void Vfs::mountEntry(IOStoreReader *parser, std::string_view pathStr, const FIoChunkId &chunkId) {
         auto persistenPath = m_storage.persistString(pathStr);
-
         auto entry = m_storage.make<IOVfsEntry>(persistenPath, chunkId, parser);
         m_vfsMap.emplace(entry->hash, static_cast<SAA::UnifiedVfsEntry const*>(entry));
         m_pkgMap.emplace(chunkId.asPackageId().Id, static_cast<SAA::UnifiedVfsEntry const*>(entry));
@@ -44,7 +43,7 @@ namespace SAA {
     void Vfs::dumpToText(std::string_view filepath) {
         std::filesystem::path tmpPath(filepath);
         create_directories(tmpPath.parent_path());
-        auto fileStream = std::ofstream(std::string(filepath));
+        auto fileStream = std::ofstream(tmpPath.c_str());
 
         auto pathView = m_vfsMap | std::ranges::views::values
                         | std::views::transform([](const auto &entry) {

@@ -12,7 +12,8 @@
 #include "threading/chaos_threading.hpp"
 
 LOG_ALIAS(LocMngLog, "SAA", "LOC")
-DEFINE_CHAOS_STAT(LocResThr, "LocRes Throughput",  SC::ChaosThroughput<SC::MetricUnits>);
+
+DEFINE_CHAOS_STAT(LocResThr, "LocRes Throughput", SC::ChaosThroughput<SC::MetricUnits>);
 
 namespace SAA {
   LocManager::LocManager(AssetParser *parser) : m_parser(parser) {
@@ -77,33 +78,34 @@ namespace SAA {
       }
     };
 
-    for (const auto& locMeta : m_metaParsers) {
+    for (const auto &locMeta: m_metaParsers) {
       loadLoc(locMeta.getNativeRes(), true);
       if (auto [isNative, resPath] = locMeta.getRes(culture); !isNative) {
         loadLoc(resPath);
       }
     }
 #ifndef NDEBUG
-    for (auto *parser: parsers) {
+    for (auto &parser: parsers) {
       parser.parse();
     }
 #else
 
 
-      SC::Magpie::get()->clear();
-      auto t = SC::make_timer([magpie = SC::Magpie::get()](SC::TimeResult res) {
-        LocMngLog::info("Parsed {} Strings in {:.2f}{}", magpie->size(),  res.value, res.suffix);
-      });
-      SC::ChaosThreading::detacheBatch<SC::ChaosThreading::Priority::High>(std::move(parsers), [](int id, auto parser) {
-        parser.parse();
-      }, [timer = std::move(t)](int id) mutable {
-        timer.stop();
-      });
+    SC::Magpie::get()->clear();
+    auto t = SC::make_timer([magpie = SC::Magpie::get()](SC::TimeResult res) {
+      LocMngLog::info("Parsed {} Strings in {:.2f}{}", magpie->size(), res.value, res.suffix);
+    });
+    SC::ChaosThreading::detacheBatch<SC::ChaosThreading::Priority::High>(std::move(parsers), [](int id, auto parser) {
+                                                                           parser.parse();
+                                                                         }, [timer = std::move(t)](int id) mutable {
+                                                                           timer.stop();
+                                                                           CHAOS_STATS_LOG(
+                                                                             LocMngLog, "Magpie", SC::MagpieInsert,
+                                                                             SC::MagpieMEM, SC::PoolThroughput)
+                                                                         });
 
 
 #endif
     loadedIndex = cultureIndex;
-
   }
-
 } // namespace SAA

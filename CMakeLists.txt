@@ -71,7 +71,7 @@ endif ()
 add_library(SatisfactoryAssetAssembler STATIC)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT SAA_LTO_SUPPORTED OUTPUT error)
-if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MINGW)
     set_target_properties(SatisfactoryAssetAssembler PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
     message(STATUS "[SAA] LTO enabled for SAA targets.")
 else ()
@@ -81,12 +81,18 @@ endif ()
 
 if (NOT MSVC)
     if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_compile_options(SatisfactoryAssetAssembler PUBLIC -O3 -march=native -fno-rtti)
+        target_compile_options(SatisfactoryAssetAssembler PUBLIC -O3 -fno-rtti)
+
+        if (NOT CMAKE_CROSSCOMPILING)
+            target_compile_options(SatisfactoryAssetAssembler PUBLIC -march=native)
+            message(STATUS "[SAA] Native optimizations enabled")
+        endif()
     else ()
         target_compile_options(SatisfactoryAssetAssembler PUBLIC -g -O0)
         message(STATUS "[SAA] Debug mode: Optimizations disabled")
     endif ()
 endif ()
+
 
 # -------------------------------------------------------------------------
 # 2. Third Party (External)

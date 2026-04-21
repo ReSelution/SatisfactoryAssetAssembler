@@ -19,7 +19,7 @@ LOG_ALIAS(LocResLoc, "SAA", "LOCRES");
 
 namespace SAA {
   LocResParser::LocResParser(const UnifiedVfsEntry *vfsEntry, bool isNative)
-    : isNative(isNative), m_vfsEntry(vfsEntry){
+    : isNative(isNative), m_vfsEntry(vfsEntry) {
     magpie = SC::Magpie::get();
   }
 
@@ -63,16 +63,18 @@ namespace SAA {
       magpie->mt_reserve(entriesCount);
       for (auto i = 0; i < nsCount; i++) {
         cursor += sizeof(uint32_t); // skip hash
-        auto nsHash = SC::hash(cursor.readFString(m_storage.get()));
+        auto nsStr = cursor.readFString(m_storage.get());
+        auto nsHash = SC::hash(nsStr);
 
         const auto keyCount = cursor.read<uint32_t>();
         for (auto j = 0; j < keyCount; j++) {
           cursor += sizeof(uint32_t); // skip hash
-          auto keyHash = SC::hash(cursor.readFString(m_storage.get()));
+          auto keyStr = cursor.readFString(m_storage.get());
+          auto keyHash = SC::hash(keyStr);
           cursor += sizeof(uint32_t);
           auto stringIndex = cursor.read<uint32_t>();
           if (localizedStringArray.size() > stringIndex) [[likely]] {
-            magpie->mt_Insert(SC::MagpieKey{nsHash, keyHash}, localizedStringArray[stringIndex].str);
+            magpie->mt_Insert(SC::MagpieKey{nsHash, keyHash}, localizedStringArray[stringIndex].str, nsStr, keyStr);
           }
         }
       }

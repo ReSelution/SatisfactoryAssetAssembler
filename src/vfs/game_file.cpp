@@ -5,10 +5,10 @@
 #include <random>
 #include "game_file.hpp"
 #include "core/name.hpp"
+#include "threading/chaos_threading.hpp"
 
 namespace SAA {
   GameFile::GameFile(SC::ChaosBumpArena *storage) : m_storage(storage) {
-
   }
 
   bool GameFile::load(size_t size) {
@@ -64,13 +64,10 @@ namespace SAA {
 
 
   GameFileImpl::GameFileImpl(const size_t fileSize)
-          : fileSize(fileSize) {
-
-
+    : fileSize(fileSize) {
   }
 
   bool GameFileImpl::isLoaded(size_t targetOffset, size_t size, size_t &index) {
-
     const size_t targetEnd = targetOffset + size;
     bool foundStart = false;
 
@@ -87,8 +84,8 @@ namespace SAA {
       const size_t currentChunkStart = entry.load(std::memory_order_relaxed) & VALUE_MASK;
       if (!foundStart) {
         size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                : fileSize;
+                                  ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                  : fileSize;
 
         if (targetOffset >= currentChunkStart && targetOffset < nextChunkStart) {
           index = i;
@@ -103,8 +100,8 @@ namespace SAA {
       }
 
       size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                              ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                              : fileSize;
+                                ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                : fileSize;
 
       if (nextChunkStart >= targetEnd) {
         end = nextChunkStart - 1;
@@ -129,28 +126,35 @@ namespace SAA {
   }
 
   bool GameFileImpl::tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst) {
+    size_t cIdx = chunIdx;
+    std::vector<size_t> chunksToLoad;
+    chunksToLoad.reserve(chunkOffsetsLoaded.size());
     for (size_t offset = targetOffset; offset < targetOffset + size;) {
-      auto &atomic = chunkOffsetsLoaded[chunIdx];
+      auto &atomic = chunkOffsetsLoaded[cIdx];
       auto expected = atomic.load(std::memory_order_relaxed);
-
-      size_t nextChunkStart = (chunIdx + 1 < chunkOffsetsLoaded.size())
-                              ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                              : fileSize;
+      size_t nextChunkStart = (cIdx + 1 < chunkOffsetsLoaded.size())
+                                ? (chunkOffsetsLoaded[cIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                : fileSize;
       offset = nextChunkStart;
       if (expected & FINISHED_BIT) {
-        chunIdx++;
+        cIdx++;
       };
       if (!(expected & LOADING_BIT)) {
         uint64_t desired = expected | LOADING_BIT;
         if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
-          if (load(chunIdx, dst)) {
-            atomic.fetch_or(FINISHED_BIT, std::memory_order_release);
-          } else { return false; }
+          chunksToLoad.emplace_back(cIdx);
         }
-        chunIdx++;
+        cIdx++;
       }
-
     }
+    SC::ChaosThreading::parralelFor(chunksToLoad, [&](size_t i) {
+      auto &atomic = chunkOffsetsLoaded[i];
+      if (load(i, dst)) {
+        atomic.fetch_or(FINISHED_BIT, std::memory_order_release);
+        return true;
+      }
+      return false;
+    });
 
     return true;
   }
@@ -159,13 +163,12 @@ namespace SAA {
     for (size_t offset = targetOffset; offset < targetOffset + size;) {
       auto &atomic = chunkOffsetsLoaded[chunIdx];
       size_t nextChunkStart = (chunIdx + 1 < chunkOffsetsLoaded.size())
-                              ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                              : fileSize;
+                                ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                : fileSize;
       offset = nextChunkStart;
       while (!(atomic.load(std::memory_order_acquire) & FINISHED_BIT)) {
-#if defined(__x86_64__)
-        _mm_pause();
-#endif
+        auto id = SC::ChaosThreading::getThreadId();
+        SC::ChaosThreading::helpThread(id);
       }
       chunIdx++;
     }

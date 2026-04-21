@@ -11,9 +11,16 @@
 #include "core/name.hpp"
 
 namespace SAA {
+  void ByteCursor::throw_overflow(size_t pos, size_t requested) const {
+    throw std::out_of_range(std::format(
+      "Buffer Overflow: Requested {} bytes @ {}/{}",
+      requested, pos, m_buffer.size()
+    ));
+  }
+
   void ByteCursor::seek(size_t newPos) {
     if (newPos > m_buffer.size()) [[unlikely]] {
-      throw std::runtime_error("ByteCursor seek out of range");
+      throw_overflow(m_cursor, 0);
     }
     m_cursor = newPos;
   }
@@ -45,10 +52,9 @@ namespace SAA {
 
   std::span<std::string_view> ByteCursor::loadNameBatch(SC::ChaosBumpArena *utf16Storage) {
     auto count = read<uint32_t>();
-    if (count == 0)
-      return {};
+    if (count == 0) [[unlikely]] { return {}; }
 
-    seek(m_cursor + sizeof(uint32_t) + sizeof(uint64_t) + count * sizeof(uint64_t));
+    skip(static_cast<int64_t>(sizeof(uint64_t) + sizeof(uint32_t) + count * sizeof(uint64_t)));
 
     assert(utf16Storage != nullptr);
 

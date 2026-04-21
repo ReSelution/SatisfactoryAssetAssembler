@@ -21,6 +21,7 @@
 #include "stats.hpp"
 #include "logger/chaos_logger.hpp"
 #include "threading/chaos_threading.hpp"
+#include "localizations/magpie_string.hpp"
 
 LOG_ALIAS(ProviderLog, "SAA", "Provider")
 
@@ -99,6 +100,10 @@ namespace SAA {
     parser.loadRes();
     Crawler crawler;
     crawler.crawl(parser);
+
+    SC::Magpie::get()->dumpToFile("output/magpie.json");
+    constexpr SC::MagpieString s = "Buildables_Data:Production/Constructor"_t;
+    ProviderLog::info("Test Trasnlation {}", s.view());
   }
 
   void SatisfactoryDataProvider::test() {

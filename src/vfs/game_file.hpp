@@ -11,6 +11,8 @@ namespace SAA {
 
 
   struct GameFileImpl {
+    virtual ~GameFileImpl() = default;
+
     static constexpr uint64_t LOADING_BIT = 1ULL << 63;
     static constexpr uint64_t FINISHED_BIT = 1ULL << 62;
     static constexpr uint64_t VALUE_MASK = ~(LOADING_BIT | FINISHED_BIT);

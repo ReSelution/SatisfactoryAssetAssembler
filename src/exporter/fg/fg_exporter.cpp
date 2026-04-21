@@ -19,6 +19,9 @@ REGISTER_CHAOS_STAT(ItemTracker)
 namespace SAA {
     void FGExporter::encodeRecipe(FGRecipe *recipe) {
         auto e = getEntity(recipe);
+      // if (recipe->mDisplayName.has_value()) {
+      //   exLog::info("Exporting Recipe: {}", recipe->mDisplayName.value().view());
+      // }
 //    auto ex = Registry::write<Recipe>(
 //      recipe->mManufactoringDuration,
 //      recipe->mManualManufacturingMultiplier,

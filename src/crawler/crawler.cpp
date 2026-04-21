@@ -44,6 +44,18 @@ namespace SAA {
 
   auto Crawler::createFileQueue(AssetParser &parser, size_t &files) {
     Vfs *vfs = parser.getVfs();
+    files = 0;
+#ifndef NDEBUG
+    for (const auto &entry: vfs->entries()) {
+      if (shouldAdd(entry.second->path)) {
+        files++;
+        parser.parseAsset(entry.second->path, [&](std::shared_ptr<AssetFileParser> &file) {
+          onParsed(file);
+        });
+      }
+    }
+
+#else
     std::vector<std::string_view> batch;
     batch.reserve(vfs->entries().size());
     for (const auto &entry: vfs->entries()) {
@@ -52,13 +64,15 @@ namespace SAA {
       }
     }
     files = batch.size();
-    return SC::ChaosThreading::enqueueBatch(
+    auto fut =  SC::ChaosThreading::enqueueBatch(
       std::move(batch), [&parser, this](int id, std::string_view path) {
         parser.parseAsset(
           path, [this, id](std::shared_ptr<AssetFileParser> &file) {
             this->m_childs[id].onParsed(file);
           });
       });
+    fut.wait();
+#endif
   }
 
 
@@ -71,8 +85,7 @@ namespace SAA {
 
     auto t = CrawlerLog::time("Parsed {1} Files in {0} on {2} Threads", files, threads);
     SC::ChaosArenaPool::init(SC::ChaosThreading::getNumThreads() * 16, 32 * 1024);
-    auto future = createFileQueue(parser, files);
-    future.wait();
+    createFileQueue(parser, files);
     for (auto &m_child: m_childs) {
       mergeWithChild(m_child);
     }

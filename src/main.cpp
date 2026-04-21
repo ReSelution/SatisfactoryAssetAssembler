@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
   SAA::SatisfactoryDataProvider::setECS(&reg);
   provider.load();
 
-//  provider.test();
+  // provider.test();
   provider.crawl();
   return 0;
 }

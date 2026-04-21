@@ -19,6 +19,9 @@ namespace SAA {
   struct FName;
 
   class ByteCursor {
+  private:
+    [[noreturn]] void throw_overflow(size_t pos, size_t size) const;
+
   public:
     ByteCursor() = default;
 
@@ -60,7 +63,7 @@ namespace SAA {
 
     [[nodiscard]] ByteCursor subspan(size_t offset, size_t size) const {
       if (offset + size > m_buffer.size())[[unlikely]]{
-        throw std::runtime_error("subspan out of range");
+        throw_overflow(offset, size);
       }
 
       ByteCursor sub(m_buffer.subspan(offset, size), m_owner);
@@ -77,8 +80,6 @@ namespace SAA {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
 
       if (m_cursor + sizeof(T) > m_buffer.size())[[unlikely]]{
-        throw std::runtime_error(
-          "Buffer Overflow @ " + std::to_string(m_cursor) + "/" + std::to_string(m_buffer.size()));
       }
 
       T val;
@@ -123,7 +124,7 @@ namespace SAA {
       size_t bytes = sizeof(T) * count;
 
       if (m_cursor + bytes > m_buffer.size()) [[unlikely]] {
-        throw std::runtime_error("ByteCursor array out of range");
+        throw_overflow(m_cursor, bytes);
       }
 
       std::span<const T> out(reinterpret_cast<const T *>(m_buffer.data() + m_cursor), count);
@@ -185,4 +186,4 @@ namespace SAA {
     m_cursor = initialPos + sizeof(uint32_t) * 2;
     return out;
   }
-} 
+}

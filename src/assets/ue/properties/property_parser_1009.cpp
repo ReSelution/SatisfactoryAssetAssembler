@@ -421,7 +421,7 @@ namespace SAA {
         text.nSpace = cursor.readFString();
         text.key = cursor.readFString();
         text.sourceString = cursor.readFString();
-        magpieResult = SC::MagpieString(text.nSpace, text.key);
+        magpieResult = SC::MagpieString(text.nSpace, text.key, text.sourceString);
         break;
       }
       case ETextHistoryType::AsPercent: {
@@ -433,7 +433,8 @@ namespace SAA {
         break;
       }
       case ETextHistoryType::Transform: {
-        parseTextPropertyValue(cursor, storage);
+        auto innerValue = parseTextPropertyValue(cursor, storage);
+        magpieResult = std::get<SC::MagpieString>(innerValue.data);
         cursor.read<ETransformType>();
         break;
       }
@@ -457,6 +458,7 @@ namespace SAA {
       default:
         if (cursor.readBool()) {
           text.textHistory.text = cursor.readFString();
+          magpieResult = SC::MagpieString::fromStr(text.textHistory.text);
         }
     }
 
