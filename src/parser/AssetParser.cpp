@@ -69,7 +69,7 @@ namespace SAA {
     switch (vfsEntry->getEntryType()) {
       case VFS_EntryType::IOVfsEntry: {
         const std::string_view fullPath = vfsEntry->path;
-        bool isUAsset = fullPath.ends_with(".uasset");
+        bool isUAsset = fullPath.ends_with(".uasset") || fullPath.ends_with(".umap");
         bool isUBulk = !isUAsset && fullPath.ends_with(".ubulk");
         if (!isUAsset && !isUBulk) {
           break;
@@ -104,14 +104,14 @@ namespace SAA {
         parser->setReader(entry->owningReader);
 
         if (auto shared = m_parserCache.getLocked(vfsEntry->hash)) {
-          return shared;
+          return std::move(shared);
         }
         m_parserCache.insert(asset->hash, parser);
         if (bulk) {
           m_parserCache.insert(bulk->hash, parser);
         }
 
-        return parser;
+        return std::move(parser);
       }
       default:
         break;

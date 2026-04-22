@@ -102,16 +102,15 @@ namespace SAA {
     crawler.crawl(parser);
 
     SC::Magpie::get()->dumpToFile("output/magpie.json");
-    constexpr SC::MagpieString s = "Buildables_Data:Production/Constructor"_t;
-    ProviderLog::info("Test Trasnlation {}", s.view());
+    std::string_view s;
   }
 
   void SatisfactoryDataProvider::test() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-    parser.parseAsset("FactoryGame/Content/FactoryGame/Buildable/Factory/ResourceSink/Build_ResourceSink.uasset",
+    parser.parseAsset("FactoryGame/Content/FactoryGame/Map/GameLevel01/Persistent_Level.umap",
                       [](std::shared_ptr<AssetFileParser> &file) {
-                        file->loadExports();
-                        file->exportAssets();
+                        // file->loadExports();
+                        // file->exportAssets();
                       });
     DBG_PRINT_MISSING();
   }

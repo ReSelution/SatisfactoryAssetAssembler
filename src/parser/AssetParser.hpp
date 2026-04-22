@@ -52,6 +52,5 @@ namespace SAA {
     LocManager m_localizationManager;
 
     ShardedCache<uint64_t, AssetFileParser> m_parserCache;
-    std::shared_mutex m_cacheMutex;
   };
 } 
