@@ -12,70 +12,73 @@
 #include "ankerl/unordered_dense.h"
 
 namespace SAA {
-    constexpr size_t MAX_PATH_SIZE = 256 * sizeof(char);
-    constexpr size_t IOSTORE_ENTR_SIZE = MAX_PATH_SIZE + sizeof(IOVfsEntry);
-    constexpr size_t PAK_ENTR_SIZE = MAX_PATH_SIZE + sizeof(PAKVfsEntry);
+  constexpr size_t MAX_PATH_SIZE = 256 * sizeof(char);
+  constexpr size_t IOSTORE_ENTR_SIZE = MAX_PATH_SIZE + sizeof(IOVfsEntry);
+  constexpr size_t PAK_ENTR_SIZE = MAX_PATH_SIZE + sizeof(PAKVfsEntry);
 
-    struct VfsStorage {
-        std::vector<std::unique_ptr<std::pmr::monotonic_buffer_resource> > threadResources;
-        size_t index = -1;
+  struct VfsStorage {
+    std::vector<std::unique_ptr<std::pmr::monotonic_buffer_resource> > threadResources;
+    size_t index = -1;
 
-        void reserveIOStore(size_t count) {
-            auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(IOSTORE_ENTR_SIZE * count);
-            threadResources.push_back(std::move(pool));
-            index = threadResources.size() - 1;
-        }
+    void reserveIOStore(size_t count) {
+      auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(IOSTORE_ENTR_SIZE * count);
+      threadResources.push_back(std::move(pool));
+      index = threadResources.size() - 1;
+    }
 
-        void reservePAK(size_t count) {
-            auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(PAK_ENTR_SIZE * count);
-            threadResources.push_back(std::move(pool));
-            index = threadResources.size() - 1;
-        }
+    void reservePAK(size_t count) {
+      auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(PAK_ENTR_SIZE * count);
+      threadResources.push_back(std::move(pool));
+      index = threadResources.size() - 1;
+    }
 
-        std::string_view persistString(std::string_view str) {
-            assert(index >= 0 && index < threadResources.size() && "CALL Reserve first");
-            char *mem = static_cast<char *>(threadResources[index]->allocate(str.size() + 1));
-            std::memcpy(mem, str.data(), str.size());
-            mem[str.size()] = '\0';
-            return {mem, str.size()};
-        }
+    std::string_view persistString(std::string_view str) {
+      assert(index >= 0 && index < threadResources.size() && "CALL Reserve first");
+      char *mem = static_cast<char *>(threadResources[index]->allocate(str.size() + 1));
+      std::memcpy(mem, str.data(), str.size());
+      mem[str.size()] = '\0';
+      return {mem, str.size()};
+    }
 
-        template<typename T, typename... Args>
-        T *make(Args &&... args) {
-            assert(index >= 0 && index < threadResources.size() && "CALL Reserve first");
-            void *mem = threadResources[index]->allocate(sizeof(T), alignof(T));
-            return new(mem) T(std::forward<Args>(args)...);
-        }
-    };
+    template<typename T, typename... Args>
+    T *make(Args &&... args) {
+      assert(index >= 0 && index < threadResources.size() && "CALL Reserve first");
+      void *mem = threadResources[index]->allocate(sizeof(T), alignof(T));
+      return new(mem) T(std::forward<Args>(args)...);
+    }
+  };
 
-    class Vfs {
-        using denseMap = ankerl::unordered_dense::map<uint64_t, const UnifiedVfsEntry *, SC::IdentityHash>;
-    public:
-        static Vfs getChild() { return {}; }
+  class Vfs {
+    using denseMap = ankerl::unordered_dense::map<uint64_t, const UnifiedVfsEntry *, SC::IdentityHash>;
 
-        void mergeChild(Vfs &child);
+  public:
+    static Vfs getChild() { return {}; }
 
-        void reserveIOStore(size_t size);
+    void mergeChild(Vfs &child);
 
-        void reservePak(size_t size);
+    void reserveIOStore(size_t size);
 
-        void mountEntry(IOStoreReader *parser, std::string_view pathStr, const FIoChunkId &chunkId);
+    void reservePak(size_t size);
 
-        void mountEntry(PAKReader *parser, std::string_view pathStr, uint32_t index);
+    void mountEntry(IOStoreReader *parser, std::string_view pathStr, const FIoChunkId &chunkId);
 
-        void dumpToText(std::string_view path);
+    void mountEntry(PAKReader *parser, std::string_view pathStr, uint32_t index);
 
-        [[nodiscard]] const UnifiedVfsEntry *readVfs(std::string_view path);
+    void dumpToText(std::string_view path);
 
-        const UnifiedVfsEntry *readPkg(const FPackageId &pkg);
+    [[nodiscard]] const UnifiedVfsEntry *readVfs(std::string_view path);
 
-        const denseMap &entries() { return m_vfsMap; }
+    const UnifiedVfsEntry *readPkg(std::string_view path);
 
-    private:
-        static inline std::mutex m_mergeLock{};
-        denseMap m_vfsMap;
-        denseMap m_pkgMap;
+    const UnifiedVfsEntry *readPkg(FPackageId pkgId);
 
-        VfsStorage m_storage{};
-    };
-} 
+    const denseMap &entries() { return m_vfsMap; }
+
+  private:
+    static inline std::mutex m_mergeLock{};
+    denseMap m_vfsMap;
+    denseMap m_pkgMap;
+
+    VfsStorage m_storage{};
+  };
+}

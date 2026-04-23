@@ -29,8 +29,17 @@ namespace SAA {
   }
 
 
-  std::shared_ptr<AssetFileParser> AssetParser::loadPackage(const FPackageId &pkg) {
-    auto vfsEntry = m_vfs->readPkg(pkg);
+  std::shared_ptr<AssetFileParser> AssetParser::loadPackage(std::string_view path) {
+    auto vfsEntry = m_vfs->readPkg(path);
+    if (!vfsEntry) {
+      // Logger::logError("[AssetParser]", "Unknown PKG : {}", pkg.Id);
+      return nullptr;
+    }
+    return createParser(vfsEntry);
+  }
+
+  std::shared_ptr<AssetFileParser> AssetParser::loadPackage(FPackageId packageId) {
+    auto vfsEntry = m_vfs->readPkg(packageId);
     if (!vfsEntry) {
       // Logger::logError("[AssetParser]", "Unknown PKG : {}", pkg.Id);
       return nullptr;
@@ -68,34 +77,31 @@ namespace SAA {
 
     switch (vfsEntry->getEntryType()) {
       case VFS_EntryType::IOVfsEntry: {
-        const std::string_view fullPath = vfsEntry->path;
-        bool isUAsset = fullPath.ends_with(".uasset") || fullPath.ends_with(".umap");
+        const std::string_view fullPath = vfsEntry->packagePath;
+        bool isUAsset = vfsEntry->isPkg;
         bool isUBulk = !isUAsset && fullPath.ends_with(".ubulk");
         if (!isUAsset && !isUBulk) {
           break;
         }
 
         auto entry = static_cast<const IOVfsEntry *>(vfsEntry);
-
         auto parser = std::make_shared<UAssetParser>(this, entry);
-
         const UnifiedVfsEntry *asset;
         const UnifiedVfsEntry *bulk;
 
         char pathBuf[512];
-        if (fullPath.size() >= 512)
-          return nullptr; // Safety first
+        if (fullPath.size() >= 512) [[unlikely]] return nullptr; // Safety first
         memcpy(pathBuf, fullPath.data(), fullPath.size());
-        auto lastDot = fullPath.find_last_of('.');
+
 
         if (isUAsset) {
           asset = vfsEntry;
-          memcpy(pathBuf + lastDot, ".ubulk", 6);
-          bulk = m_vfs->readVfs({pathBuf, lastDot + 6});
+          memcpy(pathBuf + fullPath.size(), ".ubulk", 6);
+          bulk = m_vfs->readVfs({pathBuf, fullPath.size() + 6});
         } else {
           bulk = vfsEntry;
-          memcpy(pathBuf + lastDot, ".uasset", 7);
-          asset = m_vfs->readVfs({pathBuf, lastDot + 7});
+          auto lastDot = fullPath.find_last_of('.');
+          asset = m_vfs->readVfs({pathBuf, lastDot});
         }
 
         parser->setAssetData(asset);

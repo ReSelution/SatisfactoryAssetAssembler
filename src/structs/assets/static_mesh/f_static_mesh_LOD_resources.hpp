@@ -12,6 +12,7 @@
 
 #include "assets/meshes/f_color_vertex_buffer.hpp"
 #include "assets/meshes/f_postion_vertex_Buffer.hpp"
+#include "core/f_box_sphere_bounds.hpp"
 
 namespace SAA {
   enum class EFStaticMeshLODResourcesStripFlag : uint8_t {
@@ -24,6 +25,7 @@ namespace SAA {
   struct FStaticMeshLODResources {
     std::span<const FStaticMeshSection> sections;
     float maxDeviation;
+    FBoxSphereBounds sourceMeshBounds;
     FPositionVertexBuffer positionVertexBuffer;
     FStaticMeshVertexBuffer vertexBuffer;
     FColorVertexBuffer colorVertexBuffer;

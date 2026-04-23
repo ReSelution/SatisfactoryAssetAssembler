@@ -4,7 +4,10 @@
 #include "AssetFileParser.hpp"
 
 #include "AssetParser.hpp"
+#include "game_file.hpp"
+#include "version.hpp"
 #include "vfs_entry.hpp"
+#include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAA {
   AssetFileParser::~AssetFileParser() { AssetFileParser::reset(); }
@@ -65,6 +68,10 @@ namespace SAA {
 
   const FUsmapMappingData *AssetFileParser::mappings() const { return m_assetParser->mappings(); }
 
+  EUE5Version AssetFileParser::getUE5Version() const {
+    return mappings()->pkgVersion.FileVersionUE5;
+  }
+
   const GlobalData *AssetFileParser::globalData() const { return m_assetParser->globalData(); }
 
   AssetParser *AssetFileParser::assetParser() const {
@@ -84,6 +91,7 @@ namespace SAA {
     }
     return m_bulk;
   }
+
   GameFile *AssetFileParser::getAssetFile() {
     if (!m_asset && m_assetEntry) {
       m_asset = m_assetEntry->read(m_storage.get());
@@ -95,6 +103,4 @@ namespace SAA {
   ByteCursor AssetFileParser::getAsset(size_t offset, size_t size) {
     return getAssetFile()->subspan(offset, size);
   }
-
-
-} 
+}

@@ -3,22 +3,23 @@
 //
 
 #pragma once
-#include <cstdint>
 #include <condition_variable>
 
-#include "memory/chaos_arena_pool.hpp"
-#include "io/packages/f_byte_bulk_data.hpp"
 #include "io/packages/f_export_map_entry.hpp"
 #include "io/packages/f_object_export.hpp"
-#include "game_file.hpp"
+#include "io_global_data.hpp"
+#include "version.hpp"
 
 namespace SAA {
+  struct FByteBulkData;
   class Reader;
   struct FUsmapMappingData;
   struct GlobalData;
   class UnifiedVfsEntry;
   class AssetParser;
   class Object;
+  class ByteCursor;
+  class GameFile;
 
   enum class ParserState : uint8_t {
     NONE,
@@ -33,7 +34,10 @@ namespace SAA {
     enum class AssetType { UASSET, UMAP, UNKNOWN };
 
     AssetFileParser(AssetParser *assetParser, std::string_view path,
-                    AssetType assetType = AssetType::UNKNOWN) : m_assetParser(assetParser), m_type(assetType),
+                    AssetType assetType = AssetType::UNKNOWN) : m_assetParser(assetParser), m_importedParsers(nullptr),
+                                                                m_assetEntry(nullptr),
+                                                                m_bulkEntry(nullptr),
+                                                                m_type(assetType),
                                                                 m_path(path) {
       auto lastDot = m_path.find_last_of('.');
 
@@ -47,22 +51,39 @@ namespace SAA {
     [[nodiscard]] ParserState state() const { return m_state.load(std::memory_order_acquire); }
 
     void safeParse();
+
     void safeReset();
 
-    [[nodiscard]] const AssetType type();
 
     virtual Object *resolveIndex(int32_t index) { return nullptr; };
     virtual Object *resolveSoftObj(std::string_view assetName) { return nullptr; }
 
-    virtual std::string_view nameFromMap(uint32_t index) = 0;
 
-    virtual std::span<std::string_view> nameMap() = 0;
+    [[nodiscard]] std::string_view nameFromMap(uint32_t index) const {
+      if (index < m_nameMap.size()) [[likely]]{
+        return m_nameMap[index];
+      }
+      return "None";
+    }
+
+    [[nodiscard]] std::string_view getMappedName(FMappedName name) const {
+      if (name.isGlobal()) {
+        auto &map = globalData()->globalNameMap;
+        return name.fromNameMap(map, m_storage.get());
+      }
+      return name.fromNameMap(m_nameMap, m_storage.get());
+    }
+
+    std::span<std::string_view> nameMap() const { return m_nameMap; }
+
 
     virtual Object *resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) { return {}; };
 
     virtual Object *resolvePackageExport(const uint64_t &publicExportHash) { return nullptr; };
 
     [[nodiscard]] const FUsmapMappingData *mappings() const;
+
+    [[nodiscard]] EUE5Version getUE5Version() const;
 
     [[nodiscard]] const GlobalData *globalData() const;
 
@@ -84,14 +105,16 @@ namespace SAA {
 
     void setReader(Reader *reader);
 
-    virtual FByteBulkData parseFByteBulkData(ByteCursor &cursor) = 0;
+    virtual FByteBulkData *parseFByteBulkData(ByteCursor &cursor) = 0;
 
-//    [[nodiscard]] ByteCursor getAsset();
-    [[nodiscard]] GameFile* getAssetFile();
+    //    [[nodiscard]] ByteCursor getAsset();
+    [[nodiscard]] GameFile *getAssetFile();
+
     [[nodiscard]] ByteCursor getAsset(size_t offset, size_t size);
 
     [[nodiscard]] ByteCursor getBulk();
-    [[nodiscard]] GameFile* getBulkFile();
+
+    [[nodiscard]] GameFile *getBulkFile();
 
     virtual std::span<Object *> exportMap() = 0;
 
@@ -99,13 +122,17 @@ namespace SAA {
 
     virtual void exportAssets() const = 0;
 
-    [[nodiscard]] std::pmr::vector<std::shared_ptr<AssetFileParser> > *importetParser() const { return m_importedParsers; }
+    [[nodiscard]] std::pmr::vector<std::shared_ptr<AssetFileParser> > *importetParser() const {
+      return m_importedParsers;
+    }
+
     [[nodiscard]] SC::ChaosBumpArena *storage() const { return m_storage.get(); }
 
   protected:
     virtual void parse() {
       throw std::runtime_error("AssetFileParser::parse() called");
     };
+    std::span<std::string_view> m_nameMap;
     AssetParser *m_assetParser = nullptr;
     std::pmr::vector<std::shared_ptr<AssetFileParser> > *m_importedParsers;
     std::unique_ptr<SC::ChaosBumpArena> m_storage;
@@ -117,9 +144,9 @@ namespace SAA {
 
     // ---- raw data ----
     const UnifiedVfsEntry *m_assetEntry;
-    GameFile* m_asset = nullptr;
+    GameFile *m_asset = nullptr;
     const UnifiedVfsEntry *m_bulkEntry;
-    GameFile* m_bulk = nullptr;
+    GameFile *m_bulk = nullptr;
 
     AssetType m_type;
     ;

@@ -20,7 +20,7 @@ enum class EVirtualTextureCodec : uint8_t {
 
 namespace SAA {
   struct FVirtualTextureDataChunk {
-    FByteBulkData bulkData;
+    FByteBulkData *bulkData;
     uint32_t byteSize;
     uint32_t codecPayloadSiz;
     std::vector<uint32_t> codecPayloadOffset;

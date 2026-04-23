@@ -43,148 +43,151 @@ namespace SAA {
   class Object;
   struct FPropertyTag;
 
-    enum class ESatisfactoryStruct : SC::h64 {
-        Unknown = 0,
-        Guid = "Guid"_h,
-        IntPoint = "IntPoint"_h,
-        Vector = "Vector"_h,
-        Vector4d = "Vector4d"_h,
-        Vector3f = "Vector3f"_h,
-        Vector2f = "Vector2f"_h,
-        Rotator = "Rotator"_h,
-        Quat = "Quat"_h,
-        Box = "Box"_h,
-        Transform = "Transform"_h,
-        KAggregateGeom = "KAggregateGeom"_h,
-        KBoxElem = "KBoxElem"_h,
-        KConvexElem = "KConvexElem"_h,
-        BodyInstance = "BodyInstance"_h,
-        CollisionResponse = "CollisionResponse"_h,
-        ResponseChannel = "ResponseChannel"_h,
-        StaticMaterial = "StaticMaterial"_h,
-        MeshUVChannelInfo = "MeshUVChannelInfo"_h,
-        BoxSphereBounds = "BoxSphereBounds"_h,
-        LinearColor = "LinearColor"_h,
-        ScalarParameterValue = "ScalarParameterValue"_h,
-        VectorParameterValue = "VectorParameterValue"_h,
-        TextureParameterValue = "TextureParameterValue"_h,
-        MaterialParameterInfo = "MaterialParameterInfo"_h,
-        MaterialInstanceBasePropertyOverrides = "MaterialInstanceBasePropertyOverrides"_h,
-        MaterialTextureInfo = "MaterialTextureInfo"_h,
-        StaticParameterSetRuntimeData = "StaticParameterSetRuntimeData"_h,
-        StaticSwitchParameter = "StaticSwitchParameter"_h,
-        MaterialCachedParameterEntry = "MaterialCachedParameterEntry"_h,
-        Color = "Color"_h,
-        RichCurveKey = "RichCurveKey"_h,
-        Vector4 = "Vector4"_h,
-        Box3f = "Box3f"_h,
-        DeprecateSlateVector2D = "DeprecateSlateVector2D"_h,
-        Vector2D = "Vector2D"_h,
-        SkeletalMeshSamplingLODBuiltData = "SkeletalMeshSamplingLODBuiltData"_h,
-        PerPlatformFloat = "PerPlatformFloat"_h,
-        KeyHandleMap = "KeyHandleMap"_h,
-        CompressedRichCurve = "CompressedRichCurve"_h,
-        IntVector = "IntVector"_h,
-        MaterialOverrideNanite = "MaterialOverrideNanite"_h,
-        NiagaraUserRedirectionParameterStore = "NiagaraUserRedirectionParameterStore"_h,
-        VehicleInputRateConfig = "VehicleInputRateConfig"_h,
-        PerPlatformInt = "PerPlatformInt"_h,
-        PerQualityLevelFloat = "PerQualityLevelFloat"_h,
-        PerQualityLevelInt = "PerQualityLevelInt"_h,
-        IntVector2D = "IntVector2D"_h,
-        SoftClassPath = "SoftClassPath"_h,
-        InventoryItem = "InventoryItem"_h,
-        SoftObjectPath = "SoftObjectPath"_h,
-        MovieSceneFrameRange = "MovieSceneFrameRange"_h,
-        FontData = "FontData"_h,
-        MovieSceneEvaluationFieldEntityTree = "MovieSceneEvaluationFieldEntityTree"_h,
-        FontCharacter = "FontCharacter"_h,
-        FrameNumber = "FrameNumber"_h,
-        MovieSceneFloatChannel = "MovieSceneFloatChannel"_h,
-        Box2f = "Box2f"_h,
-        MovieSceneTrackIdentifier = "MovieSceneTrackIdentifier"_h,
-        LevelSequenceObjectReferenceMap = "LevelSequenceObjectReferenceMap"_h,
-        SmartName = "SmartName"_h,
-        DateTime = "DateTime"_h,
-        FGServerCertificate = "FGServerCertificate"_h,
-        PerPlatformFrameRate = "PerPlatformFrameRate"_h,
-        ShaderValueTypeHandle = "ShaderValueTypeHandle"_h,
+  enum class ESatisfactoryStruct : SC::h64 {
+    Unknown = 0,
+    Guid = "Guid"_h,
+    IntPoint = "IntPoint"_h,
+    Vector = "Vector"_h,
+    Vector4d = "Vector4d"_h,
+    Vector3f = "Vector3f"_h,
+    Vector2f = "Vector2f"_h,
+    Rotator = "Rotator"_h,
+    IntVector2 = "IntVector2"_h,
+    Quat = "Quat"_h,
+    Box = "Box"_h,
+    Transform = "Transform"_h,
+    KAggregateGeom = "KAggregateGeom"_h,
+    KBoxElem = "KBoxElem"_h,
+    KConvexElem = "KConvexElem"_h,
+    BodyInstance = "BodyInstance"_h,
+    CollisionResponse = "CollisionResponse"_h,
+    ResponseChannel = "ResponseChannel"_h,
+    StaticMaterial = "StaticMaterial"_h,
+    MeshUVChannelInfo = "MeshUVChannelInfo"_h,
+    BoxSphereBounds = "BoxSphereBounds"_h,
+    LinearColor = "LinearColor"_h,
+    ScalarParameterValue = "ScalarParameterValue"_h,
+    VectorParameterValue = "VectorParameterValue"_h,
+    TextureParameterValue = "TextureParameterValue"_h,
+    MaterialParameterInfo = "MaterialParameterInfo"_h,
+    MaterialInstanceBasePropertyOverrides = "MaterialInstanceBasePropertyOverrides"_h,
+    MaterialTextureInfo = "MaterialTextureInfo"_h,
+    StaticParameterSetRuntimeData = "StaticParameterSetRuntimeData"_h,
+    StaticSwitchParameter = "StaticSwitchParameter"_h,
+    MaterialCachedParameterEntry = "MaterialCachedParameterEntry"_h,
+    Color = "Color"_h,
+    RichCurveKey = "RichCurveKey"_h,
+    Vector4 = "Vector4"_h,
+    Box3f = "Box3f"_h,
+    DeprecateSlateVector2D = "DeprecateSlateVector2D"_h,
+    Vector2D = "Vector2D"_h,
+    SkeletalMeshSamplingLODBuiltData = "SkeletalMeshSamplingLODBuiltData"_h,
+    PerPlatformFloat = "PerPlatformFloat"_h,
+    KeyHandleMap = "KeyHandleMap"_h,
+    CompressedRichCurve = "CompressedRichCurve"_h,
+    IntVector = "IntVector"_h,
+    MaterialOverrideNanite = "MaterialOverrideNanite"_h,
+    NiagaraUserRedirectionParameterStore = "NiagaraUserRedirectionParameterStore"_h,
+    VehicleInputRateConfig = "VehicleInputRateConfig"_h,
+    PerPlatformInt = "PerPlatformInt"_h,
+    PerQualityLevelFloat = "PerQualityLevelFloat"_h,
+    PerQualityLevelInt = "PerQualityLevelInt"_h,
+    IntVector2D = "IntVector2D"_h,
+    SoftClassPath = "SoftClassPath"_h,
+    InventoryItem = "InventoryItem"_h,
+    SoftObjectPath = "SoftObjectPath"_h,
+    MovieSceneFrameRange = "MovieSceneFrameRange"_h,
+    FontData = "FontData"_h,
+    MovieSceneEvaluationFieldEntityTree = "MovieSceneEvaluationFieldEntityTree"_h,
+    FontCharacter = "FontCharacter"_h,
+    FrameNumber = "FrameNumber"_h,
+    MovieSceneFloatChannel = "MovieSceneFloatChannel"_h,
+    Box2f = "Box2f"_h,
+    MovieSceneTrackIdentifier = "MovieSceneTrackIdentifier"_h,
+    LevelSequenceObjectReferenceMap = "LevelSequenceObjectReferenceMap"_h,
+    SmartName = "SmartName"_h,
+    DateTime = "DateTime"_h,
+    FGServerCertificate = "FGServerCertificate"_h,
+    PerPlatformFrameRate = "PerPlatformFrameRate"_h,
+    ShaderValueTypeHandle = "ShaderValueTypeHandle"_h,
 
-        // --- Niagara ---
-        NiagaraVariable = "NiagaraVariable"_h,
-        NiagaraVariableBase = "NiagaraVariableBase"_h,
-        NiagaraVariableWithOffset = "NiagaraVariableWithOffset"_h,
-        NiagaraDataChannelVariable = "NiagaraDataChannelVariable"_h,
-        NiagaraDataInterfaceGPUParamInfo = "NiagaraDataInterfaceGPUParamInfo"_h,
-        NiagaraScript = "NiagaraScript"_h,
-        NiagaraScriptExecutionParameterStore = "NiagaraScriptExecutionParameterStore"_h,
+    // --- Niagara ---
+    NiagaraVariable = "NiagaraVariable"_h,
+    NiagaraVariableBase = "NiagaraVariableBase"_h,
+    NiagaraVariableWithOffset = "NiagaraVariableWithOffset"_h,
+    NiagaraDataChannelVariable = "NiagaraDataChannelVariable"_h,
+    NiagaraDataInterfaceGPUParamInfo = "NiagaraDataInterfaceGPUParamInfo"_h,
+    NiagaraScript = "NiagaraScript"_h,
+    NiagaraScriptExecutionParameterStore = "NiagaraScriptExecutionParameterStore"_h,
 
-        // --- MovieScene / Sequencer ---
-        MovieSceneSequenceID = "MovieSceneSequenceID"_h,
-        MovieSceneEvaluationKey = "MovieSceneEvaluationKey"_h,
-        MovieSceneEventParameters = "MovieSceneEventParameters"_h,
-        MovieSceneSegment = "MovieSceneSegment"_h,
-        MovieSceneSegmentIdentifier = "MovieSceneSegmentIdentifier"_h,
-        MovieSceneTrackFieldData = "MovieSceneTrackFieldData"_h,
-        MovieSceneSubSequenceTree = "MovieSceneSubSequenceTree"_h,
-        MovieSceneSequenceInstanceDataPtr = "MovieSceneSequenceInstanceDataPtr"_h,
-        MovieSceneEvalTemplatePtr = "MovieSceneEvalTemplatePtr"_h,
-        MovieSceneTrackImplementationPtr = "MovieSceneTrackImplementationPtr"_h,
-        SectionEvaluationDataTree = "SectionEvaluationDataTree"_h,
-        MovieSceneDoubleChannel = "MovieSceneDoubleChannel"_h,
-        MovieSceneTrackIdentifiers = "MovieSceneTrackIdentifiers"_h,
-        MovieSceneByteChannel = "MovieSceneByteChannel"_h,
-        GameplayTagContainer = "GameplayTagContainer"_h,
-    };
+    // --- MovieScene / Sequencer ---
+    MovieSceneSequenceID = "MovieSceneSequenceID"_h,
+    MovieSceneEvaluationKey = "MovieSceneEvaluationKey"_h,
+    MovieSceneEventParameters = "MovieSceneEventParameters"_h,
+    MovieSceneSegment = "MovieSceneSegment"_h,
+    MovieSceneSegmentIdentifier = "MovieSceneSegmentIdentifier"_h,
+    MovieSceneTrackFieldData = "MovieSceneTrackFieldData"_h,
+    MovieSceneSubSequenceTree = "MovieSceneSubSequenceTree"_h,
+    MovieSceneSequenceInstanceDataPtr = "MovieSceneSequenceInstanceDataPtr"_h,
+    MovieSceneEvalTemplatePtr = "MovieSceneEvalTemplatePtr"_h,
+    MovieSceneTrackImplementationPtr = "MovieSceneTrackImplementationPtr"_h,
+    SectionEvaluationDataTree = "SectionEvaluationDataTree"_h,
+    MovieSceneDoubleChannel = "MovieSceneDoubleChannel"_h,
+    MovieSceneTrackIdentifiers = "MovieSceneTrackIdentifiers"_h,
+    MovieSceneByteChannel = "MovieSceneByteChannel"_h,
+    GameplayTagContainer = "GameplayTagContainer"_h,
+    UniversalObjectLocatorFragment = "UniversalObjectLocatorFragment"_h,
+    InstancedStruct = "InstancedStruct"_h,
+  };
 
-    enum class EPropertyTagType : uint64_t {
-        Unknown = 0,
-        None = "None"_h,
-        Array = "ArrayProperty"_h,
-        AssetObject = "AssetObjectProperty"_h,
-        AssetClass = "AssetClassProperty"_h,
-        Bool = "BoolProperty"_h,
-        Byte = "ByteProperty"_h,
-        Class = "ClassProperty"_h,
-        Delegate = "DelegateProperty"_h,
-        Double = "DoubleProperty"_h,
-        Enum = "EnumProperty"_h,
-        FieldPath = "FieldPathProperty"_h,
-        Float = "FloatProperty"_h,
-        Int16 = "Int16Property"_h,
-        Int64 = "Int64Property"_h,
-        Int8 = "Int8Property"_h,
-        Int = "IntProperty"_h,
-        Interface = "InterfaceProperty"_h,
-        LazyObject = "LazyObjectProperty"_h,
-        Map = "MapProperty"_h,
-        MulticastDelegate = "MulticastDelegateProperty"_h,
-        MulticastInline = "MulticastInlineDelegateProperty"_h,
-        MulticastSparse = "MulticastSparseDelegateProperty"_h,
-        Name = "NameProperty"_h,
-        Object = "ObjectProperty"_h,
-        Set = "SetProperty"_h,
-        SoftClass = "SoftClassProperty"_h,
-        SoftObject = "SoftObjectProperty"_h,
-        Str = "StrProperty"_h,
-        Utf8Str = "Utf8StrProperty"_h,
-        Struct = "StructProperty"_h,
-        Text = "TextProperty"_h,
-        UInt16 = "UInt16Property"_h,
-        UInt32 = "UInt32Property"_h,
-        UInt64 = "UInt64Property"_h,
-        WeakObject = "WeakObjectProperty"_h,
-        Optional = "OptionalProperty"_h,
+  enum class EPropertyTagType : uint64_t {
+    Unknown = 0,
+    None = "None"_h,
+    Array = "ArrayProperty"_h,
+    AssetObject = "AssetObjectProperty"_h,
+    AssetClass = "AssetClassProperty"_h,
+    Bool = "BoolProperty"_h,
+    Byte = "ByteProperty"_h,
+    Class = "ClassProperty"_h,
+    Delegate = "DelegateProperty"_h,
+    Double = "DoubleProperty"_h,
+    Enum = "EnumProperty"_h,
+    FieldPath = "FieldPathProperty"_h,
+    Float = "FloatProperty"_h,
+    Int16 = "Int16Property"_h,
+    Int64 = "Int64Property"_h,
+    Int8 = "Int8Property"_h,
+    Int = "IntProperty"_h,
+    Interface = "InterfaceProperty"_h,
+    LazyObject = "LazyObjectProperty"_h,
+    Map = "MapProperty"_h,
+    MulticastDelegate = "MulticastDelegateProperty"_h,
+    MulticastInline = "MulticastInlineDelegateProperty"_h,
+    MulticastSparse = "MulticastSparseDelegateProperty"_h,
+    Name = "NameProperty"_h,
+    Object = "ObjectProperty"_h,
+    Set = "SetProperty"_h,
+    SoftClass = "SoftClassProperty"_h,
+    SoftObject = "SoftObjectProperty"_h,
+    Str = "StrProperty"_h,
+    Utf8Str = "Utf8StrProperty"_h,
+    Struct = "StructProperty"_h,
+    Text = "TextProperty"_h,
+    UInt16 = "UInt16Property"_h,
+    UInt32 = "UInt32Property"_h,
+    UInt64 = "UInt64Property"_h,
+    WeakObject = "WeakObjectProperty"_h,
+    Optional = "OptionalProperty"_h,
 
-        VerseString = "VerseStringProperty"_h,
-        VerseFunction = "VerseFunctionProperty"_h,
-        VerseDynamic = "VerseDynamicProperty"_h,
+    VerseString = "VerseStringProperty"_h,
+    VerseFunction = "VerseFunctionProperty"_h,
+    VerseDynamic = "VerseDynamicProperty"_h,
 
-        Custom_FD = "CustomProperty_FD"_h,
-        Custom_FE = "CustomProperty_FE"_h,
-        GbxDefPtr = "GbxDefPtrProperty"_h,
-        GameDataHandle = "GameDataHandleProperty"_h,
-    };
+    Custom_FD = "CustomProperty_FD"_h,
+    Custom_FE = "CustomProperty_FE"_h,
+    GbxDefPtr = "GbxDefPtrProperty"_h,
+    GameDataHandle = "GameDataHandleProperty"_h,
+  };
 
   struct alignas(8) FPropertyTypeNameNode {
     FName Name;
@@ -203,7 +206,7 @@ namespace SAA {
   }
 
   inline std::span<FPropertyTypeNameNode> getParameter(std::span<FPropertyTypeNameNode> nodes, int32_t paramIndex) {
-    if (nodes.empty() || paramIndex < 0 || paramIndex >= nodes[0].innerCount) {
+    if (nodes.empty() || paramIndex < 0 || paramIndex >= nodes[0].innerCount) [[likely]] {
       return {};
     }
 
@@ -290,12 +293,12 @@ namespace SAA {
   }
 
   // Compound Assignments
-  inline EPropertyTagFlags& operator|=(EPropertyTagFlags& lhs, EPropertyTagFlags rhs) {
+  inline EPropertyTagFlags &operator|=(EPropertyTagFlags &lhs, EPropertyTagFlags rhs) {
     lhs = lhs | rhs;
     return lhs;
   }
 
-  inline EPropertyTagFlags& operator&=(EPropertyTagFlags& lhs, EPropertyTagFlags rhs) {
+  inline EPropertyTagFlags &operator&=(EPropertyTagFlags &lhs, EPropertyTagFlags rhs) {
     lhs = lhs & rhs;
     return lhs;
   }
@@ -308,19 +311,18 @@ namespace SAA {
     return value != EPropertyTagFlags::None;
   }
 
-  enum class  EPropertyTagExtension : uint8_t
-  {
-    NoExtension					= 0x00,
-    ReserveForFutureUse			= 0x01, // Can be use to add a next group of extension
+  enum class EPropertyTagExtension : uint8_t {
+    NoExtension = 0x00,
+    ReserveForFutureUse = 0x01, // Can be use to add a next group of extension
 
     ////////////////////////////////////////////////
     // First extension group
-    OverridableInformation		= 0x02,
+    OverridableInformation = 0x02,
 
     //
     // Add more extension for the first group here
     //
-};
+  };
 
   inline bool hasFlag(EPropertyTagExtension value, EPropertyTagExtension flag) {
     return (static_cast<uint8_t>(value) & static_cast<uint8_t>(flag)) == static_cast<uint8_t>(flag);
@@ -337,9 +339,10 @@ namespace SAA {
 
       FName, FGuid, SoftObj,
 
-      FVector, FVector3F, FVector4d, FVector2F, FVector2D, FIntVector, FIntVector2D, FRotator,
+      FVector, FVector3F, FVector4D, FVector2F, FVector2D, FIntVector, FIntVector2, FRotator,
 
-      FQuat, FBox, FBox2f, FBox3f,FLinearColor, SC::MagpieString , FColor, PropertyHolder, FRichCurveKey, FCompressedRichCurve,
+      FQuat, FBox, FBox2f, FBox3f, FLinearColor, SC::MagpieString, FColor, PropertyHolder, FRichCurveKey,
+      FCompressedRichCurve,
 
       std::pmr::vector<FPropertyValue>, std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> >,
       FWeightedRandomSampler>;
@@ -435,4 +438,4 @@ namespace SAA {
     }
     return *vector;
   }
-} 
+}

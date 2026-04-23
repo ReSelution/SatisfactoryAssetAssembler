@@ -23,7 +23,7 @@ namespace SAA {
     std::vector<std::future<void> > futures;
     auto *vfs = parser->getVfs();
     for (auto &entry: vfs->entries()) {
-      if (entry.second->path.ends_with(".locmeta")) {
+      if (entry.second->pathStr.ends_with(".locmeta")) {
         auto &parser = m_metaParsers.emplace_back(this, entry.second);
         parser.parse();
       }

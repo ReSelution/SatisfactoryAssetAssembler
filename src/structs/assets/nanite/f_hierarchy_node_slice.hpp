@@ -27,7 +27,4 @@ namespace SAA {
   };
 
 #pragma pack(pop)
-
-  static_assert(std::is_trivial_v<FHierarchyNodeSlice>);
-  static_assert(std::is_standard_layout_v<FHierarchyNodeSlice>);
 } 

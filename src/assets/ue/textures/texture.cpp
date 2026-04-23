@@ -77,15 +77,24 @@ namespace SAA {
     m_sizeY = asset.read<int32_t>();
     m_packedData = asset.read<int32_t>();
 
+    m_pixelFormat = SC::hash<EPixelFormat>(asset.readFString());
+
     if (m_packedData & BITMASK_HAS_OPT_DATA) {
       asset.read<FOptTexturePlatformData>();
     }
 
     if (m_packedData & BITMASK_HAS_CPU_COPY) {
-      // 5.4+
-      throw std::runtime_error("[TEXTURE]: Not implented CPU Copy");
+      sharedImage.sizeX = asset.read<int32_t>();
+      sharedImage.sizeY = asset.read<int32_t>();
+      sharedImage.sizeZ = asset.read<int32_t>();
+      sharedImage.format = asset.read<EPixelFormatByte>();
+      sharedImage.gammaSpace = asset.read<uint8_t>();
+      auto len = asset.read<int64_t>();
+      auto bulk = storage()->make<FByteBulkData>();
+      bulk->bulkCursor =  asset.subspan(asset.tell(), static_cast<int32_t>(len));
+      asset += static_cast<int32_t>(len);
+      sharedImage.mip = FTexture2DMipMap{bulk, sharedImage.sizeX, sharedImage.sizeY, sharedImage.sizeZ};
     }
-    m_pixelFormat = asset.readFString();
 
     m_firstMipToSerialize = asset.read<int32_t>();
 

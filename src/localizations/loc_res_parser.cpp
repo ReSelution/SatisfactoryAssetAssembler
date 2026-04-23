@@ -4,7 +4,6 @@
 
 #include "loc_res_parser.hpp"
 
-#include <utility>
 
 #include "PAKReader.hpp"
 #include "byte_cursor.hpp"
@@ -12,7 +11,6 @@
 #include "vfs_entry.hpp"
 
 #include "localization/f_entry.hpp"
-#include "localization/f_text_key.hpp"
 #include "memory/chaos_bump_arena.hpp"
 
 LOG_ALIAS(LocResLoc, "SAA", "LOCRES");
@@ -30,7 +28,7 @@ namespace SAA {
     auto cursor = data->subspan(0, data->size());
     auto magic = cursor.read<FGuid>();
     if (magic != LOC_RES_MAGIC) {
-      LocResLoc::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path,
+      LocResLoc::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->pathStr,
                      magic.A, magic.B, magic.C, magic.D);
     }
     auto version = cursor.read<ELocResVersion>();

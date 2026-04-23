@@ -18,7 +18,7 @@ REGISTER_CHAOS_STAT(ObjThrouput)
 
 namespace SAA {
   UAssetParser::UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry) : AssetFileParser(
-    assetParser, vfsEntry->path, AssetType::UASSET) {
+    assetParser, vfsEntry->pathStr, AssetType::UASSET) {
     auto reader = vfsEntry->owningReader;
     m_containerHeader = reader->containerHeader();
   }
@@ -39,37 +39,21 @@ namespace SAA {
     processExports();
   }
 
-  std::string_view UAssetParser::nameFromMap(uint32_t index) {
-    if (m_nameMap.size() <= index) {
-      return "None";
-    }
-    return m_nameMap[index];
-  }
 
-  std::span<std::string_view> UAssetParser::nameMap() { return m_nameMap; }
-
-  std::string_view UAssetParser::getMappedName(FMappedName name) const {
-    if (name.isGlobal()) {
-      auto &map = globalData()->globalNameMap;
-      return name.fromNameMap(map, m_storage.get());
-    }
-    return name.fromNameMap(m_nameMap, m_storage.get());
-  }
-
-  FByteBulkData UAssetParser::parseFByteBulkData(ByteCursor &cursor) {
-    FByteBulkData data{};
+  FByteBulkData *UAssetParser::parseFByteBulkData(ByteCursor &cursor) {
+    FByteBulkData *data = storage()->make<FByteBulkData>();
     auto dataIndex = cursor.read<int32_t>();
     if (dataIndex >= m_bulkDataMap.size()) {
       return data;
     }
     auto &metaData = m_bulkDataMap[dataIndex];
-    data.flags = static_cast<EBulkDataFlags>(metaData.Flags);
-    if (HasFlag(data.flags, EBulkDataFlags::BULKDATA_ForceInlinePayload)) {
-      data.bulkCursor = cursor.subspan(cursor.tell(), metaData.SerialSize);
+    data->flags = static_cast<EBulkDataFlags>(metaData.Flags);
+    if (HasFlag(data->flags, EBulkDataFlags::BULKDATA_ForceInlinePayload)) {
+      data->bulkCursor = cursor.subspan(cursor.tell(), metaData.SerialSize);
       cursor += metaData.SerialSize;
-    } else if (HasFlag(data.flags, EBulkDataFlags::BULKDATA_PayloadInSeperateFile)) {
+    } else if (HasFlag(data->flags, EBulkDataFlags::BULKDATA_PayloadInSeperateFile)) {
       auto bulkFile = getBulkFile();
-      data.bulkCursor = bulkFile->subspan(metaData.SerialOffset, metaData.SerialSize);
+      data->bulkCursor = bulkFile->subspan(metaData.SerialOffset, metaData.SerialSize);
     }
 
     return data;

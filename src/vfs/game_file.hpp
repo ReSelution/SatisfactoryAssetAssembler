@@ -4,10 +4,12 @@
 
 #pragma once
 
-#include "memory/chaos_bump_arena.hpp"
 #include "byte_cursor.hpp"
+#include "memory/chaos_bump_arena.hpp"
+
 
 namespace SAA {
+  class AssetFileParser;
 
 
   struct GameFileImpl {
@@ -149,18 +151,7 @@ namespace SAA {
       return static_cast<T *>(impl);
     }
 
-    [[nodiscard]] ByteCursor subspan(size_t offset, size_t size) {
-      auto old = m_cursor;
-      m_cursor = offset;
-      if (!load(size))[[unlikely]] {
-        throw std::runtime_error("subspan out of range");
-      }
-
-      ByteCursor sub(m_buffer.subspan(offset, size), m_owner);
-      sub.setAbsoluteOffset(offset);
-      m_cursor = old;
-      return sub;
-    }
+    [[nodiscard]] ByteCursor subspan(size_t offset, size_t size);
 
     void setOwner(AssetFileParser* ptr){
       m_owner = ptr;

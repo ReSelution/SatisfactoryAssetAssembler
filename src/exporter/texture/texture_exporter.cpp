@@ -28,7 +28,7 @@ namespace SAA {
   void TextureExporter::decodeTexture(ExportedTextureData &data, Texture *texture) {
     FTexture2DMipMap mip{};
     for (auto &m_mipmap: texture->m_mipmaps) {
-      if (m_mipmap.data.bulkCursor.size() != 0) {
+      if (m_mipmap.data->bulkCursor.size() != 0) {
         mip = m_mipmap;
         break;
       }
@@ -39,7 +39,7 @@ namespace SAA {
   void TextureExporter::decodeTexture(ExportedTextureData &data, Texture2DArray *texture) {
     FTexture2DMipMap mip{};
     for (auto &m_mipmap: texture->m_mipmaps) {
-      if (m_mipmap.data.bulkCursor.size() != 0) {
+      if (m_mipmap.data->bulkCursor.size() != 0) {
         mip = m_mipmap;
         break;
       }
@@ -52,19 +52,19 @@ namespace SAA {
     data.height = mip.sizeY;
     switch (texture->m_format) {
       case EPixelFormat::PF_DXT5: {
-        data.data = TextureDecoder::decompressDXT5(data.width, data.height, mip.data.bulkCursor.buffer());
+        data.data = TextureDecoder::decompressDXT5(data.width, data.height, mip.data->bulkCursor.buffer());
         break;
       }
       case EPixelFormat::PF_BC5: {
-        data.data = TextureDecoder::decompressBC5(data.width, data.height, mip.data.bulkCursor.buffer());
+        data.data = TextureDecoder::decompressBC5(data.width, data.height, mip.data->bulkCursor.buffer());
         break;
       }
       case EPixelFormat::PF_G8: {
-        data.data = TextureDecoder::decodeG8(data.width, data.height, mip.data.bulkCursor.buffer());
+        data.data = TextureDecoder::decodeG8(data.width, data.height, mip.data->bulkCursor.buffer());
         break;
       }
       case EPixelFormat::PF_DXT1: {
-        data.data = TextureDecoder::decompressDXT1(data.width, data.height, mip.data.bulkCursor.buffer());
+        data.data = TextureDecoder::decompressDXT1(data.width, data.height, mip.data->bulkCursor.buffer());
         break;
       }
       default:

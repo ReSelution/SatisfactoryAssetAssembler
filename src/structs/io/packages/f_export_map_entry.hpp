@@ -4,7 +4,6 @@
 
 #pragma once
 #include <array>
-#include <cstdint>
 
 #include "core/flags.hpp"
 #include "core/name.hpp"

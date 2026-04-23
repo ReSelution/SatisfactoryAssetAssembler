@@ -3,9 +3,8 @@
 //
 
 #pragma once
-#include <cstdint>
 #include <string>
-#include "functions.hpp"
+#include "memory/chaos_bump_arena.hpp"
 
 namespace SAA {
 #pragma pack(push, 1)

@@ -5,7 +5,6 @@
 #pragma once
 #include <cstdint>
 
-#include "functions.hpp"
 
 namespace SAA {
   constexpr uint64_t decode40Bit(const std::array<uint8_t, 5> &data) {

@@ -55,7 +55,7 @@ namespace SAA {
 
     auto createFileQueue(AssetParser &parser, size_t &files);
 
-    bool shouldAdd(std::string_view path);
+    bool shouldAdd(const UnifiedVfsEntry *entry);
 
     // Keeping the Parser Alive for Cache
     std::vector<std::shared_ptr<AssetFileParser>> m_buildable;
@@ -67,4 +67,4 @@ namespace SAA {
     std::vector<Crawler> m_childs;
 
   };
-} 
+}

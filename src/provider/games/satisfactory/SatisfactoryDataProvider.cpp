@@ -65,7 +65,7 @@ namespace SAA {
       f.wait();
 #else
     // --- DEBUG MODUS: Sequenziell ---
-    ProviderLog::debug("Running in Debug mode: Sequential load.");
+    ProviderLog::info("Running in Debug mode: Sequential load.");
 
     // 1. Basis-Parser direkt ausführen
     m_UsmapParser->parse(m_usmapData);
@@ -84,10 +84,10 @@ namespace SAA {
       m_vfs.mergeChild(child);
     }
 #endif
+    // SC::ChaosThreading::detach([&](int id) {
+    //   m_vfs.dumpToText("output/files.txt");;
+    // });
 
-    //    SC::ChaosThreading::enqueue<SC::ChaosThreading::Priority::High>([&]( int id) {
-    //      m_vfs.dumpToText("output/files.txt");
-    //    });
     ProviderLog::info("VFS erfolgreich erstellt. {} Dateien gemountet.", m_vfs.entries().size());
     return true;
   }
@@ -107,12 +107,26 @@ namespace SAA {
 
   void SatisfactoryDataProvider::test() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-    parser.parseAsset("FactoryGame/Content/FactoryGame/Map/GameLevel01/Persistent_Level.umap",
-                      [](std::shared_ptr<AssetFileParser> &file) {
-                        // file->loadExports();
-                        // file->exportAssets();
-                      });
-    DBG_PRINT_MISSING();
+
+
+    ProviderLog::info("Testing with {} files", m_vfs.entries().size());
+    auto val = m_vfs.entries().values();
+    CHAOS_RESET_ALL()
+    CHAOS_RESET(DecompressedThroughput)
+    CHAOS_RESET(CompressedThroughput)
+    SC::ChaosThreading::detacheBatch(val, [&parser](int id, auto entry) {
+      if (entry.second->isPkg) {
+        parser.parseAsset(entry.second->packagePath,
+                          [](std::shared_ptr<AssetFileParser> &file) {
+                            file->loadExports();
+                            // file->exportAssets();
+                          });
+      }
+    }, nullptr);
+    SC::ChaosThreading::wait_until_finished();
+    CHAOS_STATS_LOG(ProviderLog, "Crawled", DecompressedThroughput, CompressedThroughput)
+    CHAOS_REPORT()
+    // DBG_PRINT_MISSING();
   }
 
   void SatisfactoryDataProvider::findAllParsableFiles(const std::filesystem::path &folder) {

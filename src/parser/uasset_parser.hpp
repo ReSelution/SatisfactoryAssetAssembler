@@ -25,19 +25,13 @@ namespace SAA {
 
         ~UAssetParser() override = default;
 
-        [[nodiscard]] std::string_view nameFromMap(uint32_t index) override;
-
-        std::span<std::string_view> nameMap() override;
-
-        std::string_view getMappedName(FMappedName name) const;
-
         [[nodiscard]] const FZenPackageSummary &getSummary() const;
 
         [[nodiscard]] std::span<std::string_view> getNameMap() const;
 
         [[nodiscard]] std::span<const FBulkDataMapEntry> bulkDataMap() const { return m_bulkDataMap; };
 
-        FByteBulkData parseFByteBulkData(ByteCursor &cursor) override;
+        FByteBulkData *parseFByteBulkData(ByteCursor &cursor) override;
 
         Object *resolveIndex(int32_t index) override;
 
@@ -100,7 +94,7 @@ namespace SAA {
         FZenPackageCellOffsets m_cellOffsets{};
 
         // ---- name & store ----
-        std::span<std::string_view> m_nameMap;
+
         FFilePackageStoreEntry m_storeEntry{};
 
         // ---- data maps ----

@@ -11,6 +11,19 @@ namespace SAA {
   GameFile::GameFile(SC::ChaosBumpArena *storage) : m_storage(storage) {
   }
 
+  ByteCursor GameFile::subspan(size_t offset, size_t size) {
+    auto old = m_cursor;
+    m_cursor = offset;
+    if (!load(size))[[unlikely]] {
+      throw std::runtime_error("subspan out of range");
+    }
+
+    ByteCursor sub(m_buffer.subspan(offset, size), m_owner);
+    sub.setAbsoluteOffset(offset);
+    m_cursor = old;
+    return sub;
+  }
+
   bool GameFile::load(size_t size) {
     if (m_cursor + size <= impl->end) {
       return true;

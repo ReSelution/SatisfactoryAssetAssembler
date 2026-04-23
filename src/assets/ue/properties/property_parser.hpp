@@ -8,8 +8,8 @@
 #include "f_property_tag.hpp"
 #include "logger/chaos_logger.hpp"
 
-// DEFINE_CHAOS_STAT(PropsTroughput, "Properties", SC::ChaosThroughput<SC::MetricUnits>)
-// REGISTER_CHAOS_STAT(PropsTroughput)
+DEFINE_CHAOS_STAT(PropsTroughput, "Properties", SC::ChaosThroughput<SC::MetricUnits>)
+REGISTER_CHAOS_STAT(PropsTroughput)
 
 namespace SAA {
   class PropertyHolder;

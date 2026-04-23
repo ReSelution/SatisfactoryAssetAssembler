@@ -9,6 +9,9 @@
 #include <span>
 #include <stdexcept>
 
+#include "AssetFileParser.hpp"
+#include "core/name.hpp"
+
 
 namespace SC {
   class ChaosBumpArena;
@@ -44,13 +47,21 @@ namespace SAA {
 
     void seek(size_t newPos);
 
+
     void align(size_t alignment) {
       size_t mis = m_cursor % alignment;
       if (mis)
         skip(alignment - mis);
     }
 
-    FName readFName();
+    FName readFName() {
+      FName name{
+        .index = read<uint32_t>(),
+        .number = read<uint32_t>(),
+      };
+      name.plainTextView = m_owner->nameFromMap(name.index);
+      return name;
+    }
 
     bool testReadFName();
 
@@ -109,6 +120,11 @@ namespace SAA {
         throw std::runtime_error("ByteCursor raw array size mismatch");
       }
       return array;
+    }
+    void skipBulkArray() {
+      auto elementSize = read<uint32_t>();
+      auto elementCount = read<uint32_t>();
+      skip(elementCount * elementSize);
     }
 
     template<typename T>

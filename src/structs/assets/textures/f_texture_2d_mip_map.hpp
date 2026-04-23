@@ -9,7 +9,7 @@
 
 namespace SAA {
   struct FTexture2DMipMap {
-    FByteBulkData data;
+    FByteBulkData *data;
     int32_t sizeX;
     int32_t sizeY;
     int32_t sizeZ;

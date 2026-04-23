@@ -47,9 +47,9 @@ namespace SAA {
     files = 0;
 #ifndef NDEBUG
     for (const auto &entry: vfs->entries()) {
-      if (shouldAdd(entry.second->path)) {
+      if (shouldAdd(entry.second)) {
         files++;
-        parser.parseAsset(entry.second->path, [&](std::shared_ptr<AssetFileParser> &file) {
+        parser.parseAsset(entry.second->packagePath, [&](std::shared_ptr<AssetFileParser> &file) {
           onParsed(file);
         });
       }
@@ -59,8 +59,8 @@ namespace SAA {
     std::vector<std::string_view> batch;
     batch.reserve(vfs->entries().size());
     for (const auto &entry: vfs->entries()) {
-      if (shouldAdd(entry.second->path)) {
-        batch.emplace_back(entry.second->path);
+      if (shouldAdd(entry.second)) {
+        batch.emplace_back(entry.second->packagePath);
       }
     }
     files = batch.size();
@@ -144,8 +144,7 @@ namespace SAA {
   }
 
 
-  bool Crawler::shouldAdd(std::string_view path) {
-    return std::any_of(filterList.begin(), filterList.end(),
-                       [path](std::string_view filter) { return path.find(filter) != std::string_view::npos; });
+  bool Crawler::shouldAdd(const UnifiedVfsEntry *entry) {
+    return entry->isPkg;
   }
 }

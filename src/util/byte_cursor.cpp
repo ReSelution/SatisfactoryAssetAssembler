@@ -20,19 +20,12 @@ namespace SAA {
 
   void ByteCursor::seek(size_t newPos) {
     if (newPos > m_buffer.size()) [[unlikely]] {
-      throw_overflow(m_cursor, 0);
+      throw_overflow(m_cursor, newPos -m_cursor);
     }
     m_cursor = newPos;
   }
 
-  FName ByteCursor::readFName() {
-    FName name{
-      .index = read<uint32_t>(),
-      .number = read<uint32_t>(),
-    };
-    name.plainTextView = m_owner->nameFromMap(name.index);
-    return name;
-  }
+
 
   bool ByteCursor::testReadFName() {
     auto pos = tell();

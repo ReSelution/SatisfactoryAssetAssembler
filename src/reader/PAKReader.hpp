@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 
-#include "byte_cursor.hpp"
 #include "Reader.hpp"
 #include "file_reader.hpp"
 
@@ -10,6 +9,8 @@
 #include "pak/f_pak_info.hpp"
 
 namespace SAA {
+  class ByteCursor;
+
   class PAKReader : public Reader {
   public:
     PAKReader(const std::filesystem::path& pakPath);

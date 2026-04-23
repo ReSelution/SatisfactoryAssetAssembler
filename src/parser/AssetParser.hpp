@@ -34,7 +34,8 @@ namespace SAA {
 
     void parseAsset(std::string_view path, const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed);
 
-    std::shared_ptr<AssetFileParser> loadPackage(const FPackageId &pkg);
+    std::shared_ptr<AssetFileParser> loadPackage(std::string_view path);
+    std::shared_ptr<AssetFileParser> loadPackage(FPackageId packageId);
     Vfs *getVfs() const { return m_vfs; };
 
     void loadRes();

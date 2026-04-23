@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "byte_cursor.hpp"
+#include "game_file.hpp"
 #include "loc_manager.hpp"
 #include "vfs_entry.hpp"
 #include "logger/chaos_logger.hpp"
@@ -36,7 +37,7 @@ namespace SAA {
     ByteCursor cursor(data->subspan(0, data->size()));
     auto magic = cursor.read<FGuid>();
     if (magic != LOC_META_MAGIC) {
-      LocMetaLog::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->path, magic.A, magic.B, magic.C,
+      LocMetaLog::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->pathStr, magic.A, magic.B, magic.C,
                        magic.D);
       return;
     }
@@ -45,8 +46,8 @@ namespace SAA {
     m_manager->registerCulture(nativeCulture);
     auto nativeLocRes = cursor.readFString(m_storage.get());
 
-    auto pos = m_vfsEntry->path.find_last_of('/');
-    auto prefix = m_vfsEntry->path.substr(0, pos + 1);
+    auto pos = m_vfsEntry->pathStr.find_last_of('/');
+    auto prefix = m_vfsEntry->pathStr.substr(0, pos + 1);
 
     nativeLocResPATH.reserve(prefix.size() + nativeLocRes.size());
     nativeLocResPATH.append(prefix).append(nativeLocRes);

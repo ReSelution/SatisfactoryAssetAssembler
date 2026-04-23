@@ -3,15 +3,11 @@
 //
 
 #include "static_mesh.hpp"
-
+#include <iostream>
 #include "uasset_parser.hpp"
-
 #include "assets/static_mesh/distance_field_atlas.hpp"
-
 #include "meshes/mesh_exporter.hpp"
-
 #include "ue/material/material_interface.hpp"
-
 #include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAA {
@@ -45,7 +41,12 @@ namespace SAA {
     if (!stripped) {
       for (uint32_t i = 0; i < m_renderData.LODResources.size(); ++i) {
         if (m_cursor.readBool()) {
-          FDistanceFieldVolumeData5::parse(m_cursor, m_owner);
+          if (m_owner->getUE5Version() >= EUE5Version::UE5_4) {
+            FDistanceFieldVolumeData5::parse5_6(m_cursor, m_owner);
+          }else {
+            FDistanceFieldVolumeData5::parse5_3(m_cursor, m_owner);
+          }
+
         }
       }
     }
@@ -60,9 +61,17 @@ namespace SAA {
     m_cursor += 1; // numInlinedLODs
 
     parseNaniteResources(m_renderData.naniteResources);
+
+
+    if (m_owner->getUE5Version() >= EUE5Version::UE5_5 && m_cursor.readBool()) {
+      auto stripFlags = m_cursor.read<FStripDataFlags>();
+      m_cursor += 4; // Skip Bool
+      if (!stripFlags.isAudioVisualDataStripped()) {
+        assert("Not Implenteted");
+      }
+    }
     parseInlineDataRepresentation();
     parseDistanceFieldVolumeData();
-
     m_renderData.bounds = m_cursor.read<FBoxSphereBounds>();
     m_renderData.bLODsShareStaticLighting = m_cursor.readBool();
     constexpr uint32_t MAX_STATIC_LODS_UE4 = 8;
@@ -71,23 +80,28 @@ namespace SAA {
       m_cursor += 4; // skip bFloatCooked
       m_renderData.screenSize.emplace_back(m_cursor.read<float>());
     }
+    if (m_owner->getUE5Version() >= EUE5Version::UE5_4)m_cursor += sizeof(FStripDataFlags);
   }
 
   void StaticMesh::parseLODResource(FStaticMeshLODResources &lodResources) {
     auto stripDataFlags = m_cursor.read<FStripDataFlags>();
     lodResources.sections = m_cursor.readArray<FStaticMeshSection>();
-    SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "FBoxSphereBounds not Implented ");
+    if (m_owner->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::UE5_6) {
+      lodResources.sourceMeshBounds = m_cursor.read<FBoxSphereBounds>();
+    }
+
     lodResources.maxDeviation = m_cursor.read<float>();
     bool isLODCookedOut = m_cursor.readBool();
     bool inlined = m_cursor.readBool();
     if (!stripDataFlags.isAudioVisualDataStripped() && !isLODCookedOut) [[likely]] {
-      SAA_ASSERT_UE5_MAX(m_owner, UE5_5,
-                         "bHasRayTracingGeometry not Implented "); // bHasRayTracingGeometry skip 4 bytes
+      if (m_owner->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::UE5_6) {
+        m_cursor += 4;
+      }
       if (inlined) {
         parseLODBuffer(m_cursor, lodResources);
       } else {
         auto bulkData = m_owner->parseFByteBulkData(m_cursor);
-        parseLODBuffer(bulkData.bulkCursor, lodResources);
+        parseLODBuffer(bulkData->bulkCursor, lodResources);
         m_cursor += 8; // DepthOnlyNumTriangles + Packed
         m_cursor += 4 * 4 + 2 * 4 + 2 * 4 + 5 * 2 * 4;
         // StaticMeshVertexBuffer = 2x int32, 2x bool
@@ -98,7 +112,9 @@ namespace SAA {
         // DepthOnlyIndexBuffer
         // ReversedDepthOnlyIndexBuffer
         // WireframeIndexBuffer
-        SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "RawDataHeader = 6x uint32 not Implented ");
+        if (m_owner->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::UE5_6) {
+          m_cursor += 6 * 4; // RawDataHeader = 6x uint32
+        }
       }
     }
     m_cursor += 12;
@@ -112,13 +128,13 @@ namespace SAA {
     lodResources.indexBuffer = FRawStaticIndexBuffer::parse(cursor);
 
     if (!stripDataFlags.isClassDataStripped(
-            static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
+      static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
       lodResources.reversedIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
     }
     lodResources.depthOnlyIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
 
     if (!stripDataFlags.isClassDataStripped(
-            static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
+      static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_ReversedIndexBuffer))) {
       lodResources.reversedIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
     }
 
@@ -126,7 +142,13 @@ namespace SAA {
       lodResources.wireframeIndexBuffer = FRawStaticIndexBuffer::parse(cursor);
     }
 
-    SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "RayTracingResources not Implented ");
+    if (!stripDataFlags.isClassDataStripped(
+      static_cast<uint8_t>(EFStaticMeshLODResourcesStripFlag::CDSF_RayTracingResources)))[[unlikely]] {
+      if (m_owner->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::UE5_6) {
+        cursor += 6 * sizeof(uint32_t);
+      }
+      cursor.skipBulkArray();
+    }
 
     // Skiping FWeightedRandomSampler // areaWeightedSectionSamplers areaWeightedSampler-> +1
     for (int i = 0; i < lodResources.sections.size() + 1; i++) {
@@ -146,16 +168,22 @@ namespace SAA {
       naniteResources.hierarchyNodes = m_cursor.readArray<FPackedHierarchyNode>();
       naniteResources.rootHierarchyOffset = m_cursor.readArray<uint32_t>();
       naniteResources.pageDependency = m_cursor.readArray<uint32_t>();
-      SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "AssemblyTransforms & MeshBounds not Implented "); // Should be UE5_6
+      if (m_owner->mappings()->pkgVersion.FileVersionUE5 >= EUE5Version::UE5_6) {
+        naniteResources.assemblyTransforms = m_cursor.readArray<glm::mat3x4>();
+        naniteResources.meshBounds = m_cursor.read<FBoxSphereBoundsF>();
+        assert(m_owner->mappings()->pkgVersion.FileVersionUE5 <= EUE5Version::UE5_6);
+        // Unreal 5.7 AssemblyBoneAttachmentData
+      }
       naniteResources.imposterAtlas = m_cursor.readArray<uint16_t>();
       naniteResources.numRootPages = m_cursor.read<uint32_t>();
       naniteResources.positionPrecision = m_cursor.read<int32_t>();
       naniteResources.normalPrecision = m_cursor.read<int32_t>();
       naniteResources.numInputTriangles = m_cursor.read<uint32_t>();
       naniteResources.numInputVertices = m_cursor.read<uint32_t>();
-      SAA_ASSERT_UE5_MAX(m_owner, UE5_5, "NumInputMeshes & NumInputTexCoords wont get Read any more"); // as of UE5_6
-      naniteResources.numInputMeshes = m_cursor.read<uint16_t>();
-      naniteResources.numTexCoords = m_cursor.read<uint16_t>();
+      if (m_owner->mappings()->pkgVersion.FileVersionUE5 < EUE5Version::UE5_6) {
+        naniteResources.numInputMeshes = m_cursor.read<uint16_t>();
+        naniteResources.numTexCoords = m_cursor.read<uint16_t>();
+      }
       naniteResources.numClusters = m_cursor.read<uint32_t>();
     }
   }
@@ -176,16 +204,17 @@ namespace SAA {
   void StaticMesh::parseStaticMaterials() {
     auto bHasSpeedTreeWind = m_cursor.readBool();
     if (bHasSpeedTreeWind) {
-
     } else {
       auto count = m_cursor.read<uint32_t>();
       m_materials.reserve(count);
       for (uint32_t i = 0; i < count; i++) {
-        m_materials.emplace_back(FStaticMaterial{.materialInterface = static_cast<MaterialInterface*>(
-                                                     m_owner->resolveIndex(m_cursor.read<int32_t>())),
-                                                 .materialSlotName = m_cursor.readFName(),
-                                                 .UVChannelInfo = FMeshUVChannelInfo::parse(m_cursor)});
+        m_materials.emplace_back(FStaticMaterial{
+          .materialInterface = static_cast<MaterialInterface *>(
+            m_owner->resolveIndex(m_cursor.read<int32_t>())),
+          .materialSlotName = m_cursor.readFName(),
+          .UVChannelInfo = FMeshUVChannelInfo::parse(m_cursor)
+        });
       }
     }
   }
-} 
+}

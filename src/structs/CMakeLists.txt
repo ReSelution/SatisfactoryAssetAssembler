@@ -5,6 +5,7 @@ add_library(SAA_Structs STATIC
         assets/satisfactory/ItemAmount.hpp
         core/EClassSerializationControlExtension.hpp
         core/hash.cpp
+        assets/textures/FSharedImage.hpp
 
 )
 

@@ -5,6 +5,7 @@
 #include "AssetParser.hpp"
 #include "property_parser.hpp"
 #include "core/EClassSerializationControlExtension.hpp"
+#include "io/packages/f_byte_bulk_data.hpp"
 
 
 namespace SAA {
@@ -41,16 +42,15 @@ namespace SAA {
     }
 
     auto name = cursor.readFName();
-    std::pmr::vector<FPropertyTypeNameNode> typeName(storage->resource());
-    typeName.reserve(10);
-    typeName.emplace_back(name, cursor.read<int32_t>());
-
-    int32_t nodeCount = 1;
+    std::array<FPropertyTypeNameNode, 10> typeName;
+    int32_t nodeCount = 0;
+    typeName[nodeCount] = {name, cursor.read<int32_t>()};
+    nodeCount++;
     int32_t remaining = typeName[0].innerCount;
     while (remaining > 0) {
       name = cursor.readFName();
-      auto &[Name, innerCount] = typeName.emplace_back(name, cursor.read<int32_t>());
-      remaining += innerCount - 1;
+      typeName[nodeCount] = {name, cursor.read<int32_t>()};
+      remaining += typeName[nodeCount].innerCount - 1;
       nodeCount++;
     }
 
@@ -59,13 +59,20 @@ namespace SAA {
     tag.TagData = parsePropertyTagData(storage, tag.PropertyType, typeName, tag.PropertyTypeName);
     tag.Size = cursor.read<uint32_t>();
     tag.Flags = cursor.read<EPropertyTagFlags>();
-    if (hasFlag(tag.Flags, EPropertyTagFlags::BoolTrue)) { tag.TagData->BoolValue = true; }
-    if (hasFlag(tag.Flags, EPropertyTagFlags::HasArrayIndex)) { tag.ArrayIndex = cursor.read<uint32_t>(); }
-    if (hasFlag(tag.Flags, EPropertyTagFlags::HasPropertyGuid)) { tag.PropertyGuid = cursor.read<FGuid>(); }
-    if (hasFlag(tag.Flags, EPropertyTagFlags::HasPropertyExtensions)) {
-      auto extensions = cursor.read<EPropertyTagExtension>();
-      if (hasFlag(extensions, EPropertyTagExtension::OverridableInformation)) {
-        cursor += 5;
+    static constexpr uint8_t ExtraDataMask =
+        (uint8_t) EPropertyTagFlags::HasArrayIndex |
+        (uint8_t) EPropertyTagFlags::HasPropertyGuid |
+        (uint8_t) EPropertyTagFlags::HasPropertyExtensions;
+
+    if ((uint8_t) tag.Flags & ExtraDataMask) [[unlikely]] {
+      if (hasFlag(tag.Flags, EPropertyTagFlags::BoolTrue))[[likely]] { tag.TagData->BoolValue = true; }
+      if (hasFlag(tag.Flags, EPropertyTagFlags::HasArrayIndex)) { tag.ArrayIndex = cursor.read<uint32_t>(); }
+      if (hasFlag(tag.Flags, EPropertyTagFlags::HasPropertyGuid)) { tag.PropertyGuid = cursor.read<FGuid>(); }
+      if (hasFlag(tag.Flags, EPropertyTagFlags::HasPropertyExtensions)) {
+        auto extensions = cursor.read<EPropertyTagExtension>();
+        if (hasFlag(extensions, EPropertyTagExtension::OverridableInformation)) {
+          cursor += 5;
+        }
       }
     }
 
@@ -85,7 +92,6 @@ namespace SAA {
           data->structName = pram[0].Name;
           data->StructType = SC::hash<ESatisfactoryStruct>(data->structName.text());
         }
-
         break;
       }
       case EPropertyTagType::Bool: {
@@ -133,111 +139,94 @@ namespace SAA {
     return data;
   }
 
+  template<typename T>
+  inline FPropertyValue read(ByteCursor &cursor) {
+    return FPropertyValue{cursor.read<T>()};
+  }
+
   template<>
   FPropertyValue PP6::parsePropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTag &tag,
                                          ReadType readType,
                                          uint32_t size) {
-    FPropertyValue val;
     // PropsTroughput::record(1);
     switch (tag.PropertyType) {
       case EPropertyTagType::Struct: {
-        val = parseStructPropertyValue(cursor, storage, tag.TagData, readType, size);
-        break;
+        return parseStructPropertyValue(cursor, storage, tag.TagData, readType, size);
       }
       case EPropertyTagType::Array: {
-        val = parseArrayPropertyValue(cursor, storage, tag.TagData, readType, size);
-        break;
+        return parseArrayPropertyValue(cursor, storage, tag.TagData, readType, size);
       }
       case EPropertyTagType::Map: {
-        val = parseMapProperty(cursor, storage, tag.TagData, size);
-        break;
+        return parseMapProperty(cursor, storage, tag.TagData, size);
       }
 
       case EPropertyTagType::Bool: {
-        val = PP3::parseBoolPropertyValue(cursor, storage, tag.TagData, readType);
-        break;
+        return PP3::parseBoolPropertyValue(cursor, storage, tag.TagData, readType);
       }
       case EPropertyTagType::Byte: {
         if (tag.TagData == nullptr || tag.TagData->EnumName.isNone()) {
-          val.data = cursor.read<uint8_t>();
-          break;
+          return FPropertyValue{cursor.read<uint8_t>()};
         }
       }
       case EPropertyTagType::Enum: {
-        val.data = cursor.readFName();
-        break;
+        return FPropertyValue{cursor.readFName()};
       }
       case EPropertyTagType::Text: {
-        val = PP3::parseTextPropertyValue(cursor, storage);
-        break;
+        return PP3::parseTextPropertyValue(cursor, storage);
       }
       case EPropertyTagType::Interface:
       case EPropertyTagType::Object: {
-        val = PP3::parseObjectPropertyValue(cursor, storage);
-        break;
+        return PP3::parseObjectPropertyValue(cursor, storage);
       }
       case EPropertyTagType::Set: {
-        val = PP3::parseSetPropertyValue(cursor, storage, tag.TagData);
-        break;
+        return PP3::parseSetPropertyValue(cursor, storage, tag.TagData);
       }
       case EPropertyTagType::Delegate: {
-        auto num = cursor.read<int32_t>();
-        val.data = cursor.readFName();
-        break;
+        cursor += sizeof(uint32_t);
       }
       case EPropertyTagType::Name: {
-        val.data = cursor.readFName();
-        break;
+        return FPropertyValue{cursor.readFName()};
       }
       case EPropertyTagType::Str: {
-        val.data = cursor.readFString();
-        break;
+        return FPropertyValue{cursor.readFString()};
       }
 
       case EPropertyTagType::Int8: {
-        val.data = cursor.read<int8_t>();
-        break;
+        return FPropertyValue{cursor.read<int8_t>()};
       };
       case EPropertyTagType::Int16: {
-        val.data = cursor.read<int16_t>();
-        return val;
+        return FPropertyValue{cursor.read<int16_t>()};
       }
       case EPropertyTagType::Int: {
-        val.data = cursor.read<int32_t>();
-        return val;
+        return FPropertyValue{cursor.read<int32_t>()};
       }
       case EPropertyTagType::Int64: {
-        val.data = cursor.read<int64_t>();
-        return val;
+        return FPropertyValue{cursor.read<int64_t>()};
       }
       case EPropertyTagType::UInt16: {
-        val.data = cursor.read<uint16_t>();
-        return val;
+        return FPropertyValue{cursor.read<uint16_t>()};
       }
       case EPropertyTagType::UInt32: {
-        val.data = cursor.read<uint32_t>();
-        return val;
+        return FPropertyValue{cursor.read<uint32_t>()};
       }
       case EPropertyTagType::UInt64: {
-        val.data = cursor.read<uint64_t>();
-        return val;
+        return FPropertyValue{cursor.read<uint64_t>()};
       }
       case EPropertyTagType::Float: {
-        val.data = cursor.read<float>();
-        return val;
+        return FPropertyValue{cursor.read<float>()};
       }
       case EPropertyTagType::Double: {
-        val.data = cursor.read<double>();
-        return val;
+        return FPropertyValue{cursor.read<double>()};
       }
 
       case EPropertyTagType::SoftObject: {
-        val.data = SoftObj{
-          cursor.readFName(),
-          cursor.readFName(),
-          cursor.readArray<uint8_t>(),
+        return FPropertyValue{
+          SoftObj{
+            cursor.readFName(),
+            cursor.readFName(),
+            cursor.readArray<uint8_t>(),
+          }
         };
-        break;
       }
 
       case EPropertyTagType::FieldPath:
@@ -249,34 +238,32 @@ namespace SAA {
       case EPropertyTagType::None:
         break;
       case EPropertyTagType::Unknown:
-      default:
-
+      default: {
         throw std::runtime_error("unknown property tag: " + std::string(tag.PropertyTypeName.text()) + " @ " +
                                  std::to_string(cursor.tell()));
+      }
     }
-    return val;
+    return {};
   }
 
   template<>
-  FPropertyValue PP6::parseArrayPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData,
+  FPropertyValue PP6::parseArrayPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage,
+                                              FPropertyTagData *tagData,
                                               ReadType type,
                                               uint32_t size) {
-    FPropertyValue val;
     auto arrayType = tagData->InnerType;
-    if (arrayType == EPropertyTagType::Unknown)
-      return val;
+    if (arrayType == EPropertyTagType::Unknown)[[unlikely]]
+      return {};
 
     auto lenght = cursor.read<uint32_t>();
     FPropertyTag tag;
-
 
     std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
     vec.reserve(lenght);
 
     switch (arrayType) {
       case EPropertyTagType::Byte: {
-        // Check if elements are larger than 1 byte to detect Enum arrays (FNames)
-        if (size == sizeof(uint32_t) ? false : (size - sizeof(uint32_t)) / lenght > 1) {
+        if ((size - sizeof(uint32_t)) > lenght) {
           tag.PropertyType = EPropertyTagType::Enum;
         } else {
           tag.PropertyType = EPropertyTagType::Byte;
@@ -284,8 +271,7 @@ namespace SAA {
         for (int i = 0; i < lenght; i++) {
           vec.emplace_back(parsePropertyValue(cursor, storage, tag, type, tag.Size));
         }
-        val.data = std::move(vec);
-        return val;
+        return FPropertyValue{std::move(vec)};
       }
       case EPropertyTagType::Struct: {
         tag.TagData = tagData->InnerTypeData;
@@ -298,9 +284,7 @@ namespace SAA {
     for (int i = 0; i < lenght; i++) {
       vec.emplace_back(parsePropertyValue(cursor, storage, tag, type, tag.Size));
     }
-    val.data = std::move(vec);
-
-    return val;
+    return FPropertyValue{std::move(vec)};
   }
 
   template<>
@@ -323,7 +307,8 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData,
+  FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage,
+                                               FPropertyTagData *tagData,
                                                ReadType type,
                                                uint32_t size) {
     FPropertyValue val;
@@ -334,73 +319,64 @@ namespace SAA {
 #endif
     switch (const auto structType = tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
       case ESatisfactoryStruct::Guid: {
-        val.data = cursor.read<FGuid>();
-        break;
+        return FPropertyValue{cursor.read<FGuid>()};
       }
       case ESatisfactoryStruct::IntPoint: {
-        val.data = cursor.read<IntPoint>();
-        break;
+        return FPropertyValue{cursor.read<IntPoint>()};
       }
       case ESatisfactoryStruct::Vector2f:
       case ESatisfactoryStruct::DeprecateSlateVector2D: {
-        val.data = cursor.read<FVector2F>();
-        break;
+        return FPropertyValue{cursor.read<FVector2F>()};
       }
       case ESatisfactoryStruct::Vector4:
       case ESatisfactoryStruct::Vector4d: {
-        val.data = cursor.read<FVector4d>();
-        break;
+        return FPropertyValue{cursor.read<FVector4D>()};
       }
       case ESatisfactoryStruct::Vector3f: {
-        val.data = cursor.read<FVector3F>();
-        break;
+        return FPropertyValue{cursor.read<FVector3F>()};
       }
       case ESatisfactoryStruct::Vector2D: {
-        val.data = cursor.read<FVector2D>();
-        break;
+        return FPropertyValue{cursor.read<FVector2D>()};
       }
       case ESatisfactoryStruct::IntVector: {
-        val.data = cursor.read<FIntVector>();
-        break;
+        return FPropertyValue{cursor.read<FIntVector>()};
       }
       case ESatisfactoryStruct::Quat: {
-        val.data = cursor.read<FQuat>();
-        break;
+        return FPropertyValue{cursor.read<FQuat>()};
       }
       case ESatisfactoryStruct::Box3f: {
-        val.data = cursor.read<FBox3f>();
+        return FPropertyValue{cursor.read<FBox3f>()};
       }
       case ESatisfactoryStruct::Box2f: {
-        val.data = cursor.read<FBox2f>();
-        break;
+        return FPropertyValue{cursor.read<FBox2f>()};
       }
       case ESatisfactoryStruct::Box: {
-        val.data = cursor.read<FBox>();
-        break;
+        return FPropertyValue{cursor.read<FBox>()};
       }
       case ESatisfactoryStruct::Vector: {
-        val.data = cursor.read<FVector>();
-        break;
+        return FPropertyValue{cursor.read<FVector>()};
       }
       case ESatisfactoryStruct::LinearColor: {
-        val.data = cursor.read<FLinearColor>();
-        break;
+        return FPropertyValue{cursor.read<FLinearColor>()};
       }
       case ESatisfactoryStruct::Color: {
-        val.data = cursor.read<FColor>();
-        break;
+        return FPropertyValue{cursor.read<FColor>()};
       }
       case ESatisfactoryStruct::RichCurveKey: {
-        val.data = cursor.read<FRichCurveKey>();
-        break;
+        return FPropertyValue{cursor.read<FRichCurveKey>()};
       }
 
       case ESatisfactoryStruct::Rotator: {
-        val.data = cursor.read<FRotator>();
-        break;
+        return FPropertyValue{cursor.read<FRotator>()};
+      }
+
+      case ESatisfactoryStruct::IntVector2: {
+        return FPropertyValue{cursor.read<FIntVector2>()};
       }
       // --- Sequencer / MovieScene (Cutscene Data) ---
       case ESatisfactoryStruct::MovieSceneTrackIdentifier:
+        cursor += 4;
+        break;
       case ESatisfactoryStruct::MovieSceneTrackIdentifiers:
       case ESatisfactoryStruct::MovieSceneFloatChannel:
       case ESatisfactoryStruct::MovieSceneDoubleChannel:
@@ -436,6 +412,7 @@ namespace SAA {
       case ESatisfactoryStruct::SmartName:
 
       // Data Bloat
+      case ESatisfactoryStruct::InstancedStruct:
       case ESatisfactoryStruct::Transform:
       case ESatisfactoryStruct::DateTime:
       case ESatisfactoryStruct::FrameNumber:
@@ -449,57 +426,60 @@ namespace SAA {
       }
 
       case ESatisfactoryStruct::PerQualityLevelInt: {
-        val.data = FPerQualityLevelInt::get(cursor);
+        return FPropertyValue{FPerQualityLevelInt::get(cursor)};
         break;
       }
       case ESatisfactoryStruct::PerQualityLevelFloat: {
-        val.data = FPerQualityLevelFloat::get(cursor);
+        return FPropertyValue{FPerQualityLevelFloat::get(cursor)};
         break;
       }
       case ESatisfactoryStruct::CompressedRichCurve: {
-        val.data = FCompressedRichCurve::get(cursor);
-        break;
+        return FPropertyValue{FCompressedRichCurve::get(cursor)};
       }
 
       case ESatisfactoryStruct::MaterialOverrideNanite: {
-        val.data = FMaterialOverrideNanite{
-          cursor.readFName(), cursor.readBool(),
-          cursor.m_owner->resolveIndex(cursor.read<int32_t>())
+        return FPropertyValue{
+          FMaterialOverrideNanite{
+            cursor.readFName(), cursor.readBool(),
+            cursor.m_owner->resolveIndex(cursor.read<int32_t>())
 
+          }
         };
-        break;
       }
       case ESatisfactoryStruct::SkeletalMeshSamplingLODBuiltData: {
-        val.data = FWeightedRandomSampler{
-          .probabilities = cursor.readArray<float>(),
-          .alias = cursor.readArray<int32_t>(),
-          .totlalWeight = cursor.read<float>(),
+        return FPropertyValue{
+          FWeightedRandomSampler{
+            .probabilities = cursor.readArray<float>(),
+            .alias = cursor.readArray<int32_t>(),
+            .totlalWeight = cursor.read<float>(),
+          }
         };
-        break;
       }
       case ESatisfactoryStruct::SoftObjectPath:
       case ESatisfactoryStruct::SoftClassPath: {
-        val.data = SoftObj{
-          cursor.readFName(),
-          cursor.readFName(),
-          cursor.readArray<uint8_t>()
+        return FPropertyValue{
+          SoftObj{
+            cursor.readFName(),
+            cursor.readFName(),
+            cursor.readArray<uint8_t>()
+          }
         };
-        break;
       }
       case ESatisfactoryStruct::PerPlatformInt: {
         cursor.readBool();
-        val.data = cursor.read<int32_t>();
-        break;
+        return FPropertyValue{cursor.read<int32_t>()};
       }
       case ESatisfactoryStruct::PerPlatformFloat: {
         cursor.readBool();
-        val.data = cursor.read<float>();
-        break;
+        return FPropertyValue{cursor.read<float>()};
       }
 
       case ESatisfactoryStruct::KeyHandleMap:
-        val.data = PropertyHolder{};
-        break;
+        return FPropertyValue{PropertyHolder{}};
+
+      case ESatisfactoryStruct::UniversalObjectLocatorFragment: {
+        auto FragmentTypeID = cursor.readFName();
+      }
       default:
         // #ifndef NDEBUG
         //         if (tagData) {
@@ -507,8 +487,7 @@ namespace SAA {
         //                           cursor.tell());
         //         }
         // #endif
-        val.data = parseFallbackStruct(cursor, storage);
-        break;
+        return FPropertyValue{parseFallbackStruct(cursor, storage)};
     }
     return val;
   }

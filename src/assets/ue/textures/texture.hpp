@@ -14,6 +14,7 @@
 #include "structs/exported_texture_data.hpp"
 
 #include "asset_object.hpp"
+#include "assets/textures/FSharedImage.hpp"
 
 namespace SAA {
   class TextureExporter;
@@ -43,7 +44,7 @@ namespace SAA {
     void parsePlatformData(ByteCursor &asset, bool parseMipData = true);
     void parseVirtualTexture(ByteCursor &asset);
     EPixelFormat m_format = EPixelFormat::PF_Unknown;
-    std::string m_pixelFormat;
+    EPixelFormat m_pixelFormat =  EPixelFormat::PF_Unknown;
 
   protected:
     void parse() override;
@@ -59,10 +60,12 @@ namespace SAA {
     int32_t m_sizeY;
     int32_t m_packedData;
     int32_t m_firstMipToSerialize;
+    FSharedImage sharedImage;
+
     std::vector<FTexture2DMipMap> m_mipmaps;
 
     void parseCookedPlatformData(ByteCursor &asset, bool parseMipData = true);
 
     FTexture2DMipMap parseTexture2dMipMap(ByteCursor &cursor, bool parseMipData = true);
   };
-} 
+}

@@ -12,5 +12,11 @@ namespace SAA {
     FVector extent;
     double sphereRadius;
   };
+
+  struct FBoxSphereBoundsF {
+    FVector3F origin;
+    FVector3F extent;
+    float sphereRadius;
+  };
 #pragma pack(pop)
 } 

@@ -250,7 +250,7 @@ namespace SAA {
       }
       case ESatisfactoryStruct::Vector4:
       case ESatisfactoryStruct::Vector4d: {
-        val.data = cursor.read<FVector4d>();
+        val.data = cursor.read<FVector4D>();
         break;
       }
       case ESatisfactoryStruct::Vector3f: {

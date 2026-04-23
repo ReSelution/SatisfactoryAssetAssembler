@@ -10,8 +10,7 @@ namespace SAA {
     if (object) {
       return object;
     }
-    auto pkg = FPackageId::fromName(pkgName.text());
-    parser = assetParser->loadPackage(pkg);
+    parser = assetParser->loadPackage(pkgName.text());
     if (!parser) {
       return nullptr;
     }
