@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug SAA (Satisfactory)",
+      "type": "codelldb",           
+      "request": "launch",
+      "program": "${workspaceFolder}/build/bin/saa", 
+      "args": ["/path/to/Satisfactory/Files"],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    }
+  ]
+}

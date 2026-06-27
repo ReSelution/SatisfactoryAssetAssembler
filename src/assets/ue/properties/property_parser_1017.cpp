@@ -3,9 +3,8 @@
 //
 
 #include "AssetParser.hpp"
-#include "property_parser.hpp"
 #include "core/EClassSerializationControlExtension.hpp"
-#include "io/packages/f_byte_bulk_data.hpp"
+#include "property_parser.hpp"
 
 
 namespace SAA {
@@ -13,7 +12,7 @@ namespace SAA {
   void PP6::parse(PropertyHolder *holder, ByteCursor &cursor, SC::ChaosBumpArena *storage) {
     auto controlByte = cursor.read<EClassSerializationControlExtension>();
     if (hasFlag(controlByte, EClassSerializationControlExtension::OverridableSerializationInformation)) {
-      auto op = cursor.read<uint8_t>();
+      cursor += 1;
     }
 
     while (true) {
@@ -22,8 +21,8 @@ namespace SAA {
         return;
       }
       auto final = cursor.tell() + tag.Size;
-      tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
-      cursor = final;
+      tag.Tag    = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
+      cursor     = final;
       holder->m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
     }
   }
@@ -43,31 +42,36 @@ namespace SAA {
 
     auto name = cursor.readFName();
     std::array<FPropertyTypeNameNode, 10> typeName;
-    int32_t nodeCount = 0;
+    int32_t nodeCount   = 0;
     typeName[nodeCount] = {name, cursor.read<int32_t>()};
     nodeCount++;
     int32_t remaining = typeName[0].innerCount;
     while (remaining > 0) {
-      name = cursor.readFName();
+      name                = cursor.readFName();
       typeName[nodeCount] = {name, cursor.read<int32_t>()};
       remaining += typeName[nodeCount].innerCount - 1;
       nodeCount++;
     }
 
     tag.PropertyTypeName = typeName[0].Name;
-    tag.PropertyType = SC::hash<EPropertyTagType>(tag.PropertyTypeName.text());
-    tag.TagData = parsePropertyTagData(storage, tag.PropertyType, typeName, tag.PropertyTypeName);
-    tag.Size = cursor.read<uint32_t>();
-    tag.Flags = cursor.read<EPropertyTagFlags>();
-    static constexpr uint8_t ExtraDataMask =
-        (uint8_t) EPropertyTagFlags::HasArrayIndex |
-        (uint8_t) EPropertyTagFlags::HasPropertyGuid |
-        (uint8_t) EPropertyTagFlags::HasPropertyExtensions;
+    tag.PropertyType     = SC::hash<EPropertyTagType>(tag.PropertyTypeName.text());
+    tag.TagData          = parsePropertyTagData(storage, tag.PropertyType, typeName, tag.PropertyTypeName);
+    tag.Size             = cursor.read<uint32_t>();
+    tag.Flags            = cursor.read<EPropertyTagFlags>();
+    static constexpr uint8_t ExtraDataMask = (uint8_t) EPropertyTagFlags::HasArrayIndex |
+                                             (uint8_t) EPropertyTagFlags::HasPropertyGuid |
+                                             (uint8_t) EPropertyTagFlags::HasPropertyExtensions;
 
     if ((uint8_t) tag.Flags & ExtraDataMask) [[unlikely]] {
-      if (hasFlag(tag.Flags, EPropertyTagFlags::BoolTrue))[[likely]] { tag.TagData->BoolValue = true; }
-      if (hasFlag(tag.Flags, EPropertyTagFlags::HasArrayIndex)) { tag.ArrayIndex = cursor.read<uint32_t>(); }
-      if (hasFlag(tag.Flags, EPropertyTagFlags::HasPropertyGuid)) { tag.PropertyGuid = cursor.read<FGuid>(); }
+      if (hasFlag(tag.Flags, EPropertyTagFlags::BoolTrue)) [[likely]] {
+        tag.TagData->BoolValue = true;
+      }
+      if (hasFlag(tag.Flags, EPropertyTagFlags::HasArrayIndex)) {
+        tag.ArrayIndex = cursor.read<uint32_t>();
+      }
+      if (hasFlag(tag.Flags, EPropertyTagFlags::HasPropertyGuid)) {
+        tag.PropertyGuid = cursor.read<FGuid>();
+      }
       if (hasFlag(tag.Flags, EPropertyTagFlags::HasPropertyExtensions)) {
         auto extensions = cursor.read<EPropertyTagExtension>();
         if (hasFlag(extensions, EPropertyTagExtension::OverridableInformation)) {
@@ -81,8 +85,7 @@ namespace SAA {
 
   template<>
   FPropertyTagData *PP6::parsePropertyTagData(SC::ChaosBumpArena *storage, EPropertyTagType type,
-                                              std::span<FPropertyTypeNameNode> typeName,
-                                              const FName &name) {
+                                              std::span<FPropertyTypeNameNode> typeName, const FName &name) {
     auto *data = storage->make<FPropertyTagData>();
     data->Name = name;
 
@@ -146,9 +149,8 @@ namespace SAA {
 
   template<>
   FPropertyValue PP6::parsePropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTag &tag,
-                                         ReadType readType,
-                                         uint32_t size) {
-    // PropsTroughput::record(1);
+                                         ReadType readType, uint32_t size) {
+    PropsTroughput::record(1);
     switch (tag.PropertyType) {
       case EPropertyTagType::Struct: {
         return parseStructPropertyValue(cursor, storage, tag.TagData, readType, size);
@@ -220,13 +222,11 @@ namespace SAA {
       }
 
       case EPropertyTagType::SoftObject: {
-        return FPropertyValue{
-          SoftObj{
+        return FPropertyValue{SoftObj{
             cursor.readFName(),
             cursor.readFName(),
             cursor.readArray<uint8_t>(),
-          }
-        };
+        }};
       }
 
       case EPropertyTagType::FieldPath:
@@ -248,11 +248,9 @@ namespace SAA {
 
   template<>
   FPropertyValue PP6::parseArrayPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage,
-                                              FPropertyTagData *tagData,
-                                              ReadType type,
-                                              uint32_t size) {
+                                              FPropertyTagData *tagData, ReadType type, uint32_t size) {
     auto arrayType = tagData->InnerType;
-    if (arrayType == EPropertyTagType::Unknown)[[unlikely]]
+    if (arrayType == EPropertyTagType::Unknown) [[unlikely]]
       return {};
 
     auto lenght = cursor.read<uint32_t>();
@@ -290,7 +288,7 @@ namespace SAA {
   template<>
   PropertyHolder PP6::parseFallbackStruct(ByteCursor &cursor, SC::ChaosBumpArena *storage) {
     using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, SC::IdentityHash>;
-    auto props = cursor.m_owner->storage()->make<denseMap>(cursor.m_owner->storage()->resource());
+    auto props     = cursor.m_owner->storage()->make<denseMap>(cursor.m_owner->storage()->resource());
     PropertyHolder structFallback(props);
     while (true) {
       auto tag = parsePropertyTag(cursor, storage);
@@ -298,19 +296,17 @@ namespace SAA {
         break;
       };
       auto pos = cursor.tell();
-      tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
+      tag.Tag  = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
       structFallback.m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
       tag.TagData = nullptr;
-      cursor = tag.Size + pos;
+      cursor      = tag.Size + pos;
     }
     return structFallback;
   }
 
   template<>
   FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage,
-                                               FPropertyTagData *tagData,
-                                               ReadType type,
-                                               uint32_t size) {
+                                               FPropertyTagData *tagData, ReadType type, uint32_t size) {
     FPropertyValue val;
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
 #ifndef NDEBUG
@@ -438,32 +434,21 @@ namespace SAA {
       }
 
       case ESatisfactoryStruct::MaterialOverrideNanite: {
-        return FPropertyValue{
-          FMaterialOverrideNanite{
-            cursor.readFName(), cursor.readBool(),
-            cursor.m_owner->resolveIndex(cursor.read<int32_t>())
+        return FPropertyValue{FMaterialOverrideNanite{cursor.readFName(), cursor.readBool(),
+                                                      cursor.m_owner->resolveIndex(cursor.read<int32_t>())
 
-          }
-        };
+        }};
       }
       case ESatisfactoryStruct::SkeletalMeshSamplingLODBuiltData: {
-        return FPropertyValue{
-          FWeightedRandomSampler{
+        return FPropertyValue{FWeightedRandomSampler{
             .probabilities = cursor.readArray<float>(),
-            .alias = cursor.readArray<int32_t>(),
-            .totlalWeight = cursor.read<float>(),
-          }
-        };
+            .alias         = cursor.readArray<int32_t>(),
+            .totlalWeight  = cursor.read<float>(),
+        }};
       }
       case ESatisfactoryStruct::SoftObjectPath:
       case ESatisfactoryStruct::SoftClassPath: {
-        return FPropertyValue{
-          SoftObj{
-            cursor.readFName(),
-            cursor.readFName(),
-            cursor.readArray<uint8_t>()
-          }
-        };
+        return FPropertyValue{SoftObj{cursor.readFName(), cursor.readFName(), cursor.readArray<uint8_t>()}};
       }
       case ESatisfactoryStruct::PerPlatformInt: {
         cursor.readBool();
@@ -507,7 +492,7 @@ namespace SAA {
       parsePropertyValue(cursor, storage, keyTag, ReadType::MAP, 0);
     }
 
-    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->resource());
+    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue>> vec(cursor.m_owner->storage()->resource());
     auto entries = cursor.read<uint32_t>();
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {
@@ -517,4 +502,4 @@ namespace SAA {
 
     return {.data = std::move(vec)};
   }
-}
+} // namespace SAA

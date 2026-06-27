@@ -31,7 +31,6 @@ target_sources(SAA_Structs
         core/package.hpp
         core/per_quality_level_props.hpp
         version.hpp
-        functions.hpp
 
 
         # --- Curves ---

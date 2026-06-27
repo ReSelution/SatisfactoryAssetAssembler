@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.24)
 project(SatisfactoryAssetAssembler LANGUAGES CXX)
 
 find_program(CCACHE_PROGRAM ccache)
-if (CCACHE_PROGRAM)
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    message(STATUS "ccache gefunden und aktiviert.")
-endif ()
+if(CCACHE_PROGRAM)
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  message(STATUS "ccache gefunden und aktiviert.")
+endif()
 include(CheckCXXCompilerFlag)
 
 # -------------------------------------------------------------------------
@@ -20,86 +20,86 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(ENABLE_ASAN "Enable AddressSanitizer (ASan)" OFF)
 
 
-if (WIN32 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(SAA_TARGETING_WINDOWS TRUE)
-    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        add_link_options("-static")
-        add_link_options("-static-libgcc")
-        add_link_options("-static-libstdc++")
-    endif ()
-else ()
-    set(SAA_TARGETING_WINDOWS FALSE)
-endif ()
+if(WIN32 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(SAA_TARGETING_WINDOWS TRUE)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_link_options("-static")
+    add_link_options("-static-libgcc")
+    add_link_options("-static-libstdc++")
+  endif()
+else()
+  set(SAA_TARGETING_WINDOWS FALSE)
+endif()
 
-if (NOT MSVC)
-    include(CheckCXXCompilerFlag)
+if(NOT MSVC)
+  include(CheckCXXCompilerFlag)
 
-    set(_SAA_LINKER "Default (Slow)")
+  set(_SAA_LINKER "Default (Slow)")
 
-    if (NOT SAA_TARGETING_WINDOWS)
-        check_cxx_compiler_flag("-fuse-ld=mold" SAA_HAS_MOLD)
-        check_cxx_compiler_flag("-fuse-ld=lld" SAA_HAS_LLD)
-    endif ()
+  if (NOT SAA_TARGETING_WINDOWS)
+    check_cxx_compiler_flag("-fuse-ld=mold" SAA_HAS_MOLD)
+    check_cxx_compiler_flag("-fuse-ld=lld" SAA_HAS_LLD)
+  endif()
 
-    if (SAA_HAS_MOLD AND NOT SAA_TARGETING_WINDOWS)
-        set(_SAA_LINKER "mold")
-        add_link_options("-fuse-ld=mold")
-    elseif (SAA_HAS_LLD AND NOT SAA_TARGETING_WINDOWS)
-        set(_SAA_LINKER "lld")
-        add_link_options("-fuse-ld=lld")
-    endif ()
+  if (SAA_HAS_MOLD AND NOT SAA_TARGETING_WINDOWS)
+    set(_SAA_LINKER "mold")
+    add_link_options("-fuse-ld=mold")
+  elseif(SAA_HAS_LLD AND NOT SAA_TARGETING_WINDOWS)
+    set(_SAA_LINKER "lld")
+    add_link_options("-fuse-ld=lld")
+  endif()
 
-    message(STATUS "[SAA] Using Linker: ${_SAA_LINKER}")
-endif ()
+  message(STATUS "[SAA] Using Linker: ${_SAA_LINKER}")
+endif()
 
 set(SAA_SANITIZER_FLAGS "")
-if (ENABLE_ASAN)
-    if (MSVC)
-        set(SAA_SANITIZER_FLAGS "/fsanitize=address")
-        add_link_options("/incremental:no")
-        message(STATUS "[SAA] ASan enabled for MSVC")
-    else ()
-        set(SAA_SANITIZER_FLAGS "-fsanitize=address" "-fno-omit-frame-pointer")
-        message(STATUS "[SAA] ASan enabled for GCC/Clang")
-    endif ()
+if(ENABLE_ASAN)
+  if(MSVC)
+    set(SAA_SANITIZER_FLAGS "/fsanitize=address")
+    add_link_options("/incremental:no")
+    message(STATUS "[SAA] ASan enabled for MSVC")
+  else()
+    set(SAA_SANITIZER_FLAGS "-fsanitize=address" "-fno-omit-frame-pointer")
+    message(STATUS "[SAA] ASan enabled for GCC/Clang")
+  endif()
 
-    # Apply to all targets automatically
-    add_compile_options(${SAA_SANITIZER_FLAGS})
-    add_link_options(${SAA_SANITIZER_FLAGS})
-endif ()
+  # Apply to all targets automatically
+  add_compile_options(${SAA_SANITIZER_FLAGS})
+  add_link_options(${SAA_SANITIZER_FLAGS})
+endif()
 
 add_library(SatisfactoryAssetAssembler STATIC)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT SAA_LTO_SUPPORTED OUTPUT error)
-if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MINGW)
-    set_target_properties(SatisfactoryAssetAssembler PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-    message(STATUS "[SAA] LTO enabled for SAA targets.")
-else ()
-    message(STATUS "[SAA] LTO skipped: ${error}")
-endif ()
+if(SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MINGW)
+  set_target_properties(SatisfactoryAssetAssembler PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+  message(STATUS "[SAA] LTO enabled for SAA targets.")
+else()
+  message(STATUS "[SAA] LTO skipped: ${error}")
+endif()
 
 
-if (NOT MSVC)
-    if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_compile_options(SatisfactoryAssetAssembler PUBLIC -O3 -fno-rtti)
+if(NOT MSVC)
+  if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(SatisfactoryAssetAssembler PUBLIC -O3 -fno-rtti)
 
-        if (NOT CMAKE_CROSSCOMPILING)
-            target_compile_options(SatisfactoryAssetAssembler PUBLIC -march=native)
-            message(STATUS "[SAA] Native optimizations enabled")
-        endif()
-    else ()
-        target_compile_options(SatisfactoryAssetAssembler PUBLIC -g -O0)
-        message(STATUS "[SAA] Debug mode: Optimizations disabled")
-    endif ()
-endif ()
+    if(NOT CMAKE_CROSSCOMPILING)
+      target_compile_options(SatisfactoryAssetAssembler PUBLIC -march=native)
+      message(STATUS "[SAA] Native optimizations enabled")
+    endif()
+  else()
+    target_compile_options(SatisfactoryAssetAssembler PUBLIC -g -O0)
+    message(STATUS "[SAA] Debug mode: Optimizations disabled")
+  endif()
+endif()
 
 
 # -------------------------------------------------------------------------
 # 2. Third Party (External)
 # -------------------------------------------------------------------------
-if (NOT TARGET StructuredChaos)
-    add_subdirectory(external/StructuredChaos)
-endif ()
+if(NOT TARGET StructuredChaos)
+  add_subdirectory(external/StructuredChaos)
+endif()
 add_subdirectory(external/cityhash)
 include(cmake/dependencies.cmake)
 
@@ -183,41 +183,41 @@ target_link_libraries(SatisfactoryAssetAssembler
 # -------------------------------------------------------------------------
 
 if (NOT SAA_TARGETING_WINDOWS)
-    add_executable(AssetRipperTest src/main.cpp)
+  add_executable(AssetRipperTest src/main.cpp)
 
-    if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set_target_properties(AssetRipperTest PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif ()
-    target_link_libraries(AssetRipperTest PRIVATE
+  if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_target_properties(AssetRipperTest PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+  endif ()
+  target_link_libraries(AssetRipperTest PRIVATE
             SatisfactoryAssetAssembler
             StructuredChaos
 
     )
-    if (NOT ENABLE_ASAN)
-        target_link_libraries(AssetRipperTest PRIVATE mimalloc-static)
-    endif ()
-    set_target_properties(AssetRipperTest PROPERTIES
+  if (NOT ENABLE_ASAN)
+    target_link_libraries(AssetRipperTest PRIVATE mimalloc-static)
+  endif ()
+  set_target_properties(AssetRipperTest PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
             OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
     )
 else ()
-    add_executable(AssetRipperTestWin src/main.cpp)
-    if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set_target_properties(AssetRipperTestWin PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif ()
-    target_link_libraries(AssetRipperTestWin PRIVATE
+  add_executable(AssetRipperTestWin src/main.cpp)
+  if (SAA_LTO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_target_properties(AssetRipperTestWin PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+  endif ()
+  target_link_libraries(AssetRipperTestWin PRIVATE
             SatisfactoryAssetAssembler
             StructuredChaos
     )
 
-    if (NOT ENABLE_ASAN)
-        target_link_libraries(AssetRipperTestWin PRIVATE mimalloc-static)
-    endif ()
-    set_target_properties(AssetRipperTestWin PROPERTIES
+  if (NOT ENABLE_ASAN)
+    target_link_libraries(AssetRipperTestWin PRIVATE mimalloc-static)
+  endif ()
+  set_target_properties(AssetRipperTestWin PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
             OUTPUT_NAME "AssetRipperTest-${CMAKE_BUILD_TYPE}"
     )
-    set_target_properties(AssetRipperTestWin PROPERTIES LINK_FLAGS "-Wl,--subsystem,console")
+  set_target_properties(AssetRipperTestWin PROPERTIES LINK_FLAGS "-Wl,--subsystem,console")
 
 endif ()
 
