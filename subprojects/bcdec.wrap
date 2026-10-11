@@ -1,0 +1,8 @@
+[wrap-git]
+url = https://github.com/iOrange/bcdec.git
+revision = 93628fe5627102fe5187b7eeb99122dec6612c36
+depth = 1
+patch_directory = bcdec
+
+[provide]
+bcdec = bcdec_dep

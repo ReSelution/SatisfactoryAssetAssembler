@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <span>
 #include <utility>
-#include "huge_page_resource.hpp"
+#include "sc/memory/huge_page_resource.hpp"
 #include "sc/memory/monotonic_resource.hpp"
 
 
@@ -26,7 +26,8 @@ namespace SAA {
     // m_storage steht vor m_Path, path ist bei seiner Initialisierung also noch nicht verschoben.
     Reader(Type type, std::filesystem::path path)
         : initBufferSize(std::filesystem::file_size(path)),
-          m_storage(static_cast<size_t>(alocMutipilyer * static_cast<double>(initBufferSize)), HugePageResource::get()),
+          m_storage(static_cast<size_t>(alocMutipilyer * static_cast<double>(initBufferSize)),
+                    sc::HugePageResource::get()),
           m_Path(std::move(path)),
           m_type(type) {}
 

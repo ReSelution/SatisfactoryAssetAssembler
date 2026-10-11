@@ -15,10 +15,9 @@
 
 #include "ankerl/unordered_dense.h"
 
-#include "huge_page_resource.hpp"
-
 #include "io/f_io_chunk_id.hpp"
 #include "sc/hash/hash.hpp"
+#include "sc/memory/huge_page_resource.hpp"
 #include "vfs_entry.hpp"
 
 namespace SAA {
@@ -41,13 +40,15 @@ namespace SAA {
     size_t index = std::numeric_limits<size_t>::max();
 
     void reserveIOStore(size_t count) {
-      auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(IOSTORE_ENTR_SIZE * count, HugePageResource::get());
+      auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(IOSTORE_ENTR_SIZE * count,
+                                                                        sc::HugePageResource::get());
       threadResources.push_back(std::move(pool));
       index = threadResources.size() - 1;
     }
 
     void reservePAK(size_t count) {
-      auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(PAK_ENTR_SIZE * count, HugePageResource::get());
+      auto pool = std::make_unique<std::pmr::monotonic_buffer_resource>(PAK_ENTR_SIZE * count,
+                                                                        sc::HugePageResource::get());
       threadResources.push_back(std::move(pool));
       index = threadResources.size() - 1;
     }

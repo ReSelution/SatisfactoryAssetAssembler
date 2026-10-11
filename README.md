@@ -21,7 +21,7 @@ Requires a C++23 compiler, [Meson](https://mesonbuild.com) 1.1 or newer and Ninj
 All dependencies are fetched as Meson subprojects.
 
 ```bash
-git clone --recursive https://github.com/ReSelution/SatisfactoryAssetAssembler.git
+git clone https://github.com/ReSelution/SatisfactoryAssetAssembler.git
 cd SatisfactoryAssetAssembler
 meson setup build/release --native-file cross/linux-clang.ini --buildtype=release -Db_lto=true
 meson compile -C build/release

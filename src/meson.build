@@ -83,7 +83,7 @@ saa_sources = files(
 saa_lib = static_library(
   'SatisfactoryAssetAssembler',
   saa_sources,
-  include_directories: [saa_inc, external_inc],
+  include_directories: saa_inc,
   dependencies: all_deps,
 )
 

@@ -6,13 +6,13 @@
 
 // Implementierung der Header aktivieren
 #define BCDEC_IMPLEMENTATION
-#include "bcdec/bcdec.h"
+#include "bcdec.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <cstring>
 #include <filesystem>
 
-#include "stb/stb_image_write.h"
+#include "stb_image_write.h"
 
 namespace SAA {
   std::vector<uint8_t> TextureDecoder::decompressDXT1(uint32_t width, uint32_t height, std::span<const uint8_t> data) {

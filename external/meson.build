@@ -15,18 +15,12 @@ fastgltf_dep = dependency(
   default_options: ['default_library=static'],
 )
 
-# Vendored in the tree. stb and bcdec are header-only and included as
-# "stb/..." and "bcdec/...", so this directory is their include root.
-external_inc = include_directories('.')
+# Header-only, pinned to the commits the git submodules pointed to.
+stb_dep = dependency('stb', fallback: ['stb', 'stb_dep'])
+bcdec_dep = dependency('bcdec', fallback: ['bcdec', 'bcdec_dep'])
 
-cityhash_inc = include_directories('cityhash')
-cityhash_lib = static_library(
-  'cityhash',
-  'cityhash/city.cc',
-  include_directories: cityhash_inc,
-  override_options: ['cpp_std=c++17'],
-)
-cityhash_dep = declare_dependency(include_directories: cityhash_inc, link_with: cityhash_lib)
+# Vendored in subprojects/cityhash, there is no wrap for it.
+cityhash_dep = dependency('cityhash', fallback: ['cityhash', 'cityhash_dep'])
 
 # dlopen() for the Oodle library
 dl_dep = cpp.find_library('dl', required: false)
@@ -35,6 +29,8 @@ all_deps = [
   sc_dep,
   fastgltf_dep,
   cityhash_dep,
+  stb_dep,
+  bcdec_dep,
   dependency('threads'),
   dl_dep,
 ]

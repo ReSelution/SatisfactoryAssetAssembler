@@ -4,12 +4,18 @@
 
 # Keep our own wrap files
 !StructuredChaos.wrap
+!bcdec.wrap
 !fastgltf.wrap
 !simdjson.wrap
+!stb.wrap
 
 # Keep packagefiles folder and its contents
 !packagefiles/
 !packagefiles/**
+
+# Keep the vendored subprojects that have no wrap
+!cityhash/
+!cityhash/**
 
 # Keep this .gitignore file
 !.gitignore
