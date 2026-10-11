@@ -23,11 +23,12 @@ All dependencies are fetched as Meson subprojects.
 ```bash
 git clone https://github.com/ReSelution/SatisfactoryAssetAssembler.git
 cd SatisfactoryAssetAssembler
-meson setup build/release --native-file cross/linux-clang.ini --buildtype=release -Db_lto=true
+meson setup build/release --native-file cross/linux-clang.ini --buildtype=release -Db_lto=true -Db_ndebug=true
 meson compile -C build/release
 ```
 
-`cross/linux-clang.ini` selects Clang with mold and ccache. Other configurations:
+`cross/linux-clang.ini` selects Clang with mold and ccache. `-Db_ndebug=true` matters: without it the
+crawler, the provider and the localizations run on a single thread. Other configurations:
 
 ```bash
 # Optimized with debug symbols, for profiling
