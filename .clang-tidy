@@ -1,0 +1,33 @@
+# Same checks as StructuredChaos.
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-throwing-static-initialization,
+  clang-analyzer-*,
+  -clang-analyzer-optin.performance.Padding,
+  concurrency-*,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-virtual-class-destructor,
+  misc-*,
+  -misc-const-correctness,
+  -misc-include-cleaner,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+  modernize-*,
+  -modernize-avoid-c-arrays,
+  -modernize-use-trailing-return-type,
+  performance-*,
+  -performance-enum-size,
+  readability-*,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-simplify-subscript-expr,
+  -readability-uppercase-literal-suffix
+# Only our own headers: not the vendored ones in external/ and not the
+# subprojects, StructuredChaos among them.
+HeaderFilterRegex: '(^|/)src/'
+ExcludeHeaderFilterRegex: '(^|/)(subprojects|external)/'
+FormatStyle: file
