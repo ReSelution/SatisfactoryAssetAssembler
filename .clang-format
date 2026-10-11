@@ -1,13 +1,28 @@
-# Generated from CLion C/C++ Code Style settings
+# Shared by StructuredChaos and SatisfactoryAssetAssembler.
 ---
 Language: Cpp
 BasedOnStyle: LLVM
-AlignConsecutiveAssignments: true
+
+ColumnLimit: 120
+TabWidth: 2
+NamespaceIndentation: All
+IndentCaseLabels: true
+MaxEmptyLinesToKeep: 2
+InsertNewlineAtEOF: true
+
+AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignOperands: true
 AlignTrailingComments: false
+
 AlwaysBreakTemplateDeclarations: Yes
-BraceWrapping: 
+BreakConstructorInitializers: AfterColon
+BreakConstructorInitializersBeforeComma: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+
+# Everything on the line of its statement, nothing split off.
+BreakBeforeBraces: Custom
+BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false
   AfterControlStatement: false
@@ -24,25 +39,7 @@ BraceWrapping:
   SplitEmptyFunction: false
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
-BreakBeforeBraces: Custom
-BreakConstructorInitializers: AfterColon
-BreakConstructorInitializersBeforeComma: false
-ColumnLimit: 120
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-IncludeCategories: 
-  - Regex: '^<.*'
-    Priority: 1
-  - Regex: '^".*'
-    Priority: 2
-  - Regex: '.*'
-    Priority: 3
-IncludeIsMainRegex: '([-_](test|unittest))?$'
-IndentCaseLabels: true
-InsertNewlineAtEOF: true
-MacroBlockBegin: ''
-MacroBlockEnd: ''
-MaxEmptyLinesToKeep: 2
-NamespaceIndentation: All
+
 SpaceAfterCStyleCast: true
 SpaceAfterTemplateKeyword: false
 SpaceBeforeRangeBasedForLoopColon: false
@@ -51,5 +48,25 @@ SpacesInAngles: false
 SpacesInConditionalStatement: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
-TabWidth: 2
+
+MacroBlockBegin: ''
+MacroBlockEnd: ''
+
+# Includes are sorted into blocks, separated by an empty line:
+# own header, Catch2, standard library, third party, StructuredChaos, project.
+IncludeBlocks: Regroup
+IncludeIsMainRegex: '([-_](test|unittest))?$'
+IncludeCategories:
+  - Regex: '^<catch2/'
+    Priority: 1
+  - Regex: '^<[a-z_]+>$'
+    Priority: 2
+  - Regex: '^<'
+    Priority: 3
+  - Regex: '^"(ankerl|bcdec|entt|fastgltf|glm|mimalloc|pfr|rapidhash|simdjson|simdutf|spdlog|stb|xsimd)'
+    Priority: 3
+  - Regex: '^"sc/'
+    Priority: 4
+  - Regex: '^"'
+    Priority: 5
 ...
