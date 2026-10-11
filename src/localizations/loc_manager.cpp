@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "AssetParser.hpp"
+#include "runtime_options.hpp"
 #include "sc/logger/logger.hpp"
 #include "sc/stats/stats.hpp"
 #include "sc/stats/throughput.hpp"
@@ -88,24 +89,21 @@ namespace SAA {
         loadLoc(resPath);
       }
     }
-#ifndef NDEBUG
-    for (auto &parser: parsers) {
-      parser.parse();
+    if (runtimeOptions().serial) {
+      for (auto &parser: parsers) {
+        parser.parse();
+      }
+    } else {
+      sc::Magpie::get()->clear();
+      sc::stats::Timer t([magpie = sc::Magpie::get()](sc::stats::TimeResult res) {
+        LocMngLog::info("Parsed {} Strings in {:.2f}{}", magpie->size(), res.value, res.suffix);
+      });
+      sc::threading::detachBatch<sc::threading::Priority::High>(
+          std::move(parsers), [](LocResParser parser) { parser.parse(); }, [timer = std::move(t)]() mutable {
+            timer.stop();
+            LocMngLog::stats<sc::MagpieInsert, sc::MagpieMEM, sc::threading::PoolThroughput>("Magpie");
+          });
     }
-#else
-
-
-    sc::Magpie::get()->clear();
-    sc::stats::Timer t([magpie = sc::Magpie::get()](sc::stats::TimeResult res) {
-      LocMngLog::info("Parsed {} Strings in {:.2f}{}", magpie->size(), res.value, res.suffix);
-    });
-    sc::threading::detachBatch<sc::threading::Priority::High>(
-        std::move(parsers), [](LocResParser parser) { parser.parse(); }, [timer = std::move(t)]() mutable {
-          timer.stop();
-          LocMngLog::stats<sc::MagpieInsert, sc::MagpieMEM, sc::threading::PoolThroughput>("Magpie");
-        });
-
-#endif
     loadedIndex = cultureIndex;
   }
 } // namespace SAA

@@ -16,6 +16,7 @@
 #include "UsmapReader.hpp"
 #include "crawler.hpp"
 #include "io_global_data.hpp"
+#include "runtime_options.hpp"
 
 #include "exporter.hpp"
 #include "sc/localizations/magpie_string.hpp"
@@ -38,53 +39,52 @@ namespace SAA {
 
   bool SatisfactoryDataProvider::load() {
     auto t = ProviderLog::time("Loaded in {}");
-#ifdef NDEBUG
-    std::vector<std::future<void>> parsableFutures;
-    parsableFutures.reserve(m_Parsers.size() + 2);
-    parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_UsmapParser->parse(m_usmapData); }));
-    parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_globalDataParser->parse(m_globalData); }));
+    if (runtimeOptions().serial) {
+      ProviderLog::info("Running serial: sequential load.");
 
+      // 1. Basis-Parser direkt ausführen
+      m_UsmapParser->parse(m_usmapData);
+      m_globalDataParser->parse(m_globalData);
 
-    std::vector<Vfs> childVFS;
-    const size_t slots = threadSlots();
-    childVFS.reserve(slots);
-    for (size_t i = 0; i < slots; i++) {
-      childVFS.emplace_back(SAA::Vfs::getChild());
-    }
+      // 2. Ein einzelnes Child-VFS für den aktuellen Thread
+      auto child = SAA::Vfs::getChild();
 
-    for (const auto &val: m_Parsers | std::views::values) {
-      auto *currentParser = val.get();
-      parsableFutures.emplace_back(sc::threading::enqueue([&, currentParser]() {
-        auto &child = childVFS[sc::threading::thread_id()];
+      for (const auto &val: m_Parsers | std::views::values) {
+        auto *currentParser = val.get();
+
         currentParser->load();
-        currentParser->mountVFS(&child);
+        currentParser->mountVFS(&m_vfs);
+
+        // Da wir sequenziell arbeiten, können wir direkt mergen
         m_vfs.mergeChild(child);
-      }));
+      }
+    } else {
+      std::vector<std::future<void>> parsableFutures;
+      parsableFutures.reserve(m_Parsers.size() + 2);
+      parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_UsmapParser->parse(m_usmapData); }));
+      parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_globalDataParser->parse(m_globalData); }));
+
+      std::vector<Vfs> childVFS;
+      const size_t slots = threadSlots();
+      childVFS.reserve(slots);
+      for (size_t i = 0; i < slots; i++) {
+        childVFS.emplace_back(SAA::Vfs::getChild());
+      }
+
+      for (const auto &val: m_Parsers | std::views::values) {
+        auto *currentParser = val.get();
+        parsableFutures.emplace_back(sc::threading::enqueue([&, currentParser]() {
+          auto &child = childVFS[sc::threading::thread_id()];
+          currentParser->load();
+          currentParser->mountVFS(&child);
+          m_vfs.mergeChild(child);
+        }));
+      }
+
+      for (auto &f: parsableFutures) {
+        f.wait();
+      }
     }
-
-    for (auto &f: parsableFutures)
-      f.wait();
-#else
-    // --- DEBUG MODUS: Sequenziell ---
-    ProviderLog::info("Running in Debug mode: Sequential load.");
-
-    // 1. Basis-Parser direkt ausführen
-    m_UsmapParser->parse(m_usmapData);
-    m_globalDataParser->parse(m_globalData);
-
-    // 2. Ein einzelnes Child-VFS für den aktuellen Thread
-    auto child = SAA::Vfs::getChild();
-
-    for (const auto &val: m_Parsers | std::views::values) {
-      auto *currentParser = val.get();
-
-      currentParser->load();
-      currentParser->mountVFS(&m_vfs);
-
-      // Da wir sequenziell arbeiten, können wir direkt mergen
-      m_vfs.mergeChild(child);
-    }
-#endif
     // sc::threading::detach([&]() {
     //   m_vfs.dumpToText("output/files.txt");;
     // });

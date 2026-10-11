@@ -13,6 +13,7 @@
 #include "satisfactory/fg_schematic.hpp"
 #include "satisfactory/items/fg_item_descriptor.hpp"
 #include "satisfactory/items/fg_item_descriptor_biomass.hpp"
+#include "runtime_options.hpp"
 #include "stats.hpp"
 #include "thread_slots.hpp"
 #include "vfs.hpp"
@@ -51,16 +52,17 @@ namespace SAA {
   auto Crawler::createFileQueue(AssetParser &parser, size_t &files) {
     Vfs *vfs = parser.getVfs();
     files    = 0;
-#ifndef NDEBUG
-    for (const auto &entry: vfs->entries()) {
-      if (shouldAdd(entry.second)) {
-        files++;
-        parser.parseAsset(entry.second->packagePath,
-                          [&](std::shared_ptr<AssetFileParser> &&file) { onParsed(std::move(file)); });
+    if (runtimeOptions().serial) {
+      for (const auto &entry: vfs->entries()) {
+        if (shouldAdd(entry.second)) {
+          files++;
+          parser.parseAsset(entry.second->packagePath,
+                            [&](std::shared_ptr<AssetFileParser> &&file) { onParsed(std::move(file)); });
+        }
       }
+      return;
     }
 
-#else
     std::vector<std::string_view> batch;
     batch.reserve(vfs->entries().size());
     for (const auto &entry: vfs->entries()) {
@@ -75,7 +77,6 @@ namespace SAA {
           path, [this, id](std::shared_ptr<AssetFileParser> &&file) { this->m_childs[id].onParsed(std::move(file)); });
     });
     fut.wait();
-#endif
   }
 
 
@@ -85,7 +86,7 @@ namespace SAA {
       m_childs.emplace_back(getChild());
     }
     size_t files   = 0;
-    size_t threads = slots - 1;
+    size_t threads = runtimeOptions().serial ? 1 : slots - 1;
 
     auto t = CrawlerLog::time("Parsed {1} Files in {0} on {2} Threads", files, threads);
     sc::ArenaPool::init(slots * 16, 32 * 1024);
