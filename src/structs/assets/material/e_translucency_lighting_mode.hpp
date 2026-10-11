@@ -4,7 +4,7 @@
 
 #pragma once
 #include <cstdint>
-#include "hash/hash.hpp"
+#include "sc/hash/hash.hpp"
 
 namespace SAA {
     enum class ETranslucencyLightingMode : uint64_t {

@@ -3,18 +3,15 @@
 //
 
 #pragma once
-#include <queue>
+#include <cstddef>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "loc_meta_parser.hpp"
 #include "loc_res_parser.hpp"
-#include "localizations/magpie_translator.hpp"
-
-namespace std {
-  class thread;
-}
+#include "sc/localizations/magpie_translator.hpp"
 
 namespace SAA {
   class AssetParser;
@@ -31,7 +28,8 @@ namespace SAA {
     void load();
 
   private:
-    void mergeCultures(SC::magpieMAP &culture);
+    // TODO: Nur deklariert, nirgends definiert oder aufgerufen.
+    void mergeCultures(sc::magpieMAP &culture);
 
     AssetParser *m_parser = nullptr;
 

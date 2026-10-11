@@ -12,18 +12,20 @@
 #include "Decompressor.hpp"
 #include "IOStoreReader.hpp"
 #include "PAKReader.hpp"
+#include "PropertyTracker.hpp"
 #include "UsmapReader.hpp"
 #include "crawler.hpp"
 #include "io_global_data.hpp"
-#include "PropertyTracker.hpp"
 
 #include "exporter.hpp"
+#include "sc/localizations/magpie_string.hpp"
+#include "sc/logger/logger.hpp"
 #include "stats.hpp"
-#include "logger/chaos_logger.hpp"
-#include "threading/chaos_threading.hpp"
-#include "localizations/magpie_string.hpp"
+#include "sc/stats/core.hpp"
+#include "sc/threading/threading.hpp"
+#include "thread_slots.hpp"
 
-LOG_ALIAS(ProviderLog, "SAA", "Provider")
+using ProviderLog = sc::Logger<"SAA", "Provider">;
 
 namespace SAA {
   SatisfactoryDataProvider::SatisfactoryDataProvider(const std::filesystem::path &baseInstallPath) {
@@ -37,24 +39,23 @@ namespace SAA {
   bool SatisfactoryDataProvider::load() {
     auto t = ProviderLog::time("Loaded in {}");
 #ifdef NDEBUG
-    std::vector<std::future<void> > parsableFutures;
+    std::vector<std::future<void>> parsableFutures;
     parsableFutures.reserve(m_Parsers.size() + 2);
-    parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&](int id) { m_UsmapParser->parse(m_usmapData); }));
-    parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&](int id) {
-      m_globalDataParser->parse(m_globalData);
-    }));
+    parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_UsmapParser->parse(m_usmapData); }));
+    parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_globalDataParser->parse(m_globalData); }));
 
 
     std::vector<Vfs> childVFS;
-    childVFS.reserve(m_Parsers.size());
-    for (int i = 0; i < SC::ChaosThreading::getNumThreads(); i++) {
+    const size_t slots = threadSlots();
+    childVFS.reserve(slots);
+    for (size_t i = 0; i < slots; i++) {
       childVFS.emplace_back(SAA::Vfs::getChild());
     }
 
     for (const auto &val: m_Parsers | std::views::values) {
       auto *currentParser = val.get();
-      parsableFutures.emplace_back(SC::ChaosThreading::enqueue([&, currentParser](int id) {
-        auto &child = childVFS[id];
+      parsableFutures.emplace_back(sc::threading::enqueue([&, currentParser]() {
+        auto &child = childVFS[sc::threading::thread_id()];
         currentParser->load();
         currentParser->mountVFS(&child);
         m_vfs.mergeChild(child);
@@ -84,7 +85,7 @@ namespace SAA {
       m_vfs.mergeChild(child);
     }
 #endif
-    // SC::ChaosThreading::detach([&](int id) {
+    // sc::threading::detach([&]() {
     //   m_vfs.dumpToText("output/files.txt");;
     // });
 
@@ -94,15 +95,14 @@ namespace SAA {
 
   void SatisfactoryDataProvider::crawl() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-    CHAOS_RESET_ALL()
-    CHAOS_RESET(DecompressedThroughput)
-    CHAOS_RESET(CompressedThroughput)
+    sc::stats::reset_all();
+    DecompressedThroughput::reset();
+    CompressedThroughput::reset();
     parser.loadRes();
     Crawler crawler;
     crawler.crawl(parser);
 
-    SC::Magpie::get()->dumpToFile("output/magpie.json");
-    std::string_view s;
+    sc::Magpie::get()->dumpToFile("output/magpie.json");
   }
 
   void SatisfactoryDataProvider::test() {
@@ -111,21 +111,23 @@ namespace SAA {
 
     ProviderLog::info("Testing with {} files", m_vfs.entries().size());
     auto val = m_vfs.entries().values();
-    CHAOS_RESET_ALL()
-    CHAOS_RESET(DecompressedThroughput)
-    CHAOS_RESET(CompressedThroughput)
-    SC::ChaosThreading::detacheBatch(val, [&parser](int id, auto entry) {
-      if (entry.second->isPkg) {
-        parser.parseAsset(entry.second->packagePath,
-                          [](std::shared_ptr<AssetFileParser> &file) {
-                            file->loadExports();
-                            // file->exportAssets();
-                          });
-      }
-    }, nullptr);
-    SC::ChaosThreading::wait_until_finished();
-    CHAOS_STATS_LOG(ProviderLog, "Crawled", DecompressedThroughput, CompressedThroughput)
-    CHAOS_REPORT()
+    sc::stats::reset_all();
+    DecompressedThroughput::reset();
+    CompressedThroughput::reset();
+    sc::threading::detachBatch(
+        val,
+        [&parser](auto entry) {
+          if (entry.second->isPkg) {
+            parser.parseAsset(entry.second->packagePath, [](std::shared_ptr<AssetFileParser> &&file) {
+              file->loadExports();
+              // file->exportAssets();
+            });
+          }
+        },
+        nullptr);
+    sc::threading::wait_until_finished();
+    ProviderLog::stats<DecompressedThroughput, CompressedThroughput>("Crawled");
+    sc::stats::report_all<ProviderLog>();
     // DBG_PRINT_MISSING();
   }
 
@@ -151,8 +153,8 @@ namespace SAA {
         if (entry.is_symlink()) {
           continue;
         }
-        auto path = entry.path();
-        auto ext = path.extension().string();
+        auto path     = entry.path();
+        auto ext      = path.extension().string();
         auto basename = path.string();
 
         if (ext == ".pak") {
@@ -178,7 +180,5 @@ namespace SAA {
   }
 
 
-  void SatisfactoryDataProvider::setECS(SC::ChaosRegistry *reg) {
-    Exporter::setECS(reg);
-  }
-}
+  void SatisfactoryDataProvider::setECS(sc::ecs::Registry *reg) { Exporter::setECS(reg); }
+} // namespace SAA

@@ -1,0 +1,8 @@
+option('enable_chaos_stats', type: 'boolean', value: true, description: 'Enable Chaos Stats')
+option('dump_magpie', type: 'boolean', value: false, description: 'Enable Magpie Dumping')
+option(
+  'native_arch',
+  type: 'boolean',
+  value: true,
+  description: 'Tune for the CPU of the build machine (-march=native), ignored when cross compiling',
+)

@@ -2,19 +2,21 @@
 // Created by oleub on 17.04.26.
 //
 
-#include <random>
 #include "game_file.hpp"
+
+#include <cassert>
+#include <thread>
+#include <vector>
+
 #include "core/name.hpp"
-#include "threading/chaos_threading.hpp"
 
 namespace SAA {
-  GameFile::GameFile(SC::ChaosBumpArena *storage) : m_storage(storage) {
-  }
+  GameFile::GameFile(sc::MonotonicResource *storage) : m_storage(storage) {}
 
   ByteCursor GameFile::subspan(size_t offset, size_t size) {
     auto old = m_cursor;
     m_cursor = offset;
-    if (!load(size))[[unlikely]] {
+    if (!load(size)) [[unlikely]] {
       throw std::runtime_error("subspan out of range");
     }
 
@@ -39,12 +41,10 @@ namespace SAA {
     m_cursor = newPos;
   }
 
-  std::span<std::string_view> GameFile::loadNameBatch() {
-    return loadNameBatch(m_storage);
-  }
+  std::span<std::string_view> GameFile::loadNameBatch() { return loadNameBatch(m_storage); }
 
 
-  std::span<std::string_view> GameFile::loadNameBatch(SC::ChaosBumpArena *utf16Storage) {
+  std::span<std::string_view> GameFile::loadNameBatch(sc::MonotonicResource *utf16Storage) {
     auto count = read<uint32_t>();
     if (count == 0)
       return {};
@@ -58,17 +58,19 @@ namespace SAA {
     auto entries = utf16Storage->allocateSpan<std::string_view>(count);
 
     for (uint32_t i = 0; i < count; ++i) {
-      const auto &header = headers[i];
+      const auto &header    = headers[i];
       const uint32_t length = header.Length();
 
       if (header.IsUtf16()) {
         auto chars = readArray<char16_t>(length);
-        auto res = utf16Storage->utf16ToUtf8(chars);
+        auto res   = utf16ToUtf8(*utf16Storage, chars);
         entries[i] = res;
       } else {
+        // TODO: Der Rueckgabewert von load() wird ignoriert. Schlaegt das Laden fehl oder liegt length hinter dem
+        // Dateiende, zeigt die View unten auf nicht geladene bzw. fremde Bytes. War vor der Portierung schon so.
         load(length);
         const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
-        entries[i] = {startPos, length};
+        entries[i]           = {startPos, length};
         m_cursor += length;
       }
     }
@@ -76,13 +78,11 @@ namespace SAA {
   }
 
 
-  GameFileImpl::GameFileImpl(const size_t fileSize)
-    : fileSize(fileSize) {
-  }
+  GameFileImpl::GameFileImpl(const size_t fileSize) : fileSize(fileSize) {}
 
   bool GameFileImpl::isLoaded(size_t targetOffset, size_t size, size_t &index) {
     const size_t targetEnd = targetOffset + size;
-    bool foundStart = false;
+    bool foundStart        = false;
 
     if (index == chunkOffsetsLoaded.size()) {
       index = 0;
@@ -93,15 +93,15 @@ namespace SAA {
     }
 
     for (size_t i = index; i < chunkOffsetsLoaded.size(); ++i) {
-      const auto &entry = chunkOffsetsLoaded[i];
+      const auto &entry              = chunkOffsetsLoaded[i];
       const size_t currentChunkStart = entry.load(std::memory_order_relaxed) & VALUE_MASK;
       if (!foundStart) {
         size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                  ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                  : fileSize;
+                                    ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                    : fileSize;
 
         if (targetOffset >= currentChunkStart && targetOffset < nextChunkStart) {
-          index = i;
+          index      = i;
           foundStart = true;
         } else {
           continue;
@@ -113,8 +113,8 @@ namespace SAA {
       }
 
       size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                : fileSize;
+                                  ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                  : fileSize;
 
       if (nextChunkStart >= targetEnd) {
         end = nextChunkStart - 1;
@@ -140,50 +140,76 @@ namespace SAA {
 
   bool GameFileImpl::tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst) {
     size_t cIdx = chunIdx;
-    std::vector<size_t> chunksToLoad;
-    chunksToLoad.reserve(chunkOffsetsLoaded.size());
-    for (size_t offset = targetOffset; offset < targetOffset + size;) {
-      auto &atomic = chunkOffsetsLoaded[cIdx];
-      auto expected = atomic.load(std::memory_order_relaxed);
-      size_t nextChunkStart = (cIdx + 1 < chunkOffsetsLoaded.size())
+
+    size_t nextChunkStart = (cIdx + 1 < chunkOffsetsLoaded.size())
                                 ? (chunkOffsetsLoaded[cIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
                                 : fileSize;
-      offset = nextChunkStart;
-      if (expected & FINISHED_BIT) {
-        cIdx++;
-      };
+    if (nextChunkStart < targetOffset + size) {
+
+      std::vector<size_t> chunksToLoad;
+      chunksToLoad.reserve(chunkOffsetsLoaded.size());
+      for (size_t offset = targetOffset; offset < targetOffset + size;) {
+        auto &atomic          = chunkOffsetsLoaded[cIdx];
+        auto expected         = atomic.load(std::memory_order_relaxed);
+        size_t nextChunkStart = (cIdx + 1 < chunkOffsetsLoaded.size())
+                                    ? (chunkOffsetsLoaded[cIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                    : fileSize;
+        offset                = nextChunkStart;
+        if (expected & FINISHED_BIT) {
+          cIdx++;
+          continue;
+        };
+        if (!(expected & LOADING_BIT)) {
+          uint64_t desired = expected | LOADING_BIT;
+          if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
+            chunksToLoad.emplace_back(cIdx);
+          }
+          cIdx++;
+        }
+      }
+      // TODO: Die Chunks werden hier nacheinander im aufrufenden Thread geladen. Vorher lief das ueber
+      // SC::ChaosThreading::parralelFor. Sobald sc::threading::parallelFor(count, grain, fn(first, last)) aus dem
+      // ecs-Branch von StructuredChaos auf master ist, hier wieder parallel laden: es blockiert, darf aus Pool-Tasks
+      // aufgerufen werden und der Aufrufer arbeitet selbst mit, die Worker koennen sich also nicht gegenseitig
+      // blockieren.
+      for (size_t i: chunksToLoad) {
+        if (load(i, dst)) [[likely]] {
+          chunkOffsetsLoaded[i].fetch_or(FINISHED_BIT, std::memory_order_release);
+        }
+      }
+    } else {
+      auto &atomic  = chunkOffsetsLoaded[cIdx];
+      auto expected = atomic.load(std::memory_order_relaxed);
       if (!(expected & LOADING_BIT)) {
         uint64_t desired = expected | LOADING_BIT;
         if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
-          chunksToLoad.emplace_back(cIdx);
+          if (load(cIdx, dst)) [[likely]] {
+            atomic.fetch_or(FINISHED_BIT, std::memory_order_release);
+            return true;
+          }
         }
-        cIdx++;
       }
     }
-    SC::ChaosThreading::parralelFor(chunksToLoad, [&](size_t i) {
-      auto &atomic = chunkOffsetsLoaded[i];
-      if (load(i, dst)) {
-        atomic.fetch_or(FINISHED_BIT, std::memory_order_release);
-        return true;
-      }
-      return false;
-    });
 
+    // TODO: Gibt auch dann true zurueck, wenn load() fehlgeschlagen ist. FINISHED_BIT wird dann nie gesetzt und
+    // waitFinished() dreht sich fuer diesen und alle anderen wartenden Threads endlos. War vor der Portierung schon so.
     return true;
   }
 
   void GameFileImpl::waitFinished(size_t targetOffset, size_t size, size_t chunIdx) {
     for (size_t offset = targetOffset; offset < targetOffset + size;) {
-      auto &atomic = chunkOffsetsLoaded[chunIdx];
+      auto &atomic          = chunkOffsetsLoaded[chunIdx];
       size_t nextChunkStart = (chunIdx + 1 < chunkOffsetsLoaded.size())
-                                ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                : fileSize;
-      offset = nextChunkStart;
+                                  ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
+                                  : fileSize;
+      offset                = nextChunkStart;
+      // TODO: Vorher hat der wartende Thread ueber SC::ChaosThreading::helpThread andere Tasks abgearbeitet.
+      // sc::threading bietet das nicht mehr oeffentlich an (helpThread liegt in impl), deshalb wird hier nur noch
+      // die CPU abgegeben.
       while (!(atomic.load(std::memory_order_acquire) & FINISHED_BIT)) {
-        auto id = SC::ChaosThreading::getThreadId();
-        SC::ChaosThreading::helpThread(id);
+        std::this_thread::yield();
       }
       chunIdx++;
     }
   }
-} // SAA
+} // namespace SAA

@@ -9,9 +9,9 @@
 #include "Decompressor.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
 
-#include "logger/chaos_logger.hpp"
+#include "sc/logger/logger.hpp"
 
-LOG_ALIAS(UsmapLog, "SAA", "USAMP");
+using UsmapLog = sc::Logger<"SAA", "USAMP">;
 
 namespace SAA {
   static constexpr uint16_t USMAP_MAGIC = 0x30C4;
@@ -123,15 +123,15 @@ namespace SAA {
 
   void UsmapReader::parseEnums(ByteCursor &cursor, FUsmapMappingData &outData) {
     uint32_t enumCount = cursor.read<uint32_t>();
-    using denseMapEnums = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, SC::IdentityHash>;
-    outData.Enums = denseMapEnums(outData.storage.resource());
+    using denseMapEnums = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, sc::IdentityHash>;
+    outData.Enums = denseMapEnums(&outData.storage);
     outData.Enums.reserve(enumCount);
 
     for (uint32_t i = 0; i < enumCount; ++i) {
       std::string_view enumName = readName(cursor);
       auto values = readEnumValues(cursor, outData);
 
-      outData.Enums.emplace(SC::hash(enumName), std::move(values));
+      outData.Enums.emplace(sc::hash(enumName), std::move(values));
     }
   }
 
@@ -162,13 +162,13 @@ namespace SAA {
 
   void UsmapReader::parseSchemas(ByteCursor &cursor, FUsmapMappingData &outData) {
     uint32_t schemaCount = cursor.read<uint32_t>();
-    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, SC::IdentityHash>;
-    outData.Schemas = denseMapSchemas (outData.storage.resource());
+    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, sc::IdentityHash>;
+    outData.Schemas = denseMapSchemas (&outData.storage);
     outData.Schemas.reserve(schemaCount);
 
     for (uint32_t i = 0; i < schemaCount; ++i) {
       FUsmapSchema schema = readSingleSchema(cursor, outData);
-      outData.Schemas.emplace(SC::hash(schema.Name), std::move(schema));
+      outData.Schemas.emplace(sc::hash(schema.Name), std::move(schema));
     }
   }
 
@@ -179,7 +179,7 @@ namespace SAA {
 
     uint16_t propCount = cursor.read<uint16_t>(); // Ignoriert (total count)
     uint16_t serializablePropCount = cursor.read<uint16_t>();
-    schema.Properties = std::pmr::unordered_map<uint16_t, FUsmapPropertyData>(outData.storage.resource());
+    schema.Properties = std::pmr::unordered_map<uint16_t, FUsmapPropertyData>(&outData.storage);
     schema.Properties.reserve(serializablePropCount);
     for (uint16_t i = 0; i < serializablePropCount; ++i) {
       readAndAddProperty(cursor, outData, schema);

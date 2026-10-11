@@ -20,7 +20,7 @@ namespace SAA {
   struct FPackageId;
   class Reader;
   class AssetFileParser;
-}
+} // namespace SAA
 
 namespace SAA {
   struct AssetParseResult;
@@ -32,7 +32,7 @@ namespace SAA {
     explicit AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData);
     ~AssetParser() = default;
 
-    void parseAsset(std::string_view path, const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed);
+    void parseAsset(std::string_view path, const std::function<void(std::shared_ptr<AssetFileParser> &&)> &onParsed);
 
     std::shared_ptr<AssetFileParser> loadPackage(std::string_view path);
     std::shared_ptr<AssetFileParser> loadPackage(FPackageId packageId);
@@ -54,4 +54,4 @@ namespace SAA {
 
     ShardedCache<uint64_t, AssetFileParser> m_parserCache;
   };
-} 
+} // namespace SAA

@@ -8,12 +8,16 @@
 #include <mutex>
 #include <shared_mutex>
 #include <string>
+#include <utility>
 
-#include "ecs/chaos_registry.hpp"
 #include "flags/MeshExportFlags.hpp"
 #include "flags/TextureExportFlags.hpp"
 
-LOG_ALIAS(exLog, "SAA", "Exporter")
+#include "sc/ecs/entity.hpp"
+#include "sc/ecs/registry.hpp"
+#include "sc/logger/logger.hpp"
+
+using exLog = sc::Logger<"SAA", "Exporter">;
 
 namespace SAA {
   class Object;
@@ -39,12 +43,14 @@ namespace SAA {
   public:
     static const ExporterOptions &options() { return s_options; }
 
-    static void setECS(SC::ChaosRegistry* reg);
-    static SC::ChaosEntity getEntity(Object *obj);
+    static void setECS(sc::ecs::Registry *reg);
+    static sc::ecs::Entity getEntity(Object *obj);
+
   protected:
     static bool checkPath(std::filesystem::path path);
-    static inline SC::ChaosRegistry *reg = nullptr ;
+    static inline sc::ecs::Registry *reg = nullptr;
+
   private:
     static inline ExporterOptions s_options;
   };
-}; 
+} // namespace SAA

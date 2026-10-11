@@ -6,17 +6,18 @@
 
 #include "ue/properties/f_property_tag.hpp"
 
-#include "logger/chaos_logger.hpp"
-LOG_ALIAS(PropertyTrackerLog, "SAA", "Tracker")
+#include "sc/logger/logger.hpp"
+using PropertyTrackerLog = sc::Logger<"SAA", "Tracker">;
 
 namespace SAA {
 #ifndef NDEBUG
 
-  std::map<std::string, std::map<uint64_t, PropertyInfo> > PropertyTracker::m_allSeen{};
+  std::map<std::string, std::map<uint64_t, PropertyInfo>> PropertyTracker::m_allSeen{};
 
-  void PropertyTracker::registerMap(std::string_view className,
-                                    denseMap *props) {
-    if (className == "Struct") { return; }
+  void PropertyTracker::registerMap(std::string_view className, denseMap *props) {
+    if (className == "Struct") {
+      return;
+    }
     std::string cls(className);
     std::lock_guard<std::mutex> lock(m_mutex);
     ++m_classInstanceCount[cls];
@@ -35,9 +36,9 @@ namespace SAA {
     bool anyMissingAtAll = false;
 
     for (auto &[className, seen]: m_allSeen) {
-      const auto &handled = m_handled[className];
+      const auto &handled     = m_handled[className];
       bool classHeaderPrinted = false;
-      auto &count = m_classInstanceCount[className];
+      auto &count             = m_classInstanceCount[className];
       for (auto &[hash, prop]: seen) {
         if (handled.find(hash) == handled.end()) {
           if (!anyMissingAtAll) {
@@ -50,11 +51,11 @@ namespace SAA {
             classHeaderPrinted = true;
           }
 
-          PropertyTrackerLog::warn( "{} : {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
-                                    prop.tag.PropertyTypeName.text());
+          PropertyTrackerLog::warn("{} : {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
+                                   prop.tag.PropertyTypeName.text());
         }
       }
     }
   }
 #endif
-}
+} // namespace SAA

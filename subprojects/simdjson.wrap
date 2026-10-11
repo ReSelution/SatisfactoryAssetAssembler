@@ -1,0 +1,8 @@
+[wrap-git]
+url = https://github.com/simdjson/simdjson.git
+revision = v3.12.3
+depth = 1
+patch_directory = simdjson
+
+[provide]
+simdjson = simdjson_dep

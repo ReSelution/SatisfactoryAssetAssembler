@@ -5,9 +5,9 @@
 #include "io_global_data.hpp"
 
 #include "IOStoreReader.hpp"
-#include "logger/chaos_logger.hpp"
+#include "sc/logger/logger.hpp"
 
-LOG_ALIAS(GlobalDataLog, "SAA", "GlobalData")
+using GlobalDataLog = sc::Logger<"SAA", "GlobalData">;
 
 namespace SAA {
   IOGlobalData::IOGlobalData(std::filesystem::path utocPath, std::filesystem::path ucasPath) {
@@ -24,16 +24,16 @@ namespace SAA {
     auto t = GlobalDataLog::time("GlobalNameMap: {1} ScriptObjectEntriesMap {2} in {0}", globalNameMapSize,
                                  scriptObjectEntriesSize);
     storeParser->load();
-    auto file = storeParser->readChunk(storeParser->m_storage.get(),
-                                         FIoChunkId{.id = 0, .chunkIndex = 0, .chunkType = 5});
+    auto file =
+        storeParser->readChunk(&storeParser->m_storage, FIoChunkId{.id = 0, .chunkIndex = 0, .chunkType = 5});
     data.globalNameMap = file->loadNameBatch();
 
     auto scriptObjectEntries = file->readArray<FScriptObjectEntry>();
-    data.ScriptObjectEntriesMap.reserve(scriptObjectEntries.size());
+    data.scriptObjectEntriesMap.reserve(scriptObjectEntries.size());
     for (auto &scriptObject: scriptObjectEntries) {
-      data.ScriptObjectEntriesMap[scriptObject.globalIndex] = scriptObject;
+      data.scriptObjectEntriesMap[scriptObject.globalIndex] = scriptObject;
     }
-    globalNameMapSize = data.globalNameMap.size();
-    scriptObjectEntriesSize = data.ScriptObjectEntriesMap.size();
+    globalNameMapSize       = data.globalNameMap.size();
+    scriptObjectEntriesSize = data.scriptObjectEntriesMap.size();
   }
-} 
+} // namespace SAA

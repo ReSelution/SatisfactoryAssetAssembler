@@ -5,50 +5,55 @@
 #include "loc_res_parser.hpp"
 
 
-#include "PAKReader.hpp"
 #include "byte_cursor.hpp"
-#include "logger/chaos_logger.hpp"
+#include "game_file.hpp"
 #include "vfs_entry.hpp"
 
 #include "localization/f_entry.hpp"
-#include "memory/chaos_bump_arena.hpp"
+#include "sc/hash/hash.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 
-LOG_ALIAS(LocResLoc, "SAA", "LOCRES");
+using LocResLoc = sc::Logger<"SAA", "LOCRES">;
 
 namespace SAA {
-  LocResParser::LocResParser(const UnifiedVfsEntry *vfsEntry, bool isNative)
-    : isNative(isNative), m_vfsEntry(vfsEntry) {
-    magpie = SC::Magpie::get();
+  LocResParser::LocResParser(const UnifiedVfsEntry *vfsEntry, bool isNative) :
+      isNative(isNative), m_vfsEntry(vfsEntry) {
+    magpie = sc::Magpie::get();
   }
 
   void LocResParser::parse() {
-    m_storage = std::make_unique<SC::ChaosBumpArena>();
-    auto data = m_vfsEntry->read(m_storage.get());
+    // Lebt nur fuer diesen Aufruf: Datei, Namespaces und die String-Tabelle. Die uebersetzten Texte selbst liegen im
+    // Speicher von Magpie.
+    sc::MonotonicResource storage;
+    auto data = m_vfsEntry->read(&storage);
 
     auto cursor = data->subspan(0, data->size());
-    auto magic = cursor.read<FGuid>();
+    auto magic  = cursor.read<FGuid>();
+    // TODO: Bei falscher Magic wird nur geloggt und trotzdem weiter geparst. LocMetaParser::parse() bricht an der
+    // gleichen Stelle ab. War vor der Portierung schon so.
     if (magic != LOC_RES_MAGIC) {
-      LocResLoc::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->pathStr,
-                     magic.A, magic.B, magic.C, magic.D);
+      LocResLoc::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->pathStr, magic.A, magic.B, magic.C, magic.D);
     }
     auto version = cursor.read<ELocResVersion>();
 
     if (version >= ELocResVersion::Compact) {
       auto localizedStringArrayOffset = cursor.read<int64_t>();
       if (localizedStringArrayOffset != -1) {
-        auto pos = cursor.tell();
-        cursor = localizedStringArrayOffset;
-        auto count = cursor.read<int32_t>();
-        localizedStringArray =
-            m_storage->allocateSpan<FTextLocalizationResourceString>(count);
+        auto pos             = cursor.tell();
+        cursor               = localizedStringArrayOffset;
+        auto count           = cursor.read<int32_t>();
+        localizedStringArray = storage.allocateSpan<FTextLocalizationResourceString>(count);
         if (version >= ELocResVersion::Optimized_CRC32) {
           for (auto i = 0; i < count; i++) {
-            auto str = cursor.readFString(m_storage.get()); // Dont move inside emplace !!! Breaks under Mingw and Wine
+            // Direkt in den Speicher von Magpie lesen: mt_InsertStored() kopiert den Text nicht mehr, die View muss
+            // also bis zum naechsten Magpie::clear() gueltig bleiben.
+            auto str = cursor.readFString(magpie); // Dont move inside emplace !!! Breaks under Mingw and Wine
             localizedStringArray[i] = {str, cursor.read<int32_t>()};
           }
         } else {
           for (auto i = 0; i < count; i++) {
-            localizedStringArray[i] = {cursor.readFString(m_storage.get()), -1};
+            localizedStringArray[i] = {cursor.readFString(magpie), -1};
           }
         }
         cursor = pos;
@@ -57,22 +62,26 @@ namespace SAA {
 
     if (version >= ELocResVersion::Optimized_CRC32) {
       auto entriesCount = cursor.read<uint32_t>();
-      auto nsCount = cursor.read<uint32_t>();
+      auto nsCount      = cursor.read<uint32_t>();
       magpie->mt_reserve(entriesCount);
-      for (auto i = 0; i < nsCount; i++) {
+      for (uint32_t i = 0; i < nsCount; i++) {
         cursor += sizeof(uint32_t); // skip hash
-        auto nsStr = cursor.readFString(m_storage.get());
-        auto nsHash = SC::hash(nsStr);
+        auto nsStr  = cursor.readFString(&storage);
+        auto nsHash = sc::hash(nsStr);
 
         const auto keyCount = cursor.read<uint32_t>();
-        for (auto j = 0; j < keyCount; j++) {
+        for (uint32_t j = 0; j < keyCount; j++) {
           cursor += sizeof(uint32_t); // skip hash
-          auto keyStr = cursor.readFString(m_storage.get());
-          auto keyHash = SC::hash(keyStr);
+          // TODO: Der Key wird dauerhaft im Speicher von Magpie abgelegt, gebraucht wird er danach nur fuer den Hash
+          // (und mit DUMP_MAGPIE, wo mt_InsertStored() ihn selbst noch einmal kopiert). readFString(&storage) wuerde
+          // reichen und den Speicher nach parse() wieder freigeben.
+          auto keyStr  = cursor.readFString(magpie);
+          auto keyHash = sc::hash(keyStr);
           cursor += sizeof(uint32_t);
           auto stringIndex = cursor.read<uint32_t>();
           if (localizedStringArray.size() > stringIndex) [[likely]] {
-            magpie->mt_Insert(SC::MagpieKey{nsHash, keyHash}, localizedStringArray[stringIndex].str, nsStr, keyStr);
+            sc::Magpie::mt_InsertStored(sc::MagpieKey{nsHash, keyHash}, localizedStringArray[stringIndex].str, nsStr,
+                                        keyStr);
           }
         }
       }

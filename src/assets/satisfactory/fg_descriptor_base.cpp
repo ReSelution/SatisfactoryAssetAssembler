@@ -9,8 +9,8 @@ namespace SAA {
   }
 
   void FGDescriptorBase::parse() {
-    mDisplayName = get<SC::MagpieString>(Base::DisplayName);
-    mDescription = get<SC::MagpieString>(Base::Description);
+    mDisplayName = get<sc::MagpieString>(Base::DisplayName);
+    mDescription = get<sc::MagpieString>(Base::Description);
 
     mCategory = get<Object *>(Base::Category);
     mPersistentBigIcon = get<Object *>(Base::PersistentBigIcon);
@@ -22,18 +22,18 @@ namespace SAA {
   }
 
   void FGDescriptorBase::addProducedIn(Recipe *recipe) {
-    SC::ChaosSpinLockGuard guard(mProducedInLock);
+    sc::SpinLockGuard guard(mProducedInLock);
     if (!m_producedIn) {
-      m_producedIn = m_owner->storage()->make<std::pmr::vector<Recipe*>>(m_owner->storage()->resource());
+      m_producedIn = m_owner->storage()->makePmr<std::pmr::vector<Recipe *>>();
       m_producedIn->reserve(5);
     }
     m_producedIn->emplace_back(recipe);
   }
 
   void FGDescriptorBase::addUsedIn(Recipe *recipe) {
-    SC::ChaosSpinLockGuard guard(mUsedInLock);
+    sc::SpinLockGuard guard(mUsedInLock);
     if (!m_usedIn) {
-      m_usedIn = m_owner->storage()->make<std::pmr::vector<Recipe*>>(m_owner->storage()->resource());
+      m_usedIn = m_owner->storage()->makePmr<std::pmr::vector<Recipe *>>();
       m_usedIn->reserve(5);
     }
     m_usedIn->emplace_back(recipe);

@@ -5,15 +5,16 @@
 #include "mesh_exporter.hpp"
 
 #include "fastgltf/core.hpp"
+#include "sc/logger/logger.hpp"
 #include "ue/static_mesh/static_mesh.hpp"
 
 #include "material/material_exporter.hpp"
-LOG_ALIAS(MeshExporterLog, "SAA", "Mesh Exporter")
 
 namespace SAA {
+  using MeshExporterLog = sc::Logger<"SAA", "Mesh Exporter">;
   template<typename T>
   void appendData(std::vector<std::byte> &buffer, const T *data, size_t count) {
-    size_t byteSize = count * sizeof(T);
+    size_t byteSize    = count * sizeof(T);
     size_t currentSize = buffer.size();
     buffer.resize(currentSize + byteSize);
     std::memcpy(buffer.data() + currentSize, data, byteSize);
@@ -24,8 +25,8 @@ namespace SAA {
                           std::optional<fastgltf::BufferTarget> target) {
     fastgltf::BufferView view;
     view.bufferIndex = 0;
-    view.byteOffset = offset;
-    view.byteLength = buffer.size() - offset;
+    view.byteOffset  = offset;
+    view.byteLength  = buffer.size() - offset;
     if (target)
       view.target = *target;
 
@@ -36,24 +37,24 @@ namespace SAA {
 
     fastgltf::Accessor accessor;
     accessor.bufferViewIndex = asset.bufferViews.size() - 1;
-    accessor.count = count;
-    accessor.byteOffset = 0;
+    accessor.count           = count;
+    accessor.byteOffset      = 0;
 
     // Mapping von C++ Typen auf glTF Enums
-    if constexpr (std::is_same_v<T, FVector3F> || std::is_same_v<T, fastgltf::math::vec<float, 3> >) {
-      accessor.type = fastgltf::AccessorType::Vec3;
+    if constexpr (std::is_same_v<T, FVector3F> || std::is_same_v<T, fastgltf::math::vec<float, 3>>) {
+      accessor.type          = fastgltf::AccessorType::Vec3;
       accessor.componentType = fastgltf::ComponentType::Float;
-    } else if constexpr (std::is_same_v<T, fastgltf::math::vec<float, 2> >) {
-      accessor.type = fastgltf::AccessorType::Vec2;
+    } else if constexpr (std::is_same_v<T, fastgltf::math::vec<float, 2>>) {
+      accessor.type          = fastgltf::AccessorType::Vec2;
       accessor.componentType = fastgltf::ComponentType::Float;
     } else if constexpr (std::is_same_v<T, uint32_t>) {
-      accessor.type = fastgltf::AccessorType::Scalar;
+      accessor.type          = fastgltf::AccessorType::Scalar;
       accessor.componentType = fastgltf::ComponentType::UnsignedInt;
     } else if constexpr (std::is_same_v<T, uint16_t>) {
-      accessor.type = fastgltf::AccessorType::Scalar;
+      accessor.type          = fastgltf::AccessorType::Scalar;
       accessor.componentType = fastgltf::ComponentType::UnsignedShort;
     } else if constexpr (std::is_same_v<T, FColor>) {
-      accessor.type = fastgltf::AccessorType::Vec4;
+      accessor.type          = fastgltf::AccessorType::Vec4;
       accessor.componentType = fastgltf::ComponentType::UnsignedByte;
     } else {
       static_assert("Unkown Accessor type");
@@ -78,18 +79,18 @@ namespace SAA {
     std::memcpy(binaryBuffer.data() + offset, texData.data.data(), texData.data.size());
 
     fastgltf::BufferView &view = asset.bufferViews.emplace_back();
-    view.bufferIndex = 0;
-    view.byteOffset = offset;
-    view.byteLength = texData.data.size();
-    size_t viewIndex = asset.bufferViews.size() - 1;
+    view.bufferIndex           = 0;
+    view.byteOffset            = offset;
+    view.byteLength            = texData.data.size();
+    size_t viewIndex           = asset.bufferViews.size() - 1;
 
     fastgltf::Image &image = asset.images.emplace_back();
-    image.name = texData.name;
-    image.data = fastgltf::sources::BufferView{viewIndex, fastgltf::MimeType::PNG};
+    image.name             = texData.name;
+    image.data             = fastgltf::sources::BufferView{viewIndex, fastgltf::MimeType::PNG};
 
     fastgltf::Texture &texture = asset.textures.emplace_back();
-    texture.samplerIndex = 0;
-    texture.imageIndex = asset.images.size() - 1;
+    texture.samplerIndex       = 0;
+    texture.imageIndex         = asset.images.size() - 1;
 
     return static_cast<int32_t>(asset.textures.size() - 1);
   }
@@ -114,12 +115,12 @@ namespace SAA {
     {
       alignBuffer(binaryBuffer);
       size_t offset = binaryBuffer.size();
-      auto indices = lod.indexBuffer.indices; // Deine FRawStaticIndexBuffer struct
+      auto indices  = lod.indexBuffer.indices; // Deine FRawStaticIndexBuffer struct
       // for (size_t i = 0; i < indices.size(); i += 3) { std::swap(indices[i], indices[i + 2]); }
       appendData(binaryBuffer, indices.data(), indices.size());
 
-      auto posAcc = createAccessor<uint32_t>(asset, binaryBuffer, offset, indices.size(),
-                                             fastgltf::BufferTarget::ElementArrayBuffer);
+      auto posAcc               = createAccessor<uint32_t>(asset, binaryBuffer, offset, indices.size(),
+                                                           fastgltf::BufferTarget::ElementArrayBuffer);
       primitive.indicesAccessor = posAcc;
     }
   }
@@ -129,7 +130,7 @@ namespace SAA {
     {
       alignBuffer(binaryBuffer);
       size_t offset = binaryBuffer.size();
-      size_t count = lod.positionVertexBuffer.vertices.size();
+      size_t count  = lod.positionVertexBuffer.vertices.size();
 
       // 1. Vertices konvertieren (UE Z-Up -> glTF Y-Up)
       constexpr float UNIT_SCALE = 0.01f;
@@ -143,9 +144,9 @@ namespace SAA {
       const auto &b = mesh->m_renderData.bounds;
       for (int i = 0; i < 8; ++i) {
         // Erzeugt alle Kombinationen von +/- Extent
-        float ux = b.origin.x + ((i & 1) ? b.extent.x : -b.extent.x);
-        float uy = b.origin.y + ((i & 2) ? b.extent.y : -b.extent.y);
-        float uz = b.origin.z + ((i & 4) ? b.extent.z : -b.extent.z);
+        float ux                                 = b.origin.x + ((i & 1) ? b.extent.x : -b.extent.x);
+        float uy                                 = b.origin.y + ((i & 2) ? b.extent.y : -b.extent.y);
+        float uz                                 = b.origin.z + ((i & 4) ? b.extent.z : -b.extent.z);
         fastgltf::math::vec<double, 3> gltfPoint = {ux * UNIT_SCALE, uz * UNIT_SCALE, -uy * UNIT_SCALE};
         asset.accessors[posAcc].updateBoundsToInclude(gltfPoint);
       }
@@ -171,9 +172,9 @@ namespace SAA {
         appendData(binaryBuffer, &gUV, 1);
       }
 
-      auto posAcc = createAccessor<fastgltf::math::vec<float, 2> >(asset, binaryBuffer, offset,
-                                                                   static_cast<size_t>(lod.vertexBuffer.numVertices),
-                                                                   fastgltf::BufferTarget::ArrayBuffer);
+      auto posAcc = createAccessor<fastgltf::math::vec<float, 2>>(asset, binaryBuffer, offset,
+                                                                  static_cast<size_t>(lod.vertexBuffer.numVertices),
+                                                                  fastgltf::BufferTarget::ArrayBuffer);
       std::string attrName = "TEXCOORD_" + std::to_string(setIdx);
       primitive.attributes.emplace_back(fastgltf::Attribute{attrName.c_str(), posAcc});
     }
@@ -187,15 +188,15 @@ namespace SAA {
     for (uint32_t i = 0; i < lod.vertexBuffer.numVertices; ++i) {
       // Wir nehmen normals[2] aus dem UVItem (das ist die Normale)
       auto &uvItem = lod.vertexBuffer.UVs[i];
-      auto n = uvItem.normals[2];
+      auto n       = uvItem.normals[2];
 
       // Umrechnen der Koordinaten wie bei POSITION: {x, z, -y}
       // Und wir nutzen deine x(), y(), z() Funktionen!
       fastgltf::math::vec<float, 3> gN = {n.x(), n.z(), n.y()};
       appendData(binaryBuffer, &gN, 1);
     }
-    auto posAcc = createAccessor<fastgltf::math::vec<float, 3> >(
-      asset, binaryBuffer, offset, lod.vertexBuffer.numVertices, fastgltf::BufferTarget::ArrayBuffer);
+    auto posAcc = createAccessor<fastgltf::math::vec<float, 3>>(
+        asset, binaryBuffer, offset, lod.vertexBuffer.numVertices, fastgltf::BufferTarget::ArrayBuffer);
 
     primitive.attributes.emplace_back(fastgltf::Attribute{"NORMAL", posAcc});
   }
@@ -204,7 +205,7 @@ namespace SAA {
                                  std::vector<std::byte> &binaryBuffer, fastgltf::Primitive &primitive) {
     alignBuffer(binaryBuffer);
     size_t offset = binaryBuffer.size();
-    size_t count = lod.colorVertexBuffer.data.size();
+    size_t count  = lod.colorVertexBuffer.data.size();
 
     // Achtung: UE ist oft BGRA, glTF will RGBA. Hier evtl. Swizzling nötig.
     appendData(binaryBuffer, lod.colorVertexBuffer.data.data(), count);
@@ -219,7 +220,7 @@ namespace SAA {
                                    fastgltf::Primitive &sharedAttributes) {
     for (auto &section: lod.sections) {
       fastgltf::Primitive primitive;
-      primitive.type = fastgltf::PrimitiveType::Triangles;
+      primitive.type       = fastgltf::PrimitiveType::Triangles;
       primitive.attributes = sharedAttributes.attributes;
       writeSection(lod, section, asset, binaryBuffer, primitive);
       if (section.MaterialIndex < mesh->m_materials.size()) {
@@ -235,7 +236,7 @@ namespace SAA {
             int32_t texIdx = embedPng(asset, binaryBuffer, encoded.baseColors[i]);
             if (texIdx != -1) {
               fastgltf::TextureInfo info;
-              info.textureIndex = static_cast<size_t>(texIdx);
+              info.textureIndex  = static_cast<size_t>(texIdx);
               info.texCoordIndex = static_cast<size_t>(0);
               gMat.pbrData.baseColorTexture.emplace(std::move(info));
             }
@@ -246,7 +247,7 @@ namespace SAA {
             int32_t texIdx = embedPng(asset, binaryBuffer, encoded.normals[i]);
             if (texIdx != -1) {
               fastgltf::NormalTextureInfo info;
-              info.textureIndex = static_cast<size_t>(texIdx);
+              info.textureIndex  = static_cast<size_t>(texIdx);
               info.texCoordIndex = static_cast<size_t>(0);
               gMat.normalTexture.emplace(std::move(info));
             }
@@ -257,7 +258,7 @@ namespace SAA {
             int32_t texIdx = embedPng(asset, binaryBuffer, encoded.metallicRoughness[i]);
             if (texIdx != -1) {
               fastgltf::TextureInfo info;
-              info.textureIndex = static_cast<size_t>(texIdx);
+              info.textureIndex  = static_cast<size_t>(texIdx);
               info.texCoordIndex = static_cast<size_t>(0);
               gMat.pbrData.metallicRoughnessTexture.emplace(std::move(info));
             }
@@ -274,7 +275,7 @@ namespace SAA {
                                   fastgltf::Asset &asset, std::vector<std::byte> &binaryBuffer,
                                   fastgltf::Primitive &primitive) {
     alignBuffer(binaryBuffer);
-    size_t offset = binaryBuffer.size();
+    size_t offset     = binaryBuffer.size();
     size_t indexCount = static_cast<size_t>(section.NumTriangles) * 3;
     std::vector<uint32_t> sectionIndices;
     sectionIndices.reserve(indexCount);
@@ -297,11 +298,11 @@ namespace SAA {
     fastgltf::Mesh gltfMesh;
     fastgltf::Primitive primitive;
     fastgltf::Sampler &sampler = asset.samplers.emplace_back();
-    sampler.magFilter = fastgltf::Filter::Linear;
-    sampler.minFilter = fastgltf::Filter::Linear;
-    sampler.wrapS = fastgltf::Wrap::Repeat;
-    sampler.wrapT = fastgltf::Wrap::Repeat;
-    primitive.type = fastgltf::PrimitiveType::Triangles;
+    sampler.magFilter          = fastgltf::Filter::Linear;
+    sampler.minFilter          = fastgltf::Filter::Linear;
+    sampler.wrapS              = fastgltf::Wrap::Repeat;
+    sampler.wrapT              = fastgltf::Wrap::Repeat;
+    primitive.type             = fastgltf::PrimitiveType::Triangles;
 
     writePostion(lod, mesh, asset, binaryBuffer, primitive);
     writeIndices(lod, asset, binaryBuffer, primitive);
@@ -330,7 +331,7 @@ namespace SAA {
     fastgltf::Scene scene;
     fastgltf::Node node;
     node.meshIndex = 0;
-    node.name = "UE_StaticMesh";
+    node.name      = "UE_StaticMesh";
 
     asset.nodes.emplace_back(std::move(node));
     scene.nodeIndices.emplace_back(0);
@@ -340,7 +341,7 @@ namespace SAA {
     // Der Buffer verweist nur auf die Größe, die Daten kommen beim Export
     fastgltf::Buffer buffer;
     buffer.byteLength = binaryBuffer.size();
-    buffer.data = fastgltf::sources::Vector{std::move(binaryBuffer)};
+    buffer.data       = fastgltf::sources::Vector{std::move(binaryBuffer)};
     asset.buffers.emplace_back(std::move(buffer));
 
     // --- EXPORTIEREN (GLB) ---
@@ -355,4 +356,4 @@ namespace SAA {
       MeshExporterLog::err(" Failed to write Gltf binary file:{}", fastgltf::getErrorName(result));
     }
   }
-} 
+} // namespace SAA

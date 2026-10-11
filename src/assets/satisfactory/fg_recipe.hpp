@@ -47,7 +47,7 @@ struct Recipe;
 
     std::optional<Object*> mOverriddenCategory;
     std::optional<Object*> mMaterialCustomizationRecipe;
-    std::optional<SC::MagpieString> mDisplayName;
+    std::optional<sc::MagpieString> mDisplayName;
     std::span<SoftObj> mProducedIn;
     std::span<ItemAmount> mProduct;
     std::span<ItemAmount> mIngredients;

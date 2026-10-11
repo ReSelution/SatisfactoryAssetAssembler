@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iterator>
 #include <ranges>
 
 #include "vfs_entry.hpp"
@@ -17,7 +18,7 @@ namespace SAA {
 
   void Vfs::reserveIOStore(size_t size) {
     m_vfsMap.reserve(m_vfsMap.size() + size);
-    m_pkgMap.reserve(m_vfsMap.size() + size);
+    m_pkgMap.reserve(m_pkgMap.size() + size);
     m_storage.reserveIOStore(size);
   }
 
@@ -28,14 +29,14 @@ namespace SAA {
 
   void Vfs::mountEntry(IOStoreReader *parser, std::string_view pathStr, const FIoChunkId &chunkId) {
     auto persistenPath = m_storage.persistString(pathStr);
-    auto entry = m_storage.make<IOVfsEntry>(persistenPath, chunkId, parser);
+    auto entry         = m_storage.make<IOVfsEntry>(persistenPath, chunkId, parser);
     m_vfsMap.emplace(entry->hash, static_cast<SAA::UnifiedVfsEntry const *>(entry));
     m_pkgMap.emplace(chunkId.asPackageId().Id, static_cast<SAA::UnifiedVfsEntry const *>(entry));
   }
 
   void Vfs::mountEntry(PAKReader *parser, std::string_view pathStr, uint32_t index) {
     auto persistenPath = m_storage.persistString(pathStr);
-    auto entry = m_storage.make<PAKVfsEntry>(persistenPath, index, parser);
+    auto entry         = m_storage.make<PAKVfsEntry>(persistenPath, index, parser);
     m_vfsMap.emplace(entry->hash, static_cast<SAA::UnifiedVfsEntry const *>(entry));
   }
 
@@ -44,10 +45,8 @@ namespace SAA {
     create_directories(tmpPath.parent_path());
     auto fileStream = std::ofstream(tmpPath.c_str());
 
-    auto pathView = m_vfsMap | std::ranges::views::values
-                    | std::views::transform([](const auto &entry) {
-                      return entry->pathStr;
-                    });
+    auto pathView =
+        m_vfsMap | std::ranges::views::values | std::views::transform([](const auto &entry) { return entry->pathStr; });
     std::vector<std::string_view> sortedPaths{pathView.begin(), pathView.end()};
     std::ranges::sort(sortedPaths);
 
@@ -76,9 +75,9 @@ namespace SAA {
 
   const UnifiedVfsEntry *Vfs::readPkg(FPackageId pkgId) {
     auto iter = m_pkgMap.find(pkgId.Id);
-    if (iter == m_vfsMap.end()) {
+    if (iter == m_pkgMap.end()) {
       return nullptr;
     }
     return iter->second;
   }
-}
+} // namespace SAA

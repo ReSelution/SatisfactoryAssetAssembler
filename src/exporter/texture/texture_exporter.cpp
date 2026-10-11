@@ -4,12 +4,12 @@
 
 #include "texture_exporter.hpp"
 #include <fstream>
+#include "sc/logger/logger.hpp"
 #include "texture_decoder.hpp"
 
-#include "logger/chaos_logger.hpp"
-LOG_ALIAS(TexExLog, "SAA", "TextureExporter")
 
 namespace SAA {
+  using TexExLog = sc::Logger<"SAA", "TextureExporter">;
   void TextureExporter::exportAsset(Texture *texture) {
     ExportedTextureData data{.mimeType = static_cast<EImageMimeType>(options().textureExportTypes.load())};
     texture->decodeTexture(data);
@@ -48,7 +48,7 @@ namespace SAA {
   }
 
   void TextureExporter::decodeBytes(ExportedTextureData &data, const FTexture2DMipMap &mip, Texture *texture) {
-    data.width = mip.sizeX;
+    data.width  = mip.sizeX;
     data.height = mip.sizeY;
     switch (texture->m_format) {
       case EPixelFormat::PF_DXT5: {
@@ -68,7 +68,7 @@ namespace SAA {
         break;
       }
       default:
-       TexExLog::err("Unknown texture format {}", to_string(texture->m_format));
+        TexExLog::err("Unknown texture format {}", to_string(texture->m_format));
     }
   }
 
@@ -103,7 +103,7 @@ namespace SAA {
       file.write(reinterpret_cast<const char *>(data.data.data()), data.data.size());
       file.close();
     } else [[unlikely]] {
-     TexExLog::err("Failed to open file for writing: {}", path);
+      TexExLog::err("Failed to open file for writing: {}", path);
     }
   }
-} 
+} // namespace SAA

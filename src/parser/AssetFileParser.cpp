@@ -10,12 +10,13 @@
 #include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAA {
-  AssetFileParser::~AssetFileParser() { AssetFileParser::reset(); }
+  AssetFileParser::~AssetFileParser() { sc::ArenaPool::release(m_storage); }
 
   void AssetFileParser::reset() {
-    if (m_storage) {
-      SC::ChaosArenaPool::release(m_storage);
-    }
+    // TODO: m_asset und m_bulk liegen in m_storage und zeigen nach dem reset() auf freigegebenen Speicher. Sie werden
+    // hier nicht auf nullptr gesetzt, getAssetFile()/getBulkFile() geben nach einem erneuten safeParse() also den
+    // alten Zeiger zurueck (use-after-free).
+    sc::ArenaPool::release(m_storage);
     m_state.store(ParserState::NONE, std::memory_order_release);
   }
 
@@ -25,11 +26,10 @@ namespace SAA {
     }
     ParserState expected = ParserState::NONE;
     if (m_state.compare_exchange_strong(expected, ParserState::PARSING, std::memory_order_acq_rel)) {
-      m_storage = SC::ChaosArenaPool::acquire();
-      {
-        ZoneScopedN("AssetFileParser::parsing")
-        parse();
-      }
+      // TODO: Wirft parse(), bleibt der Zustand auf PARSING stehen und alle Threads im m_cv.wait() unten haengen
+      // fuer immer. War vor der Portierung auch schon so.
+      m_storage = sc::ArenaPool::acquire();
+      parse();
       {
         std::lock_guard lock(m_mutex);
         m_state.store(ParserState::LOADED, std::memory_order_release);
@@ -37,7 +37,6 @@ namespace SAA {
       m_cv.notify_all();
       return;
     }
-    ZoneScopedN("AssetFileParser::waiting")
     std::unique_lock lock(m_mutex);
     m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ParserState::LOADED; });
   }

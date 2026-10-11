@@ -4,11 +4,11 @@
 
 #include "f_property_tag.hpp"
 #include "property_parser.hpp"
-#include "localizations/magpie_string.hpp"
+#include "sc/localizations/magpie_string.hpp"
 
 namespace SAA {
   template<>
-  FPropertyTag PropertyParser<EUE5Version::UE5_3>::parsePropertyTag(ByteCursor &cursor, SC::ChaosBumpArena *storage) {
+  FPropertyTag PropertyParser<EUE5Version::UE5_3>::parsePropertyTag(ByteCursor &cursor, sc::MonotonicResource *storage) {
     // Logger::logInfo("[Property]", "Property @ {}", cursor.tell());
 #ifndef NDEBUG
     int debug = cursor.tell();
@@ -24,7 +24,7 @@ namespace SAA {
 
     tag.PropertyTypeName = cursor.readFName();
     // Logger::logInfo("[Property]", "Property {} @ {}", tag.PropertyTypeName.text(), cursor.tell());
-    tag.PropertyType = SC::hash<EPropertyTagType>(tag.PropertyTypeName.text());
+    tag.PropertyType = sc::hash<EPropertyTagType>(tag.PropertyTypeName.text());
     tag.Size = cursor.read<uint32_t>();
     tag.ArrayIndex = cursor.read<uint32_t>();
     tag.TagData = parsePropertyTagData(cursor, storage, tag.PropertyType);
@@ -35,8 +35,10 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseMapProperty(ByteCursor &cursor, SC::ChaosBumpArena *storage,
+  FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseMapProperty(ByteCursor &cursor, sc::MonotonicResource *storage,
                                                                       FPropertyTagData *tagData, uint32_t size) {
+    // TODO: Fuer UE5_3 legt parsePropertyTagData() nie InnerTypeData/ValueTypeData an, diese Bedingung ist also
+    // immer wahr und jede Map wird uebersprungen. Der Code darunter ist fuer UE5_3 nicht erreichbar.
     if (!tagData->InnerTypeData && !tagData->ValueTypeData) {
       cursor += size;
       return {};
@@ -49,7 +51,7 @@ namespace SAA {
       parsePropertyValue(cursor, storage, keyTag, ReadType::MAP, 0);
     }
 
-    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage()->resource());
+    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage());
     auto entries = cursor.read<uint32_t>();
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {
@@ -62,12 +64,12 @@ namespace SAA {
 
   template<>
   FPropertyTagData *PropertyParser<
-    EUE5Version::UE5_3>::parsePropertyTagData(ByteCursor &cursor, SC::ChaosBumpArena *storage, EPropertyTagType type) {
+    EUE5Version::UE5_3>::parsePropertyTagData(ByteCursor &cursor, sc::MonotonicResource *storage, EPropertyTagType type) {
     auto *data = storage->make<FPropertyTagData>();
     switch (type) {
       case EPropertyTagType::Struct: {
         data->structName = cursor.readFName();
-        data->StructType = SC::hash<ESatisfactoryStruct>(data->structName.text());
+        data->StructType = sc::hash<ESatisfactoryStruct>(data->structName.text());
         data->StructGuid = cursor.read<FGuid>();
         break;
       }
@@ -82,16 +84,16 @@ namespace SAA {
       }
       case EPropertyTagType::Array:
       case EPropertyTagType::Set: {
-        data->InnerType = SC::hash<EPropertyTagType>(cursor.readFName().text());
+        data->InnerType = sc::hash<EPropertyTagType>(cursor.readFName().text());
         break;
       }
       case EPropertyTagType::Map: {
-        data->InnerType = SC::hash<EPropertyTagType>(cursor.readFName().text());
-        data->ValueType = SC::hash<EPropertyTagType>(cursor.readFName().text());
+        data->InnerType = sc::hash<EPropertyTagType>(cursor.readFName().text());
+        data->ValueType = sc::hash<EPropertyTagType>(cursor.readFName().text());
         break;
       }
       case EPropertyTagType::Optional: {
-        data->InnerType = SC::hash<EPropertyTagType>(cursor.readFName().text());
+        data->InnerType = sc::hash<EPropertyTagType>(cursor.readFName().text());
         break;
       }
       default:
@@ -101,7 +103,7 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PropertyParser<EUE5Version::UE5_3>::parsePropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage,
+  FPropertyValue PropertyParser<EUE5Version::UE5_3>::parsePropertyValue(ByteCursor &cursor, sc::MonotonicResource *storage,
                                                                         FPropertyTag &tag,
                                                                         ReadType readType,
                                                                         uint32_t size) {
@@ -148,7 +150,7 @@ namespace SAA {
         break;
       }
       case EPropertyTagType::Delegate: {
-        auto num = cursor.read<int32_t>();
+        (void) cursor.read<int32_t>(); // num
         val.data = cursor.readFName();
         break;
       }
@@ -226,7 +228,7 @@ namespace SAA {
 
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseStructPropertyValue(
-    ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData, ReadType type,
+    ByteCursor &cursor, sc::MonotonicResource *storage, FPropertyTagData *tagData, ReadType type,
     uint32_t size) {
     FPropertyValue val;
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
@@ -234,7 +236,7 @@ namespace SAA {
     auto debug = cursor.tell();
     (void) debug;
 #endif
-    switch (const auto structType = tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
+    switch (tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
       case ESatisfactoryStruct::Guid: {
         val.data = cursor.read<FGuid>();
         break;
@@ -412,29 +414,31 @@ namespace SAA {
 
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseTextPropertyValue(
-    ByteCursor &cursor, SC::ChaosBumpArena *storage) {
+    ByteCursor &cursor, sc::MonotonicResource *storage) {
     FText text{.flags = cursor.read<ETextFlag>(), .type = cursor.read<ETextHistoryType>()};
 
-    SC::MagpieString magpieResult;
+    sc::MagpieString magpieResult;
     switch (text.type) {
       case ETextHistoryType::Base: {
         text.nSpace = cursor.readFString();
         text.key = cursor.readFString();
         text.sourceString = cursor.readFString();
-        magpieResult = SC::MagpieString(text.nSpace, text.key, text.sourceString);
+        magpieResult = sc::MagpieString(text.nSpace, text.key, text.sourceString);
         break;
       }
       case ETextHistoryType::AsPercent: {
-        auto type = cursor.read<EFormatArgumentType>();
+        // TODO: Der Quellwert (FFormatArgumentValue) wird nicht gelesen, das Ergebnis ist ein leerer MagpieString.
+        // Die Position stimmt danach nur, weil parse() den Cursor ueber tag.Size neu setzt.
+        (void) cursor.read<EFormatArgumentType>();
         if (cursor.readBool()) {
-          auto FormatOptions = cursor.read<FNumberFormattingOptions>();
+          (void) cursor.read<FNumberFormattingOptions>();
         }
-        auto targetCulture = cursor.readFString();
+        (void) cursor.readFString(); // targetCulture
         break;
       }
       case ETextHistoryType::Transform: {
         auto innerValue = parseTextPropertyValue(cursor, storage);
-        magpieResult = std::get<SC::MagpieString>(innerValue.data);
+        magpieResult = std::get<sc::MagpieString>(innerValue.data);
         cursor.read<ETransformType>();
         break;
       }
@@ -448,17 +452,20 @@ namespace SAA {
       case ETextHistoryType::AsTime:
       case ETextHistoryType::AsDateTime:
       case ETextHistoryType::TextGenerator:
+        // TODO: Die Exception laeuft durch Object::safeParse(), das den Zustand dann auf PARSING stehen laesst
+        // (siehe TODO dort): ein nicht unterstuetzter Text-Typ haengt alle wartenden Threads auf, statt einen Fehler
+        // zu melden.
         throw std::runtime_error("Not implemented");
       case ETextHistoryType::StringTableEntry: {
         const auto tableId = cursor.readFName();
         const auto key = cursor.readFString();
-        magpieResult = SC::MagpieString(tableId.text(), key);
+        magpieResult = sc::MagpieString(tableId.text(), key);
         break;
       }
       default:
         if (cursor.readBool()) {
           text.textHistory.text = cursor.readFString();
-          magpieResult = SC::MagpieString::fromStr(text.textHistory.text);
+          magpieResult = sc::MagpieString::fromStr(text.textHistory.text);
         }
     }
 
@@ -467,10 +474,10 @@ namespace SAA {
 
   template<>
   PropertyHolder PropertyParser<EUE5Version::UE5_3>::parseFallbackStruct(
-    ByteCursor &cursor, SC::ChaosBumpArena *storage) {
-    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, SC::IdentityHash>;
+    ByteCursor &cursor, sc::MonotonicResource *storage) {
+    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, sc::IdentityHash>;
 
-    auto props = cursor.m_owner->storage()->make<denseMap>(cursor.m_owner->storage()->resource());
+    auto props = cursor.m_owner->storage()->makePmr<denseMap>();
 
     PropertyHolder structFallback(props);
     while (true) {
@@ -480,7 +487,8 @@ namespace SAA {
       };
       auto pos = cursor.tell();
       tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
-      structFallback.m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
+      structFallback.m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
+      // TODO: Wie in property_parser_1017.cpp: tag ist schon verschoben, das nullptr erreicht den Map-Eintrag nicht.
       tag.TagData = nullptr;
       cursor = tag.Size + pos;
     }
@@ -489,7 +497,7 @@ namespace SAA {
 
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseArrayPropertyValue(
-    ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData, ReadType type,
+    ByteCursor &cursor, sc::MonotonicResource *storage, FPropertyTagData *tagData, ReadType type,
     uint32_t size) {
     FPropertyValue val;
     auto arrayType = tagData->InnerType;
@@ -502,7 +510,7 @@ namespace SAA {
     //   tag = parsePropertyTag(cursor);
     // }
 
-    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage());
     vec.reserve(lenght);
 
     switch (arrayType) {
@@ -536,7 +544,7 @@ namespace SAA {
 
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseObjectPropertyValue(
-    ByteCursor &cursor, SC::ChaosBumpArena *storage) {
+    ByteCursor &cursor, sc::MonotonicResource *storage) {
     FPropertyValue val;
     auto index = cursor.read<int32_t>();
     val.data = cursor.m_owner->resolveIndex(index);
@@ -545,12 +553,15 @@ namespace SAA {
 
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseSetPropertyValue(
-    ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData) {
+    ByteCursor &cursor, sc::MonotonicResource *storage, FPropertyTagData *tagData) {
+    // TODO: Dieser Sonderfall greift nie. Fuer UE5_3 setzt parsePropertyTagData() tagData->Name gar nicht, fuer
+    // UE5_6 steht darin der Typname ("SetProperty"), nicht der Property-Name. Zwei String-Vergleiche pro Set fuer
+    // nichts; gebraucht wird hier der Name des Tags.
     if (tagData->InnerTypeData == nullptr && tagData->InnerType == EPropertyTagType::Struct) {
       if (tagData->Name.text() == "AnimSequenceInstances" || tagData->Name.text() == "PostProcessInstances") {
         tagData->InnerTypeData = storage->make<FPropertyTagData>();
         tagData->InnerTypeData->Type = EPropertyTagType::Struct;
-        tagData->InnerTypeData->StructType = SC::hash<ESatisfactoryStruct>("Guid");
+        tagData->InnerTypeData->StructType = sc::hash<ESatisfactoryStruct>("Guid");
       }
     }
     auto num = cursor.read<uint32_t>();
@@ -563,7 +574,7 @@ namespace SAA {
       parsePropertyValue(cursor, storage, tag, ReadType::ARRAY, 0);
     }
     num = cursor.read<uint32_t>();
-    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage());
     vec.reserve(num);
     for (int i = 0; i < num; i++) {
       vec.emplace_back(parsePropertyValue(cursor, storage, tag, ReadType::ARRAY, 0));
@@ -574,7 +585,7 @@ namespace SAA {
 
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseBoolPropertyValue(
-    ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData, ReadType type) {
+    ByteCursor &cursor, sc::MonotonicResource *storage, FPropertyTagData *tagData, ReadType type) {
     FPropertyValue val;
     switch (type) {
       case ReadType::NORMAL:
@@ -592,7 +603,7 @@ namespace SAA {
 
   template<>
   void PropertyParser<EUE5Version::UE5_3>::parse(PropertyHolder *holder, ByteCursor &cursor,
-                                                 SC::ChaosBumpArena *storage) {
+                                                 sc::MonotonicResource *storage) {
     while (true) {
       auto tag = parsePropertyTag(cursor, storage);
       if (tag.Name.isNone()) {
@@ -601,7 +612,7 @@ namespace SAA {
       auto final = cursor.tell() + tag.Size;
       tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
       cursor = final;
-      holder->m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
+      holder->m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
     }
   }
 }

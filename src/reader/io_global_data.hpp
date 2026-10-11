@@ -3,9 +3,8 @@
 //
 
 #pragma once
-#include <filesystem>
-#include "hash/hash.hpp"
 #include <ankerl/unordered_dense.h>
+#include <filesystem>
 
 #include "core/name.hpp"
 #include "core/package.hpp"
@@ -21,8 +20,8 @@ namespace SAA {
 
   struct GlobalData {
     std::span<std::string_view> globalNameMap;
-      using denseMap = ankerl::unordered_dense::map<FPackageObjectIndex, FScriptObjectEntry>;
-      denseMap ScriptObjectEntriesMap;
+    using denseMap = ankerl::unordered_dense::map<FPackageObjectIndex, FScriptObjectEntry>;
+    denseMap scriptObjectEntriesMap;
   };
 
   class IOGlobalData {
@@ -35,4 +34,4 @@ namespace SAA {
   private:
     std::unique_ptr<IOStoreReader> storeParser;
   };
-} 
+} // namespace SAA

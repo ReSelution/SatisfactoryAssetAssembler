@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+#include <filesystem>
 #include <vector>
 
 #include "Reader.hpp"
@@ -22,7 +24,7 @@ namespace SAA {
 
     bool load() override;
     bool mountVFS(Vfs *vfs) override;
-    GameFile * readFile(SC::ChaosBumpArena *storage, uint32_t index) const;
+    GameFile * readFile(sc::MonotonicResource *storage, uint32_t index) const;
 
   private:
     void readPaKInfo();
@@ -32,6 +34,5 @@ namespace SAA {
     FileReader m_pakFile;
     FPakInfo m_pakInfo{};
     std::vector<FPakEntry> m_pakEntries;
-    std::unique_ptr<SC::ChaosBumpArena> stringStorage;
   };
 } 

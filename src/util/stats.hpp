@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "stats/chaos_stats.hpp"
-#include "stats/chaos_throughput.hpp"
+#include "sc/stats/stats.hpp"
+#include "sc/stats/throughput.hpp"
 
-DEFINE_CHAOS_STAT(DecompressedThroughput, "Decompressed", SC::ChaosThroughput<>)
-DEFINE_CHAOS_STAT(CompressedThroughput, "Compressed", SC::ChaosThroughput<>)
+using DecompressedThroughput = sc::stats::Stat<"Decompressed", sc::stats::Throughput<>>;
+using CompressedThroughput   = sc::stats::Stat<"Compressed", sc::stats::Throughput<>>;

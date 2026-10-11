@@ -3,11 +3,21 @@
 //
 
 #pragma once
+#include <atomic>
 #include <condition_variable>
+#include <cstdint>
+#include <memory>
+#include <memory_resource>
+#include <mutex>
+#include <span>
+#include <stdexcept>
+#include <string_view>
+#include <vector>
 
 #include "io/packages/f_export_map_entry.hpp"
-#include "io/packages/f_object_export.hpp"
 #include "io_global_data.hpp"
+#include "sc/memory/arena_pool.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 #include "version.hpp"
 
 namespace SAA {
@@ -33,12 +43,9 @@ namespace SAA {
   public:
     enum class AssetType { UASSET, UMAP, UNKNOWN };
 
-    AssetFileParser(AssetParser *assetParser, std::string_view path,
-                    AssetType assetType = AssetType::UNKNOWN) : m_assetParser(assetParser), m_importedParsers(nullptr),
-                                                                m_assetEntry(nullptr),
-                                                                m_bulkEntry(nullptr),
-                                                                m_type(assetType),
-                                                                m_path(path) {
+    AssetFileParser(AssetParser *assetParser, std::string_view path, AssetType assetType = AssetType::UNKNOWN) :
+        m_assetParser(assetParser), m_importedParsers(nullptr), m_assetEntry(nullptr), m_bulkEntry(nullptr),
+        m_type(assetType), m_path(path) {
       auto lastDot = m_path.find_last_of('.');
 
       if (lastDot != std::string::npos) {
@@ -60,7 +67,7 @@ namespace SAA {
 
 
     [[nodiscard]] std::string_view nameFromMap(uint32_t index) const {
-      if (index < m_nameMap.size()) [[likely]]{
+      if (index < m_nameMap.size()) [[likely]] {
         return m_nameMap[index];
       }
       return "None";
@@ -122,20 +129,21 @@ namespace SAA {
 
     virtual void exportAssets() const = 0;
 
-    [[nodiscard]] std::pmr::vector<std::shared_ptr<AssetFileParser> > *importetParser() const {
+    [[nodiscard]] std::pmr::vector<std::shared_ptr<AssetFileParser>> *importetParser() const {
       return m_importedParsers;
     }
 
-    [[nodiscard]] SC::ChaosBumpArena *storage() const { return m_storage.get(); }
+    [[nodiscard]] sc::MonotonicResource *storage() { return m_storage.get(); }
 
   protected:
-    virtual void parse() {
-      throw std::runtime_error("AssetFileParser::parse() called");
-    };
+    virtual void parse() { throw std::runtime_error("AssetFileParser::parse() called"); };
     std::span<std::string_view> m_nameMap;
     AssetParser *m_assetParser = nullptr;
-    std::pmr::vector<std::shared_ptr<AssetFileParser> > *m_importedParsers;
-    std::unique_ptr<SC::ChaosBumpArena> m_storage;
+    std::pmr::vector<std::shared_ptr<AssetFileParser>> *m_importedParsers;
+    // Kommt in safeParse() aus dem sc::ArenaPool und geht in reset() dorthin zurueck, vor dem ersten safeParse()
+    // also nullptr.
+    // mutable: const-Methoden wie getMappedName() allokieren Namen daraus.
+    mutable std::unique_ptr<sc::MonotonicResource> m_storage;
 
     virtual void reset();
 
@@ -156,4 +164,4 @@ namespace SAA {
     std::mutex m_mutex;
     std::condition_variable m_cv;
   };
-}
+} // namespace SAA

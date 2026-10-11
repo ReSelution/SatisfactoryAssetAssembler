@@ -16,9 +16,34 @@
 *Oodle is a registered trademark of Epic Games Tools (formerly RAD Game Tools). This project is an independent fan-made tool and is not affiliated with, endorsed by, or sponsored by Coffee Stain Studios or Epic Games.*
 
 ## 🛠️ Build Instructions (Linux / Fedora)
-```bash
 
-git clone --recursive [https://github.com/ReSelution/SatisfactoryAssetAssembler.git](https://github.com/ReSelution/SatisfactoryAssetAssembler.git)
+Requires a C++23 compiler, [Meson](https://mesonbuild.com) 1.1 or newer and Ninja.
+All dependencies are fetched as Meson subprojects.
+
+```bash
+git clone --recursive https://github.com/ReSelution/SatisfactoryAssetAssembler.git
 cd SatisfactoryAssetAssembler
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
+meson setup build/release --native-file cross/linux-clang.ini --buildtype=release -Db_lto=true
+meson compile -C build/release
+```
+
+`cross/linux-clang.ini` selects Clang with mold and ccache. Other configurations:
+
+```bash
+# Optimized with debug symbols, for profiling
+meson setup build/relwithdebinfo --native-file cross/linux-clang.ini -Doptimization=3 -Ddebug=true -Db_ndebug=true
+
+# AddressSanitizer + UndefinedBehaviorSanitizer
+meson setup build/debug --native-file cross/linux-clang.ini -Db_sanitize=address,undefined
+
+# Windows, cross compiled with clang-cl (SDK via scripts/setup-win-sdk.sh)
+meson setup build/win64 --cross-file cross/win64-clang-cl.ini --buildtype=release
+```
+
+### Options
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `enable_chaos_stats` | `true` | Compiles the StructuredChaos stats in instead of leaving them out |
+| `dump_magpie` | `false` | Keeps namespace and key of every text, for `Magpie::dump()` |
+| `native_arch` | `true` | Builds with `-march=native`, ignored when cross compiling |

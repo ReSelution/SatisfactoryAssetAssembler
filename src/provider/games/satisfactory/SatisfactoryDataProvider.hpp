@@ -14,8 +14,8 @@
 #include "vfs.hpp"
 
 
-namespace SC{
-  class ChaosRegistry;
+namespace sc::ecs {
+  class Registry;
 }
 namespace SAA {
 
@@ -36,7 +36,7 @@ namespace SAA {
         bool load();
         void crawl();
         void test();
-        static void setECS(SC::ChaosRegistry *reg);
+        static void setECS(sc::ecs::Registry *reg);
     private:
 
         Vfs m_vfs;

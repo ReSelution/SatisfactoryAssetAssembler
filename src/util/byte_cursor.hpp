@@ -5,21 +5,26 @@
 #pragma once
 #include <cstdint>
 #include <cstring>
-#include <deque>
 #include <span>
 #include <stdexcept>
+#include <string_view>
+#include <type_traits>
 
 #include "AssetFileParser.hpp"
 #include "core/name.hpp"
+#include "sc/localizations/magpie_translator.hpp"
 
 
-namespace SC {
-  class ChaosBumpArena;
+namespace sc {
+  class MonotonicResource;
 }
 
 namespace SAA {
   class AssetFileParser;
   struct FName;
+
+  // Wandelt UTF-16 nach UTF-8 um und legt das Ergebnis in storage ab.
+  std::string_view utf16ToUtf8(sc::MonotonicResource &storage, std::span<const char16_t> chars);
 
   class ByteCursor {
   private:
@@ -28,9 +33,8 @@ namespace SAA {
   public:
     ByteCursor() = default;
 
-    explicit ByteCursor(std::span<const uint8_t> buf, AssetFileParser *owner = nullptr) : m_owner(owner),
-                                                                                          m_buffer(buf) {
-    }
+    explicit ByteCursor(std::span<const uint8_t> buf, AssetFileParser *owner = nullptr) :
+        m_owner(owner), m_buffer(buf) {}
 
     [[nodiscard]] size_t size() const { return m_buffer.size(); }
     [[nodiscard]] size_t absOffset() const { return m_absoluteOffset; }
@@ -56,8 +60,8 @@ namespace SAA {
 
     FName readFName() {
       FName name{
-        .index = read<uint32_t>(),
-        .number = read<uint32_t>(),
+          .index  = read<uint32_t>(),
+          .number = read<uint32_t>(),
       };
       name.plainTextView = m_owner->nameFromMap(name.index);
       return name;
@@ -67,13 +71,13 @@ namespace SAA {
 
     std::span<std::string_view> loadNameBatch();
 
-    std::span<std::string_view> loadNameBatch(SC::ChaosBumpArena *utf16Storage);
+    std::span<std::string_view> loadNameBatch(sc::MonotonicResource *utf16Storage);
 
     template<typename T>
     std::span<const T> readArrayView();
 
     [[nodiscard]] ByteCursor subspan(size_t offset, size_t size) const {
-      if (offset + size > m_buffer.size())[[unlikely]]{
+      if (offset + size > m_buffer.size()) [[unlikely]] {
         throw_overflow(offset, size);
       }
 
@@ -84,13 +88,17 @@ namespace SAA {
 
     std::string_view readFString();
 
-    std::string_view readFString(SC::ChaosBumpArena *utf16Storage);
+    std::string_view readFString(sc::MonotonicResource *utf16Storage);
+
+    std::string_view readFString(sc::Magpie *);
 
     template<typename T>
     T read() {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
 
-      if (m_cursor + sizeof(T) > m_buffer.size())[[unlikely]]{
+      if (m_cursor + sizeof(T) > m_buffer.size()) [[unlikely]] {
+
+        throw_overflow(m_cursor, sizeof(T));
       }
 
       T val;
@@ -104,6 +112,10 @@ namespace SAA {
 
     std::string_view readStrView() {
       auto len = read<uint8_t>();
+      if (m_cursor + len > m_buffer.size()) [[unlikely]] {
+
+        throw_overflow(m_cursor, len);
+      }
       std::string_view str = {reinterpret_cast<const char *>(m_buffer.data() + m_cursor), len};
       m_cursor += len;
       return str;
@@ -112,17 +124,17 @@ namespace SAA {
     template<typename T>
     std::span<const T> readBulkArray() {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
-      auto elementSize = read<uint32_t>();
+      auto elementSize  = read<uint32_t>();
       auto elementCount = read<uint32_t>();
-      auto temp = m_cursor;
-      auto array = readArray<T>(elementCount);
+      auto temp         = m_cursor;
+      auto array        = readArray<T>(elementCount);
       if (m_cursor != temp + elementCount * elementSize) [[unlikely]] {
         throw std::runtime_error("ByteCursor raw array size mismatch");
       }
       return array;
     }
     void skipBulkArray() {
-      auto elementSize = read<uint32_t>();
+      auto elementSize  = read<uint32_t>();
       auto elementCount = read<uint32_t>();
       skip(elementCount * elementSize);
     }
@@ -186,7 +198,7 @@ namespace SAA {
 
   private:
     std::span<const uint8_t> m_buffer;
-    uint64_t m_cursor = 0;
+    uint64_t m_cursor         = 0;
     uint64_t m_absoluteOffset = 0;
   };
 
@@ -194,12 +206,12 @@ namespace SAA {
   template<typename T>
   std::span<const T> ByteCursor::readArrayView() {
     auto initialPos = m_cursor;
-    auto count = read<uint32_t>();
-    m_cursor = read<uint32_t>() + initialPos;
+    auto count      = read<uint32_t>();
+    m_cursor        = read<uint32_t>() + initialPos;
 
     auto out = readArray<T>(count);
 
     m_cursor = initialPos + sizeof(uint32_t) * 2;
     return out;
   }
-}
+} // namespace SAA

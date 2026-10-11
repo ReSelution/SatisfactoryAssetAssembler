@@ -5,15 +5,11 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
-#include "hash/hash.hpp"
-#include "name.hpp"
+#include <string_view>
 #include "city_inline.hpp"
 
 namespace SAA {
-  enum class EType : uint8_t {
-    Export = 0, ScriptImport = 1, PackageImport = 2, Null = 3, TypeCount = Null
-  };
+  enum class EType : uint8_t { Export = 0, ScriptImport = 1, PackageImport = 2, Null = 3, TypeCount = Null };
 
 #pragma pack(push, 1)
 
@@ -26,8 +22,8 @@ namespace SAA {
 
       for (size_t i = 0; i < len; ++i) {
         const auto uc = static_cast<uint8_t>(name[i]);
-        uint8_t lc = (uc >= 'A' && uc <= 'Z') ? (uc + 32) : uc;
-        buffer[i] = static_cast<char16_t>(lc);
+        uint8_t lc    = (uc >= 'A' && uc <= 'Z') ? (uc + 32) : uc;
+        buffer[i]     = static_cast<char16_t>(lc);
       }
 
 
@@ -40,12 +36,12 @@ namespace SAA {
   struct FPackageObjectIndex {
     uint64_t TypeAndId;
 
-    static constexpr int Size = sizeof(uint64_t);
-    static constexpr int IndexBits = 62;
+    static constexpr int Size           = sizeof(uint64_t);
+    static constexpr int IndexBits      = 62;
     static constexpr uint64_t IndexMask = (1ULL << IndexBits) - 1ULL;
-    static constexpr uint64_t TypeMask = ~IndexMask;
-    static constexpr int TypeShift = IndexBits;
-    static constexpr uint64_t Invalid = ~0ULL;
+    static constexpr uint64_t TypeMask  = ~IndexMask;
+    static constexpr int TypeShift      = IndexBits;
+    static constexpr uint64_t Invalid   = ~0ULL;
     static const FPackageObjectIndex InvalidObjectIndex;
 
     [[nodiscard]] EType GetType() const { return static_cast<EType>(TypeAndId >> TypeShift); }
@@ -70,13 +66,14 @@ namespace SAA {
     uint32_t importedPublicExportHashIndex;
 
     static FPackageImportReference fromObjIndex(const FPackageObjectIndex &index) {
-      return {.importedPackageIndex = static_cast<uint32_t>((index.TypeAndId & index.IndexMask) >> 32),
+      return {.importedPackageIndex          = static_cast<uint32_t>((index.TypeAndId & index.IndexMask) >> 32),
               .importedPublicExportHashIndex = static_cast<uint32_t>(index.TypeAndId)};
     };
   };
 
+
 #pragma pack(pop)
-}
+} // namespace SAA
 
 namespace std {
   template<>
@@ -87,7 +84,7 @@ namespace std {
   template<>
   struct hash<SAA::FPackageObjectIndex> {
     size_t operator()(const SAA::FPackageObjectIndex &index) const noexcept {
-      return SC::hash(index.TypeAndId);
+      return static_cast<size_t>(index.TypeAndId);
     }
   };
 } // namespace std

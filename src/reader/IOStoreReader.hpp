@@ -3,21 +3,20 @@
 #include <cstdint>
 #include <filesystem>
 #include <span>
+#include <string_view>
 
-#include "hash/hash.hpp"
 #include <ankerl/unordered_dense.h>
 
-#include "byte_cursor.hpp"
 #include "Decompressor.hpp"
 #include "Reader.hpp"
+#include "byte_cursor.hpp"
 #include "file_reader.hpp"
+#include "game_file.hpp"
 #include "io/f_io_chunk_id.hpp"
 #include "io/f_io_container_header.hpp"
-#include "io/f_io_container_header_soft_package_refenrenes.hpp"
 #include "io/f_io_offset_and_lenght.hpp"
 #include "io/f_io_store_toc_Compressed_block_entry.hpp"
 #include "io/f_io_store_toc_header.hpp"
-#include "game_file.hpp"
 
 namespace SAA {
   class IOStoreReader : public Reader {
@@ -34,14 +33,13 @@ namespace SAA {
 
     bool load() override;
 
-    GameFile *readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const;
+    GameFile *readChunk(sc::MonotonicResource *storage, const FIoChunkId &chunkId) const;
 
     bool mountVFS(Vfs *vfs) override;
 
     const FIoContainerHeader *containerHeader() const { return &m_containerHeader; }
 
   private:
-
     void parseHeader(ByteCursor &cursor);
 
     void parseChunkIds(ByteCursor &cursor);
@@ -62,8 +60,8 @@ namespace SAA {
 
     bool readContainerHeader();
 
-    static void
-    readFilePackageStoreEntry(GameFile *file, FFilePackageStoreEntry *entry, EIoContainerHeaderVersion version);
+    static void readFilePackageStoreEntry(GameFile *file, FFilePackageStoreEntry *entry,
+                                          EIoContainerHeaderVersion version);
 
     void parseDirectoryPathList();
 
@@ -96,6 +94,5 @@ namespace SAA {
 
 
     FIoContainerHeader m_containerHeader{};
-
   };
-} 
+} // namespace SAA

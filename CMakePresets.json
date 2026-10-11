@@ -25,11 +25,21 @@
     {
       "name": "clang-release",
       "displayName": "Clang Release (Linux)",
-      "description": "Maximale Performance mit O3 und lld Linker",
+      "description": "Maximale Performance mit O3",
       "inherits": "base-linux-clang",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG"
+      }
+    },
+    {
+      "name": "clang-relwithdebinfo",
+      "displayName": "Clang RelWithDebInfo (Linux)",
+      "description": "Maximale Performance mit O3 und Debug-Symbolen für Profiling & Debugging",
+      "inherits": "base-linux-clang",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O3 -g -DNDEBUG"
       }
     }
   ],
@@ -41,6 +51,10 @@
     {
       "name": "clang-release",
       "configurePreset": "clang-release"
+    },
+    {
+      "name": "clang-relwithdebinfo",
+      "configurePreset": "clang-relwithdebinfo"
     }
   ]
 }

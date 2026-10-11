@@ -8,7 +8,7 @@
 
 #include "AssetFileParser.hpp"
 
-#include "hash/hash.hpp"
+#include "sc/hash/hash.hpp"
 
 
 namespace SAA {
@@ -16,14 +16,14 @@ namespace SAA {
     enum class HIT_TEST_CLASS_HASH : uint64_t {
 
       // --- REZEPTE & FORSCHUNG ---
-      FGRecipe = "FGRecipe"_h,
+      FGRecipe    = "FGRecipe"_h,
       FGSchematic = "FGSchematic"_h,
 
       // --- ITEMS & DESKRIPTOREN ---
-      FGItemDescriptor = "FGItemDescriptor"_h,
+      FGItemDescriptor        = "FGItemDescriptor"_h,
       FGItemDescriptorBiomass = "FGItemDescriptorBiomass"_h,
-      FGResourceDescriptor = "FGResourceDescriptor"_h,
-      FGBuildingDescriptor = "FGBuildingDescriptor"_h,
+      FGResourceDescriptor    = "FGResourceDescriptor"_h,
+      FGBuildingDescriptor    = "FGBuildingDescriptor"_h,
     };
 
   public:
@@ -44,14 +44,14 @@ namespace SAA {
 
     void crawl(AssetParser &parser);
 
-    void onParsed(std::shared_ptr<AssetFileParser> &parser);
+    void onParsed(std::shared_ptr<AssetFileParser> &&parser);
 
     static constexpr std::array<std::string_view, 1> filterList = {
-            ".uasset",
+        ".uasset",
     };
 
   private:
-    bool hitTestAsset(std::shared_ptr<AssetFileParser> &parser);
+    bool hitTestAsset(std::shared_ptr<AssetFileParser> &&parser);
 
     auto createFileQueue(AssetParser &parser, size_t &files);
 
@@ -65,6 +65,5 @@ namespace SAA {
     std::vector<std::shared_ptr<AssetFileParser>> m_resources;
 
     std::vector<Crawler> m_childs;
-
   };
-}
+} // namespace SAA

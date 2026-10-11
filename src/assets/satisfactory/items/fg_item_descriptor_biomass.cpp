@@ -12,9 +12,9 @@ namespace SAA {
     DBG_MARK_HANDLED(m_className, Item::CachedStackSize);
     DBG_MARK_HANDLED(m_className, Item::RememberPickUp);
 
-    mDisplayName = get<SC::MagpieString>(Base::DisplayName);
-    mDescription = get<SC::MagpieString>(Base::Description);
-    mAbbreviatedDisplayName = get<SC::MagpieString>(Item::AbbreviatedDisplayName);
+    mDisplayName = get<sc::MagpieString>(Base::DisplayName);
+    mDescription = get<sc::MagpieString>(Base::Description);
+    mAbbreviatedDisplayName = get<sc::MagpieString>(Item::AbbreviatedDisplayName);
 
     mEnergyValue = get<float>(Item::EnergyValue).value_or(0.0f);
     mCategory = get<Object *>(Item::Category);

@@ -16,8 +16,8 @@ namespace SAA {
     DBG_MARK_HANDLED(m_className, Schematic::DependenciesBlocksAccess);
     DBG_MARK_HANDLED(m_className, Schematic::SchematicUnlockTag);
 
-    mDisplayName = get<SC::MagpieString>(Schematic::DisplayName);
-    mDescription = get<SC::MagpieString>(Schematic::Description);
+    mDisplayName = get<sc::MagpieString>(Schematic::DisplayName);
+    mDescription = get<sc::MagpieString>(Schematic::Description);
 
     mTier = get<int32_t>(Schematic::TechTier).value_or(0);
     mType = get<FName>(Schematic::Type);

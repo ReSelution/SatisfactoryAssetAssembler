@@ -3,12 +3,12 @@
 #include <cstdint>
 #include <cstring>
 
+#include "sc/logger/logger.hpp"
 #include "usmap/enums.hpp"
 
-#include "logger/chaos_logger.hpp"
-LOG_ALIAS(DecomLog, "SAA", "Decompressor")
 
 namespace SAA {
+  using DecomLog = sc::Logger<"SAA", "Decompressor">;
   void OodleApi::initializePointer(OodleLZ_Decompress func) {
     decompressFunc = func;
     if (func) {
@@ -34,8 +34,7 @@ namespace SAA {
         break;
       case EUsmapCompressionMethod::UNKNOWN:
       default:
-        DecomLog::err("Unknown compression method: {}",
-                      static_cast<int>(usmapMethod));
+        DecomLog::err("Unknown compression method: {}", static_cast<int>(usmapMethod));
         return false;
     }
 
@@ -49,8 +48,8 @@ namespace SAA {
       case CompressionMethod::Unknown: // Optional: Bei Unknown direkt als unkomprimiert behandeln oder Fehler werfen
       {
         if (uncompressedData.size() != compressedData.size()) {
-          DecomLog::err("Size mismatch for method None. Expected {}, got {}",
-                        uncompressedData.size(), compressedData.size());
+          DecomLog::err("Size mismatch for method None. Expected {}, got {}", uncompressedData.size(),
+                        compressedData.size());
           return false;
         }
         std::memcpy(uncompressedData.data(), compressedData.data(), compressedData.size());
@@ -90,18 +89,16 @@ namespace SAA {
       throw std::runtime_error("Decompressor wurde nicht initialisiert oder Oodle fehlt.");
     }
 
-    uint64_t decodedSize = OodleApi::decompressFunc(src.data(), static_cast<long>(src.size()), dst.data(),
-                                                    static_cast<long>(dst.size()), 1, 0,
-                                                    0, nullptr, 0, nullptr, nullptr, nullptr, 0,
-                                                    0);
+    uint64_t decodedSize =
+        OodleApi::decompressFunc(src.data(), static_cast<long>(src.size()), dst.data(), static_cast<long>(dst.size()),
+                                 1, 0, 0, nullptr, 0, nullptr, nullptr, nullptr, 0, 0);
 
     if (decodedSize <= 0) {
       DecomLog::err("Oodle Dekompression fehlgeschlagen.");
       return false;
     }
-    if (decodedSize !=  dst.size()) {
-      DecomLog::err("Oodle decompression decompressed {} bytes of the expected {} bytes",
-                    decodedSize, dst.size());
+    if (decodedSize != dst.size()) {
+      DecomLog::err("Oodle decompression decompressed {} bytes of the expected {} bytes", decodedSize, dst.size());
     }
 
     return true;
@@ -114,4 +111,4 @@ namespace SAA {
 
   bool Decompressor::decompressLZ4(std::span<const uint8_t> src, std::span<uint8_t> dst) { return false; }
   bool Decompressor::decompressGzip(std::span<const uint8_t> src, std::span<uint8_t> dst) { return false; }
-} 
+} // namespace SAA

@@ -4,9 +4,9 @@
 
 #include "texture.hpp"
 
-#include "texture/texture_exporter.hpp"
 #include "assets/textures/f_opt_texture_platfrom_data.hpp"
 #include "assets/textures/pixel_format.hpp"
+#include "texture/texture_exporter.hpp"
 #include "uasset_parser.hpp"
 
 namespace SAA {
@@ -36,12 +36,12 @@ namespace SAA {
   void Texture::parseCookedPlatformData(ByteCursor &cursor, bool parseMipData) {
     auto pixelFormatName = cursor.readFName();
     while (!pixelFormatName.isNone()) {
-      auto pixelFormat = SC::hash<EPixelFormat>(pixelFormatName.text());
-      auto skipOffset = +cursor.tell() + cursor.absOffset() + cursor.read<uint64_t>();
+      auto pixelFormat = sc::hash<EPixelFormat>(pixelFormatName.text());
+      auto skipOffset  = +cursor.tell() + cursor.absOffset() + cursor.read<uint64_t>();
 
       if (m_format == EPixelFormat::PF_Unknown) {
         parsePlatformData(cursor, parseMipData);
-        m_format = SC::hash<EPixelFormat>(pixelFormatName.text());
+        m_format = sc::hash<EPixelFormat>(pixelFormatName.text());
       }
 
       pixelFormatName = cursor.readFName();
@@ -64,34 +64,34 @@ namespace SAA {
   }
 
   void Texture::parsePlatformData(ByteCursor &asset, bool parseMipData) {
-    constexpr uint32_t BITMASK_CUBE_MAP = 1u << 31;
+    constexpr uint32_t BITMASK_CUBE_MAP     = 1u << 31;
     constexpr uint32_t BITMASK_HAS_OPT_DATA = 1u << 30;
     constexpr uint32_t BITMASK_HAS_CPU_COPY = 1u << 29;
-    constexpr uint32_t BITMASK_NUM_SLICES = BITMASK_HAS_OPT_DATA - 1u;
+    constexpr uint32_t BITMASK_NUM_SLICES   = BITMASK_HAS_OPT_DATA - 1u;
 
     if ((reinterpret_cast<UAssetParser *>(m_owner)->getSummary().PackageFlags & PKG_FILTER_EDITOR_ONLY)) {
       asset.skip(16);
     }
 
-    m_sizeX = asset.read<int32_t>();
-    m_sizeY = asset.read<int32_t>();
+    m_sizeX      = asset.read<int32_t>();
+    m_sizeY      = asset.read<int32_t>();
     m_packedData = asset.read<int32_t>();
 
-    m_pixelFormat = SC::hash<EPixelFormat>(asset.readFString());
+    m_pixelFormat = sc::hash<EPixelFormat>(asset.readFString());
 
     if (m_packedData & BITMASK_HAS_OPT_DATA) {
       asset.read<FOptTexturePlatformData>();
     }
 
     if (m_packedData & BITMASK_HAS_CPU_COPY) {
-      sharedImage.sizeX = asset.read<int32_t>();
-      sharedImage.sizeY = asset.read<int32_t>();
-      sharedImage.sizeZ = asset.read<int32_t>();
-      sharedImage.format = asset.read<EPixelFormatByte>();
+      sharedImage.sizeX      = asset.read<int32_t>();
+      sharedImage.sizeY      = asset.read<int32_t>();
+      sharedImage.sizeZ      = asset.read<int32_t>();
+      sharedImage.format     = asset.read<EPixelFormatByte>();
       sharedImage.gammaSpace = asset.read<uint8_t>();
-      auto len = asset.read<int64_t>();
-      auto bulk = storage()->make<FByteBulkData>();
-      bulk->bulkCursor =  asset.subspan(asset.tell(), static_cast<int32_t>(len));
+      auto len               = asset.read<int64_t>();
+      auto bulk              = storage()->make<FByteBulkData>();
+      bulk->bulkCursor       = asset.subspan(asset.tell(), static_cast<int32_t>(len));
       asset += static_cast<int32_t>(len);
       sharedImage.mip = FTexture2DMipMap{bulk, sharedImage.sizeX, sharedImage.sizeY, sharedImage.sizeZ};
     }
@@ -114,17 +114,17 @@ namespace SAA {
   }
 
   void Texture::parseVirtualTexture(ByteCursor &asset) {
-    auto cooked = asset.readBool();
-    m_vtData.numLayers = asset.read<uint32_t>();
-    m_vtData.widthInBlocks = asset.read<uint32_t>();
-    m_vtData.heightInBlocks = asset.read<uint32_t>();
-    m_vtData.tileSize = asset.read<uint32_t>();
-    m_vtData.tileBorderSize = asset.read<uint32_t>();
+    auto cooked                     = asset.readBool();
+    m_vtData.numLayers              = asset.read<uint32_t>();
+    m_vtData.widthInBlocks          = asset.read<uint32_t>();
+    m_vtData.heightInBlocks         = asset.read<uint32_t>();
+    m_vtData.tileSize               = asset.read<uint32_t>();
+    m_vtData.tileBorderSize         = asset.read<uint32_t>();
     m_vtData.tileDataOffsetPerLayer = asset.readArray<uint32_t>();
 
-    m_vtData.numMips = asset.read<uint32_t>();
-    m_vtData.width = asset.read<uint32_t>();
-    m_vtData.height = asset.read<uint32_t>();
+    m_vtData.numMips          = asset.read<uint32_t>();
+    m_vtData.width            = asset.read<uint32_t>();
+    m_vtData.height           = asset.read<uint32_t>();
     m_vtData.chunkIndexPerMip = asset.readArray<uint32_t>();
     m_vtData.baseOffsetPerMip = asset.readArray<uint32_t>();
 
@@ -132,21 +132,21 @@ namespace SAA {
     m_vtData.tileOffsetData.resize(tileCount);
     for (uint32_t i = 0; i < tileCount; i++) {
       m_vtData.tileOffsetData.emplace_back(FVirtualTextureTileOffsetData{
-          .width = asset.read<uint32_t>(),
-          .height = asset.read<uint32_t>(),
+          .width      = asset.read<uint32_t>(),
+          .height     = asset.read<uint32_t>(),
           .maxAddress = asset.read<uint32_t>(),
-          .addresses = asset.readArray<uint32_t>(),
-          .offsets = asset.readArray<uint32_t>(),
+          .addresses  = asset.readArray<uint32_t>(),
+          .offsets    = asset.readArray<uint32_t>(),
       });
     }
 
     m_vtData.tileIndexPerChunk = asset.readArray<uint32_t>();
-    m_vtData.tileIndexPerMip = asset.readArray<uint32_t>();
+    m_vtData.tileIndexPerMip   = asset.readArray<uint32_t>();
     m_vtData.tileOffsetInChunk = asset.readArray<uint32_t>();
 
     m_vtData.layerTypes.resize(m_vtData.numLayers);
     for (auto i = 0; i < m_vtData.numLayers; i++) {
-      m_vtData.layerTypes.emplace_back(SC::hash<EPixelFormat>(asset.readFString()));
+      m_vtData.layerTypes.emplace_back(sc::hash<EPixelFormat>(asset.readFString()));
     }
 
     m_vtData.layerFallbackColors = asset.readArray<FLinearColor>(m_vtData.numLayers);
@@ -156,7 +156,7 @@ namespace SAA {
     for (int i = 0; i < chunkCount; i++) {
       FVirtualTextureDataChunk chunk;
       asset += FSHA_HASH_SIZE;
-      chunk.byteSize = asset.read<uint32_t>();
+      chunk.byteSize        = asset.read<uint32_t>();
       chunk.codecPayloadSiz = asset.read<uint32_t>();
 
       chunk.codecType.reserve(m_vtData.numLayers);
@@ -169,4 +169,4 @@ namespace SAA {
       m_vtData.chunks.emplace_back(std::move(chunk));
     }
   }
-} 
+} // namespace SAA

@@ -3,23 +3,28 @@
 //
 
 #pragma once
-#include <string>
-#include "memory/chaos_bump_arena.hpp"
+#include <cstdint>
+#include <span>
+#include <string_view>
+
+namespace sc {
+  class MonotonicResource;
+}
 
 namespace SAA {
 #pragma pack(push, 1)
   enum class EMappedNameType : uint32_t { Package = 0, Container = 1, Global = 2 };
 
   struct FMappedName {
-    static constexpr int IndexBits = 30;
+    static constexpr int IndexBits      = 30;
     static constexpr uint32_t IndexMask = (1u << IndexBits) - 1u;
-    static constexpr uint32_t TypeMask = ~IndexMask;
-    static constexpr int TypeShift = IndexBits;
+    static constexpr uint32_t TypeMask  = ~IndexMask;
+    static constexpr int TypeShift      = IndexBits;
 
     uint32_t nameIndex;
     uint32_t extraIndex;
 
-    [[nodiscard]] std::string_view fromNameMap(std::span<std::string_view> map, SC::ChaosBumpArena *storage) const ;
+    [[nodiscard]] std::string_view fromNameMap(std::span<std::string_view> map, sc::MonotonicResource *storage) const;
 
     [[nodiscard]] uint32_t NameIndex() const { return nameIndex & IndexMask; }
 
@@ -50,13 +55,13 @@ namespace SAA {
 
   struct FName {
     std::string_view plainTextView;
-    mutable std::string_view generatedView;
+    // mutable std::string_view generatedView;
     uint32_t index;
     uint32_t number;
-    SC::ChaosBumpArena *slab;
+    sc::MonotonicResource *slab = nullptr;
 
     [[nodiscard]] std::string_view text() const;
 
-    [[nodiscard]] bool isNone() const { return plainTextView == "None"; }
+    [[nodiscard]] bool isNone() const { return index == 0 || plainTextView == "None"; }
   };
-}
+} // namespace SAA

@@ -5,14 +5,14 @@
 #include "material_exporter.hpp"
 
 
+#include "sc/logger/logger.hpp"
 #include "texture/texture_exporter.hpp"
 
 #include "ue/material/material_instance_constant.hpp"
 
-#include "logger/chaos_logger.hpp"
-LOG_ALIAS(MaterialExporterLog, "SAA", "MaterialExporter")
 
 namespace SAA {
+  using MaterialExporterLog = sc::Logger<"SAA", "MaterialExporter">;
   void MaterialExporter::encodeMaterial(GltfMaterial &gltfMaterial, Material *material) {
     for (auto &tex: material->m_textures) {
       auto texture = tex.lock().get();
@@ -58,8 +58,7 @@ namespace SAA {
     } else if (type.find("_Nor") != std::string::npos || type.find("_N") != std::string::npos) {
       gltfMaterial.normals.emplace_back(std::move(texData));
     } else if (type.find("_Rough") != std::string::npos || type.find("Mask") != std::string::npos ||
-               type.find("_MREO") != std::string::npos ||
-               type.find("_Forms") != std::string::npos) {
+               type.find("_MREO") != std::string::npos || type.find("_Forms") != std::string::npos) {
       // "Forms" ist UE5 Standard bei Satisfactory
       gltfMaterial.metallicRoughness.emplace_back(std::move(texData));
     } else if (type.find("Noise") != std::string::npos || type.find("Weather") != std::string::npos ||
@@ -68,4 +67,4 @@ namespace SAA {
       MaterialExporterLog::err("Unknown texture group: {} -> {} ", textureType, texData.name);
     }
   }
-} 
+} // namespace SAA

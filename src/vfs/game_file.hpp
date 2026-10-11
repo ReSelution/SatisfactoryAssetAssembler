@@ -4,8 +4,19 @@
 
 #pragma once
 
+#include <atomic>
+#include <concepts>
+#include <cstdint>
+#include <cstring>
+#include <span>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+
 #include "byte_cursor.hpp"
-#include "memory/chaos_bump_arena.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 
 
 namespace SAA {
@@ -15,14 +26,14 @@ namespace SAA {
   struct GameFileImpl {
     virtual ~GameFileImpl() = default;
 
-    static constexpr uint64_t LOADING_BIT = 1ULL << 63;
+    static constexpr uint64_t LOADING_BIT  = 1ULL << 63;
     static constexpr uint64_t FINISHED_BIT = 1ULL << 62;
-    static constexpr uint64_t VALUE_MASK = ~(LOADING_BIT | FINISHED_BIT);
+    static constexpr uint64_t VALUE_MASK   = ~(LOADING_BIT | FINISHED_BIT);
 
     const size_t fileSize;
-    std::atomic<size_t> idx = 0;
+    std::atomic<size_t> idx   = 0;
     std::atomic<size_t> start = 0;
-    std::atomic<size_t> end = 0;
+    std::atomic<size_t> end   = 0;
     std::span<std::atomic<uint64_t>> chunkOffsetsLoaded{};
 
     GameFileImpl(size_t fileSize);
@@ -42,7 +53,7 @@ namespace SAA {
   public:
     GameFile() = default;
 
-    GameFile(SC::ChaosBumpArena *storage);
+    GameFile(sc::MonotonicResource *storage);
 
     [[nodiscard]] size_t tell() const { return m_cursor; }
 
@@ -57,9 +68,9 @@ namespace SAA {
     T read() {
       static_assert(std::is_trivial_v<T>, "T must be trivial");
 
-      if (!load(sizeof(T)))[[unlikely]] {
-        throw std::runtime_error(
-                "Buffer Overflow @ " + std::to_string(m_cursor) + "/" + std::to_string(m_buffer.size()));
+      if (!load(sizeof(T))) [[unlikely]] {
+        throw std::runtime_error("Buffer Overflow @ " + std::to_string(m_cursor) + "/" +
+                                 std::to_string(m_buffer.size()));
       }
 
       T val;
@@ -71,8 +82,8 @@ namespace SAA {
     template<typename T>
     std::span<const T> readArrayView() {
       auto initialPos = m_cursor;
-      auto count = read<uint32_t>();
-      m_cursor = read<uint32_t>() + initialPos;
+      auto count      = read<uint32_t>();
+      m_cursor        = read<uint32_t>() + initialPos;
 
       auto out = readArray<T>(count);
 
@@ -104,70 +115,68 @@ namespace SAA {
 
     std::span<std::string_view> loadNameBatch();
 
-    std::span<std::string_view> loadNameBatch(SC::ChaosBumpArena *utf16Storage);
+    std::span<std::string_view> loadNameBatch(sc::MonotonicResource *utf16Storage);
 
 
     template<typename T>
-    requires std::is_integral_v<T>
+      requires std::is_integral_v<T>
     GameFile &operator+=(T bytes) {
       skip(bytes);
       return *this;
     }
 
     template<typename T>
-    requires std::is_integral_v<T>
+      requires std::is_integral_v<T>
     GameFile &operator=(T bytes) {
       seek(bytes);
       return *this;
     }
 
     template<typename T>
-    requires std::is_integral_v<T>
+      requires std::is_integral_v<T>
     friend GameFile operator+(GameFile c, T bytes) {
       c += bytes;
       return c;
     }
 
     template<typename T>
-    requires std::is_integral_v<T>
+      requires std::is_integral_v<T>
     GameFile &operator-=(T bytes) {
       skip(-bytes);
       return *this;
     }
 
     template<typename T>
-    requires std::is_integral_v<T>
+      requires std::is_integral_v<T>
     friend GameFile operator-(GameFile c, T bytes) {
       c -= bytes;
       return c;
     }
 
-    template<typename T, typename ... Args>
-    requires std::derived_from<T, GameFileImpl>
+    template<typename T, typename... Args>
+      requires std::derived_from<T, GameFileImpl>
     T *createImpl(Args &&...args) {
-      impl = m_storage->make<T>(std::forward<Args>(args)...);
+      impl                     = m_storage->make<T>(std::forward<Args>(args)...);
       impl->chunkOffsetsLoaded = m_storage->allocateSpan<std::atomic<uint64_t>>(impl->chunks());
-      m_buffer = m_storage->allocateSpan(impl->fileSize);
+      m_buffer                 = m_storage->allocateSpan(impl->fileSize);
       return static_cast<T *>(impl);
     }
 
     [[nodiscard]] ByteCursor subspan(size_t offset, size_t size);
 
-    void setOwner(AssetFileParser* ptr){
-      m_owner = ptr;
-    }
+    void setOwner(AssetFileParser *ptr) { m_owner = ptr; }
 
   private:
     bool load(size_t size);
-    AssetFileParser* m_owner = nullptr;
-    uint64_t m_cursor = 0;
-    uint64_t m_idx = 0;
-    uint64_t m_start = 0;
-    uint64_t m_end = 0;
-    SC::ChaosBumpArena *m_storage = nullptr;
+    AssetFileParser *m_owner      = nullptr;
+    uint64_t m_cursor             = 0;
+    uint64_t m_idx                = 0;
+    uint64_t m_start              = 0;
+    uint64_t m_end                = 0;
+    sc::MonotonicResource *m_storage           = nullptr;
     std::span<uint8_t> m_buffer{};
     GameFileImpl *impl = nullptr;
   };
 
 
-} // SAA
+} // namespace SAA

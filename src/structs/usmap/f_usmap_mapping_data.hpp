@@ -4,23 +4,24 @@
 
 #pragma once
 
-#include <string>
-#include "hash/hash.hpp"
 #include <ankerl/unordered_dense.h>
+#include <span>
+#include "sc/hash/hash.hpp"
 
 #include "f_usmap_schema.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 #include "version.hpp"
 
 
 namespace SAA {
-    struct FUsmapMappingData {
-        using denseMapEnums = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, SC::IdentityHash>;
-        using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, SC::IdentityHash>;
+  struct FUsmapMappingData {
+    using denseMapEnums   = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, sc::IdentityHash>;
+    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, sc::IdentityHash>;
 
-        SC::ChaosBumpArena storage;
-        FPackageFileVersion pkgVersion;
-        std::span<std::string_view> NameMap;
-        denseMapEnums Enums;
-        denseMapSchemas Schemas;
-    };
-} 
+    sc::MonotonicResource storage;
+    FPackageFileVersion pkgVersion;
+    std::span<std::string_view> NameMap;
+    denseMapEnums Enums;
+    denseMapSchemas Schemas;
+  };
+} // namespace SAA

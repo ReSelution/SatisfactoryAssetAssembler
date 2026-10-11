@@ -8,12 +8,9 @@
 #include "satisfactory/fg_recipe.hpp"
 #include "satisfactory/building/fg_building_base.hpp"
 #include "satisfactory/items/fg_item_base.hpp"
-#include "stats/chaos_map_counter.hpp"
-#include "stats/chaos_stats.hpp"
 
-
-DEFINE_CHAOS_STAT(ItemTracker, "Itemclass", SC::ChaosMapCounter<std::string_view>)
-REGISTER_CHAOS_STAT(ItemTracker)
+// TODO: Die Statistik ItemTracker (SC::ChaosMapCounter<std::string_view>, "Itemclass") ist entfallen: sc::stats hat
+// keinen Map-Counter mehr. Sie wurde nur in den auskommentierten CHAOS_RECORD-Zeilen unten benutzt.
 
 
 namespace SAA {

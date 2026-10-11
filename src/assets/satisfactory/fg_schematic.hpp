@@ -48,8 +48,8 @@ namespace SAA {
 
   private:
     std::optional<FName> mType;
-    std::optional<SC::MagpieString> mDisplayName;
-    std::optional<SC::MagpieString> mDescription;
+    std::optional<sc::MagpieString> mDisplayName;
+    std::optional<sc::MagpieString> mDescription;
     std::optional<Object*> mSchematicIcon;
     std::optional<Object*> mSmallSchematicIcon;
     std::optional<Object*> mSchematicCategory;

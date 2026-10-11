@@ -5,33 +5,32 @@
 #include <string>
 #include <string_view>
 
-#include "core/hash.hpp"
-#include "hash/hash.hpp"
 #include "ankerl/unordered_dense.h"
+#include "sc/hash/hash.hpp"
 
 namespace SAA {
 #ifndef NDEBUG
-    struct PropertyInfo;
-    struct FPropertyTag;
+  struct PropertyInfo;
+  struct FPropertyTag;
 
-    class PropertyTracker {
-    public:
-        using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, SC::IdentityHash>;
-        static void registerMap(std::string_view className, denseMap *props);
+  class PropertyTracker {
+  public:
+    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, sc::IdentityHash>;
+    static void registerMap(std::string_view className, denseMap *props);
 
-        static void markHandled(std::string_view className, uint64_t propHash) {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            m_handled[std::string(className)].insert(propHash);
-        }
+    static void markHandled(std::string_view className, uint64_t propHash) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_handled[std::string(className)].insert(propHash);
+    }
 
-        static void printMissing();
+    static void printMissing();
 
-    private:
-        static inline std::mutex m_mutex;
-        static std::map<std::string, std::map<uint64_t, PropertyInfo> > m_allSeen;
-        static inline std::map<std::string, std::set<uint64_t> > m_handled;
-        static inline std::map<std::string, size_t> m_classInstanceCount;
-    };
+  private:
+    static inline std::mutex m_mutex;
+    static std::map<std::string, std::map<uint64_t, PropertyInfo>> m_allSeen;
+    static inline std::map<std::string, std::set<uint64_t>> m_handled;
+    static inline std::map<std::string, size_t> m_classInstanceCount;
+  };
 
 #define DBG_TRACK_MAP(cls, map) PropertyTracker::registerMap(cls, map)
 #define DBG_MARK_HANDLED(cls, hash) PropertyTracker::markHandled(cls, hash)
@@ -41,4 +40,4 @@ namespace SAA {
 #define DBG_MARK_HANDLED(cls, hash)
 #define DBG_PRINT_MISSING()
 #endif
-}
+} // namespace SAA

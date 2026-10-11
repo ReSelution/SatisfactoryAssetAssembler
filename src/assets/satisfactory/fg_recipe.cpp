@@ -24,7 +24,7 @@ namespace SAA {
     mVariablePowerConsumptionConstant = get<float>(RecipeProps::VariablePowerConsumptionConstant);
     mManualManufacturingMultiplier = get<float>(RecipeProps::ManualManufacturingMultiplier);
     mVariablePowerConsumptionFactor = get<float>(RecipeProps::VariablePowerConsumptionFactor);
-    mDisplayName = get<SC::MagpieString>(RecipeProps::DisplayName);
+    mDisplayName = get<sc::MagpieString>(RecipeProps::DisplayName);
     mProduct = getArray<ItemAmount>(RecipeProps::Product, &ItemAmount::get);
     mDisplayNameOverride = get<bool>(RecipeProps::DisplayNameOverride);
     mOverriddenCategory = get<Object *>(RecipeProps::OverriddenCategory);

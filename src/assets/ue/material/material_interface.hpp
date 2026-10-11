@@ -9,43 +9,41 @@
 
 #include "structs/gltf_material.hpp"
 
+#include "sc/logger/logger.hpp"
 #include "ue/textures/texture.hpp"
-#include "logger/chaos_logger.hpp"
-
-LOG_ALIAS(MatIntLog, "SAA", "MaterialInterface")
 
 namespace SAA {
-    class MaterialInterface : public UnrealMaterial {
-        friend class MaterialExporter;
+  using MatIntLog = sc::Logger<"SAA", "MaterialInterface">;
+  class MaterialInterface : public UnrealMaterial {
+    friend class MaterialExporter;
 
-        enum class EMaterialInterfaceProperty : uint64_t {
-            bUseMobileSpecular = "bUseMobileSpecular"_h,
-            MobileSpecularPower = "MobileSpecularPower"_h,
-            MobileSpecularMask = "MobileSpecularMask"_h,
-            FlattenedTexture = "FlattenedTexture"_h,
-            MobileBaseTexture = "MobileBaseTexture"_h,
-            MobileNormalTexture = "MobileNormalTexture"_h,
-            MobileMaskTexture = "MobileMaskTexture"_h,
-            TextureStreamingData = "TextureStreamingData"_h,
-        };
-
-    public:
-        MaterialInterface(std::string_view classname = "MaterialInterface") : UnrealMaterial(classname) {
-        };
-
-        void exportToGltf(GltfMaterial &out) override {
-            MatIntLog::err("Export to Gltf not implemented for {}", getClassName());
-        };
-
-    protected:
-        void parse() override;
-
-        std::weak_ptr<Texture> m_flattenedTexture;
-        std::vector<FMaterialTextureInfo> m_textureStreamingData;
-        std::optional<PropertyHolder> cachedExpressionData;
-
-    private:
+    enum class EMaterialInterfaceProperty : uint64_t {
+      bUseMobileSpecular   = "bUseMobileSpecular"_h,
+      MobileSpecularPower  = "MobileSpecularPower"_h,
+      MobileSpecularMask   = "MobileSpecularMask"_h,
+      FlattenedTexture     = "FlattenedTexture"_h,
+      MobileBaseTexture    = "MobileBaseTexture"_h,
+      MobileNormalTexture  = "MobileNormalTexture"_h,
+      MobileMaskTexture    = "MobileMaskTexture"_h,
+      TextureStreamingData = "TextureStreamingData"_h,
     };
 
-    SAA_REGISTER_ASSET(MaterialInterface)
-} 
+  public:
+    MaterialInterface(std::string_view classname = "MaterialInterface") : UnrealMaterial(classname) {};
+
+    void exportToGltf(GltfMaterial &out) override {
+      MatIntLog::err("Export to Gltf not implemented for {}", getClassName());
+    };
+
+  protected:
+    void parse() override;
+
+    std::weak_ptr<Texture> m_flattenedTexture;
+    std::vector<FMaterialTextureInfo> m_textureStreamingData;
+    std::optional<PropertyHolder> cachedExpressionData;
+
+  private:
+  };
+
+  SAA_REGISTER_ASSET(MaterialInterface)
+} // namespace SAA

@@ -4,7 +4,14 @@
 
 #pragma once
 
+#include <cstdint>
+#include <string_view>
+
 #include "io/f_io_chunk_id.hpp"
+
+namespace sc {
+  class MonotonicResource;
+}
 
 namespace SAA {
   class GameFile;
@@ -23,6 +30,9 @@ namespace SAA {
     virtual ~UnifiedVfsEntry() = default;
 
     std::string_view pathStr;
+    // TODO: isPkg wird von cleanPath() waehrend der Initialisierung von packagePath gesetzt. Das klappt nur, weil
+    // isPkg vor packagePath deklariert ist; steht es dahinter, ueberschreibt der Default-Initialisierer es wieder
+    // mit false.
     bool isPkg = false;
     std::string_view packagePath;
     uint64_t hash;
@@ -46,7 +56,7 @@ namespace SAA {
 
     bool operator!=(const UnifiedVfsEntry &other) const { return !this->operator==(other); }
 
-    virtual GameFile *read(SC::ChaosBumpArena *storage) const = 0;
+    virtual GameFile *read(sc::MonotonicResource *storage) const = 0;
   };
 
   class IOVfsEntry : public UnifiedVfsEntry {
@@ -65,7 +75,7 @@ namespace SAA {
 
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
 
-    GameFile *read(SC::ChaosBumpArena *storage) const override;
+    GameFile *read(sc::MonotonicResource *storage) const override;
 
     bool operator==(const UnifiedVfsEntry &other) const override {
       if (other.getEntryType() == VFS_EntryType::IOVfsEntry) {
@@ -87,9 +97,11 @@ namespace SAA {
                                                                                          owningReader(owningReader) {
     };
 
+    // TODO: operator== ist hier nicht ueberschrieben, zwei PAKVfsEntry vergleichen also immer ungleich, auch ein
+    // Eintrag mit sich selbst. IOVfsEntry vergleicht chunkId und owningReader.
     VFS_EntryType getEntryType() const override { return VFS_EntryType::PAKVfsEntry; }
     [[nodiscard]] bool isValid() const override { return owningReader != nullptr; };
 
-    GameFile *read(SC::ChaosBumpArena *storage) const override;
+    GameFile *read(sc::MonotonicResource *storage) const override;
   };
 }

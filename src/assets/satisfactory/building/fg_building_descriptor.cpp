@@ -5,8 +5,8 @@
 #include "fg_building_descriptor.hpp"
 
 #include "fg/fg_exporter.hpp"
-#include "logger/chaos_logger.hpp"
-LOG_ALIAS(errLog, "SAA", "FGBuildingDescriptor")
+#include "sc/logger/logger.hpp"
+using errLog = sc::Logger<"SAA", "FGBuildingDescriptor">;
 
 namespace SAA {
   void FGBuildingDescriptor::parse() {

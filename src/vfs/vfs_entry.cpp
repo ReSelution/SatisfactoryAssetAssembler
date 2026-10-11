@@ -5,7 +5,7 @@
 #include "vfs_entry.hpp"
 #include "IOStoreReader.hpp"
 #include "PAKReader.hpp"
-#include "hash/hash.hpp"
+#include "sc/hash/hash.hpp"
 
 namespace SAA {
   std::string_view UnifiedVfsEntry::cleanPathStatic(std::string_view path) {
@@ -35,11 +35,11 @@ namespace SAA {
 
 
   uint64_t UnifiedVfsEntry::hashPath(const std::string_view path) {
-    return SC::hash_lowercase(path);
+    return sc::hash_lowercase(path);
   }
 
-  GameFile *IOVfsEntry::read(SC::ChaosBumpArena *storage) const { return owningReader->readChunk(storage, chunkId); }
+  GameFile *IOVfsEntry::read(sc::MonotonicResource *storage) const { return owningReader->readChunk(storage, chunkId); }
 
-  GameFile *PAKVfsEntry::read(SC::ChaosBumpArena *storage) const {
+  GameFile *PAKVfsEntry::read(sc::MonotonicResource *storage) const {
     return owningReader->readFile(storage,index); }
 }

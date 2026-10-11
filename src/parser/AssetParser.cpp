@@ -13,20 +13,14 @@
 
 #include "crawler.hpp"
 
-#include "logger/chaos_logger.hpp"
-#include "threading/chaos_threading.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/threading/threading.hpp"
 
-LOG_ALIAS(APLog, "SAA", "AssetParser")
+using APLog = sc::Logger<"SAA", "AssetParser">;
 
 namespace SAA {
-  AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) : m_vfs(vfs),
-                                                                                                        m_mappings(
-                                                                                                                mappings),
-                                                                                                        m_globalData(
-                                                                                                                globalData),
-                                                                                                        m_localizationManager(
-                                                                                                                this) {
-  }
+  AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) :
+      m_vfs(vfs), m_mappings(mappings), m_globalData(globalData), m_localizationManager(this) {}
 
 
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(std::string_view path) {
@@ -47,13 +41,11 @@ namespace SAA {
     return createParser(vfsEntry);
   }
 
-  void AssetParser::loadRes() {
-    m_localizationManager.load();
-  }
+  void AssetParser::loadRes() { m_localizationManager.load(); }
 
 
   void AssetParser::parseAsset(std::string_view path,
-                               const std::function<void(std::shared_ptr<AssetFileParser> &)> &onParsed) {
+                               const std::function<void(std::shared_ptr<AssetFileParser> &&)> &onParsed) {
     const auto &vfsEntry = m_vfs->readVfs(path);
     if (!vfsEntry) {
       return;
@@ -66,11 +58,10 @@ namespace SAA {
     }
 
     parser->safeParse();
-    onParsed(parser);
+    onParsed(std::move(parser));
   }
 
   std::shared_ptr<AssetFileParser> AssetParser::createParser(const UnifiedVfsEntry *vfsEntry) {
-    ZoneScopedN("CreateParser");
     if (auto shared = m_parserCache.getLocked(vfsEntry->hash)) {
       return shared;
     }
@@ -78,19 +69,20 @@ namespace SAA {
     switch (vfsEntry->getEntryType()) {
       case VFS_EntryType::IOVfsEntry: {
         const std::string_view fullPath = vfsEntry->packagePath;
-        bool isUAsset = vfsEntry->isPkg;
-        bool isUBulk = !isUAsset && fullPath.ends_with(".ubulk");
+        bool isUAsset                   = vfsEntry->isPkg;
+        bool isUBulk                    = !isUAsset && fullPath.ends_with(".ubulk");
         if (!isUAsset && !isUBulk) {
           break;
         }
 
-        auto entry = static_cast<const IOVfsEntry *>(vfsEntry);
+        auto entry  = static_cast<const IOVfsEntry *>(vfsEntry);
         auto parser = std::make_shared<UAssetParser>(this, entry);
         const UnifiedVfsEntry *asset;
         const UnifiedVfsEntry *bulk;
 
         char pathBuf[512];
-        if (fullPath.size() >= 512) [[unlikely]] return nullptr; // Safety first
+        if (fullPath.size() >= 512) [[unlikely]]
+          return nullptr; // Safety first
         memcpy(pathBuf, fullPath.data(), fullPath.size());
 
 
@@ -99,9 +91,9 @@ namespace SAA {
           memcpy(pathBuf + fullPath.size(), ".ubulk", 6);
           bulk = m_vfs->readVfs({pathBuf, fullPath.size() + 6});
         } else {
-          bulk = vfsEntry;
+          bulk         = vfsEntry;
           auto lastDot = fullPath.find_last_of('.');
-          asset = m_vfs->readVfs({pathBuf, lastDot});
+          asset        = m_vfs->readVfs({pathBuf, lastDot});
         }
 
         parser->setAssetData(asset);
@@ -124,4 +116,4 @@ namespace SAA {
     }
     return nullptr;
   }
-} 
+} // namespace SAA

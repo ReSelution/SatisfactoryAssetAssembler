@@ -21,9 +21,9 @@ namespace SAA {
     DBG_MARK_HANDLED(m_className, Item::DecalMaterial);
 
     // Relevante Daten für den Solver
-    mDisplayName = get<SC::MagpieString>(Base::DisplayName);
-    mDescription = get<SC::MagpieString>(Base::Description);
-    mAbbreviatedDisplayName = get<SC::MagpieString>(Item::AbbreviatedDisplayName);
+    mDisplayName = get<sc::MagpieString>(Base::DisplayName);
+    mDescription = get<sc::MagpieString>(Base::Description);
+    mAbbreviatedDisplayName = get<sc::MagpieString>(Item::AbbreviatedDisplayName);
 
     mCategory = get<Object *>(Item::Category);
     mForm = get<FName>(Item::Form);

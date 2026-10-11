@@ -3,37 +3,36 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
-#include <fstream>
 #include <span>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 #include "Decompressor.hpp"
 #include "Reader.hpp"
 #include "byte_cursor.hpp"
-#include "stats.hpp"
 #include "core/constants.hpp"
 #include "io/f_io_directory_index_enty.hpp"
 #include "io/f_io_file_index_entry.hpp"
 #include "io/f_on_demand_toc_entry.hpp"
+#include "stats.hpp"
 
-#include "spdlog/fmt/bundled/std.h"
 #include "vfs.hpp"
 
-#include "logger/chaos_logger.hpp"
-#include "memory/chaos_bump_arena.hpp"
 #include "game_file.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 
-LOG_ALIAS(IOStoreLog, "SAA", "IOSTORE")
+using IOStoreLog = sc::Logger<"SAA", "IOSTORE">;
 
 namespace SAA {
-  IOStoreReader::IOStoreReader(std::filesystem::path utocPath,
-                               const std::filesystem::path &ucasPath) : Reader(Type::IO_STORE,
-                                                                               std::move(utocPath)),
-                                                                        m_ucasReader(ucasPath), m_utocReader(m_Path) {
+  IOStoreReader::IOStoreReader(std::filesystem::path utocPath, const std::filesystem::path &ucasPath) :
+      Reader(Type::IO_STORE, std::move(utocPath)), m_ucasReader(ucasPath), m_utocReader(m_Path) {
     alocMutipilyer = 1.3;
   }
 
   bool IOStoreReader::load() {
-    auto name = m_Path.filename().string();
+    auto name    = m_Path.filename().string();
     auto t_total = IOStoreLog::time("Loaded {1} in {0}", name);
 
     Reader::load();
@@ -43,6 +42,9 @@ namespace SAA {
     parseHeader(cursor);
     parseChunkIds(cursor);
     parseOffsetLengths(cursor);
+    // TODO: createChunkLookupTable() laeuft vor parsePerfectHashTable(), m_ChunkIndicesWithoutPerfectHash ist hier
+    // also noch leer und m_ImperfectChunkOffsetMap bleibt immer leer. resolveImperfectChunk() findet dadurch nie
+    // etwas. Die beiden Aufrufe muessten vertauscht werden. War vor der Portierung schon so.
     createChunkLookupTable();
     parsePerfectHashTable(cursor);
     parseCompressionBlocks(cursor);
@@ -65,14 +67,14 @@ namespace SAA {
       IOStoreLog::warn("Directory Index oder Pfade leer.");
       return false;
     }
-    size_t entriesCount;
+    size_t entriesCount = 0;
     auto name = m_Path.filename().string();
-    auto t = IOStoreLog::time("{1}: Mounted {2} in {0}", name, entriesCount);
+    auto t    = IOStoreLog::time("{1}: Mounted {2} in {0}", name, entriesCount);
 
 
     ByteCursor cursor(m_DirectoryIndexBuffer);
 
-    auto mountPoint = cursor.readFString(m_storage.get());
+    auto mountPoint = cursor.readFString(&m_storage);
 
     if (mountPoint.starts_with("../../..")) {
       mountPoint = mountPoint.substr(9); // Relativen Pfad entfernen
@@ -86,9 +88,12 @@ namespace SAA {
     entriesCount = fileEntries.size();
 
 
+    // TODO: pathBuffer hat feste 512 Bytes, keiner der memcpy-Aufrufe unten prueft die Laenge. Ein tiefer Pfad oder
+    // kaputte Indexdaten schreiben ueber den Stack-Puffer hinaus. Ebenso wird file.name anders als dir.name nicht
+    // gegen m_DirectoryPaths.size() geprueft. War vor der Portierung schon so.
     char pathBuffer[512];
-    char* const pathStart = pathBuffer;
-    char* current = pathBuffer;
+    char *const pathStart = pathBuffer;
+    char *current         = pathBuffer;
 
     size_t mpSize = mountPoint.size();
     memcpy(current, mountPoint.data(), mpSize);
@@ -96,7 +101,7 @@ namespace SAA {
 
     struct StackFrame {
       uint32_t dirIndex;
-      char* pathPos; // Position im Buffer, an der dieses Verzeichnis startet
+      char *pathPos; // Position im Buffer, an der dieses Verzeichnis startet
     };
 
     std::vector<StackFrame> stack;
@@ -125,21 +130,21 @@ namespace SAA {
           }
         }
 
-        char* currentDirEnd = current;
+        char *currentDirEnd = current;
 
         uint32_t fileIndex = dir.firstFileEntry;
         while (fileIndex != FIoDirectoryIndexResource_InvalidIndex) {
-          const auto &file = fileEntries[fileIndex];
+          const auto &file       = fileEntries[fileIndex];
           std::string_view fName = m_DirectoryPaths[file.name];
 
-          char* filePointer = currentDirEnd;
+          char *filePointer = currentDirEnd;
 
           if (filePointer > pathStart && *(filePointer - 1) != '/') {
             *filePointer++ = '/';
           }
 
           memcpy(filePointer, fName.data(), fName.size());
-          char* endOfPath = filePointer + fName.size();
+          char *endOfPath = filePointer + fName.size();
 
           // String-View für den Mount-Aufruf erstellen (ohne neue Allokation)
           std::string_view fullPath(pathStart, endOfPath - pathStart);
@@ -180,7 +185,7 @@ namespace SAA {
   bool operator>=(EIoStoreTocVersion lhs, uint8_t rhs) { return static_cast<uint8_t>(lhs) >= rhs; }
 
   void IOStoreReader::parsePerfectHashTable(ByteCursor &cursor) {
-    m_ChunkPerfectHashSeeds = cursor.readArray<int32_t>(m_TocHeader.tocChunkPerfectHashSeedsCount);
+    m_ChunkPerfectHashSeeds          = cursor.readArray<int32_t>(m_TocHeader.tocChunkPerfectHashSeedsCount);
     m_ChunkIndicesWithoutPerfectHash = cursor.readArray<uint32_t>(m_TocHeader.tocChunksWithoutPerfectHashCount);
   }
 
@@ -189,25 +194,25 @@ namespace SAA {
   }
 
   void IOStoreReader::parseCompressionMethods(ByteCursor &cursor) {
-    uint32_t count = m_TocHeader.compressionMethodNameCount;
+    uint32_t count  = m_TocHeader.compressionMethodNameCount;
     uint32_t length = m_TocHeader.compressionMethodNameLength;
 
     auto dataSize = count * length;
-    auto buffer = cursor.readArray<uint8_t>(dataSize);
+    auto buffer   = cursor.readArray<uint8_t>(dataSize);
 
     const uint8_t *methodBufferStart = buffer.data();
-    m_CompressionMethods = m_storage->allocateSpan<CompressionMethod>(count + 1);
-    m_CompressionMethods[0] = CompressionMethod::None;
+    m_CompressionMethods             = m_storage.allocateSpan<CompressionMethod>(count + 1);
+    m_CompressionMethods[0]          = CompressionMethod::None;
 
     for (uint32_t i = 0; i < count; i++) {
-      auto strStart = i * length;
+      auto strStart               = i * length;
       std::string_view methodName = {reinterpret_cast<const char *>(methodBufferStart + strStart), length};
-      size_t nullPos = methodName.find('\0');
+      size_t nullPos              = methodName.find('\0');
       if (nullPos != std::string::npos) {
         methodName = methodName.substr(0, nullPos);
       }
       CompressionMethod methodEnum = stringToCompressionMethod(methodName);
-      m_CompressionMethods[i + 1] = methodEnum;
+      m_CompressionMethods[i + 1]  = methodEnum;
     }
   }
 
@@ -219,7 +224,7 @@ namespace SAA {
     auto hashSize = cursor.read<int32_t>();
 
     auto tocAndBlockSignatureSize = hashSize * 2;
-    auto chunkBlockSignatureSize = FSHA_HASH_SIZE * m_TocHeader.tocCompressedBlockEntryCount;
+    auto chunkBlockSignatureSize  = FSHA_HASH_SIZE * m_TocHeader.tocCompressedBlockEntryCount;
     cursor += tocAndBlockSignatureSize + chunkBlockSignatureSize;
   }
 
@@ -228,11 +233,11 @@ namespace SAA {
   bool operator>(EIoStoreTocVersion lhs, uint32_t rhs) { return static_cast<uint8_t>(lhs) > rhs; }
 
   void IOStoreReader::parseDirectoryIndex(ByteCursor &cursor) {
-    const uint32_t TOC_VERSION_DIRECTORY_INDEX = 5;
+    const uint32_t TOC_VERSION_DIRECTORY_INDEX     = 5;
     const EIoContainerFlags CONTAINER_FLAG_INDEXED = EIoContainerFlags::INDEXED;
     assert(m_TocHeader.version >= TOC_VERSION_DIRECTORY_INDEX && "TOC version is to Low");
-    assert((m_TocHeader.containerFlags & CONTAINER_FLAG_INDEXED) ||
-           m_TocHeader.directoryIndexSize == 0 && "No Directory Index");
+    assert(((m_TocHeader.containerFlags & CONTAINER_FLAG_INDEXED) || m_TocHeader.directoryIndexSize == 0) &&
+           "No Directory Index");
 
     m_DirectoryIndexBuffer = cursor.readArray<uint8_t>(m_TocHeader.directoryIndexSize);
   }
@@ -245,7 +250,7 @@ namespace SAA {
     cursor += totalHashSize;
     if (m_TocHeader.version >= TOC_VERSION_ONDEMAND_METADATA &&
         (m_TocHeader.containerFlags & EIoContainerFlags::ON_DEMAND)) {
-      size_t entrySize = sizeof(FOnDemandTocEntry);
+      size_t entrySize         = sizeof(FOnDemandTocEntry);
       size_t totalOnDemandSize = (size_t) entryCount * entrySize;
       cursor += totalOnDemandSize;
     }
@@ -254,10 +259,10 @@ namespace SAA {
   bool IOStoreReader::readContainerHeader() {
     FIoChunkId chunkId{.id = m_TocHeader.containerId.id, .chunkIndex = 0, .chunkType = 6};
     FIoContainerHeader containerHeader{
-            .version = EIoContainerHeaderVersion::Initial,
+        .version = EIoContainerHeaderVersion::Initial,
     };
 
-    auto file = readChunk(m_storage.get(), chunkId);
+    auto file = readChunk(&m_storage, chunkId);
     assert(file != nullptr);
     containerHeader.magic = file->read<uint32_t>();
     if (containerHeader.magic != IO_CONTAINER_MAGIC) {
@@ -265,7 +270,7 @@ namespace SAA {
       return false;
     }
 
-    containerHeader.version = file->read<EIoContainerHeaderVersion>();
+    containerHeader.version     = file->read<EIoContainerHeaderVersion>();
     containerHeader.containerId = file->read<FPackageId>();
 
     if (containerHeader.version < EIoContainerHeaderVersion::OptionalSegmentPackages) {
@@ -277,8 +282,8 @@ namespace SAA {
 
     containerHeader.storeEntriesById.reserve(containerHeader.packageIds.size());
     for (uint32_t i = 0; i < containerHeader.packageIds.size(); ++i) {
-      const auto &[entry, insered] = containerHeader.storeEntriesById.emplace(
-              containerHeader.packageIds[i], FFilePackageStoreEntry{});
+      const auto &[entry, insered] =
+          containerHeader.storeEntriesById.emplace(containerHeader.packageIds[i], FFilePackageStoreEntry{});
       readFilePackageStoreEntry(file, &entry->second, containerHeader.version);
     }
     *file = storeEntriesEnd;
@@ -289,7 +294,7 @@ namespace SAA {
       auto optStoreEntriesEnd = file->read<uint32_t>() + file->tell();
 
       containerHeader.optionalSegmentStoreEntries =
-              m_storage->allocateSpan<FFilePackageStoreEntry>(containerHeader.optionalSegmentPackageIds.size());
+          m_storage.allocateSpan<FFilePackageStoreEntry>(containerHeader.optionalSegmentPackageIds.size());
       for (uint32_t i = 0; i < containerHeader.optionalSegmentPackageIds.size(); ++i) {
         readFilePackageStoreEntry(file, &containerHeader.optionalSegmentStoreEntries[i], containerHeader.version);
       }
@@ -298,7 +303,7 @@ namespace SAA {
     }
 
     if (containerHeader.version >= EIoContainerHeaderVersion::Initial) {
-      containerHeader.containerNameMap = file->loadNameBatch(m_storage.get());
+      containerHeader.containerNameMap = file->loadNameBatch(&m_storage);
     }
 
     if (containerHeader.version >= EIoContainerHeaderVersion::LocalizedPackages) {
@@ -315,7 +320,7 @@ namespace SAA {
                                                 EIoContainerHeaderVersion version) {
     if (version >= EIoContainerHeaderVersion::Initial) {
       if (version < EIoContainerHeaderVersion::NoExportInfo) {
-        entry->exportCount = file->read<uint32_t>();
+        entry->exportCount       = file->read<uint32_t>();
         entry->exportBundleCount = file->read<uint32_t>();
       }
 
@@ -323,25 +328,25 @@ namespace SAA {
       entry->shaderMapHashes = file->readArrayView<FSHAHash>();
     } else {
       *file += 8; // ExportBundlesSize (skip 8)
-      entry->exportCount = file->read<uint32_t>();
+      entry->exportCount       = file->read<uint32_t>();
       entry->exportBundleCount = file->read<uint32_t>();
       *file += 8; // LoadOrder + Pad
       entry->importedPackage = file->readArrayView<FPackageId>();
     }
   }
 
-//  FIoContainerHeaderSoftPackageReferences IOStoreReader::readSoftPackageReferences(ByteCursor &cursor) {
-//    FIoContainerHeaderSoftPackageReferences out;
-//
-//    out.bContainsSoftPackageReferences = file->readBool();
-//
-//    if (out.bContainsSoftPackageReferences) {
-//      out.PackageIds = file->readArray<FPackageId>();
-//      out.PackageIndices = file->readArray<uint8_t>();
-//    }
-//
-//    return out;
-//  }
+  //  FIoContainerHeaderSoftPackageReferences IOStoreReader::readSoftPackageReferences(ByteCursor &cursor) {
+  //    FIoContainerHeaderSoftPackageReferences out;
+  //
+  //    out.bContainsSoftPackageReferences = file->readBool();
+  //
+  //    if (out.bContainsSoftPackageReferences) {
+  //      out.PackageIds = file->readArray<FPackageId>();
+  //      out.PackageIndices = file->readArray<uint8_t>();
+  //    }
+  //
+  //    return out;
+  //  }
 
   void IOStoreReader::parseDirectoryPathList() {
     if (m_DirectoryIndexBuffer.empty()) {
@@ -349,7 +354,7 @@ namespace SAA {
     }
 
     ByteCursor cursor(m_DirectoryIndexBuffer);
-    auto mountPoint = cursor.readFString(m_storage.get());
+    (void) cursor.readFString(&m_storage); // skip the mount point
 
     auto dirEntryCount = cursor.read<uint32_t>();
     cursor += dirEntryCount * sizeof(FIoDirectoryIndexEntry); // Skip we only want the strings
@@ -361,9 +366,9 @@ namespace SAA {
     auto stringCount = cursor.read<uint32_t>();
 
 
-    m_DirectoryPaths = m_storage->allocateSpan<std::string_view>(stringCount);
+    m_DirectoryPaths = m_storage.allocateSpan<std::string_view>(stringCount);
     for (uint32_t i = 0; i < stringCount; ++i) {
-      m_DirectoryPaths[i] = cursor.readFString(m_storage.get());
+      m_DirectoryPaths[i] = cursor.readFString(&m_storage);
     }
   }
 
@@ -375,9 +380,9 @@ namespace SAA {
   }
 
   inline uint64_t hashChunk(uint32_t seed, const FIoChunkId *chunkId) {
-    const auto *bytes = reinterpret_cast<const uint8_t *>(chunkId);
+    const auto *bytes         = reinterpret_cast<const uint8_t *>(chunkId);
     constexpr size_t datasize = sizeof(FIoChunkId);
-    uint64_t hash = seed != 0 ? static_cast<uint64_t>(seed) : 0xcbf29ce484222325;
+    uint64_t hash             = seed != 0 ? static_cast<uint64_t>(seed) : 0xcbf29ce484222325;
     for (size_t i = 0; i < datasize; ++i) {
       hash = (hash * 0x00000100000001B3) ^ bytes[i];
     }
@@ -390,9 +395,10 @@ namespace SAA {
       return false;
     }
 
+    // TODO: Ist die Seed-Tabelle leer, tocEntryCount aber nicht 0, wird unten durch 0 geteilt.
     auto seedCount = m_ChunkPerfectHashSeeds.size();
     auto seedIndex = hashChunk(0, &chunkId) % seedCount;
-    auto seed = m_ChunkPerfectHashSeeds[seedIndex];
+    auto seed      = m_ChunkPerfectHashSeeds[seedIndex];
     if (seed == 0) {
       outOffsetLength = {};
       return false;
@@ -427,7 +433,7 @@ namespace SAA {
     return true;
   }
 
-  GameFile *IOStoreReader::readChunk(SC::ChaosBumpArena *storage, const FIoChunkId &chunkId) const {
+  GameFile *IOStoreReader::readChunk(sc::MonotonicResource *storage, const FIoChunkId &chunkId) const {
     FIoOffsetAndLength offsetLenght{};
     if (!resolveChunk(chunkId, offsetLenght)) {
       IOStoreLog::err("Chunk {} not found.", chunkId.chunkIndex);
@@ -439,42 +445,36 @@ namespace SAA {
       std::span<const FIoStoreTocCompressedBlockEntry> compressionBlocks;
 
       IOStoreFile(size_t fileSize, const IOStoreReader *reader,
-                  std::span<const FIoStoreTocCompressedBlockEntry> blocks) : GameFileImpl(fileSize),
-                                                                             reader(reader), compressionBlocks(blocks) {
+                  std::span<const FIoStoreTocCompressedBlockEntry> blocks) :
+          GameFileImpl(fileSize), reader(reader), compressionBlocks(blocks) {}
 
-      }
-
-      uint64_t chunks() final {
-        return compressionBlocks.size();
-      }
+      uint64_t chunks() final { return compressionBlocks.size(); }
 
       bool load(size_t &index, std::span<uint8_t> dst) final {
 
-        size_t offset = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
+        size_t offset     = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
         const auto &block = compressionBlocks[index];
         return reader->readBlock(block, dst.subspan(offset, block.uncompressedSize()));
-
       }
     };
 
-    uint64_t index = offsetLenght.offset() / m_TocHeader.compressionBlockSize;
-    uint64_t chunks = 0;
+    uint64_t index        = offsetLenght.offset() / m_TocHeader.compressionBlockSize;
+    uint64_t chunks       = 0;
     const uint64_t lenght = offsetLenght.length();
     for (uint64_t offset = 0; offset < lenght; chunks++) {
       auto &block = m_compressionBlocks[index + chunks];
-      auto size = block.uncompressedSize();
+      auto size   = block.uncompressedSize();
       offset += size;
     }
 
 
     auto *file = storage->make<GameFile>(storage);
-    auto impl = file->createImpl<IOStoreFile>(offsetLenght.length(), this,
-                                              m_compressionBlocks.subspan(index, chunks));
+    auto impl  = file->createImpl<IOStoreFile>(offsetLenght.length(), this, m_compressionBlocks.subspan(index, chunks));
 
     size_t idx = 0;
     for (uint64_t offset = 0; offset < lenght; idx++) {
-      auto &block = m_compressionBlocks[index + idx];
-      auto size = block.uncompressedSize();
+      auto &block                   = m_compressionBlocks[index + idx];
+      auto size                     = block.uncompressedSize();
       impl->chunkOffsetsLoaded[idx] = offset;
       offset += size;
     }
@@ -484,8 +484,8 @@ namespace SAA {
 
   bool IOStoreReader::readBlock(const FIoStoreTocCompressedBlockEntry &blockEntry, std::span<uint8_t> dst) const {
     uint64_t compressedOffset = blockEntry.compressedOffset();
-    uint32_t compressedSize = blockEntry.compressedSize();
-    uint8_t methodIndex = blockEntry.compressionMethod;
+    uint32_t compressedSize   = blockEntry.compressedSize();
+    uint8_t methodIndex       = blockEntry.compressionMethod;
 
     CompressionMethod compressionMethod;
     if (methodIndex < m_CompressionMethods.size()) {
@@ -496,8 +496,8 @@ namespace SAA {
     }
 
     std::span<const uint8_t> compressedData = m_ucasReader.getSpan(compressedOffset, compressedSize);
-    CHAOS_RECORD(DecompressedThroughput, dst.size())
-    CHAOS_RECORD(CompressedThroughput, compressedSize)
+    DecompressedThroughput::record(dst.size());
+    CompressedThroughput::record(compressedSize);
     return Decompressor::decompress(compressedData, dst, compressionMethod);
   }
-} 
+} // namespace SAA

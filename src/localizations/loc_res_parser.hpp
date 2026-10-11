@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <memory>
+#include <cstdint>
 #include <span>
+
 #include <ankerl/unordered_dense.h>
 
 #include "core/f_guid.hpp"
@@ -13,11 +14,7 @@
 #include "localization/f_entry.hpp"
 #include "localization/f_text_key.hpp"
 #include "localization/f_text_localization_resource_string.hpp"
-#include "localizations/magpie_translator.hpp"
-
-namespace SC {
-  class ChaosBumpArena;
-}
+#include "sc/localizations/magpie_translator.hpp"
 
 namespace SAA {
   class UnifiedVfsEntry;
@@ -46,9 +43,8 @@ namespace SAA {
 
   private:
     bool isNative;
-    std::unique_ptr<SC::ChaosBumpArena> m_storage;
     const UnifiedVfsEntry *m_vfsEntry;
     std::span<FTextLocalizationResourceString> localizedStringArray;
-    SC::Magpie *magpie;
+    sc::Magpie *magpie;
   };
 } 

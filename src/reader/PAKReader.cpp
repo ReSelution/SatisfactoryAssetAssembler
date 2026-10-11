@@ -1,13 +1,21 @@
 #include "PAKReader.hpp"
 
+#include <algorithm>
+#include <cassert>
+#include <cstring>
+#include <stdexcept>
+#include <string>
+
+#include "Decompressor.hpp"
 #include "Reader.hpp"
 #include "byte_cursor.hpp"
 #include "stats.hpp"
 #include "vfs.hpp"
 
-#include "logger/chaos_logger.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 
-LOG_ALIAS(PakLog, "SAA", "PAK")
+using PakLog = sc::Logger<"SAA", "PAK">;
 
 namespace SAA {
   PAKReader::PAKReader(const std::filesystem::path &path)
@@ -77,6 +85,7 @@ namespace SAA {
     auto blockSize = (bitField & 0x3f) == 0x3f ? cursor.read<uint32_t>()
                                                : (bitField & 0x3f) << 11;
     auto compressionIndex = ((bitField >> 23) & 0x3f);
+    // TODO: compressionIndex (bis 63) wird nicht gegen compressionMethods.size() (hoechstens 6) geprueft.
     entry.compressionMethod = m_pakInfo.compressionMethods[compressionIndex];
 
     auto isOffset32BitSafe = static_cast<bool>(bitField & (1 << 31));
@@ -135,7 +144,7 @@ namespace SAA {
         m_pakFile.getSpan(m_pakInfo.indexOffset, m_pakInfo.indexSize));
     index.setAbsoluteOffset(m_pakInfo.indexOffset);
 
-    auto mountPoint = index.readFString(stringStorage.get());
+    auto mountPoint = index.readFString(&m_storage);
     if (mountPoint.starts_with("../../..")) {
       mountPoint = mountPoint.substr(9);
     }
@@ -167,6 +176,8 @@ namespace SAA {
     auto dirIndexCount = dirIndex.read<uint32_t>();
 
     // Vorbereitung des Pfad-Buffers
+    // TODO: pathBuffer hat feste 512 Bytes, keiner der memcpy-Aufrufe prueft die Laenge. Ein langer Pfad oder
+    // kaputte Indexdaten schreiben ueber den Stack-Puffer hinaus. War vor der Portierung schon so.
     char pathBuffer[512];
     char *const pathStart = pathBuffer;
 
@@ -181,7 +192,7 @@ namespace SAA {
     for (uint32_t i = 0; i < dirIndexCount; i++) {
       char *dirBasePos = pos;
 
-      auto dirName = dirIndex.readFString(stringStorage.get());
+      auto dirName = dirIndex.readFString(&m_storage);
       if (!dirName.empty()) {
         // Slash hinzufügen, falls nötig
         if (pos > pathStart && *(pos - 1) != '/') {
@@ -195,7 +206,7 @@ namespace SAA {
 
       auto fileEntriesCount = dirIndex.read<uint32_t>();
       for (uint32_t j = 0; j < fileEntriesCount; j++) {
-        auto fileName = dirIndex.readFString(stringStorage.get());
+        auto fileName = dirIndex.readFString(&m_storage);
         auto entryOffset = dirIndex.read<uint32_t>();
 
         char *filePos = pathWithDirPos;
@@ -220,7 +231,7 @@ namespace SAA {
     return true;
   }
 
-  GameFile *PAKReader::readFile(SC::ChaosBumpArena *storage, uint32_t entryIndex) const {
+  GameFile *PAKReader::readFile(sc::MonotonicResource *storage, uint32_t entryIndex) const {
     auto &entry = m_pakEntries[entryIndex];
 
     struct PAKFileImpl : GameFileImpl {
@@ -255,8 +266,8 @@ namespace SAA {
         }
 
         if (success) [[likely]] {
-          CHAOS_RECORD(DecompressedThroughput,decompressedSize)
-          CHAOS_RECORD(CompressedThroughput, src.size())
+          DecompressedThroughput::record(decompressedSize);
+          CompressedThroughput::record(src.size());
         }
         return success;
       }

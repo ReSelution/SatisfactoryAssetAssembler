@@ -1,0 +1,96 @@
+# General
+option(
+  'enable_threads',
+  type: 'boolean',
+  value: true,
+  description: 'Link with thread support',
+)
+option(
+  'exceptions',
+  type: 'boolean',
+  value: true,
+  description: 'Enable the exception-throwing interface',
+)
+option(
+  'disable_deprecated_api',
+  type: 'boolean',
+  value: false,
+  description: 'Disables deprecated APIs',
+)
+option(
+  'development_checks',
+  type: 'boolean',
+  value: false,
+  description: 'Enable development-time aids, such as checks for incorrect API usage',
+)
+option(
+  'verbose_logging',
+  type: 'boolean',
+  value: false,
+  description: 'Enable verbose logging for internal simdjson library development',
+)
+
+# Implementations (kernels): 'auto' lets simdjson decide based on the target
+# architecture; runtime dispatch is unaffected
+option(
+  'impl_icelake',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'x86-64 AVX-512 kernel',
+)
+option(
+  'impl_haswell',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'x86-64 AVX2 kernel',
+)
+option(
+  'impl_westmere',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'x86-64 SSE4.2 kernel',
+)
+option(
+  'impl_arm64',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'ARM64 NEON kernel',
+)
+option(
+  'impl_ppc64',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'PPC64 AltiVec/VSX kernel',
+)
+option(
+  'impl_lsx',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'LoongArch LSX kernel',
+)
+option(
+  'impl_lasx',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'LoongArch LASX kernel',
+)
+option(
+  'impl_fallback',
+  type: 'combo',
+  choices: ['auto', 'enabled', 'disabled'],
+  value: 'auto',
+  description: 'Scalar fallback kernel',
+)
+option(
+  'builtin_implementation',
+  type: 'string',
+  value: '',
+  description: 'Implementation used for the builtin (non-dispatched) API, empty lets simdjson choose',
+)

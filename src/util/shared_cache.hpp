@@ -4,22 +4,29 @@
 
 #pragma once
 
-#include "threading/chaos_threading.hpp"
-#include "threading/chaos_spin_lock.hpp"
+#include <array>
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <vector>
 
-#include "hash/hash.hpp"
 #include <ankerl/unordered_dense.h>
 
+#include "sc/hash/hash.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/threading/spin_lock.hpp"
+#include "sc/threading/threading.hpp"
 
-LOG_ALIAS(chacheLOG, "SAA", "CACHE")
+using chacheLOG = sc::Logger<"SAA", "CACHE">;
 
 template<typename K, typename V, size_t ShardCount = 64>
 class ShardedCache {
 
 
   struct alignas(64) Shard {
-    SC::ChaosSpinLock lock;
-    using denseMap = ankerl::unordered_dense::map<uint64_t, std::weak_ptr<V>, SC::IdentityHash>;
+    sc::SpinLock lock;
+    using denseMap = ankerl::unordered_dense::map<uint64_t, std::weak_ptr<V>, sc::IdentityHash>;
 
     denseMap data{};
 
@@ -42,10 +49,12 @@ public:
   }
 
   void reset() {
+    // count muss als lvalue an time() gehen: nur lvalues werden erst beim Loggen gelesen, ein Temporary wie
+    // atomicCount.load() wuerde sofort kopiert und immer 0 ausgeben.
     size_t count = 0;
-    auto t = chacheLOG::time("Reset {1} in {0}", count);
+    auto t       = chacheLOG::time("Reset {1} in {0}", count);
 
-    std::atomic atomicCount{count};
+    std::atomic<size_t> atomicCount{0};
     std::vector<Shard *> shardPointers;
 
     shardPointers.reserve(shards.size());
@@ -53,27 +62,25 @@ public:
       shardPointers.push_back(&shard);
     }
 
-
-    auto fut = SC::ChaosThreading::enqueueBatch(std::move(shardPointers),
-                                                    [&atomicCount, this](int id, Shard *shard) {
-                                                      shard->acquire();
-                                                      size_t counter = 0;
-                                                      for (auto &[hash, weakParser]: shard->data) {
-                                                        if (auto parser = weakParser.lock()) {
-                                                          parser->safeReset();
-                                                          counter++;
-                                                        }
-                                                      }
-                                                      shard->release();
-                                                      shard->data.clear();
-                                                      atomicCount.fetch_add(counter);
-                                                    }
-
-    );
+    auto fut = sc::threading::enqueueBatch(std::move(shardPointers), [&atomicCount](Shard *shard) {
+      shard->acquire();
+      size_t counter = 0;
+      for (auto &[hash, weakParser]: shard->data) {
+        if (auto parser = weakParser.lock()) {
+          parser->safeReset();
+          counter++;
+        }
+      }
+      shard->release();
+      // TODO: clear() laeuft nach dem release(), also ohne Lock. Ein gleichzeitiges insert()/getLocked() auf
+      // demselben Shard ist ein Data Race auf der Map. War vor der Portierung schon so.
+      shard->data.clear();
+      atomicCount.fetch_add(counter);
+    });
     fut.wait();
     count = atomicCount.load();
 
-    // SC::ChaosThreading::wait_until_finished();
+    // sc::threading::wait_until_finished();
     // for (Shard &shard : shards) {
     //   shard.acquire();
     //   for (auto &[hash, weakParser] : shard.data) {
@@ -87,6 +94,8 @@ public:
     // }
   }
 
+  // TODO: reset() braucht den Thread-Pool. Wird der Cache erst nach dem Herunterfahren des Pools zerstoert (z.B. als
+  // globales Objekt), haengt fut.wait() bzw. die Tasks laufen nie. Zerstoerungsreihenfolge pruefen.
   ~ShardedCache() { reset(); }
 
 
@@ -98,7 +107,7 @@ public:
     if (it != shard.data.end()) {
       auto wPtr = it->second;
       shard.release();
-      return std::move(wPtr.lock());
+      return wPtr.lock();
     }
 
     shard.release();

@@ -2,14 +2,37 @@
 // Created by oleub on 23.02.26.
 //
 
+#include <cstddef>
+#include <stdexcept>
 #include "AssetParser.hpp"
 #include "core/EClassSerializationControlExtension.hpp"
 #include "property_parser.hpp"
 
 
+// TODO (Hot Path, Uebersicht). Gemessene Groessen (clang 22, x86-64): FPropertyValue 112 B, FPropertyTag 232 B,
+// FPropertyTagData 168 B, FName 32 B, SoftObj 104 B.
+// 1. Jeder Tag hasht Strings: sc::hash(tag.Name.text()) als Map-Key, sc::hash<EPropertyTagType>(...) fuer den Typ und
+//    fuer jeden Knoten des Typnamens, dazu der Struct-Name. Alle diese Namen kommen aus der Name-Map der Datei, der
+//    Hash haengt also nur vom Name-Index ab. Eine Tabelle Name-Index -> Hash, einmal pro Datei gefuellt, ersetzt das
+//    Hashen pro Property durch einen Array-Zugriff. FName::text() allokiert bei nummerierten Namen ausserdem bei
+//    jedem Aufruf (siehe TODO in name.cpp).
+// 2. FPropertyValue ist 112 B gross, weil SoftObj (104 B) die groesste Alternative des variant ist. Ein
+//    std::pmr::vector<FPropertyValue> fuer ein Byte-Array belegt damit 112 B pro Byte, ein Float-Array 112 B pro
+//    Float. Arrays trivialer Typen koennten als std::span auf den Dateipuffer zeigen (cursor.readArray<T>() macht das
+//    schon, ohne Kopie). SoftObj und andere grosse Alternativen hinter einen Zeiger in den Heap legen wuerde den
+//    variant auf rund 56 B (PropertyHolder) druecken.
+// 3. Pro Tag wird ein FPropertyTagData (168 B) allokiert, auch fuer Int, Float, Name usw., wo nichts darin steht.
+//    Nur fuer Struct/Enum/Byte/Array/Set/Map/Optional/Bool wird es gebraucht.
+// 4. property_count ist thread_local in einer mit -fPIC gebauten statischen Bibliothek. Jeder Zugriff geht ueber
+//    __tls_get_addr, also ein Funktionsaufruf pro Property-Wert. Lokal in parse() zaehlen oder an StatsEnabled
+//    haengen; bei abgeschalteten Stats wird heute trotzdem gezaehlt.
+// 5. FPropertyTag (232 B) wird pro Property per Wert zurueckgegeben und in die Map verschoben. Die Map haelt Name,
+//    Typname, Guid, ArraySize und TagData mit, gelesen wird ausserhalb des Parsers nur Tag.data.
 namespace SAA {
+
+  thread_local size_t property_count = 0;
   template<>
-  void PP6::parse(PropertyHolder *holder, ByteCursor &cursor, SC::ChaosBumpArena *storage) {
+  void PP6::parse(PropertyHolder *holder, ByteCursor &cursor, sc::MonotonicResource *storage) {
     auto controlByte = cursor.read<EClassSerializationControlExtension>();
     if (hasFlag(controlByte, EClassSerializationControlExtension::OverridableSerializationInformation)) {
       cursor += 1;
@@ -18,17 +41,22 @@ namespace SAA {
     while (true) {
       auto tag = parsePropertyTag(cursor, storage);
       if (tag.Name.isNone()) {
+
+        PropsTroughput::record(property_count);
+        property_count = 0;
         return;
       }
       auto final = cursor.tell() + tag.Size;
       tag.Tag    = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
       cursor     = final;
-      holder->m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
+      // TODO: emplace() behaelt bei gleichem Namen nur den ersten Eintrag. Statische Arrays (gleicher Name,
+      // verschiedener ArrayIndex) verlieren so alle Elemente ausser dem ersten.
+      holder->m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
     }
   }
 
   template<>
-  FPropertyTag PP6::parsePropertyTag(ByteCursor &cursor, SC::ChaosBumpArena *storage) {
+  FPropertyTag PP6::parsePropertyTag(ByteCursor &cursor, sc::MonotonicResource *storage) {
 #ifndef NDEBUG
     int debug = cursor.tell();
     (void) debug;
@@ -40,13 +68,17 @@ namespace SAA {
       return tag;
     }
 
+    // TODO: Der Typname ist auf 10 Knoten begrenzt. Hat ein Typ mehr (verschachtelte Maps von Structs), bricht die
+    // Schleife ab, ohne die restlichen Knoten zu lesen, und Size/Flags werden danach von der falschen Stelle gelesen.
+    // Ausserdem geht unten das ganze Array an parsePropertyTagData(), auch die nicht beschriebenen Knoten;
+    // std::span{typeName.data(), nodeCount} waere richtig.
     auto name = cursor.readFName();
     std::array<FPropertyTypeNameNode, 10> typeName;
     int32_t nodeCount   = 0;
     typeName[nodeCount] = {name, cursor.read<int32_t>()};
     nodeCount++;
     int32_t remaining = typeName[0].innerCount;
-    while (remaining > 0) {
+    while (remaining > 0 && nodeCount < 10) {
       name                = cursor.readFName();
       typeName[nodeCount] = {name, cursor.read<int32_t>()};
       remaining += typeName[nodeCount].innerCount - 1;
@@ -54,7 +86,7 @@ namespace SAA {
     }
 
     tag.PropertyTypeName = typeName[0].Name;
-    tag.PropertyType     = SC::hash<EPropertyTagType>(tag.PropertyTypeName.text());
+    tag.PropertyType     = sc::hash<EPropertyTagType>(tag.PropertyTypeName.text());
     tag.TagData          = parsePropertyTagData(storage, tag.PropertyType, typeName, tag.PropertyTypeName);
     tag.Size             = cursor.read<uint32_t>();
     tag.Flags            = cursor.read<EPropertyTagFlags>();
@@ -62,6 +94,10 @@ namespace SAA {
                                              (uint8_t) EPropertyTagFlags::HasPropertyGuid |
                                              (uint8_t) EPropertyTagFlags::HasPropertyExtensions;
 
+    // TODO (Fehler): Die BoolTrue-Pruefung steht innerhalb des ExtraDataMask-Zweigs, die Maske enthaelt BoolTrue aber
+    // nicht. Ein Bool-Property mit Wert true und ohne ArrayIndex/Guid/Extensions kommt hier nie an, BoolValue bleibt
+    // false (aus parsePropertyTagData) und parseBoolPropertyValue() liefert false. Bools kosten keine Bytes im
+    // Datenstrom, das Parsen laeuft deshalb trotzdem durch. Die Pruefung gehoert vor das if.
     if ((uint8_t) tag.Flags & ExtraDataMask) [[unlikely]] {
       if (hasFlag(tag.Flags, EPropertyTagFlags::BoolTrue)) [[likely]] {
         tag.TagData->BoolValue = true;
@@ -84,7 +120,7 @@ namespace SAA {
   }
 
   template<>
-  FPropertyTagData *PP6::parsePropertyTagData(SC::ChaosBumpArena *storage, EPropertyTagType type,
+  FPropertyTagData *PP6::parsePropertyTagData(sc::MonotonicResource *storage, EPropertyTagType type,
                                               std::span<FPropertyTypeNameNode> typeName, const FName &name) {
     auto *data = storage->make<FPropertyTagData>();
     data->Name = name;
@@ -93,7 +129,7 @@ namespace SAA {
       case EPropertyTagType::Struct: {
         if (const auto pram = getParameter(typeName, 0); !pram.empty()) {
           data->structName = pram[0].Name;
-          data->StructType = SC::hash<ESatisfactoryStruct>(data->structName.text());
+          data->StructType = sc::hash<ESatisfactoryStruct>(data->structName.text());
         }
         break;
       }
@@ -112,7 +148,7 @@ namespace SAA {
       case EPropertyTagType::Array:
       case EPropertyTagType::Set: {
         if (const auto pram = getParameter(typeName, 0); !pram.empty()) {
-          data->InnerType = SC::hash<EPropertyTagType>(pram[0].Name.text());
+          data->InnerType = sc::hash<EPropertyTagType>(pram[0].Name.text());
           if (data->InnerType != EPropertyTagType::None && pram[0].innerCount != 0) {
             data->InnerTypeData = parsePropertyTagData(storage, data->InnerType, pram, pram[0].Name);
           }
@@ -125,11 +161,11 @@ namespace SAA {
         const auto valType = getParameter(typeName, 1);
 
         if (!keyType.empty() && !valType.empty()) {
-          data->InnerType = SC::hash<EPropertyTagType>(keyType[0].Name.text());
+          data->InnerType = sc::hash<EPropertyTagType>(keyType[0].Name.text());
           if (data->InnerType != EPropertyTagType::None && keyType[0].innerCount != 0) {
             data->InnerTypeData = parsePropertyTagData(storage, data->InnerType, keyType, keyType[0].Name);
           }
-          data->ValueType = SC::hash<EPropertyTagType>(valType[0].Name.text());
+          data->ValueType = sc::hash<EPropertyTagType>(valType[0].Name.text());
           if (data->ValueType != EPropertyTagType::None && valType[0].innerCount != 0) {
             data->ValueTypeData = parsePropertyTagData(storage, data->ValueType, valType, valType[0].Name);
           }
@@ -148,9 +184,9 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parsePropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTag &tag,
+  FPropertyValue PP6::parsePropertyValue(ByteCursor &cursor, sc::MonotonicResource *storage, FPropertyTag &tag,
                                          ReadType readType, uint32_t size) {
-    PropsTroughput::record(1);
+    property_count++;
     switch (tag.PropertyType) {
       case EPropertyTagType::Struct: {
         return parseStructPropertyValue(cursor, storage, tag.TagData, readType, size);
@@ -247,16 +283,26 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parseArrayPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage,
+  FPropertyValue PP6::parseArrayPropertyValue(ByteCursor &cursor, sc::MonotonicResource *storage,
                                               FPropertyTagData *tagData, ReadType type, uint32_t size) {
     auto arrayType = tagData->InnerType;
     if (arrayType == EPropertyTagType::Unknown) [[unlikely]]
       return {};
 
+    // TODO: Mehrere Punkte in dieser Funktion:
+    // - lenght kommt ungeprueft aus der Datei in reserve(). Kaputte Daten fordern bis zu 4 Mrd. * 112 B an. Gegen
+    //   cursor.remaining() pruefen.
+    // - Die Elemente bekommen tag.Size als Groesse, und das ist bei dem frisch angelegten tag immer 0. Structs, die
+    //   per cursor += size uebersprungen werden (Transform, InstancedStruct, GameplayTagContainer, ...), ruecken im
+    //   Array also nicht vor und alle folgenden Elemente lesen Unsinn. Nur das cursor = final in parse() rettet
+    //   danach die Position.
+    // - Bei verschachtelten Aufrufen (Array in Map/Struct-Array) ist size 0, size - 4 laeuft unter und die
+    //   Byte/Enum-Unterscheidung waehlt immer Enum.
+    // - tagData wird ohne Pruefung dereferenziert; fuer ein Array als Element eines Arrays ist es nullptr.
     auto lenght = cursor.read<uint32_t>();
     FPropertyTag tag;
 
-    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage()->resource());
+    std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage());
     vec.reserve(lenght);
 
     switch (arrayType) {
@@ -286,9 +332,9 @@ namespace SAA {
   }
 
   template<>
-  PropertyHolder PP6::parseFallbackStruct(ByteCursor &cursor, SC::ChaosBumpArena *storage) {
-    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, SC::IdentityHash>;
-    auto props     = cursor.m_owner->storage()->make<denseMap>(cursor.m_owner->storage()->resource());
+  PropertyHolder PP6::parseFallbackStruct(ByteCursor &cursor, sc::MonotonicResource *storage) {
+    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, sc::IdentityHash>;
+    auto props     = cursor.m_owner->storage()->makePmr<denseMap>();
     PropertyHolder structFallback(props);
     while (true) {
       auto tag = parsePropertyTag(cursor, storage);
@@ -297,7 +343,10 @@ namespace SAA {
       };
       auto pos = cursor.tell();
       tag.Tag  = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
-      structFallback.m_properties->emplace(SC::hash(tag.Name.text()), std::move(tag));
+      structFallback.m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
+      // TODO: tag ist hier schon in die Map verschoben. Das nullptr landet nur in der lokalen Kopie, der Eintrag in
+      // der Map behaelt seinen TagData-Zeiger. tag.Size funktioniert nur, weil FPropertyTag beim Verschieben die
+      // trivialen Felder kopiert; Size vorher in eine lokale Variable legen.
       tag.TagData = nullptr;
       cursor      = tag.Size + pos;
     }
@@ -305,7 +354,7 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, SC::ChaosBumpArena *storage,
+  FPropertyValue PP6::parseStructPropertyValue(ByteCursor &cursor, sc::MonotonicResource *storage,
                                                FPropertyTagData *tagData, ReadType type, uint32_t size) {
     FPropertyValue val;
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
@@ -313,7 +362,7 @@ namespace SAA {
     auto debug = cursor.tell();
     (void) debug;
 #endif
-    switch (const auto structType = tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
+    switch (tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
       case ESatisfactoryStruct::Guid: {
         return FPropertyValue{cursor.read<FGuid>()};
       }
@@ -463,7 +512,7 @@ namespace SAA {
         return FPropertyValue{PropertyHolder{}};
 
       case ESatisfactoryStruct::UniversalObjectLocatorFragment: {
-        auto FragmentTypeID = cursor.readFName();
+        (void) cursor.readFName(); // FragmentTypeID
       }
       default:
         // #ifndef NDEBUG
@@ -478,8 +527,11 @@ namespace SAA {
   }
 
   template<>
-  FPropertyValue PP6::parseMapProperty(ByteCursor &cursor, SC::ChaosBumpArena *storage, FPropertyTagData *tagData,
+  FPropertyValue PP6::parseMapProperty(ByteCursor &cursor, sc::MonotonicResource *storage, FPropertyTagData *tagData,
                                        uint32_t size) {
+    // TODO: Maps, deren Key und Value beide einfache Typen sind (Name -> Int, Str -> Float, ...), haben keine
+    // InnerTypeData/ValueTypeData und werden hier komplett uebersprungen, ihr Inhalt geht verloren. Bei einem
+    // verschachtelten Aufruf ist size ausserdem 0, dann wird nichts uebersprungen und der Cursor steht falsch.
     if (!tagData->InnerTypeData && !tagData->ValueTypeData) {
       cursor += size;
       return {};
@@ -492,7 +544,7 @@ namespace SAA {
       parsePropertyValue(cursor, storage, keyTag, ReadType::MAP, 0);
     }
 
-    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue>> vec(cursor.m_owner->storage()->resource());
+    std::pmr::vector<std::pair<FPropertyValue, FPropertyValue>> vec(cursor.m_owner->storage());
     auto entries = cursor.read<uint32_t>();
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {

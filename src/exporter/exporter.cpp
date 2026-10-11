@@ -3,6 +3,9 @@
 //
 
 #include "exporter.hpp"
+
+#include <cassert>
+
 #include "asset_object.hpp"
 
 namespace SAA {
@@ -14,12 +17,15 @@ namespace SAA {
     return std::filesystem::exists(path);
   }
 
-  SC::ChaosEntity Exporter::getEntity(Object *obj) {
+  // TODO: Nicht threadsicher. Rufen zwei Threads getEntity() fuer dasselbe Objekt gleichzeitig auf, legen beide eine
+  // Entity an und eine geht verloren; obj->entity wird dabei ohne Synchronisation gelesen und geschrieben. Der
+  // Lock unten ist auskommentiert (sc::SpinLockGuard waere der Nachfolger von SC::ChaosSpinLockGuard).
+  sc::ecs::Entity Exporter::getEntity(Object *obj) {
 
     if (obj->entity)[[likely]] {
       return obj->entity;
     }
-//    SC::ChaosSpinLockGuard lock(obj->entityCreationLock);
+//    sc::SpinLockGuard lock(obj->entityCreationLock);
 //    if (obj->entity) {
 //      return obj->entity;
 //    }
@@ -28,7 +34,7 @@ namespace SAA {
     return obj->entity;
   }
 
-  void Exporter::setECS(SC::ChaosRegistry *r) {
+  void Exporter::setECS(sc::ecs::Registry *r) {
     reg = r;
   }
 }

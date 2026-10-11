@@ -4,17 +4,25 @@
 
 #include "crawler.hpp"
 
-#include <algorithm>
 
 #include "AssetParser.hpp"
-#include "stats.hpp"
-#include "vfs.hpp"
 #include "asset_object.hpp"
+#include "satisfactory/building/fg_building_descriptor.hpp"
+#include "satisfactory/fg_recipe.hpp"
+#include "satisfactory/fg_resource_descriptor.hpp"
+#include "satisfactory/fg_schematic.hpp"
+#include "satisfactory/items/fg_item_descriptor.hpp"
+#include "satisfactory/items/fg_item_descriptor_biomass.hpp"
+#include "stats.hpp"
+#include "thread_slots.hpp"
+#include "vfs.hpp"
 
-#include "logger/chaos_logger.hpp"
-#include "threading/chaos_threading.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/memory/arena_pool.hpp"
+#include "sc/stats/core.hpp"
+#include "sc/threading/threading.hpp"
 
-LOG_ALIAS(CrawlerLog, "SAA", "CRAWLER")
+using CrawlerLog = sc::Logger<"SAA", "CRAWLER">;
 
 namespace SAA {
   Crawler::Crawler() {
@@ -29,9 +37,7 @@ namespace SAA {
 
   void Crawler::mergeWithChild(Crawler &child) {
     auto merge = [](auto &source, auto &target) {
-      target.insert(target.end(),
-                    std::make_move_iterator(source.begin()),
-                    std::make_move_iterator(source.end()));
+      target.insert(target.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
       source.clear();
     };
 
@@ -44,14 +50,13 @@ namespace SAA {
 
   auto Crawler::createFileQueue(AssetParser &parser, size_t &files) {
     Vfs *vfs = parser.getVfs();
-    files = 0;
+    files    = 0;
 #ifndef NDEBUG
     for (const auto &entry: vfs->entries()) {
       if (shouldAdd(entry.second)) {
         files++;
-        parser.parseAsset(entry.second->packagePath, [&](std::shared_ptr<AssetFileParser> &file) {
-          onParsed(file);
-        });
+        parser.parseAsset(entry.second->packagePath,
+                          [&](std::shared_ptr<AssetFileParser> &&file) { onParsed(std::move(file)); });
       }
     }
 
@@ -63,28 +68,27 @@ namespace SAA {
         batch.emplace_back(entry.second->packagePath);
       }
     }
-    files = batch.size();
-    auto fut =  SC::ChaosThreading::enqueueBatch(
-      std::move(batch), [&parser, this](int id, std::string_view path) {
-        parser.parseAsset(
-          path, [this, id](std::shared_ptr<AssetFileParser> &file) {
-            this->m_childs[id].onParsed(file);
-          });
-      });
+    files    = batch.size();
+    auto fut = sc::threading::enqueueBatch(std::move(batch), [&parser, this](std::string_view path) {
+      const int32_t id = sc::threading::thread_id();
+      parser.parseAsset(
+          path, [this, id](std::shared_ptr<AssetFileParser> &&file) { this->m_childs[id].onParsed(std::move(file)); });
+    });
     fut.wait();
 #endif
   }
 
 
   void Crawler::crawl(AssetParser &parser) {
-    for (int i = 0; i < SC::ChaosThreading::getNumThreads(); ++i) {
+    const size_t slots = threadSlots();
+    for (size_t i = 0; i < slots; ++i) {
       m_childs.emplace_back(getChild());
     }
-    size_t files;
-    auto threads = SC::ChaosThreading::getNumThreads();
+    size_t files   = 0;
+    size_t threads = slots - 1;
 
     auto t = CrawlerLog::time("Parsed {1} Files in {0} on {2} Threads", files, threads);
-    SC::ChaosArenaPool::init(SC::ChaosThreading::getNumThreads() * 16, 32 * 1024);
+    sc::ArenaPool::init(slots * 16, 32 * 1024);
     createFileQueue(parser, files);
     for (auto &m_child: m_childs) {
       mergeWithChild(m_child);
@@ -97,43 +101,43 @@ namespace SAA {
     CrawlerLog::info("Found {} Items", m_items.size());
     CrawlerLog::info("Found {} Schematics", m_schematics.size());
     CrawlerLog::info("Found {} Resources", m_resources.size());
-    CHAOS_STATS_LOG(CrawlerLog, "Crawled", DecompressedThroughput, CompressedThroughput)
-    CHAOS_REPORT()
+    CrawlerLog::stats<DecompressedThroughput, CompressedThroughput>("Crawled");
+    sc::stats::report_all<CrawlerLog>();
   }
 
-  void Crawler::onParsed(std::shared_ptr<AssetFileParser> &parser) {
-    hitTestAsset(parser);
-  }
+  void Crawler::onParsed(std::shared_ptr<AssetFileParser> &&parser) { hitTestAsset(std::move(parser)); }
 
-  bool Crawler::hitTestAsset(std::shared_ptr<AssetFileParser> &parser) {
+  bool Crawler::hitTestAsset(std::shared_ptr<AssetFileParser> &&parser) {
     for (auto &obj: parser->exportMap()) {
-      if (!obj) { continue; }
-      auto hash = static_cast<HIT_TEST_CLASS_HASH>(obj->getClassHash());
+      if (!obj) {
+        continue;
+      }
+      auto hash = obj->getClassHash();
       switch (hash) {
-        case HIT_TEST_CLASS_HASH::FGRecipe:
+        case FGRecipe::StaticHASH:
           obj->safeExport();
-          m_recipes.emplace_back(parser);
+          m_recipes.emplace_back(std::move(parser));
           return true;
 
-        case HIT_TEST_CLASS_HASH::FGSchematic:
+        case FGSchematic::StaticHASH:
           obj->safeExport();
-          m_schematics.emplace_back(parser);
+          m_schematics.emplace_back(std::move(parser));
           return true;
 
-        case HIT_TEST_CLASS_HASH::FGItemDescriptor:
-        case HIT_TEST_CLASS_HASH::FGItemDescriptorBiomass:
+        case FGItemDescriptor::StaticHASH:
+        case FGItemDescriptorBiomass::StaticHASH:
           obj->safeExport();
-          m_items.emplace_back(parser);
+          m_items.emplace_back(std::move(parser));
           return true;
 
-        case HIT_TEST_CLASS_HASH::FGResourceDescriptor:
+        case FGResourceDescriptor::StaticHASH:
           obj->safeExport();
-          m_resources.emplace_back(parser);
+          m_resources.emplace_back(std::move(parser));
           return true;
 
-        case HIT_TEST_CLASS_HASH::FGBuildingDescriptor:
+        case FGBuildingDescriptor::StaticHASH:
           obj->safeExport();
-          m_buildable.emplace_back(parser);
+          m_buildable.emplace_back(std::move(parser));
           return true;
 
         default:
@@ -144,7 +148,5 @@ namespace SAA {
   }
 
 
-  bool Crawler::shouldAdd(const UnifiedVfsEntry *entry) {
-    return entry->isPkg;
-  }
-}
+  bool Crawler::shouldAdd(const UnifiedVfsEntry *entry) { return entry->isPkg; }
+} // namespace SAA

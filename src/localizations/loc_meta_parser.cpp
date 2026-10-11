@@ -4,17 +4,17 @@
 
 #include "loc_meta_parser.hpp"
 
+#include <cstring>
 #include <utility>
 
 #include "byte_cursor.hpp"
 #include "game_file.hpp"
 #include "loc_manager.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 #include "vfs_entry.hpp"
-#include "logger/chaos_logger.hpp"
-#include "memory/chaos_arena_pool.hpp"
-#include "memory/chaos_bump_arena.hpp"
 
-LOG_ALIAS(LocMetaLog, "SAA", "LOCMETA");
+using LocMetaLog = sc::Logger<"SAA", "LOCMETA">;
 
 namespace SAA {
   std::string_view cleanPath(std::string_view path) {
@@ -27,10 +27,10 @@ namespace SAA {
   }
 
   LocMetaParser::LocMetaParser(LocManager *manager, const UnifiedVfsEntry *vfsEntry) :
-      m_manager(manager), m_vfsEntry(vfsEntry) {}
+      m_vfsEntry(vfsEntry), m_manager(manager) {}
 
   void LocMetaParser::parse() {
-    m_storage = std::make_unique<SC::ChaosBumpArena>(1024);
+    m_storage = std::make_unique<sc::MonotonicResource>(1024);
     char stackBuffer[512];
     auto data = m_vfsEntry->read(m_storage.get());
 
@@ -57,11 +57,13 @@ namespace SAA {
       std::string_view suffix = nativeLocRes.substr(nativeCulture.size());
       auto count = cursor.read<uint32_t>();
       cultures.reserve(count);
-      for (auto i = 0; i < count; i++) {
+      for (uint32_t i = 0; i < count; i++) {
         auto currentCulture = cursor.readFString(m_storage.get());
         m_manager->registerCulture(currentCulture);
 
         size_t totalSize = prefix.size() + currentCulture.size() + suffix.size();
+        // TODO: totalSize wird nicht gegen sizeof(stackBuffer) (512) geprueft. Ein langer Pfad oder ein kaputtes
+        // Laengenfeld in der .locmeta schreibt ueber den Stack-Puffer hinaus. War vor der Portierung schon so.
         std::memcpy(stackBuffer, prefix.data(), prefix.size());
         std::memcpy(stackBuffer + prefix.size(), currentCulture.data(), currentCulture.size());
         std::memcpy(stackBuffer + prefix.size() + currentCulture.size(), suffix.data(), suffix.size());

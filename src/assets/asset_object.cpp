@@ -13,6 +13,7 @@
 namespace SAA {
   void Object::parse() {
     if (getClassName() == "FGBuildableResourceSink" && objName() == "Build_ResourceSink_C") {
+      // TODO: Debug-Ueberbleibsel (Haltepunkt-Anker), gibt eine unused-variable-Warnung.
       int debig;
     }
     parseProperties(m_cursor);
@@ -22,21 +23,24 @@ namespace SAA {
     }
   }
 
-  void Object::exprt() {
-  }
+  void Object::exprt() {}
 
-  Object::Object(Object *other) : classHash(other->classHash),PropertyHolder(other->m_className) {
+  Object::Object(Object *other) : PropertyHolder(other->m_className), classHash(other->classHash) {
     other->safeParse();
 
-    m_objName = other->m_objName;
-    m_owner = other->m_owner;
-    m_cursor = other->m_cursor;
-    m_properties = other->m_properties;
+    m_objName      = other->m_objName;
+    m_owner        = other->m_owner;
+    m_cursor       = other->m_cursor;
+    m_properties   = other->m_properties;
     other->m_inner = this;
-    m_super = other;
+    m_super        = other;
   }
 
 
+  // TODO: Zwei Dinge, beide schon vor der Portierung so:
+  // - Wirft parse(), bleibt m_state auf PARSING und alle Threads im m_cv.wait() unten haengen fuer immer.
+  // - Der schnelle Pfad prueft nur == PARSED. Nach dem Export (EXPORTING/EXPORTED) nimmt jeder safeParse()-Aufruf
+  //   den Umweg ueber den fehlschlagenden CAS und m_mutex. >= PARSED wuerde das vermeiden.
   void Object::safeParse() {
     if (m_state.load(std::memory_order_acquire) == ObjectState::PARSED) {
       return;
@@ -44,7 +48,6 @@ namespace SAA {
     ObjectState expected = ObjectState::NONE;
     if (m_state.compare_exchange_strong(expected, ObjectState::PARSING, std::memory_order_acq_rel)) {
       {
-        ZoneScopedN("Object::parsing")
         m_cursor = m_owner->getAsset(fileOffset, fileSize);
         parse();
       }
@@ -56,12 +59,11 @@ namespace SAA {
       return;
     }
 
-    ZoneScopedN("Object::awaiting Parsing")
     std::unique_lock lock(m_mutex);
     m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ObjectState::PARSED; });
   }
 
-  SC::ChaosEntity Object::safeExport() {
+  sc::ecs::Entity Object::safeExport() {
     if (m_state.load(std::memory_order_acquire) == ObjectState::EXPORTED) {
       return entity;
     }
@@ -70,7 +72,6 @@ namespace SAA {
     ObjectState expected = ObjectState::PARSED;
     if (m_state.compare_exchange_strong(expected, ObjectState::EXPORTING)) {
       {
-        ZoneScopedN("Object::Exporting")
         exprt();
       }
 
@@ -82,27 +83,22 @@ namespace SAA {
       return entity;
     }
 
-    ZoneScopedN("Object::awaiting Export")
     std::unique_lock lock(m_mutex);
-    m_cv.wait(lock, [this] {
-      return m_state.load(std::memory_order_acquire) >= ObjectState::EXPORTED;
-    });
+    m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ObjectState::EXPORTED; });
     return entity;
   }
 
-void SAA::Object::setOwner(AssetFileParser *parser) {
-  m_owner = parser;
-}
+  void SAA::Object::setOwner(AssetFileParser *parser) { m_owner = parser; }
 
-std::string Object::getFullName() const {
-  std::string name = std::string(m_className);
-  name += " ";
-  name += m_owner->path();
-  name += ".";
-  name += m_objName;
-  return name;
-}
+  std::string Object::getFullName() const {
+    std::string name = std::string(m_className);
+    name += " ";
+    name += m_owner->path();
+    name += ".";
+    name += m_objName;
+    return name;
+  }
 
-void Object::setObjName(std::string_view name) { m_objName = name; }
+  void Object::setObjName(std::string_view name) { m_objName = name; }
 
-}
+} // namespace SAA

@@ -1,0 +1,6 @@
+[wrap-git]
+url = https://github.com/ReSelution/StructuredChaos.git
+revision = master
+
+[provide]
+structured_chaos = sc_dep

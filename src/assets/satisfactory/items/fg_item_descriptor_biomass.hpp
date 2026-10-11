@@ -5,7 +5,6 @@
 #pragma once
 
 #include "fg_item_base.hpp"
-#include "simdjson.h"
 
 #include "object_factory.hpp"
 

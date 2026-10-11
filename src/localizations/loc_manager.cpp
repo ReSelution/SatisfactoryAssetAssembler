@@ -7,20 +7,23 @@
 #include <algorithm>
 
 #include "AssetParser.hpp"
-#include "logger/chaos_logger.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/stats/stats.hpp"
+#include "sc/stats/throughput.hpp"
+#include "sc/stats/timer.hpp"
+#include "sc/threading/threading.hpp"
 #include "vfs.hpp"
-#include "threading/chaos_threading.hpp"
 
-LOG_ALIAS(LocMngLog, "SAA", "LOC")
+using LocMngLog = sc::Logger<"SAA", "LOC">;
 
-DEFINE_CHAOS_STAT(LocResThr, "LocRes Throughput", SC::ChaosThroughput<SC::MetricUnits>);
+// TODO: Wird nirgends befuellt oder ausgegeben.
+using LocResThr = sc::stats::Stat<"LocRes Throughput", sc::stats::Throughput<sc::stats::MetricUnits>>;
 
 namespace SAA {
   LocManager::LocManager(AssetParser *parser) : m_parser(parser) {
     auto size = m_metaParsers.size();
     auto t = LocMngLog::time("Found {1} in {0}", size);
 
-    std::vector<std::future<void> > futures;
     auto *vfs = parser->getVfs();
     for (auto &entry: vfs->entries()) {
       if (entry.second->pathStr.ends_with(".locmeta")) {
@@ -34,7 +37,7 @@ namespace SAA {
 
   void LocManager::setCulture(std::string_view langCode) {
     if (!m_registeredCultures.contains(std::string(langCode))) {
-      LocMngLog::err("[LOC]", "Could not find Culture: {}", langCode);
+      LocMngLog::err("Could not find Culture: {}", langCode);
       return;
     }
     auto index = 0;
@@ -58,6 +61,7 @@ namespace SAA {
   }
 
   void LocManager::load() {
+    // TODO: Die Kultur ist hier fest auf "de" gesetzt und ueberschreibt jeden vorherigen setCulture()-Aufruf.
     setCulture("de");
     if (cultureIndex == loadedIndex) {
       return;
@@ -74,7 +78,7 @@ namespace SAA {
       if (auto vfsEntry = vfs->readVfs(path)) {
         parsers.emplace_back(vfsEntry, isNative);
       } else [[unlikely]] {
-        LocMngLog::err("[LOC]", "Failed to load locRes: {}", path);
+        LocMngLog::err("Failed to load locRes: {}", path);
       }
     };
 
@@ -91,19 +95,15 @@ namespace SAA {
 #else
 
 
-    SC::Magpie::get()->clear();
-    auto t = SC::make_timer([magpie = SC::Magpie::get()](SC::TimeResult res) {
+    sc::Magpie::get()->clear();
+    sc::stats::Timer t([magpie = sc::Magpie::get()](sc::stats::TimeResult res) {
       LocMngLog::info("Parsed {} Strings in {:.2f}{}", magpie->size(), res.value, res.suffix);
     });
-    SC::ChaosThreading::detacheBatch<SC::ChaosThreading::Priority::High>(std::move(parsers), [](int id, auto parser) {
-                                                                           parser.parse();
-                                                                         }, [timer = std::move(t)](int id) mutable {
-                                                                           timer.stop();
-                                                                           CHAOS_STATS_LOG(
-                                                                             LocMngLog, "Magpie", SC::MagpieInsert,
-                                                                             SC::MagpieMEM, SC::PoolThroughput)
-                                                                         });
-
+    sc::threading::detachBatch<sc::threading::Priority::High>(
+        std::move(parsers), [](LocResParser parser) { parser.parse(); }, [timer = std::move(t)]() mutable {
+          timer.stop();
+          LocMngLog::stats<sc::MagpieInsert, sc::MagpieMEM, sc::threading::PoolThroughput>("Magpie");
+        });
 
 #endif
     loadedIndex = cultureIndex;

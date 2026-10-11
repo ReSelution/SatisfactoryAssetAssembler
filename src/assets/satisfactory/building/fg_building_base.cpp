@@ -4,8 +4,8 @@
 
 #include "fg_building_base.hpp"
 
-#include "logger/chaos_logger.hpp"
-LOG_ALIAS(buildingLog, "SAA", "Buildings")
+#include "sc/logger/logger.hpp"
+using buildingLog = sc::Logger<"SAA", "Buildings">;
 
 namespace SAA {
   FGBuildingBase::FGBuildingBase(Object *object) : FGDescriptorBase(object) {

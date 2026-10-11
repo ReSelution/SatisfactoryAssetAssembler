@@ -1,42 +1,58 @@
 // src/main.cpp
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
 #include <filesystem>
 
-#include "ecs/chaos_registry.hpp"
 #include "provider/games/satisfactory/SatisfactoryDataProvider.hpp"
-#include "threading/chaos_threading.hpp"
+#include "sc/ecs/registry.hpp"
+#include "sc/logger/logger.hpp"
+#include "sc/threading/threading.hpp"
 
 
-LOG_ALIAS(mainLog, "SAA", "TEST")
+using mainLog = sc::Logger<"SAA", "TEST">;
 
-void setWorkingDirectory(const char *argv0) {
-  namespace fs         = std::filesystem;
-  fs::path exePath     = std::filesystem::canonical(argv0);
-  fs::path projectRoot = exePath.parent_path().parent_path();
-  fs::current_path(projectRoot);
+// The install directory of the game: the first argument, or SAA_GAME_PATH if there is none.
+static std::filesystem::path gamePathFrom(int argc, char **argv) {
+  if (argc > 1) {
+    return argv[1];
+  }
+  if (const char *env = std::getenv("SAA_GAME_PATH"); env != nullptr && *env != '\0') {
+    return env;
+  }
+  return {};
 }
 
 int main(int argc, char **argv) {
-  SC::ChaosRegistry reg;
-  if (argc > 0) {
-    setWorkingDirectory(argv[0]);
+  const std::filesystem::path gamePath = gamePathFrom(argc, argv);
+  if (gamePath.empty()) {
+    std::fprintf(stderr,
+                 "Usage: %s <game-path>\n"
+                 "  <game-path>  install directory of Satisfactory, or set SAA_GAME_PATH\n"
+                 "Output (output/, logs/) is written below the current directory.\n",
+                 argc > 0 ? argv[0] : "AssetRipperTest");
+    return 2;
+  }
+  if (!std::filesystem::is_directory(gamePath)) {
+    std::fprintf(stderr, "Not a directory: %s\n", gamePath.string().c_str());
+    return 2;
   }
 
-  if (std::filesystem::current_path().filename() != "SatisfactoryAssetAssembler") {
-    throw std::runtime_error("Wrong working Directory");
+  try {
+    sc::ecs::Registry reg;
+
+    auto t = mainLog::time(spdlog::level::err, "Finished in {}");
+
+    sc::threading::init();
+    SAA::SatisfactoryDataProvider provider(gamePath);
+    SAA::SatisfactoryDataProvider::setECS(&reg);
+    provider.load();
+
+    // provider.test();
+    provider.crawl();
+  } catch (const std::exception &e) {
+    std::fprintf(stderr, "Error: %s\n", e.what());
+    return 1;
   }
-
-
-  auto t = mainLog::time(spdlog::level::err, "Finished in {}");
-
-  SC::ChaosThreading::init();
-  std::filesystem::path gamePath =
-      "/home/oleub/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Satisfactory/";
-  // gamePath = "/home/oleub/dev/data/Satisfactory_1009/";
-  SAA::SatisfactoryDataProvider provider(gamePath);
-  SAA::SatisfactoryDataProvider::setECS(&reg);
-  provider.load();
-
-  provider.test();
-  // provider.crawl();
   return 0;
 }

@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <span>
 
-#include "memory/chaos_arena_pool.hpp"
+#include "sc/memory/monotonic_resource.hpp"
 #include "usmap/enums.hpp"
 
 namespace SAA {

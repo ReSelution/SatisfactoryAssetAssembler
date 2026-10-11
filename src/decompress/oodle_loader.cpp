@@ -5,6 +5,8 @@
 #include "oodle_loader.hpp"
 
 #include <fstream>
+#include <iterator>
+#include <system_error>
 
 #include "Decompressor.hpp"
 #ifdef _WIN32
@@ -13,8 +15,8 @@
 #include <dlfcn.h>
 #endif
 
-#include "logger/chaos_logger.hpp"
-LOG_ALIAS(OodleLog, "SAA", "OODLE")
+#include "sc/logger/logger.hpp"
+using OodleLog = sc::Logger<"SAA", "OODLE">;
 
 namespace SAA {
   static void *g_OodleLibHandle = nullptr;
@@ -90,6 +92,22 @@ namespace SAA {
   }
 #endif
 
+  // The directory the running executable lies in, or an empty path if it cannot be determined.
+  static std::filesystem::path executableDir() {
+    std::error_code ec;
+#ifdef _WIN32
+    wchar_t buffer[32768];
+    const DWORD length = GetModuleFileNameW(nullptr, buffer, static_cast<DWORD>(std::size(buffer)));
+    if (length == 0 || length == std::size(buffer)) {
+      return {};
+    }
+    return std::filesystem::path(buffer, buffer + length).parent_path();
+#else
+    const std::filesystem::path exe = std::filesystem::read_symlink("/proc/self/exe", ec);
+    return ec ? std::filesystem::path{} : exe.parent_path();
+#endif
+  }
+
   void OodleLoader::loadOodle(const std::filesystem::path &gamePath) {
     auto t = OodleLog::time("Found in {}");
 
@@ -99,7 +117,11 @@ namespace SAA {
 #else
     libName = "liboo2corelinux64.so.9";
 #endif
-    std::filesystem::path localPath = std::filesystem::current_path() / libName;
+    // Next to the executable first, then in the current directory.
+    std::filesystem::path localPath = executableDir() / libName;
+    if (!std::filesystem::exists(localPath)) {
+      localPath = std::filesystem::current_path() / libName;
+    }
     OodleLZ_Decompress decompressFunc = nullptr;
     if (std::filesystem::exists(localPath)) {
       OodleLog::info("Using local Oodle library: {}", localPath.string());
@@ -160,7 +182,8 @@ namespace SAA {
 #endif
     if (decompressFunc == nullptr) {
       throw std::runtime_error(
-        "Oodle decompressor could not be located! Put oo2core_9_win64.dll/liboo2corelinux64.so.9 in the app folder.");
+        "Oodle decompressor could not be located! Put oo2core_9_win64.dll/liboo2corelinux64.so.9 next to the "
+        "executable or in the current directory.");
     }
     OodleApi::initializePointer(decompressFunc);
   }
