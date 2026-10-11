@@ -23,19 +23,19 @@ All dependencies are fetched as Meson subprojects.
 ```bash
 git clone https://github.com/ReSelution/SatisfactoryAssetAssembler.git
 cd SatisfactoryAssetAssembler
-meson setup build/release --native-file cross/linux-clang.ini --buildtype=release -Db_lto=true -Db_ndebug=true
+meson setup build/release --native-file cross/linux-clang.ini --buildtype=release -Db_lto=true
 meson compile -C build/release
 ```
 
-`cross/linux-clang.ini` selects Clang with mold and ccache. `-Db_ndebug=true` matters: without it the
-crawler, the provider and the localizations run on a single thread. Other configurations:
+`cross/linux-clang.ini` selects Clang with mold and ccache. Release is the default build type and defines
+`NDEBUG`. Without `NDEBUG` the crawler, the provider and the localizations run on a single thread. Other configurations:
 
 ```bash
 # Optimized with debug symbols, for profiling
 meson setup build/relwithdebinfo --native-file cross/linux-clang.ini -Doptimization=3 -Ddebug=true -Db_ndebug=true
 
 # AddressSanitizer + UndefinedBehaviorSanitizer
-meson setup build/debug --native-file cross/linux-clang.ini -Db_sanitize=address,undefined
+meson setup build/debug --native-file cross/linux-clang.ini --buildtype=debug -Db_sanitize=address,undefined
 
 # Windows, cross compiled with clang-cl (SDK via scripts/setup-win-sdk.sh)
 meson setup build/win64 --cross-file cross/win64-clang-cl.ini --buildtype=release

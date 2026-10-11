@@ -2,12 +2,12 @@ project(
   'SatisfactoryAssetAssembler',
   'cpp',
   version: '0.1.0',
-  default_options: ['cpp_std=c++23'],
+  default_options: ['cpp_std=c++23', 'buildtype=release', 'b_ndebug=if-release'],
   meson_version: '>= 1.1.0',
 )
 
 # Sanitizer builds are selected with the built-in option, for example
-#   meson setup build/asan -Db_sanitize=address,undefined
+#   meson setup build/asan --buildtype=debug -Db_sanitize=address,undefined
 # LTO likewise:
 #   meson setup build/release --buildtype=release -Db_lto=true
 
