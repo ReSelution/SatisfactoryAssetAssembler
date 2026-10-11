@@ -76,6 +76,8 @@ logs/
 /output/
 *.log
 out.txt
+perf.data
+perf.data.old
 
 
 # ----------------------------------------
