@@ -10,10 +10,8 @@ namespace SAA {
   template<>
   FPropertyTag PropertyParser<EUE5Version::UE5_3>::parsePropertyTag(ByteCursor &cursor, sc::MonotonicResource *storage) {
     // Logger::logInfo("[Property]", "Property @ {}", cursor.tell());
-#ifndef NDEBUG
     int debug = cursor.tell();
     (void) debug;
-#endif
     auto tag = FPropertyTag{.Name = cursor.readFName()};
     // Logger::logInfo("[Property]", "Property: {} @ {}",tag.Name.text() ,cursor.tell());
 
@@ -232,10 +230,8 @@ namespace SAA {
     uint32_t size) {
     FPropertyValue val;
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
-#ifndef NDEBUG
     auto debug = cursor.tell();
     (void) debug;
-#endif
     switch (tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
       case ESatisfactoryStruct::Guid: {
         val.data = cursor.read<FGuid>();
@@ -400,12 +396,10 @@ namespace SAA {
         val.data = PropertyHolder{};
         break;
       default:
-        // #ifndef NDEBUG
         //         if (tagData) {
         //           Logger::logInfo("[PropertyHolder]", "Parsing Struct: {} as Fallback @ {}", tagData->structName.text(),
         //                           cursor.tell());
         //         }
-        // #endif
         val.data = PropertyParser<EUE5Version::UE5_3>::parseFallbackStruct(cursor, storage);
         break;
     }

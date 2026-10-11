@@ -1,6 +1,12 @@
 option('enable_chaos_stats', type: 'boolean', value: true, description: 'Enable Chaos Stats')
 option('dump_magpie', type: 'boolean', value: false, description: 'Enable Magpie Dumping')
 option(
+  'track_properties',
+  type: 'boolean',
+  value: false,
+  description: 'Compile the PropertyTracker in, it logs the properties no asset class reads',
+)
+option(
   'native_arch',
   type: 'boolean',
   value: true,

@@ -9,7 +9,7 @@
 #include "sc/hash/hash.hpp"
 
 namespace SAA {
-#ifndef NDEBUG
+#ifdef SAA_TRACK_PROPERTIES
   struct PropertyInfo;
   struct FPropertyTag;
 

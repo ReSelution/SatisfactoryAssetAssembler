@@ -10,7 +10,7 @@
 using PropertyTrackerLog = sc::Logger<"SAA", "Tracker">;
 
 namespace SAA {
-#ifndef NDEBUG
+#ifdef SAA_TRACK_PROPERTIES
 
   std::map<std::string, std::map<uint64_t, PropertyInfo>> PropertyTracker::m_allSeen{};
 

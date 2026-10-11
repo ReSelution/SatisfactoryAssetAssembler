@@ -31,6 +31,9 @@ else
   endif
 endif
 add_project_arguments(cpp.get_supported_arguments(saa_args), language: 'cpp')
+if get_option('track_properties')
+  add_project_arguments('-DSAA_TRACK_PROPERTIES', language: 'cpp')
+endif
 
 subdir('external')
 subdir('src')

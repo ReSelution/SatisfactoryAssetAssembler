@@ -380,12 +380,10 @@ namespace SAA {
       return EPropertyTagSerializeType::Property;
     }
   };
-#ifndef NDEBUG
   struct PropertyInfo {
     FPropertyTag tag;
     size_t count = 0;
   };
-#endif
 
   template<typename T>
   std::optional<T> PropertyHolder::get(uint64_t hash) const {

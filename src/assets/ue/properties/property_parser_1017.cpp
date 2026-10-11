@@ -57,10 +57,8 @@ namespace SAA {
 
   template<>
   FPropertyTag PP6::parsePropertyTag(ByteCursor &cursor, sc::MonotonicResource *storage) {
-#ifndef NDEBUG
     int debug = cursor.tell();
     (void) debug;
-#endif
 
     auto tag = FPropertyTag{.Name = cursor.readFName()};
     // Logger::logInfo("[Property]", "Property: {} @ {}",tag.Name.text() ,cursor.tell());
@@ -358,10 +356,8 @@ namespace SAA {
                                                FPropertyTagData *tagData, ReadType type, uint32_t size) {
     FPropertyValue val;
     // Logger::logInfo("[PropertyHolder]", "Struct Property:{} @ {}",  tagData->structName.text(), cursor.tell());
-#ifndef NDEBUG
     auto debug = cursor.tell();
     (void) debug;
-#endif
     switch (tagData != nullptr ? tagData->StructType : ESatisfactoryStruct::Unknown) {
       case ESatisfactoryStruct::Guid: {
         return FPropertyValue{cursor.read<FGuid>()};
@@ -515,12 +511,10 @@ namespace SAA {
         (void) cursor.readFName(); // FragmentTypeID
       }
       default:
-        // #ifndef NDEBUG
         //         if (tagData) {
         //           propertyLOG::info("Parsing Struct: {} as Fallback @ {}", tagData->structName.text(),
         //                           cursor.tell());
         //         }
-        // #endif
         return FPropertyValue{parseFallbackStruct(cursor, storage)};
     }
     return val;

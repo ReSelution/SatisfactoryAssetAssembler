@@ -420,9 +420,7 @@ namespace SAA {
     explicit FGBuildingBase(Object *object);
 
   protected:
-#ifndef NDEBUG
-void markHandledDBG() const;
-#endif
+    void markHandledDBG() const;
     void parse() override;
 
 

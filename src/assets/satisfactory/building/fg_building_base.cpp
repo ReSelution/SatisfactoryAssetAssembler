@@ -14,9 +14,7 @@ namespace SAA {
   void FGBuildingBase::parse() {
     FGDescriptorBase::parse();
 
-#ifndef NDEBUG
     markHandledDBG();
-#endif
 
     mInventorySizeX = get<int32_t>(Building::InventorySizeX).value_or(mInventorySizeX);
     mInventorySizeX = get<int8_t>(Building::StorageSizeX).value_or(mInventorySizeX);
@@ -43,7 +41,6 @@ namespace SAA {
 
   }
 
-#ifndef NDEBUG
   void FGBuildingBase::markHandledDBG() const {
     // --- ENGINE & TICKING (Vom Savegame/Runtime gesteuert) ---
     DBG_MARK_HANDLED(m_className, Building::UberGraphFrame);
@@ -454,5 +451,4 @@ namespace SAA {
   }
 
 
-#endif
 } // SAA
