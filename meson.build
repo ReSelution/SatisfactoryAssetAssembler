@@ -31,6 +31,10 @@ else
   endif
 endif
 add_project_arguments(cpp.get_supported_arguments(saa_args), language: 'cpp')
+# windows.h defines min/max as macros and pulls in Winsock, whose PF_MAX collides with EPixelFormat.
+if host_machine.system() == 'windows'
+  add_project_arguments('-DNOMINMAX', '-DWIN32_LEAN_AND_MEAN', language: 'cpp')
+endif
 if get_option('track_properties')
   add_project_arguments('-DSAA_TRACK_PROPERTIES', language: 'cpp')
 endif

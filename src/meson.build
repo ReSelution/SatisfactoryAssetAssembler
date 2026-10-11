@@ -80,11 +80,18 @@ saa_sources = files(
   'vfs/vfs_entry.cpp',
 )
 
+# The library only needs the compile side of its dependencies. sc_dep carries mi_new_delete.cpp as a source on
+# Windows; taken along here it would end up in the library and, through saa_dep, a second time in the executable.
+saa_lib_deps = []
+foreach dep : all_deps
+  saa_lib_deps += dep.partial_dependency(compile_args: true, includes: true)
+endforeach
+
 saa_lib = static_library(
   'SatisfactoryAssetAssembler',
   saa_sources,
   include_directories: saa_inc,
-  dependencies: all_deps,
+  dependencies: saa_lib_deps,
 )
 
 # The asset classes register themselves with the object factory from static

@@ -8,7 +8,14 @@ sc_dep = dependency(
   ],
 )
 
-# Pulls in simdjson itself, which is its JSON parser.
+# The JSON parser of fastgltf. Resolved here first so that it is built statically as well: fastgltf only passes
+# its own default_options on, and as a DLL simdjson does not export every symbol fastgltf needs.
+dependency(
+  'simdjson',
+  fallback: ['simdjson', 'simdjson_dep'],
+  default_options: ['default_library=static'],
+)
+
 fastgltf_dep = dependency(
   'fastgltf',
   fallback: ['fastgltf', 'fastgltf_dep'],
