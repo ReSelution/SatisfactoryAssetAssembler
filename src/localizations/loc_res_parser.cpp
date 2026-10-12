@@ -31,10 +31,9 @@ namespace SAA {
 
     auto cursor = data->subspan(0, data->size());
     auto magic  = cursor.read<FGuid>();
-    // TODO: Bei falscher Magic wird nur geloggt und trotzdem weiter geparst. LocMetaParser::parse() bricht an der
-    // gleichen Stelle ab. War vor der Portierung schon so.
     if (magic != LOC_RES_MAGIC) {
       LocResLoc::err("{} found: A: {} B: {} C: {} D: {}", m_vfsEntry->pathStr, magic.A, magic.B, magic.C, magic.D);
+      return inserted;
     }
     auto version = cursor.read<ELocResVersion>();
 
@@ -73,10 +72,8 @@ namespace SAA {
         const auto keyCount = cursor.read<uint32_t>();
         for (uint32_t j = 0; j < keyCount; j++) {
           cursor += sizeof(uint32_t); // skip hash
-          // TODO: Der Key wird dauerhaft im Speicher von Magpie abgelegt, gebraucht wird er danach nur fuer den Hash
-          // (und mit DUMP_MAGPIE, wo mt_InsertStored() ihn selbst noch einmal kopiert). readFString(&storage) wuerde
-          // reichen und den Speicher nach parse() wieder freigeben.
-          auto keyStr  = cursor.readFString(magpie);
+          // Only needed for the hash, mt_InsertStored() copies the key itself where it keeps it (DUMP_MAGPIE).
+          auto keyStr  = cursor.readFString(&storage);
           auto keyHash = sc::hash(keyStr);
           cursor += sizeof(uint32_t);
           auto stringIndex = cursor.read<uint32_t>();

@@ -38,6 +38,10 @@ namespace SAA {
       // Logger::logError("[AssetParser]", "Unknown PKG : {}", pkg.Id);
       return nullptr;
     }
+    // An import is created again once its last holder is gone (43.1 K parser creations for 28.2 K packages in the
+    // crawl, 1017). That is fine by design: creating a parser loads nothing, data is only read by safeParse().
+    // Measured: keeping the last 16 imported parsers per cache shard alive saved no time (crawl 52.8 -> 51.9 ms
+    // median, test mode 3.44 s both) and cost 22 MB / 470 MB of peak memory.
     return createParser(vfsEntry);
   }
 
@@ -101,15 +105,13 @@ namespace SAA {
 
         parser->setReader(entry->owningReader);
 
-        if (auto shared = m_parserCache.getLocked(vfsEntry->hash)) {
-          return std::move(shared);
-        }
-        m_parserCache.insert(asset->hash, parser);
-        if (bulk) {
+        // Another thread may have created a parser for the same asset in the meantime, then that one is used.
+        auto shared = m_parserCache.getOrInsert(asset->hash, parser);
+        if (shared == parser && bulk) {
           m_parserCache.insert(bulk->hash, parser);
         }
 
-        return std::move(parser);
+        return shared;
       }
       default:
         break;

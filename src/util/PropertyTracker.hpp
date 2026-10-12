@@ -11,12 +11,11 @@
 namespace SAA {
 #ifdef SAA_TRACK_PROPERTIES
   struct PropertyInfo;
-  struct FPropertyTag;
+  class PropertyMap;
 
   class PropertyTracker {
   public:
-    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, sc::IdentityHash>;
-    static void registerMap(std::string_view className, denseMap *props);
+    static void registerMap(std::string_view className, const PropertyMap *props);
 
     static void markHandled(std::string_view className, uint64_t propHash) {
       std::lock_guard<std::mutex> lock(m_mutex);

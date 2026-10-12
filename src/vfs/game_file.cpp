@@ -17,7 +17,11 @@ namespace SAA {
     auto old = m_cursor;
     m_cursor = offset;
     if (!load(size)) [[unlikely]] {
-      throw std::runtime_error("subspan out of range");
+      if (offset + size > impl->fileSize) {
+        throw std::runtime_error("subspan out of range");
+      }
+      // In range, so a chunk failed: the read, or the decompression of a damaged block.
+      throw std::runtime_error("chunk of the file could not be read or decompressed");
     }
 
     ByteCursor sub(m_buffer.subspan(offset, size), m_owner);
@@ -66,9 +70,9 @@ namespace SAA {
         auto res   = utf16ToUtf8(*utf16Storage, chars);
         entries[i] = res;
       } else {
-        // TODO: Der Rueckgabewert von load() wird ignoriert. Schlaegt das Laden fehl oder liegt length hinter dem
-        // Dateiende, zeigt die View unten auf nicht geladene bzw. fremde Bytes. War vor der Portierung schon so.
-        load(length);
+        if (!load(length)) [[unlikely]] {
+          throw std::runtime_error("Name batch entry out of range");
+        }
         const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
         entries[i]           = {startPos, length};
         m_cursor += length;
@@ -126,16 +130,16 @@ namespace SAA {
   }
 
   bool GameFileImpl::safeLoad(size_t targetOffset, size_t size, std::span<uint8_t> dst) {
+    // The chunk walks below do not stop at the last chunk on their own.
+    if (targetOffset + size > fileSize) [[unlikely]] {
+      return false;
+    }
     auto index = idx.load(std::memory_order_relaxed);
     if (isLoaded(targetOffset, size, index)) {
       idx.store(index, std::memory_order_relaxed);
       return true;
     }
-    if (tryLoad(targetOffset, size, index, dst)) {
-      waitFinished(targetOffset, size, index);
-      return true;
-    }
-    return false;
+    return tryLoad(targetOffset, size, index, dst) && waitFinished(targetOffset, size, index);
   }
 
   bool GameFileImpl::tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst) {
@@ -146,6 +150,7 @@ namespace SAA {
                                 : fileSize;
     if (nextChunkStart < targetOffset + size) {
 
+      bool failed = false;
       std::vector<size_t> chunksToLoad;
       chunksToLoad.reserve(chunkOffsetsLoaded.size());
       for (size_t offset = targetOffset; offset < targetOffset + size;) {
@@ -155,7 +160,8 @@ namespace SAA {
                                     ? (chunkOffsetsLoaded[cIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
                                     : fileSize;
         offset                = nextChunkStart;
-        if (expected & FINISHED_BIT) {
+        if (expected & (FINISHED_BIT | FAILED_BIT)) {
+          failed |= (expected & FAILED_BIT) != 0;
           cIdx++;
           continue;
         };
@@ -172,10 +178,26 @@ namespace SAA {
       // ecs-Branch von StructuredChaos auf master ist, hier wieder parallel laden: es blockiert, darf aus Pool-Tasks
       // aufgerufen werden und der Aufrufer arbeitet selbst mit, die Worker koennen sich also nicht gegenseitig
       // blockieren.
-      for (size_t i: chunksToLoad) {
-        if (load(i, dst)) [[likely]] {
-          chunkOffsetsLoaded[i].fetch_or(FINISHED_BIT, std::memory_order_release);
+      // Every claimed chunk ends up FINISHED or FAILED, otherwise the threads in waitFinished() never get out.
+      size_t next = 0;
+      try {
+        for (; next < chunksToLoad.size(); ++next) {
+          size_t i = chunksToLoad[next];
+          if (load(i, dst)) [[likely]] {
+            chunkOffsetsLoaded[i].fetch_or(FINISHED_BIT, std::memory_order_release);
+          } else {
+            chunkOffsetsLoaded[i].fetch_or(FAILED_BIT, std::memory_order_release);
+            failed = true;
+          }
         }
+      } catch (...) {
+        for (; next < chunksToLoad.size(); ++next) {
+          chunkOffsetsLoaded[chunksToLoad[next]].fetch_or(FAILED_BIT, std::memory_order_release);
+        }
+        throw;
+      }
+      if (failed) [[unlikely]] {
+        return false;
       }
     } else {
       auto &atomic  = chunkOffsetsLoaded[cIdx];
@@ -184,20 +206,24 @@ namespace SAA {
         uint64_t desired = expected | LOADING_BIT;
         if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
           willNeed(cIdx);
-          if (load(cIdx, dst)) [[likely]] {
-            atomic.fetch_or(FINISHED_BIT, std::memory_order_release);
-            return true;
+          bool loaded = false;
+          try {
+            loaded = load(cIdx, dst);
+          } catch (...) {
+            atomic.fetch_or(FAILED_BIT, std::memory_order_release);
+            throw;
           }
+          atomic.fetch_or(loaded ? FINISHED_BIT : FAILED_BIT, std::memory_order_release);
+          return loaded;
         }
       }
     }
 
-    // TODO: Gibt auch dann true zurueck, wenn load() fehlgeschlagen ist. FINISHED_BIT wird dann nie gesetzt und
-    // waitFinished() dreht sich fuer diesen und alle anderen wartenden Threads endlos. War vor der Portierung schon so.
+    // Another thread is loading the rest, waitFinished() reports how that went.
     return true;
   }
 
-  void GameFileImpl::waitFinished(size_t targetOffset, size_t size, size_t chunIdx) {
+  bool GameFileImpl::waitFinished(size_t targetOffset, size_t size, size_t chunIdx) {
     for (size_t offset = targetOffset; offset < targetOffset + size;) {
       auto &atomic          = chunkOffsetsLoaded[chunIdx];
       size_t nextChunkStart = (chunIdx + 1 < chunkOffsetsLoaded.size())
@@ -207,10 +233,16 @@ namespace SAA {
       // TODO: Vorher hat der wartende Thread ueber SC::ChaosThreading::helpThread andere Tasks abgearbeitet.
       // sc::threading bietet das nicht mehr oeffentlich an (helpThread liegt in impl), deshalb wird hier nur noch
       // die CPU abgegeben.
-      while (!(atomic.load(std::memory_order_acquire) & FINISHED_BIT)) {
+      uint64_t state = atomic.load(std::memory_order_acquire);
+      while (!(state & (FINISHED_BIT | FAILED_BIT))) {
         std::this_thread::yield();
+        state = atomic.load(std::memory_order_acquire);
+      }
+      if (state & FAILED_BIT) [[unlikely]] {
+        return false;
       }
       chunIdx++;
     }
+    return true;
   }
 } // namespace SAA

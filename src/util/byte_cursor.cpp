@@ -79,9 +79,8 @@ namespace SAA {
         auto res   = utf16ToUtf8(*utf16Storage, chars);
         entries[i] = res;
       } else {
-        const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
-        entries[i]           = {startPos, length};
-        m_cursor += length;
+        auto chars = readArray<char>(length);
+        entries[i] = {chars.data(), chars.size()};
       }
     }
     return entries;
@@ -92,9 +91,7 @@ namespace SAA {
     return readFString(m_owner->storage());
   }
 
-  // TODO: Beide readFString-Varianten mit Laenge pruefen nicht, ob length noch im Puffer liegt. Bei kaputten oder
-  // falsch interpretierten Daten zeigt die zurueckgegebene View hinter den Puffer (Out-of-bounds-Read) und m_cursor
-  // steht ausserhalb. readArray<>() und read<>() pruefen das, hier fehlt es. War vor der Portierung schon so.
+  // The length of an FString counts the terminator. Negative means UTF-16 and counts char16_t.
   std::string_view ByteCursor::readFString(sc::MonotonicResource *utf16Storage) {
     auto length = read<int32_t>();
     if (length == 0) [[unlikely]] {
@@ -102,16 +99,13 @@ namespace SAA {
     }
 
     if (length < 0) {
-      const auto absLength    = static_cast<uint32_t>(-length);
-      const uint32_t byteSize = absLength * 2u;
-      const auto *utf16Source = reinterpret_cast<const char16_t *>(m_buffer.data() + m_cursor);
-      m_cursor += byteSize;
-      return utf16ToUtf8(*utf16Storage, {utf16Source, absLength - 1});
+      // Widened before negating: -INT32_MIN does not fit into an int32_t.
+      const auto chars = readArray<char16_t>(static_cast<size_t>(-static_cast<int64_t>(length)));
+      return utf16ToUtf8(*utf16Storage, chars.first(chars.size() - 1));
     }
 
-    const char *asciiSource = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
-    m_cursor += length;
-    return {asciiSource, static_cast<size_t>(length - 1)};
+    const auto chars = readArray<char>(static_cast<size_t>(length));
+    return {chars.data(), chars.size() - 1};
   }
 
   std::string_view ByteCursor::readFString(sc::Magpie *magpie) {
@@ -121,15 +115,11 @@ namespace SAA {
     }
 
     if (length < 0) {
-      const auto absLength    = static_cast<uint32_t>(-length);
-      const uint32_t byteSize = absLength * 2u;
-      const auto *utf16Source = reinterpret_cast<const char16_t *>(m_buffer.data() + m_cursor);
-      m_cursor += byteSize;
-      return magpie->storeStrUTF16(utf16Source, absLength - 1);
+      const auto chars = readArray<char16_t>(static_cast<size_t>(-static_cast<int64_t>(length)));
+      return magpie->storeStrUTF16(chars.data(), chars.size() - 1);
     }
 
-    const char *asciiSource = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
-    m_cursor += length;
-    return magpie->storeStr({asciiSource, static_cast<size_t>(length - 1)});
+    const auto chars = readArray<char>(static_cast<size_t>(length));
+    return magpie->storeStr({chars.data(), chars.size() - 1});
   }
 } // namespace SAA

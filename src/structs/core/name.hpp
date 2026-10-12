@@ -54,14 +54,20 @@ namespace SAA {
 #pragma pack(pop)
 
   struct FName {
-    std::string_view plainTextView;
-    // mutable std::string_view generatedView;
+    // The whole name. For a numbered name that includes the suffix ("Foo_1" for number 2), ByteCursor::readFName()
+    // builds it once when the name is read.
+    std::string_view textView;
     uint32_t index;
     uint32_t number;
-    sc::MonotonicResource *slab = nullptr;
 
-    [[nodiscard]] std::string_view text() const;
+    [[nodiscard]] std::string_view text() const { return textView; }
 
-    [[nodiscard]] bool isNone() const { return index == 0 || plainTextView == "None"; }
+    // base with the suffix of number appended, stored in storage. number must not be 0.
+    [[nodiscard]] static std::string_view numbered(std::string_view base, uint32_t number,
+                                                   sc::MonotonicResource *storage);
+
+    // Decided by the text alone: index 0 of a package name map is an ordinary name (often the first one in
+    // alphabetical order, "Amount" for example). A default constructed FName has no text and counts as None.
+    [[nodiscard]] bool isNone() const { return textView.empty() || textView == "None"; }
   };
 } // namespace SAA

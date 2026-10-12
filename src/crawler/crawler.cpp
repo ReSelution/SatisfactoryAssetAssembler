@@ -4,6 +4,8 @@
 
 #include "crawler.hpp"
 
+#include <atomic>
+#include <exception>
 
 #include "AssetParser.hpp"
 #include "asset_object.hpp"
@@ -49,17 +51,29 @@ namespace SAA {
     merge(child.m_resources, m_resources);
   }
 
-  auto Crawler::createFileQueue(AssetParser &parser, size_t &files) {
+  auto Crawler::createFileQueue(AssetParser &parser, size_t &files, size_t &failed) {
     Vfs *vfs = parser.getVfs();
     files    = 0;
+
+    // A file that cannot be parsed is reported and skipped, the remaining files are still crawled.
+    std::atomic<size_t> failures = 0;
+    const auto parseFile         = [&parser, &failures](std::string_view path, Crawler &sink) {
+      try {
+        parser.parseAsset(path, [&sink](std::shared_ptr<AssetFileParser> &&file) { sink.onParsed(std::move(file)); });
+      } catch (const std::exception &e) {
+        failures.fetch_add(1, std::memory_order_relaxed);
+        CrawlerLog::err("{}: {}", path, e.what());
+      }
+    };
+
     if (runtimeOptions().serial) {
       for (const auto &entry: vfs->entries()) {
         if (shouldAdd(entry.second)) {
           files++;
-          parser.parseAsset(entry.second->packagePath,
-                            [&](std::shared_ptr<AssetFileParser> &&file) { onParsed(std::move(file)); });
+          parseFile(entry.second->packagePath, *this);
         }
       }
+      failed = failures.load(std::memory_order_relaxed);
       return;
     }
 
@@ -71,12 +85,12 @@ namespace SAA {
       }
     }
     files    = batch.size();
-    auto fut = sc::threading::enqueueBatch(std::move(batch), [&parser, this](std::string_view path) {
-      const int32_t id = sc::threading::thread_id();
-      parser.parseAsset(
-          path, [this, id](std::shared_ptr<AssetFileParser> &&file) { this->m_childs[id].onParsed(std::move(file)); });
+    auto fut = sc::threading::enqueueBatch(std::move(batch), [&parseFile, this](std::string_view path) {
+      parseFile(path, m_childs[sc::threading::thread_id()]);
     });
-    fut.wait();
+    // get() instead of wait(): anything that is not a std::exception still ends the batch and has to reach main().
+    fut.get();
+    failed = failures.load(std::memory_order_relaxed);
   }
 
 
@@ -86,17 +100,21 @@ namespace SAA {
       m_childs.emplace_back(getChild());
     }
     size_t files   = 0;
+    size_t failed  = 0;
     size_t threads = runtimeOptions().serial ? 1 : slots - 1;
 
     auto t = CrawlerLog::time("Parsed {1} Files in {0} on {2} Threads", files, threads);
     sc::ArenaPool::init(slots * 16, 32 * 1024);
-    createFileQueue(parser, files);
+    createFileQueue(parser, files, failed);
     for (auto &m_child: m_childs) {
       mergeWithChild(m_child);
     }
     m_childs.clear();
     t.stop();
     DBG_PRINT_MISSING();
+    if (failed > 0) {
+      CrawlerLog::err("{} of {} Files could not be parsed", failed, files);
+    }
     CrawlerLog::info("Found {} Buildings", m_buildable.size());
     CrawlerLog::info("Found {} Recipes", m_recipes.size());
     CrawlerLog::info("Found {} Items", m_items.size());

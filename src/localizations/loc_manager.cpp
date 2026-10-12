@@ -19,9 +19,6 @@
 
 using LocMngLog = sc::Logger<"SAA", "LOC">;
 
-// TODO: Wird nirgends befuellt oder ausgegeben.
-using LocResThr = sc::stats::Stat<"LocRes Throughput", sc::stats::Throughput<sc::stats::MetricUnits>>;
-
 namespace SAA {
   LocManager::LocManager(AssetParser *parser) : m_parser(parser) {
     auto size = m_metaParsers.size();
@@ -36,6 +33,10 @@ namespace SAA {
     }
 
     size = m_metaParsers.size();
+
+    if (const auto &culture = runtimeOptions().culture; !culture.empty()) {
+      setCulture(culture);
+    }
   }
 
   void LocManager::setCulture(std::string_view langCode) {
@@ -57,20 +58,15 @@ namespace SAA {
     auto [it, inserted] = m_registeredCultures.insert(std::string(culture));
     if (inserted) {
       m_cultureList.push_back(*it);
-      if (*it == DEFAULT_CULTURE) {
-        cultureIndex = m_registeredCultures.size() - 1;
-      }
     }
   }
 
   void LocManager::load() {
-    // TODO: Die Kultur ist hier fest auf "de" gesetzt und ueberschreibt jeden vorherigen setCulture()-Aufruf.
-    setCulture("de");
-    if (cultureIndex == loadedIndex) {
+    if (m_loaded && cultureIndex == loadedIndex) {
       return;
     }
     auto *vfs = m_parser->getVfs();
-    auto culture = m_cultureList.at(cultureIndex);
+    const std::string_view culture = cultureIndex ? m_cultureList.at(*cultureIndex) : std::string_view{};
 
 
     std::vector<LocResParser> parsers;
@@ -87,6 +83,9 @@ namespace SAA {
 
     for (const auto &locMeta: m_metaParsers) {
       loadLoc(locMeta.getNativeRes(), true);
+      if (culture.empty()) {
+        continue;
+      }
       if (auto [isNative, resPath] = locMeta.getRes(culture); !isNative) {
         loadLoc(resPath);
       }
@@ -114,5 +113,6 @@ namespace SAA {
           });
     }
     loadedIndex = cultureIndex;
+    m_loaded    = true;
   }
 } // namespace SAA

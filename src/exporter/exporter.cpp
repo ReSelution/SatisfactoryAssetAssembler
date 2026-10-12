@@ -17,18 +17,14 @@ namespace SAA {
     return std::filesystem::exists(path);
   }
 
-  // TODO: Nicht threadsicher. Rufen zwei Threads getEntity() fuer dasselbe Objekt gleichzeitig auf, legen beide eine
-  // Entity an und eine geht verloren; obj->entity wird dabei ohne Synchronisation gelesen und geschrieben. Der
-  // Lock unten ist auskommentiert (sc::SpinLockGuard waere der Nachfolger von SC::ChaosSpinLockGuard).
+  // Needs no lock of its own: it is only called from obj's own exprt(), which Object::safeExport() runs once per
+  // object (state EXPORTING). Other threads read obj->entity through safeExport() after EXPORTED is published.
+  // Registry::create() may be called from several threads.
   sc::ecs::Entity Exporter::getEntity(Object *obj) {
 
     if (obj->entity)[[likely]] {
       return obj->entity;
     }
-//    sc::SpinLockGuard lock(obj->entityCreationLock);
-//    if (obj->entity) {
-//      return obj->entity;
-//    }
     assert(reg != nullptr);
     obj->entity = reg->create();
     return obj->entity;

@@ -15,12 +15,12 @@
 #include "AssetFileParser.hpp"
 #include "byte_cursor.hpp"
 #include "core/f_guid.hpp"
+#include "core/flags.hpp"
 #include "satisfactory/fg_factory.hpp"
 
 #include "exporter.hpp"
 #include "sc/ecs/entity.hpp"
 #include "sc/memory/monotonic_resource.hpp"
-#include "sc/threading/spin_lock.hpp"
 #include "ue/properties/f_property_tag.hpp"
 #include "ue/properties/property_holder.hpp"
 
@@ -42,7 +42,7 @@ namespace SAA {
 
   public:
     explicit Object(std::string_view className = "Object", uint64_t classHash = "Object"_h) :
-        PropertyHolder(className), classHash(classHash) {};
+        classHash(classHash), m_className(className) {};
 
     explicit Object(Object *other);
 
@@ -58,6 +58,13 @@ namespace SAA {
     void setFileSpan(size_t off, size_t s) {
       fileOffset = off;
       fileSize   = s;
+    }
+
+    // The flags of the export whose data setFileSpan() points to.
+    void setObjectFlags(EObjectFlags flags) { m_objectFlags = flags; }
+
+    [[nodiscard]] bool isClassDefaultObject() const {
+      return (m_objectFlags & EObjectFlags::RF_ClassDefaultObject) != EObjectFlags::RF_NoFlags;
     }
     void safeParse();
 
@@ -96,16 +103,18 @@ namespace SAA {
     Object *m_outer = nullptr;
     Object *m_super = nullptr;
     Object *m_inner = nullptr;
-    // TODO: entityCreationLock wird nirgends benutzt (der Lock in Exporter::getEntity ist auskommentiert).
-    // sc::SpinLock ist alignas(64), das Feld richtet damit jedes Object auf 64 Bytes aus und kostet pro Objekt bis
-    // zu 64 Bytes plus Padding. Entweder in getEntity() benutzen oder entfernen.
-    sc::SpinLock entityCreationLock;
     sc::ecs::Entity entity;
+    std::string m_className;
+
+#ifdef SAA_TRACK_PROPERTIES
+    [[nodiscard]] std::string_view trackedClassName() const override { return m_className; }
+#endif
 
 
   private:
     size_t fileOffset = 0;
     size_t fileSize   = 0;
+    EObjectFlags m_objectFlags = EObjectFlags::RF_NoFlags;
 
     std::string_view m_objName;
     FGuid m_objGuid{};

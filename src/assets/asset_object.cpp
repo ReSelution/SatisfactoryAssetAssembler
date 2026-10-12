@@ -14,20 +14,17 @@
 
 namespace SAA {
   void Object::parse() {
-    if (getClassName() == "FGBuildableResourceSink" && objName() == "Build_ResourceSink_C") {
-      // TODO: Debug-Ueberbleibsel (Haltepunkt-Anker), gibt eine unused-variable-Warnung.
-      int debig;
-    }
     parseProperties(m_cursor);
     DBG_TRACK_MAP(m_className, m_properties);
-    if (m_cursor.readBool() && m_cursor.remaining() >= 16) {
+    // The guid flag follows the properties of every object except a class default object (UObject::Serialize).
+    if (!isClassDefaultObject() && m_cursor.readBool() && m_cursor.remaining() >= 16) {
       m_cursor.read<FGuid>();
     }
   }
 
   void Object::exprt() {}
 
-  Object::Object(Object *other) : PropertyHolder(other->m_className), classHash(other->classHash) {
+  Object::Object(Object *other) : classHash(other->classHash), m_className(other->m_className) {
     other->safeParse();
 
     m_objName      = other->m_objName;

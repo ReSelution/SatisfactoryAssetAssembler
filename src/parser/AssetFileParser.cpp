@@ -6,11 +6,13 @@
 #include <stdexcept>
 #include <string>
 
+#include "sc/memory/arena_pool.hpp"
+
 #include "AssetParser.hpp"
 #include "game_file.hpp"
+#include "usmap/f_usmap_mapping_data.hpp"
 #include "version.hpp"
 #include "vfs_entry.hpp"
-#include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAA {
   AssetFileParser::~AssetFileParser() { sc::ArenaPool::release(m_storage); }
@@ -18,7 +20,7 @@ namespace SAA {
   void AssetFileParser::reset() {
     // Both live in m_storage.
     m_asset = nullptr;
-    m_bulk  = nullptr;
+    m_bulk = nullptr;
     sc::ArenaPool::release(m_storage);
     m_state.store(ParserState::NONE, std::memory_order_release);
   }
@@ -76,22 +78,16 @@ namespace SAA {
     }
 
     std::unique_lock<std::mutex> lock(m_mutex);
-    m_cv.wait(lock, [this] {
-      return m_state.load(std::memory_order_acquire) == ParserState::NONE;
-    });
+    m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) == ParserState::NONE; });
   }
 
   const FUsmapMappingData *AssetFileParser::mappings() const { return m_assetParser->mappings(); }
 
-  EUE5Version AssetFileParser::getUE5Version() const {
-    return mappings()->pkgVersion.FileVersionUE5;
-  }
+  EUE5Version AssetFileParser::getUE5Version() const { return mappings()->pkgVersion.FileVersionUE5; }
 
   const GlobalData *AssetFileParser::globalData() const { return m_assetParser->globalData(); }
 
-  AssetParser *AssetFileParser::assetParser() const {
-    return m_assetParser;
-  }
+  AssetParser *AssetFileParser::assetParser() const { return m_assetParser; }
 
   void AssetFileParser::setReader(Reader *reader) {
     if (m_state.load(std::memory_order_acquire) == ParserState::NONE) {
@@ -100,7 +96,7 @@ namespace SAA {
   };
 
   GameFile *AssetFileParser::getBulkFile() {
-    if (!m_bulk && m_bulkEntry) {
+    if ((m_bulk == nullptr) && (m_bulkEntry != nullptr)) {
       m_bulk = m_bulkEntry->read(m_storage.get());
       m_bulk->setOwner(this);
     }
@@ -108,14 +104,12 @@ namespace SAA {
   }
 
   GameFile *AssetFileParser::getAssetFile() {
-    if (!m_asset && m_assetEntry) {
+    if ((m_asset == nullptr) && (m_assetEntry != nullptr)) {
       m_asset = m_assetEntry->read(m_storage.get());
       m_asset->setOwner(this);
     }
     return m_asset;
   }
 
-  ByteCursor AssetFileParser::getAsset(size_t offset, size_t size) {
-    return getAssetFile()->subspan(offset, size);
-  }
-}
+  ByteCursor AssetFileParser::getAsset(size_t offset, size_t size) { return getAssetFile()->subspan(offset, size); }
+} // namespace SAA

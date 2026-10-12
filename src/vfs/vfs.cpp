@@ -1,9 +1,11 @@
 #include "vfs.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <fstream>
-#include <iterator>
+#include <new>
 #include <ranges>
+#include <vector>
 
 #include "vfs_entry.hpp"
 
@@ -12,31 +14,36 @@ namespace SAA {
     std::lock_guard lock(m_mergeLock);
     m_vfsMap.insert(child.m_vfsMap.begin(), child.m_vfsMap.end());
     m_pkgMap.insert(child.m_pkgMap.begin(), child.m_pkgMap.end());
-    std::ranges::move(child.m_storage.threadResources, std::back_inserter(m_storage.threadResources));
-    child.m_storage.threadResources.clear();
+    child.m_vfsMap.clear();
+    child.m_pkgMap.clear();
   }
 
   void Vfs::reserveIOStore(size_t size) {
     m_vfsMap.reserve(m_vfsMap.size() + size);
     m_pkgMap.reserve(m_pkgMap.size() + size);
-    m_storage.reserveIOStore(size);
   }
 
-  void Vfs::reservePak(size_t size) {
-    m_vfsMap.reserve(m_vfsMap.size() + size);
-    m_storage.reservePAK(size);
+  void Vfs::reservePak(size_t size) { m_vfsMap.reserve(m_vfsMap.size() + size); }
+
+  std::string_view Vfs::persistString(std::string_view str) {
+    char *mem = static_cast<char *>(m_storage->allocate(str.size() + 1, alignof(char)));
+    std::memcpy(mem, str.data(), str.size());
+    mem[str.size()] = '\0';
+    return {mem, str.size()};
   }
 
   void Vfs::mountEntry(IOStoreReader *parser, std::string_view pathStr, const FIoChunkId &chunkId) {
-    auto persistenPath = m_storage.persistString(pathStr);
-    auto entry         = m_storage.make<IOVfsEntry>(persistenPath, chunkId, parser);
+    auto persistenPath = persistString(pathStr);
+    auto *entry = new (m_storage->allocate(sizeof(IOVfsEntry), alignof(IOVfsEntry)))
+        IOVfsEntry(persistenPath, chunkId, parser);
     m_vfsMap.emplace(entry->hash, static_cast<SAA::UnifiedVfsEntry const *>(entry));
     m_pkgMap.emplace(chunkId.asPackageId().Id, static_cast<SAA::UnifiedVfsEntry const *>(entry));
   }
 
   void Vfs::mountEntry(PAKReader *parser, std::string_view pathStr, uint32_t index) {
-    auto persistenPath = m_storage.persistString(pathStr);
-    auto entry         = m_storage.make<PAKVfsEntry>(persistenPath, index, parser);
+    auto persistenPath = persistString(pathStr);
+    auto *entry = new (m_storage->allocate(sizeof(PAKVfsEntry), alignof(PAKVfsEntry)))
+        PAKVfsEntry(persistenPath, index, parser);
     m_vfsMap.emplace(entry->hash, static_cast<SAA::UnifiedVfsEntry const *>(entry));
   }
 

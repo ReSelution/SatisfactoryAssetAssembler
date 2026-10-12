@@ -1,26 +1,25 @@
 #include "uasset_parser.hpp"
 
-
-#include "../assets/object_factory.hpp"
-#include "AssetParser.hpp"
-#include "IOStoreReader.hpp"
-#include "io_global_data.hpp"
 #include "sc/logger/logger.hpp"
 #include "sc/stats/stats.hpp"
 #include "sc/stats/throughput.hpp"
 #include "sc/stats/units.hpp"
-#include "vfs_entry.hpp"
 
+#include "../assets/object_factory.hpp"
+#include "AssetParser.hpp"
+#include "IOStoreReader.hpp"
 #include "io/packages/f_zen_package_versioning_info.hpp"
+#include "io_global_data.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
+#include "vfs_entry.hpp"
 
 
 namespace SAA {
-  using uLog        = sc::Logger<"SAA", "UASSET">;
+  using uLog = sc::Logger<"SAA", "UASSET">;
   using ObjThrouput = sc::stats::Stat<"OBJs", sc::stats::Throughput<sc::stats::MetricUnits>>;
   UAssetParser::UAssetParser(AssetParser *assetParser, const IOVfsEntry *vfsEntry) :
       AssetFileParser(assetParser, vfsEntry->pathStr, AssetType::UASSET) {
-    auto reader       = vfsEntry->owningReader;
+    auto reader = vfsEntry->owningReader;
     m_containerHeader = reader->containerHeader();
   }
 
@@ -43,17 +42,21 @@ namespace SAA {
 
   FByteBulkData *UAssetParser::parseFByteBulkData(ByteCursor &cursor) {
     FByteBulkData *data = storage()->make<FByteBulkData>();
-    auto dataIndex      = cursor.read<int32_t>();
+    auto dataIndex = cursor.read<int32_t>();
     if (dataIndex >= m_bulkDataMap.size()) {
       return data;
     }
     auto &metaData = m_bulkDataMap[dataIndex];
-    data->flags    = static_cast<EBulkDataFlags>(metaData.Flags);
+    data->flags = static_cast<EBulkDataFlags>(metaData.Flags);
     if (HasFlag(data->flags, EBulkDataFlags::BULKDATA_ForceInlinePayload)) {
       data->bulkCursor = cursor.subspan(cursor.tell(), metaData.SerialSize);
       cursor += metaData.SerialSize;
     } else if (HasFlag(data->flags, EBulkDataFlags::BULKDATA_PayloadInSeperateFile)) {
-      auto bulkFile    = getBulkFile();
+      auto bulkFile = getBulkFile();
+      // Without a .ubulk next to the package there is nothing to read from.
+      if (bulkFile == nullptr) [[unlikely]] {
+        return data;
+      }
       data->bulkCursor = bulkFile->subspan(metaData.SerialOffset, metaData.SerialSize);
     }
 
@@ -87,7 +90,7 @@ namespace SAA {
 
     if (m_summary.bHasVersioningInfo != 0) [[unlikely]] {
       const auto info = file->read<FZenPackageVersioningInfo>();
-      m_version       = info.PackageVersion;
+      m_version = info.PackageVersion;
     }
   }
 
@@ -106,7 +109,7 @@ namespace SAA {
     std::string_view name = getMappedName(m_summary.Name);
 
     const auto packageId = FPackageId::fromName(name);
-    auto entry           = m_containerHeader->storeEntriesById.find(packageId);
+    auto entry = m_containerHeader->storeEntriesById.find(packageId);
     if (entry != m_containerHeader->storeEntriesById.end()) {
       m_storeEntry = entry->second;
     }
@@ -133,13 +136,13 @@ namespace SAA {
     m_importedPublicExportHashes =
         file->readArray<uint64_t>((m_summary.ImportMapOffset - file->tell()) / sizeof(uint64_t));
 
-    *file       = m_summary.ImportMapOffset;
+    *file = m_summary.ImportMapOffset;
     m_importMap = file->readArray<FPackageObjectIndex>(m_summary.importCount());
   }
 
   void UAssetParser::parseExports(GameFile *file) {
-    *file               = m_summary.ExportMapOffset;
-    m_exportMap         = file->readArray<FExportMapEntry>(m_summary.exportCount());
+    *file = m_summary.ExportMapOffset;
+    m_exportMap = file->readArray<FExportMapEntry>(m_summary.exportCount());
     m_exportHashToIndex = exportDenseMap(m_storage.get());
     m_exportHashToIndex.reserve(m_exportMap.size());
     for (int i = 0; i < m_exportMap.size(); i++) {
@@ -199,14 +202,14 @@ namespace SAA {
   }
 
   void UAssetParser::reset() {
-    m_summary                    = {};
-    m_version                    = {};
-    m_nameMap                    = {};
-    m_storeEntry                 = {};
-    m_bulkDataMap                = {};
-    m_importMap                  = {};
-    m_exportMap                  = {};
-    m_exportBundleEntries        = {};
+    m_summary = {};
+    m_version = {};
+    m_nameMap = {};
+    m_storeEntry = {};
+    m_bulkDataMap = {};
+    m_importMap = {};
+    m_exportMap = {};
+    m_exportBundleEntries = {};
     m_importedPublicExportHashes = {};
     m_exportHashToIndex.clear();
     m_exportObjects = {};
@@ -220,10 +223,11 @@ namespace SAA {
     auto &exportMapEntry = m_exportMap[entry.LocalExportIndex];
     if (auto obj = resolveObject(exportMapEntry, exportMapEntry.ClassIndex, true)) [[likely]] {
       obj->setFileSpan(m_summary.HeaderSize + exportMapEntry.CookedSerialOffset, exportMapEntry.CookedSerialSize);
+      obj->setObjectFlags(exportMapEntry.ObjectFlags);
       obj->outer(resolveObject(exportMapEntry, exportMapEntry.OuterIndex, false));
       obj->super(resolveObject(exportMapEntry, exportMapEntry.SuperIndex, false));
       m_exportObjects[entry.LocalExportIndex] = obj;
-      m_nameToIndex[obj->objName()]           = entry.LocalExportIndex;
+      m_nameToIndex[obj->objName()] = entry.LocalExportIndex;
     }
   }
 
@@ -255,9 +259,9 @@ namespace SAA {
       return nullptr;
     }
     const auto &scriptEntry = it->second;
-    auto className          = getMappedName(scriptEntry.ObjectName);
-    auto objName            = getMappedName(entry.ObjectName);
-    auto obj                = ObjectFactory::Create(className, m_storage.get());
+    auto className = getMappedName(scriptEntry.ObjectName);
+    auto objName = getMappedName(entry.ObjectName);
+    auto obj = ObjectFactory::Create(className, m_storage.get());
     // Logger::logInfo("[UAssetParser]", "{} -> {}", objName, clasName);
 
     if (!obj) {
@@ -288,7 +292,7 @@ namespace SAA {
           return obj;
         }
         auto className = obj->getClassName();
-        obj            = ObjectFactory::Create(className, m_storage.get());
+        obj = ObjectFactory::Create(className, m_storage.get());
         if (!obj) {
           obj = m_storage->make<Object>(className);
         }

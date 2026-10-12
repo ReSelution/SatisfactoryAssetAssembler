@@ -28,7 +28,9 @@ namespace SAA {
 
     static constexpr uint64_t LOADING_BIT  = 1ULL << 63;
     static constexpr uint64_t FINISHED_BIT = 1ULL << 62;
-    static constexpr uint64_t VALUE_MASK   = ~(LOADING_BIT | FINISHED_BIT);
+    // load() failed for this chunk. It is not retried, every read of it fails.
+    static constexpr uint64_t FAILED_BIT   = 1ULL << 61;
+    static constexpr uint64_t VALUE_MASK   = ~(LOADING_BIT | FINISHED_BIT | FAILED_BIT);
 
     const size_t fileSize;
     std::atomic<size_t> idx   = 0;
@@ -41,7 +43,7 @@ namespace SAA {
     [[nodiscard]] bool isLoaded(size_t targetOffset, size_t size, size_t &index);
 
     bool tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst);
-    void waitFinished(size_t targetOffset, size_t size, size_t chunIdx);
+    [[nodiscard]] bool waitFinished(size_t targetOffset, size_t size, size_t chunIdx);
     bool safeLoad(size_t offset, size_t size, std::span<uint8_t> dst);
 
     virtual bool load(size_t &idx, std::span<uint8_t> dst) = 0;

@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <optional>
 #include <print>
+#include <string>
 #include <string_view>
 #include <system_error>
 
@@ -24,16 +25,21 @@ namespace {
   struct CommandLine {
     std::filesystem::path gamePath;
     uint32_t threads = 0;
+    std::string culture;
+    bool test = false;
     bool help = false;
   };
 
   void printUsage(std::FILE *out, const char *program) {
-    std::println(out,
-                 "Usage: {} [options] <game-path>\n\n  <game-path>        install directory of Satisfactory, or set "
-                 "SAA_GAME_PATH\n\nOptions:\n  -j, --threads <n>  worker threads of the pool, default: one less than "
-                 "the CPU has.\n                     1 runs everything on the main thread, for debugging.\n  -h, "
-                 "--help         show this help\n\nOutput (output/, logs/) is written below the current directory.",
-                 program);
+    std::println(
+        out,
+        "Usage: {} [options] <game-path>\n\n  <game-path>        install directory of Satisfactory, or set "
+        "SAA_GAME_PATH\n\nOptions:\n  -j, --threads <n>  worker threads of the pool, default: one less than "
+        "the CPU has.\n                     1 runs everything on the main thread, for debugging.\n  --culture <code>   "
+        "culture of the texts, e.g. de. Default: the native culture of the game.\n  --test             "
+                 "parse every package of the game instead of crawling, to check the parsers.\n  -h, "
+        "--help         show this help\n\nOutput (output/, logs/) is written below the current directory.",
+        program);
   }
 
   // Leer, wenn die Argumente nicht passen. Die Meldung dazu ist dann schon ausgegeben.
@@ -56,6 +62,18 @@ namespace {
           std::fprintf(stderr, "Not a thread count: %s\n", argv[i]);
           return std::nullopt;
         }
+        continue;
+      }
+      if (arg == "--test") {
+        cmd.test = true;
+        continue;
+      }
+      if (arg == "--culture") {
+        if (i + 1 >= argc) {
+          std::fprintf(stderr, "Missing value for %s\n", argv[i]);
+          return std::nullopt;
+        }
+        cmd.culture = argv[++i];
         continue;
       }
       if (arg.starts_with('-')) {
@@ -101,6 +119,7 @@ int main(int argc, char **argv) {
 
   SAA::runtimeOptions().threads = cmd->threads;
   SAA::runtimeOptions().serial = cmd->threads == 1;
+  SAA::runtimeOptions().culture = cmd->culture;
 
   try {
     sc::ecs::Registry reg;
@@ -117,8 +136,11 @@ int main(int argc, char **argv) {
     SAA::SatisfactoryDataProvider::setECS(&reg);
     provider.load();
 
-    // provider.test();
-    provider.crawl();
+    if (cmd->test) {
+      provider.test();
+    } else {
+      provider.crawl();
+    }
   } catch (const std::exception &e) {
     std::println(stderr, "Error: {}", e.what());
     return 1;

@@ -63,7 +63,11 @@ namespace SAA {
           .index  = read<uint32_t>(),
           .number = read<uint32_t>(),
       };
-      name.plainTextView = m_owner->nameFromMap(name.index);
+      name.textView = m_owner->nameFromMap(name.index);
+      // A None stays None: nameFromMap() also answers with it for an index outside the map.
+      if (name.number != 0 && !name.isNone()) [[unlikely]] {
+        name.textView = FName::numbered(name.textView, name.number, m_owner->storage());
+      }
       return name;
     }
 

@@ -31,7 +31,6 @@ namespace SAA {
 
   void LocMetaParser::parse() {
     m_storage = std::make_unique<sc::MonotonicResource>(1024);
-    char stackBuffer[512];
     auto data = m_vfsEntry->read(m_storage.get());
 
     ByteCursor cursor(data->subspan(0, data->size()));
@@ -62,17 +61,12 @@ namespace SAA {
         m_manager->registerCulture(currentCulture);
 
         size_t totalSize = prefix.size() + currentCulture.size() + suffix.size();
-        // TODO: totalSize wird nicht gegen sizeof(stackBuffer) (512) geprueft. Ein langer Pfad oder ein kaputtes
-        // Laengenfeld in der .locmeta schreibt ueber den Stack-Puffer hinaus. War vor der Portierung schon so.
-        std::memcpy(stackBuffer, prefix.data(), prefix.size());
-        std::memcpy(stackBuffer + prefix.size(), currentCulture.data(), currentCulture.size());
-        std::memcpy(stackBuffer + prefix.size() + currentCulture.size(), suffix.data(), suffix.size());
-        std::string_view cleaned = cleanPath({stackBuffer,totalSize});
-
-
-        auto arenaMem = m_storage->allocateSpan<char>(cleaned.size());
-        std::memcpy(arenaMem.data(), cleaned.data(), cleaned.size());
-        std::string_view persistentPath(arenaMem.data(), arenaMem.size());
+        // Built in the arena right away. cleanPath() only cuts the end off, the view stays inside arenaMem.
+        auto arenaMem = m_storage->allocateSpan<char>(totalSize);
+        std::memcpy(arenaMem.data(), prefix.data(), prefix.size());
+        std::memcpy(arenaMem.data() + prefix.size(), currentCulture.data(), currentCulture.size());
+        std::memcpy(arenaMem.data() + prefix.size() + currentCulture.size(), suffix.data(), suffix.size());
+        std::string_view persistentPath = cleanPath({arenaMem.data(), totalSize});
 
         cultures.emplace(currentCulture, persistentPath);
       }

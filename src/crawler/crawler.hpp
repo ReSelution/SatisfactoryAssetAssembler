@@ -53,7 +53,7 @@ namespace SAA {
   private:
     bool hitTestAsset(std::shared_ptr<AssetFileParser> &&parser);
 
-    auto createFileQueue(AssetParser &parser, size_t &files);
+    auto createFileQueue(AssetParser &parser, size_t &files, size_t &failed);
 
     bool shouldAdd(const UnifiedVfsEntry *entry);
 

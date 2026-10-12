@@ -72,9 +72,6 @@ public:
         }
       }
       shard->release();
-      // TODO: clear() laeuft nach dem release(), also ohne Lock. Ein gleichzeitiges insert()/getLocked() auf
-      // demselben Shard ist ein Data Race auf der Map. War vor der Portierung schon so.
-      shard->data.clear();
       atomicCount.fetch_add(counter);
     });
     fut.wait();
@@ -94,8 +91,6 @@ public:
     // }
   }
 
-  // TODO: reset() braucht den Thread-Pool. Wird der Cache erst nach dem Herunterfahren des Pools zerstoert (z.B. als
-  // globales Objekt), haengt fut.wait() bzw. die Tasks laufen nie. Zerstoerungsreihenfolge pruefen.
   ~ShardedCache() { reset(); }
 
 
@@ -112,6 +107,23 @@ public:
 
     shard.release();
     return nullptr;
+  }
+
+  // Returns the live entry for key. If there is none, value is stored and returned. Check and insert happen under
+  // one lock, so two threads that ask for the same key at the same time end up with the same object.
+  std::shared_ptr<V> getOrInsert(const K &key, std::shared_ptr<V> value) {
+    auto &shard = getShard(key);
+    shard.acquire();
+    auto [it, inserted] = shard.data.try_emplace(key, value);
+    if (!inserted) {
+      if (auto live = it->second.lock()) {
+        shard.release();
+        return live;
+      }
+      it->second = value;
+    }
+    shard.release();
+    return value;
   }
 
   void insert(const K &key, std::shared_ptr<V> value) {

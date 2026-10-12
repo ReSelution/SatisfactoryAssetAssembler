@@ -7,17 +7,16 @@
 #include <condition_variable>
 #include <cstdint>
 #include <memory>
-#include <memory_resource>
 #include <mutex>
 #include <span>
 #include <stdexcept>
 #include <string_view>
 #include <vector>
 
+#include "sc/memory/monotonic_resource.hpp"
+
 #include "io/packages/f_export_map_entry.hpp"
 #include "io_global_data.hpp"
-#include "sc/memory/arena_pool.hpp"
-#include "sc/memory/monotonic_resource.hpp"
 #include "version.hpp"
 
 namespace SAA {
@@ -46,8 +45,7 @@ namespace SAA {
     enum class AssetType { UASSET, UMAP, UNKNOWN };
 
     AssetFileParser(AssetParser *assetParser, std::string_view path, AssetType assetType = AssetType::UNKNOWN) :
-        m_assetParser(assetParser), m_importedParsers(nullptr), m_assetEntry(nullptr), m_bulkEntry(nullptr),
-        m_type(assetType), m_path(path) {
+        m_assetParser(assetParser), m_type(assetType), m_path(path) {
       auto lastDot = m_path.find_last_of('.');
 
       if (lastDot != std::string::npos) {
@@ -64,8 +62,8 @@ namespace SAA {
     void safeReset();
 
 
-    virtual Object *resolveIndex(int32_t index) { return nullptr; };
-    virtual Object *resolveSoftObj(std::string_view assetName) { return nullptr; }
+    virtual Object *resolveIndex(int32_t index [[maybe_unused]]) { return nullptr; };
+    virtual Object *resolveSoftObj(std::string_view assetName [[maybe_unused]]) { return nullptr; }
 
 
     [[nodiscard]] std::string_view nameFromMap(uint32_t index) const {
@@ -77,7 +75,7 @@ namespace SAA {
 
     [[nodiscard]] std::string_view getMappedName(FMappedName name) const {
       if (name.isGlobal()) {
-        auto &map = globalData()->globalNameMap;
+        const auto &map = globalData()->globalNameMap;
         return name.fromNameMap(map, m_storage.get());
       }
       return name.fromNameMap(m_nameMap, m_storage.get());
@@ -86,9 +84,12 @@ namespace SAA {
     std::span<std::string_view> nameMap() const { return m_nameMap; }
 
 
-    virtual Object *resolveExportObject(const FExportMapEntry &entry, const FPackageObjectIndex &index) { return {}; };
+    virtual Object *resolveExportObject(const FExportMapEntry &entry [[maybe_unused]],
+                                        const FPackageObjectIndex &index [[maybe_unused]]) {
+      return {};
+    };
 
-    virtual Object *resolvePackageExport(const uint64_t &publicExportHash) { return nullptr; };
+    virtual Object *resolvePackageExport(const uint64_t &publicExportHash [[maybe_unused]]) { return nullptr; };
 
     [[nodiscard]] const FUsmapMappingData *mappings() const;
 
@@ -141,7 +142,7 @@ namespace SAA {
     virtual void parse() { throw std::runtime_error("AssetFileParser::parse() called"); };
     std::span<std::string_view> m_nameMap;
     AssetParser *m_assetParser = nullptr;
-    std::pmr::vector<std::shared_ptr<AssetFileParser>> *m_importedParsers;
+    std::pmr::vector<std::shared_ptr<AssetFileParser>> *m_importedParsers{};
     // Kommt in safeParse() aus dem sc::ArenaPool und geht in reset() dorthin zurueck, vor dem ersten safeParse()
     // also nullptr.
     // mutable: const-Methoden wie getMappedName() allokieren Namen daraus.
@@ -153,9 +154,9 @@ namespace SAA {
     Reader *m_reader = nullptr;
 
     // ---- raw data ----
-    const UnifiedVfsEntry *m_assetEntry;
+    const UnifiedVfsEntry *m_assetEntry{};
     GameFile *m_asset = nullptr;
-    const UnifiedVfsEntry *m_bulkEntry;
+    const UnifiedVfsEntry *m_bulkEntry{};
     GameFile *m_bulk = nullptr;
 
     AssetType m_type;

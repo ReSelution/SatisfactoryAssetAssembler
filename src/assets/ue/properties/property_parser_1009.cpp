@@ -2,6 +2,10 @@
 // Created by oleub on 23.02.26.
 //
 
+#include <algorithm>
+#include <format>
+#include <string>
+
 #include "f_property_tag.hpp"
 #include "property_parser.hpp"
 #include "sc/localizations/magpie_string.hpp"
@@ -35,12 +39,14 @@ namespace SAA {
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseMapProperty(ByteCursor &cursor, sc::MonotonicResource *storage,
                                                                       FPropertyTagData *tagData, uint32_t size) {
-    // TODO: Fuer UE5_3 legt parsePropertyTagData() nie InnerTypeData/ValueTypeData an, diese Bedingung ist also
-    // immer wahr und jede Map wird uebersprungen. Der Code darunter ist fuer UE5_3 nicht erreichbar.
-    if (!tagData->InnerTypeData && !tagData->ValueTypeData) {
+    // UE 5.3 does not store which struct a key or value is, such a map can only be skipped.
+    // TODO: As an element of an array or another map size is 0, then it cannot even be skipped. Does not occur in
+    // the game data so far.
+    if (tagData->InnerType == EPropertyTagType::Struct || tagData->ValueType == EPropertyTagType::Struct) {
       cursor += size;
       return {};
     }
+    const auto start = cursor.tell();
     FPropertyTag keyTag{.PropertyType = tagData->InnerType, .TagData = tagData->InnerTypeData};
     FPropertyTag valueTag{.PropertyType = tagData->ValueType, .TagData = tagData->ValueTypeData};
 
@@ -51,12 +57,22 @@ namespace SAA {
 
     std::pmr::vector<std::pair<FPropertyValue, FPropertyValue> > vec(cursor.m_owner->storage());
     auto entries = cursor.read<uint32_t>();
+    // Every entry takes at least two bytes, anything above that is a broken count.
+    if (entries > cursor.remaining() / 2) [[unlikely]] {
+      throw std::runtime_error("Map entry count exceeds the remaining data @ " + std::to_string(cursor.tell()));
+    }
     vec.reserve(entries);
     for (uint32_t i = 0; i < entries; i++) {
       vec.emplace_back(parsePropertyValue(cursor, storage, keyTag, ReadType::MAP, 0),
                        parsePropertyValue(cursor, storage, valueTag, ReadType::MAP, 0));
     }
 
+    // A ByteProperty key or value is either one byte or an enum stored as a name, and the tag of a map does not say
+    // which. If the map does not end where its size says, the guess was wrong and the content is dropped.
+    if (size != 0 && cursor.tell() != start + size) [[unlikely]] {
+      cursor = start + size;
+      return {};
+    }
     return {.data = std::move(vec)};
   }
 
@@ -421,13 +437,50 @@ namespace SAA {
         break;
       }
       case ETextHistoryType::AsPercent: {
-        // TODO: Der Quellwert (FFormatArgumentValue) wird nicht gelesen, das Ergebnis ist ein leerer MagpieString.
-        // Die Position stimmt danach nur, weil parse() den Cursor ueber tag.Size neu setzt.
-        (void) cursor.read<EFormatArgumentType>();
+        // FTextHistory_FormatNumber: the source value, optional formatting options and the target culture.
+        double value = 0;
+        switch (cursor.read<EFormatArgumentType>()) {
+          case EFormatArgumentType::Int:
+            value = static_cast<double>(cursor.read<int64_t>());
+            break;
+          case EFormatArgumentType::UInt:
+            value = static_cast<double>(cursor.read<uint64_t>());
+            break;
+          case EFormatArgumentType::Float:
+            value = cursor.read<float>();
+            break;
+          case EFormatArgumentType::Double:
+            value = cursor.read<double>();
+            break;
+          default:
+            throw std::runtime_error("AsPercent text with a value that is not a number @ " +
+                                     std::to_string(cursor.tell()));
+        }
+        // Without options the culture decides, and that is no fractional digits for a percentage.
+        int32_t minFraction = 0;
+        int32_t maxFraction = 0;
         if (cursor.readBool()) {
-          (void) cursor.read<FNumberFormattingOptions>();
+          // Field by field: the struct is stored without padding (25 bytes), in memory it has 28.
+          cursor += 2 * sizeof(uint32_t) + sizeof(ERoundingMode) + 2 * sizeof(int32_t);
+          minFraction = cursor.read<int32_t>();
+          maxFraction = cursor.read<int32_t>();
         }
         (void) cursor.readFString(); // targetCulture
+
+        // Digit grouping, the sign option and the rounding mode are not applied, neither is the percent pattern of
+        // the culture ("100 %" in German).
+        std::string percent = std::format("{:.{}f}", value * 100.0, std::clamp(maxFraction, 0, 15));
+        if (const auto dot = percent.find('.'); dot != std::string::npos) {
+          const size_t keep = dot + 1 + static_cast<size_t>(std::clamp(minFraction, 0, 15));
+          while (percent.size() > keep && percent.back() == '0') {
+            percent.pop_back();
+          }
+          if (percent.back() == '.') {
+            percent.pop_back();
+          }
+        }
+        percent += '%';
+        magpieResult = sc::MagpieString::fromStr(percent);
         break;
       }
       case ETextHistoryType::Transform: {
@@ -466,24 +519,18 @@ namespace SAA {
   template<>
   PropertyHolder PropertyParser<EUE5Version::UE5_3>::parseFallbackStruct(
     ByteCursor &cursor, sc::MonotonicResource *storage) {
-    using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, sc::IdentityHash>;
-
-    auto props = cursor.m_owner->storage()->makePmr<denseMap>();
-
-    PropertyHolder structFallback(props);
+    PropertyMapBuilder properties;
     while (true) {
       auto tag = parsePropertyTag(cursor, storage);
       if (tag.Name.isNone()) {
         break;
       };
-      auto pos = cursor.tell();
+      const auto end = cursor.tell() + tag.Size;
       tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
-      structFallback.m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
-      // TODO: Wie in property_parser_1017.cpp: tag ist schon verschoben, das nullptr erreicht den Map-Eintrag nicht.
-      tag.TagData = nullptr;
-      cursor = tag.Size + pos;
+      properties.add(PropertyHolder::propertyKey(sc::hash(tag.Name.text()), tag.ArrayIndex), std::move(tag));
+      cursor = end;
     }
-    return structFallback;
+    return PropertyHolder(properties.build(cursor.m_owner->storage()));
   }
 
   template<>
@@ -496,21 +543,32 @@ namespace SAA {
       return val;
 
     auto lenght = cursor.read<uint32_t>();
+    // Every element takes at least one byte, anything above that is a broken length.
+    if (lenght > cursor.remaining()) [[unlikely]] {
+      throw std::runtime_error("Array length exceeds the remaining data @ " + std::to_string(cursor.tell()));
+    }
     FPropertyTag tag;
     // if (arrayType == EPropertyTagType::Struct) {
     //   tag = parsePropertyTag(cursor);
     // }
+
+    // Plain bytes stay where they are in the file buffer. As elements of the vector below every byte would take
+    // sizeof(FPropertyValue), a 16 MiB array then needs 1.9 GB.
+    // An enum stored as a name takes more than one byte per element. Only looked at for byte arrays: other arrays
+    // can be empty with a size above 4, which would divide by zero here.
+    const bool isEnumArray = arrayType == EPropertyTagType::Byte && lenght != 0 &&
+                             (size - sizeof(uint32_t)) / lenght > 1;
+    if (arrayType == EPropertyTagType::Byte && !isEnumArray) {
+      val.data = cursor.readArray<uint8_t>(lenght);
+      return val;
+    }
 
     std::pmr::vector<FPropertyValue> vec(cursor.m_owner->storage());
     vec.reserve(lenght);
 
     switch (arrayType) {
       case EPropertyTagType::Byte: {
-        if (size == sizeof(uint32_t) ? false : (size - sizeof(uint32_t)) / lenght > 1) {
-          tag.PropertyType = EPropertyTagType::Enum;
-        } else {
-          tag.PropertyType = EPropertyTagType::Byte;
-        }
+        tag.PropertyType = EPropertyTagType::Enum;
         for (int i = 0; i < lenght; i++) {
           vec.emplace_back(parsePropertyValue(cursor, storage, tag, type, tag.Size));
         }
@@ -545,16 +603,6 @@ namespace SAA {
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseSetPropertyValue(
     ByteCursor &cursor, sc::MonotonicResource *storage, FPropertyTagData *tagData) {
-    // TODO: Dieser Sonderfall greift nie. Fuer UE5_3 setzt parsePropertyTagData() tagData->Name gar nicht, fuer
-    // UE5_6 steht darin der Typname ("SetProperty"), nicht der Property-Name. Zwei String-Vergleiche pro Set fuer
-    // nichts; gebraucht wird hier der Name des Tags.
-    if (tagData->InnerTypeData == nullptr && tagData->InnerType == EPropertyTagType::Struct) {
-      if (tagData->Name.text() == "AnimSequenceInstances" || tagData->Name.text() == "PostProcessInstances") {
-        tagData->InnerTypeData = storage->make<FPropertyTagData>();
-        tagData->InnerTypeData->Type = EPropertyTagType::Struct;
-        tagData->InnerTypeData->StructType = sc::hash<ESatisfactoryStruct>("Guid");
-      }
-    }
     auto num = cursor.read<uint32_t>();
     FPropertyTag tag{
       .PropertyType = tagData->InnerType,
@@ -595,15 +643,17 @@ namespace SAA {
   template<>
   void PropertyParser<EUE5Version::UE5_3>::parse(PropertyHolder *holder, ByteCursor &cursor,
                                                  sc::MonotonicResource *storage) {
+    PropertyMapBuilder properties;
     while (true) {
       auto tag = parsePropertyTag(cursor, storage);
       if (tag.Name.isNone()) {
+        holder->m_properties = properties.build(cursor.m_owner->storage());
         return;
       }
       auto final = cursor.tell() + tag.Size;
       tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
       cursor = final;
-      holder->m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
+      properties.add(PropertyHolder::propertyKey(sc::hash(tag.Name.text()), tag.ArrayIndex), std::move(tag));
     }
   }
 }

@@ -37,6 +37,7 @@ saa_sources = files(
   'assets/ue/object/field.cpp',
   'assets/ue/object/struct.cpp',
   'assets/ue/properties/property_holder.cpp',
+  'assets/ue/properties/property_map.cpp',
   'assets/ue/properties/property_parser_1009.cpp',
   'assets/ue/properties/property_parser_1017.cpp',
   'assets/ue/properties/soft_object.cpp',

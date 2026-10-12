@@ -62,37 +62,17 @@ namespace SAA {
     return {buf.data(), finalLen};
   }
 
-  std::string_view FName::text() const {
-    if (number == 0) [[likely]] {
-      return plainTextView;
-    }
+  std::string_view FName::numbered(std::string_view base, uint32_t number, sc::MonotonicResource *storage) {
+    const size_t prefixSize = base.size();
+    const size_t needed     = prefixSize + 1 + digits_needed(number - 1);
 
-    // TODO: Allokiert bei number != 0 bei jedem Aufruf neu, seit der generatedView-Cache raus ist. Der Speicher
-    // wird erst mit der Resource freigegeben, in einer heissen Schleife waechst sie also mit jedem Aufruf.
-
-    if (!slab || plainTextView.empty()) [[unlikely]] {
-      return "ERR_INVALID_DATA";
-    }
-
-    const size_t suffixSize = 2 + digits_needed(number);
-    const size_t prefixSize = plainTextView.size();
-    const size_t needed     = prefixSize + suffixSize;
-
-    char *mem = static_cast<char *>(slab->allocate(needed, alignof(char)));
-    // TODO: Toter Code. sc::MonotonicResource::allocate wirft bei Fehlschlag std::bad_alloc und gibt nie nullptr
-    // zurueck.
-    if (!mem) [[unlikely]]
-      return plainTextView;
-
-    std::memcpy(mem, plainTextView.data(), prefixSize);
+    char *mem = static_cast<char *>(storage->allocate(needed, alignof(char)));
+    std::memcpy(mem, base.data(), prefixSize);
     mem[prefixSize] = '_';
 
-    char *numStart = mem + prefixSize + 1;
-    char *numLimit = mem + needed;
-
-    // Direct offset formatting
-    auto [ptr, ec] = std::to_chars(numStart, numLimit, number - 1);
-
-    return std::string_view(mem, static_cast<size_t>(ptr - mem));
+    // Cannot fail, needed has room for every digit.
+    auto [ptr, ec] = std::to_chars(mem + prefixSize + 1, mem + needed, number - 1);
+    (void) ec;
+    return {mem, static_cast<size_t>(ptr - mem)};
   }
 } // namespace SAA

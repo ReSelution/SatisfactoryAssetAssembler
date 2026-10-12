@@ -5,15 +5,15 @@
 #include "asset_object.hpp"
 
 namespace SAA {
-  Object *SoftObj::resolve(AssetParser *assetParser) {
-
-    if (object) {
-      return object;
-    }
-    parser = assetParser->loadPackage(pkgName.text());
+  std::pair<std::shared_ptr<AssetFileParser>, Object *> SoftObj::resolve(AssetParser *assetParser) const {
+    auto parser = assetParser->loadPackage(pkgName.text());
     if (!parser) {
-      return nullptr;
+      return {};
     }
-    return parser->resolveSoftObj(assetName.text());
+    Object *object = parser->resolveSoftObj(assetName.text());
+    if (object == nullptr) {
+      return {};
+    }
+    return {std::move(parser), object};
   }
-}
+} // namespace SAA

@@ -4,6 +4,7 @@
 
 #pragma once
 #include <cstddef>
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -15,7 +16,6 @@
 
 namespace SAA {
   class AssetParser;
-  constexpr std::string_view DEFAULT_CULTURE = "en-US";
 
   class LocManager {
   public:
@@ -28,13 +28,12 @@ namespace SAA {
     void load();
 
   private:
-    // TODO: Nur deklariert, nirgends definiert oder aufgerufen.
-    void mergeCultures(sc::magpieMAP &culture);
-
     AssetParser *m_parser = nullptr;
 
-    size_t cultureIndex = 0;
-    size_t loadedIndex = -1;
+    // Empty until setCulture() picks one: every localization target is then loaded in its native culture.
+    std::optional<size_t> cultureIndex;
+    std::optional<size_t> loadedIndex;
+    bool m_loaded = false;
 
     std::set<std::string> m_registeredCultures;
     std::vector<std::string_view> m_cultureList;

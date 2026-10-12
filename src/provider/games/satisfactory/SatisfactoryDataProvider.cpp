@@ -1,5 +1,6 @@
 #include "games/satisfactory/SatisfactoryDataProvider.hpp"
 
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 
@@ -46,17 +47,12 @@ namespace SAA {
       m_UsmapParser->parse(m_usmapData);
       m_globalDataParser->parse(m_globalData);
 
-      // 2. Ein einzelnes Child-VFS für den aktuellen Thread
-      auto child = SAA::Vfs::getChild();
-
+      // 2. Without other threads the readers mount straight into the Vfs.
       for (const auto &val: m_Parsers | std::views::values) {
         auto *currentParser = val.get();
 
         currentParser->load();
         currentParser->mountVFS(&m_vfs);
-
-        // Da wir sequenziell arbeiten, können wir direkt mergen
-        m_vfs.mergeChild(child);
       }
     } else {
       std::vector<std::future<void>> parsableFutures;
@@ -68,7 +64,7 @@ namespace SAA {
       const size_t slots = threadSlots();
       childVFS.reserve(slots);
       for (size_t i = 0; i < slots; i++) {
-        childVFS.emplace_back(SAA::Vfs::getChild());
+        childVFS.emplace_back(m_vfs.makeChild());
       }
 
       for (const auto &val: m_Parsers | std::views::values) {
@@ -81,8 +77,12 @@ namespace SAA {
         }));
       }
 
+      // All tasks have to be done before the first get() may throw, they hold references to the locals above.
       for (auto &f: parsableFutures) {
         f.wait();
+      }
+      for (auto &f: parsableFutures) {
+        f.get();
       }
     }
     // sc::threading::detach([&]() {
@@ -114,18 +114,31 @@ namespace SAA {
     sc::stats::reset_all();
     DecompressedThroughput::reset();
     CompressedThroughput::reset();
+    // A file that cannot be parsed is reported and skipped, like in Crawler::createFileQueue().
+    std::atomic<size_t> files  = 0;
+    std::atomic<size_t> failed = 0;
     sc::threading::detachBatch(
         val,
-        [&parser](auto entry) {
+        [&parser, &files, &failed](auto entry) {
           if (entry.second->isPkg) {
-            parser.parseAsset(entry.second->packagePath, [](std::shared_ptr<AssetFileParser> &&file) {
-              file->loadExports();
-              // file->exportAssets();
-            });
+            files.fetch_add(1, std::memory_order_relaxed);
+            try {
+              parser.parseAsset(entry.second->packagePath, [](std::shared_ptr<AssetFileParser> &&file) {
+                file->loadExports();
+                // file->exportAssets();
+              });
+            } catch (const std::exception &e) {
+              failed.fetch_add(1, std::memory_order_relaxed);
+              ProviderLog::err("{}: {}", entry.second->packagePath, e.what());
+            }
           }
         },
         nullptr);
     sc::threading::wait_until_finished();
+    ProviderLog::info("Parsed {} Files", files.load());
+    if (failed > 0) {
+      ProviderLog::err("{} of {} Files could not be parsed", failed.load(), files.load());
+    }
     ProviderLog::stats<DecompressedThroughput, CompressedThroughput>("Crawled");
     sc::stats::report_all<ProviderLog>();
     // DBG_PRINT_MISSING();

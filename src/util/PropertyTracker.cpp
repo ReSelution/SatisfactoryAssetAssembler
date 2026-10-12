@@ -14,8 +14,8 @@ namespace SAA {
 
   std::map<std::string, std::map<uint64_t, PropertyInfo>> PropertyTracker::m_allSeen{};
 
-  void PropertyTracker::registerMap(std::string_view className, denseMap *props) {
-    if (className == "Struct") {
+  void PropertyTracker::registerMap(std::string_view className, const PropertyMap *props) {
+    if (className == "Struct" || props == nullptr) {
       return;
     }
     std::string cls(className);
@@ -23,10 +23,12 @@ namespace SAA {
     ++m_classInstanceCount[cls];
     auto &classData = m_allSeen[cls];
 
-    for (auto &[key, tag]: *props) {
-      auto &info = classData[key];
+    const auto keys   = props->keys();
+    const auto values = props->values();
+    for (size_t i = 0; i < keys.size(); ++i) {
+      auto &info = classData[keys[i]];
       if (info.count == 0) {
-        info.tag = tag;
+        info.tag = values[i];
       }
       ++info.count;
     }
@@ -51,8 +53,7 @@ namespace SAA {
             classHeaderPrinted = true;
           }
 
-          PropertyTrackerLog::warn("{} : {}/{} -> {}", prop.tag.Name.text(), prop.count, count,
-                                   prop.tag.PropertyTypeName.text());
+          PropertyTrackerLog::warn("{} : {}/{} -> {}", prop.tag.Name, prop.count, count, prop.tag.TypeName);
         }
       }
     }

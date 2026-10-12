@@ -12,26 +12,37 @@
 #include "usmap/f_usmap_mapping_data.hpp"
 
 namespace SAA {
-  PropertyHolder::PropertyHolder(std::string_view className) : m_className(className) {
-  }
+  namespace {
+    // FPropertyTagData is only needed while the properties of one object are read. It comes from this buffer of the
+    // thread, which starts over when the outermost parseProperties() of the thread returns. The tags that are stored
+    // carry no TagData.
+    struct TagDataScratch {
+      sc::MonotonicResource resource{64 * 1024};
+      uint32_t depth = 0;
+    };
 
-  PropertyHolder::PropertyHolder(denseMap* props) : m_properties(props) {
-    m_properties->reserve(10);
-  }
+    thread_local TagDataScratch tagDataScratch;
+
+    struct TagDataScratchScope {
+      TagDataScratch &scratch;
+
+      explicit TagDataScratchScope(TagDataScratch &s) : scratch(s) { ++scratch.depth; }
+      TagDataScratchScope(const TagDataScratchScope &)            = delete;
+      TagDataScratchScope &operator=(const TagDataScratchScope &) = delete;
+
+      ~TagDataScratchScope() {
+        if (--scratch.depth == 0) {
+          scratch.resource.reset();
+        }
+      }
+    };
+  } // namespace
+
+  PropertyHolder::PropertyHolder(const PropertyMap *props) : m_properties(props) {}
 
   void PropertyHolder::parseProperties(ByteCursor &cursor) {
-    m_properties = m_owner->storage()->makePmr<denseMap>();
-    m_properties->reserve(10);
-    // TODO (messen): Wo sollen die FPropertyTagData (168 B pro Tag) liegen? Vorher kamen sie aus einer Arena des
-    // SC::ChaosArenaPool, die hier wieder zurueckgegeben wurde. Im Moment nicht gemessen, nur so gewaehlt:
-    // a) Speicher des Parsers (aktuell): kein Zusatzaufwand pro Aufruf und FPropertyTag::TagData bleibt gueltig
-    //    (vorher zeigte der Zeiger nach parseProperties() auf zurueckgegebenen Speicher). Der Speicher bleibt aber
-    //    bis zum reset() des Parsers belegt.
-    // b) Eigene Resource aus dem sc::ArenaPool pro Aufruf (wie frueher): Speicher sofort wieder frei, dafuer pro
-    //    geparstem Objekt ein acquire()/release(). TagData in den gespeicherten Tags zeigt danach wieder ins Leere.
-    // c) FPropertyTagData gar nicht mehr pro Tag allokieren (siehe Punkt 3 im TODO in property_parser_1017.cpp).
-    // Zu vergleichen: Parse-Zeit ueber alle Objekte und Spitzenverbrauch an Speicher (RSS) fuer a) und b).
-    sc::MonotonicResource *storage = m_owner->storage();
+    TagDataScratchScope scope(tagDataScratch);
+    sc::MonotonicResource *storage = &scope.scratch.resource;
     auto ver = m_owner->mappings()->pkgVersion.FileVersionUE5;
     switch (ver) {
       case EUE5Version::UE5_3:
