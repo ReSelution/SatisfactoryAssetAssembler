@@ -188,6 +188,18 @@ namespace SAA {
     OodleApi::initializePointer(decompressFunc);
   }
 
+  // Asked once for the largest case, every thread then keeps one buffer of that size.
+  static void setScratchSize(OodleLZDecoder_MemorySizeNeeded memorySizeNeeded) {
+    if (memorySizeNeeded == nullptr) {
+      return;
+    }
+    const int32_t size = memorySizeNeeded(-1, -1);
+    if (size > 0) {
+      OodleApi::scratchSize      = static_cast<size_t>(size);
+      OodleApi::scratchMaxRawLen = SIZE_MAX;
+    }
+  }
+
   OodleLZ_Decompress OodleLoader::loadLib(std::filesystem::path const &path) {
 #ifdef _WIN32
     // Windows/Proton Weg
@@ -196,6 +208,8 @@ namespace SAA {
     if (!hMod) {
       return nullptr;
     }
+    setScratchSize(reinterpret_cast<OodleLZDecoder_MemorySizeNeeded>(
+        reinterpret_cast<void *>(GetProcAddress(hMod, "OodleLZDecoder_MemorySizeNeeded"))));
     return reinterpret_cast<OodleLZ_Decompress>(GetProcAddress(hMod, "OodleLZ_Decompress"));
 #else
     void *handle = dlopen(path.c_str(), RTLD_NOW | RTLD_NODELETE);
@@ -209,6 +223,7 @@ namespace SAA {
     func(1);
 
 
+    setScratchSize(reinterpret_cast<OodleLZDecoder_MemorySizeNeeded>(dlsym(handle, "OodleLZDecoder_MemorySizeNeeded")));
     return reinterpret_cast<OodleLZ_Decompress>(dlsym(handle, "OodleLZ_Decompress"));
 #endif
   }

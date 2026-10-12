@@ -53,6 +53,12 @@ namespace SAA {
   // --- Interne Statische Management-Struktur ---
   namespace OodleApi {
     inline OodleLZ_Decompress decompressFunc = nullptr;
+    // Scratch memory every thread keeps for OodleLZ_Decompress, and the largest block it is good for.
+    // The defaults are for Oodle found by the pattern scan in the game, where nothing tells the size: what Oodle 9
+    // asks for at most, used up to the largest block Unreal writes (64 KiB in the IoStore and in the PAK, checked
+    // over all blocks). A library that exports OodleLZDecoder_MemorySizeNeeded replaces both with its own answer.
+    inline size_t scratchSize      = 446680;
+    inline size_t scratchMaxRawLen = 64 * 1024;
     inline std::atomic<bool> initialized = false;
     void initializePointer(OodleLZ_Decompress func);
   } // namespace OodleApi

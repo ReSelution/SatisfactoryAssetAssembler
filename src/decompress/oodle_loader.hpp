@@ -13,6 +13,10 @@ namespace SAA {
                                         void *unused1, void *unused2, void *unused3, void *unused4,
                                         int32_t threadModule);
 
+  // Size of the scratch memory OodleLZ_Decompress needs for a block of rawLen bytes. -1 means any compressor
+  // and any length.
+  typedef int32_t (*OodleLZDecoder_MemorySizeNeeded)(int32_t compressor, int64_t rawLen);
+
   class OodleLoader {
   public:
     static void loadOodle(std::filesystem::path const &gamePath);

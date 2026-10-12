@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <vector>
 
 #include "sc/logger/logger.hpp"
 #include "usmap/enums.hpp"
@@ -89,15 +90,29 @@ namespace SAA {
       throw std::runtime_error("Decompressor wurde nicht initialisiert oder Oodle fehlt.");
     }
 
-    uint64_t decodedSize =
+    // Without its own scratch memory Oodle allocates and frees it on every call. Under Wine that goes through the
+    // process heap and a global lock, the crawl then barely scales with the threads.
+    // One buffer per thread, sized once.
+    thread_local std::vector<uint8_t> scratch(OodleApi::scratchSize);
+    // Too small a buffer makes the decode fail, so a block above the size it is good for decodes without it.
+    const bool useScratch = dst.size() <= OodleApi::scratchMaxRawLen;
+
+    int64_t decodedSize =
         OodleApi::decompressFunc(src.data(), static_cast<long>(src.size()), dst.data(), static_cast<long>(dst.size()),
-                                 1, 0, 0, nullptr, 0, nullptr, nullptr, nullptr, 0, 0);
+                                 1, 0, 0, nullptr, 0, nullptr, nullptr, useScratch ? scratch.data() : nullptr,
+                                 reinterpret_cast<void *>(useScratch ? scratch.size() : size_t{0}), 0);
+    if (decodedSize <= 0 && useScratch) {
+      // In case the buffer was too small after all: once more with the memory Oodle allocates itself.
+      decodedSize = OodleApi::decompressFunc(src.data(), static_cast<long>(src.size()), dst.data(),
+                                             static_cast<long>(dst.size()), 1, 0, 0, nullptr, 0, nullptr, nullptr,
+                                             nullptr, nullptr, 0);
+    }
 
     if (decodedSize <= 0) {
       DecomLog::err("Oodle Dekompression fehlgeschlagen.");
       return false;
     }
-    if (decodedSize != dst.size()) {
+    if (static_cast<size_t>(decodedSize) != dst.size()) {
       DecomLog::err("Oodle decompression decompressed {} bytes of the expected {} bytes", decodedSize, dst.size());
     }
 
