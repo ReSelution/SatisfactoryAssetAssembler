@@ -36,6 +36,8 @@ namespace SAA {
     PARSING,
     LOADED,
     RESETTING,
+    // parse() threw. safeParse() throws for every caller until safeReset() brings the parser back to NONE.
+    FAILED,
   };
 
 

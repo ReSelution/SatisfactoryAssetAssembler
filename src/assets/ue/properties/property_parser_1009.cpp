@@ -446,9 +446,6 @@ namespace SAA {
       case ETextHistoryType::AsTime:
       case ETextHistoryType::AsDateTime:
       case ETextHistoryType::TextGenerator:
-        // TODO: Die Exception laeuft durch Object::safeParse(), das den Zustand dann auf PARSING stehen laesst
-        // (siehe TODO dort): ein nicht unterstuetzter Text-Typ haengt alle wartenden Threads auf, statt einen Fehler
-        // zu melden.
         throw std::runtime_error("Not implemented");
       case ETextHistoryType::StringTableEntry: {
         const auto tableId = cursor.readFName();

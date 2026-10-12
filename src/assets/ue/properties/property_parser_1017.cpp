@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <stdexcept>
+
 #include "AssetParser.hpp"
 #include "core/EClassSerializationControlExtension.hpp"
 #include "property_parser.hpp"
@@ -47,8 +48,8 @@ namespace SAA {
         return;
       }
       auto final = cursor.tell() + tag.Size;
-      tag.Tag    = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
-      cursor     = final;
+      tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
+      cursor = final;
       // TODO: emplace() behaelt bei gleichem Namen nur den ersten Eintrag. Statische Arrays (gleicher Name,
       // verschiedener ArrayIndex) verlieren so alle Elemente ausser dem ersten.
       holder->m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
@@ -72,22 +73,22 @@ namespace SAA {
     // std::span{typeName.data(), nodeCount} waere richtig.
     auto name = cursor.readFName();
     std::array<FPropertyTypeNameNode, 10> typeName;
-    int32_t nodeCount   = 0;
+    int32_t nodeCount = 0;
     typeName[nodeCount] = {name, cursor.read<int32_t>()};
     nodeCount++;
     int32_t remaining = typeName[0].innerCount;
     while (remaining > 0 && nodeCount < 10) {
-      name                = cursor.readFName();
+      name = cursor.readFName();
       typeName[nodeCount] = {name, cursor.read<int32_t>()};
       remaining += typeName[nodeCount].innerCount - 1;
       nodeCount++;
     }
 
     tag.PropertyTypeName = typeName[0].Name;
-    tag.PropertyType     = sc::hash<EPropertyTagType>(tag.PropertyTypeName.text());
-    tag.TagData          = parsePropertyTagData(storage, tag.PropertyType, typeName, tag.PropertyTypeName);
-    tag.Size             = cursor.read<uint32_t>();
-    tag.Flags            = cursor.read<EPropertyTagFlags>();
+    tag.PropertyType = sc::hash<EPropertyTagType>(tag.PropertyTypeName.text());
+    tag.TagData = parsePropertyTagData(storage, tag.PropertyType, typeName, tag.PropertyTypeName);
+    tag.Size = cursor.read<uint32_t>();
+    tag.Flags = cursor.read<EPropertyTagFlags>();
     static constexpr uint8_t ExtraDataMask = (uint8_t) EPropertyTagFlags::HasArrayIndex |
                                              (uint8_t) EPropertyTagFlags::HasPropertyGuid |
                                              (uint8_t) EPropertyTagFlags::HasPropertyExtensions;
@@ -177,7 +178,7 @@ namespace SAA {
   }
 
   template<typename T>
-  inline FPropertyValue read(ByteCursor &cursor) {
+  static inline FPropertyValue read(ByteCursor &cursor) {
     return FPropertyValue{cursor.read<T>()};
   }
 
@@ -332,7 +333,7 @@ namespace SAA {
   template<>
   PropertyHolder PP6::parseFallbackStruct(ByteCursor &cursor, sc::MonotonicResource *storage) {
     using denseMap = ankerl::unordered_dense::pmr::map<uint64_t, FPropertyTag, sc::IdentityHash>;
-    auto props     = cursor.m_owner->storage()->makePmr<denseMap>();
+    auto props = cursor.m_owner->storage()->makePmr<denseMap>();
     PropertyHolder structFallback(props);
     while (true) {
       auto tag = parsePropertyTag(cursor, storage);
@@ -340,13 +341,13 @@ namespace SAA {
         break;
       };
       auto pos = cursor.tell();
-      tag.Tag  = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
+      tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
       structFallback.m_properties->emplace(sc::hash(tag.Name.text()), std::move(tag));
       // TODO: tag ist hier schon in die Map verschoben. Das nullptr landet nur in der lokalen Kopie, der Eintrag in
       // der Map behaelt seinen TagData-Zeiger. tag.Size funktioniert nur, weil FPropertyTag beim Verschieben die
       // trivialen Felder kopiert; Size vorher in eine lokale Variable legen.
       tag.TagData = nullptr;
-      cursor      = tag.Size + pos;
+      cursor = tag.Size + pos;
     }
     return structFallback;
   }
@@ -487,8 +488,8 @@ namespace SAA {
       case ESatisfactoryStruct::SkeletalMeshSamplingLODBuiltData: {
         return FPropertyValue{FWeightedRandomSampler{
             .probabilities = cursor.readArray<float>(),
-            .alias         = cursor.readArray<int32_t>(),
-            .totlalWeight  = cursor.read<float>(),
+            .alias = cursor.readArray<int32_t>(),
+            .totlalWeight = cursor.read<float>(),
         }};
       }
       case ESatisfactoryStruct::SoftObjectPath:

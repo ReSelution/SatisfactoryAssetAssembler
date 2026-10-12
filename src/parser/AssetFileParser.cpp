@@ -3,6 +3,9 @@
 //
 #include "AssetFileParser.hpp"
 
+#include <stdexcept>
+#include <string>
+
 #include "AssetParser.hpp"
 #include "game_file.hpp"
 #include "version.hpp"
@@ -13,9 +16,9 @@ namespace SAA {
   AssetFileParser::~AssetFileParser() { sc::ArenaPool::release(m_storage); }
 
   void AssetFileParser::reset() {
-    // TODO: m_asset und m_bulk liegen in m_storage und zeigen nach dem reset() auf freigegebenen Speicher. Sie werden
-    // hier nicht auf nullptr gesetzt, getAssetFile()/getBulkFile() geben nach einem erneuten safeParse() also den
-    // alten Zeiger zurueck (use-after-free).
+    // Both live in m_storage.
+    m_asset = nullptr;
+    m_bulk  = nullptr;
     sc::ArenaPool::release(m_storage);
     m_state.store(ParserState::NONE, std::memory_order_release);
   }
@@ -26,19 +29,32 @@ namespace SAA {
     }
     ParserState expected = ParserState::NONE;
     if (m_state.compare_exchange_strong(expected, ParserState::PARSING, std::memory_order_acq_rel)) {
-      // TODO: Wirft parse(), bleibt der Zustand auf PARSING stehen und alle Threads im m_cv.wait() unten haengen
-      // fuer immer. War vor der Portierung auch schon so.
-      m_storage = sc::ArenaPool::acquire();
-      parse();
-      {
-        std::lock_guard lock(m_mutex);
-        m_state.store(ParserState::LOADED, std::memory_order_release);
+      const auto publish = [this](ParserState state) {
+        {
+          std::lock_guard lock(m_mutex);
+          m_state.store(state, std::memory_order_release);
+        }
+        m_cv.notify_all();
+      };
+
+      try {
+        m_storage = sc::ArenaPool::acquire();
+        parse();
+      } catch (...) {
+        // The threads waiting below have to be released as well.
+        publish(ParserState::FAILED);
+        throw;
       }
-      m_cv.notify_all();
+      publish(ParserState::LOADED);
       return;
     }
-    std::unique_lock lock(m_mutex);
-    m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ParserState::LOADED; });
+    {
+      std::unique_lock lock(m_mutex);
+      m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ParserState::LOADED; });
+    }
+    if (m_state.load(std::memory_order_acquire) == ParserState::FAILED) [[unlikely]] {
+      throw std::runtime_error("Parsing failed earlier: " + std::string(m_path));
+    }
   }
 
   void AssetFileParser::safeReset() {

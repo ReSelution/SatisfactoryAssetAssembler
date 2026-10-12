@@ -5,6 +5,8 @@
 #include "asset_object.hpp"
 
 #include <cassert>
+#include <stdexcept>
+#include <string>
 
 #include "uasset_parser.hpp"
 #include "usmap/f_usmap_mapping_data.hpp"
@@ -37,30 +39,44 @@ namespace SAA {
   }
 
 
-  // TODO: Zwei Dinge, beide schon vor der Portierung so:
-  // - Wirft parse(), bleibt m_state auf PARSING und alle Threads im m_cv.wait() unten haengen fuer immer.
-  // - Der schnelle Pfad prueft nur == PARSED. Nach dem Export (EXPORTING/EXPORTED) nimmt jeder safeParse()-Aufruf
-  //   den Umweg ueber den fehlschlagenden CAS und m_mutex. >= PARSED wuerde das vermeiden.
+  void Object::publishState(ObjectState state) {
+    {
+      std::lock_guard lock(m_mutex);
+      m_state.store(state, std::memory_order_release);
+    }
+    m_cv.notify_all();
+  }
+
+  void Object::throwIfFailed() const {
+    if (m_state.load(std::memory_order_acquire) == ObjectState::FAILED) [[unlikely]] {
+      throw std::runtime_error("Parsing or exporting failed earlier: " + getFullName());
+    }
+  }
+
   void Object::safeParse() {
-    if (m_state.load(std::memory_order_acquire) == ObjectState::PARSED) {
+    if (m_state.load(std::memory_order_acquire) >= ObjectState::PARSED) {
+      throwIfFailed();
       return;
     }
     ObjectState expected = ObjectState::NONE;
     if (m_state.compare_exchange_strong(expected, ObjectState::PARSING, std::memory_order_acq_rel)) {
-      {
+      try {
         m_cursor = m_owner->getAsset(fileOffset, fileSize);
         parse();
+      } catch (...) {
+        // The threads waiting below have to be released as well.
+        publishState(ObjectState::FAILED);
+        throw;
       }
-      {
-        std::lock_guard lock(m_mutex);
-        m_state.store(ObjectState::PARSED, std::memory_order_release);
-      }
-      m_cv.notify_all();
+      publishState(ObjectState::PARSED);
       return;
     }
 
-    std::unique_lock lock(m_mutex);
-    m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ObjectState::PARSED; });
+    {
+      std::unique_lock lock(m_mutex);
+      m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ObjectState::PARSED; });
+    }
+    throwIfFailed();
   }
 
   sc::ecs::Entity Object::safeExport() {
@@ -71,20 +87,21 @@ namespace SAA {
 
     ObjectState expected = ObjectState::PARSED;
     if (m_state.compare_exchange_strong(expected, ObjectState::EXPORTING)) {
-      {
+      try {
         exprt();
+      } catch (...) {
+        publishState(ObjectState::FAILED);
+        throw;
       }
-
-      {
-        std::lock_guard lock(m_mutex);
-        m_state.store(ObjectState::EXPORTED, std::memory_order_release);
-      }
-      m_cv.notify_all();
+      publishState(ObjectState::EXPORTED);
       return entity;
     }
 
-    std::unique_lock lock(m_mutex);
-    m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ObjectState::EXPORTED; });
+    {
+      std::unique_lock lock(m_mutex);
+      m_cv.wait(lock, [this] { return m_state.load(std::memory_order_acquire) >= ObjectState::EXPORTED; });
+    }
+    throwIfFailed();
     return entity;
   }
 

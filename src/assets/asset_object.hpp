@@ -35,7 +35,9 @@ namespace SAA {
       PARSING,
       PARSED,
       EXPORTING,
-      EXPORTED // Finaler Status
+      EXPORTED, // Finaler Status
+      // parse() or exprt() threw. safeParse() and safeExport() throw for every caller from then on.
+      FAILED
     };
 
   public:
@@ -107,6 +109,9 @@ namespace SAA {
 
     std::string_view m_objName;
     FGuid m_objGuid{};
+
+    void publishState(ObjectState state);
+    void throwIfFailed() const;
 
     std::atomic<ObjectState> m_state = ObjectState::NONE;
     std::mutex m_mutex;
