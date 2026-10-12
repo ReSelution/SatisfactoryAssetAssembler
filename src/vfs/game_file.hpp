@@ -33,9 +33,11 @@ namespace SAA {
     static constexpr uint64_t VALUE_MASK   = ~(LOADING_BIT | FINISHED_BIT | FAILED_BIT);
 
     const size_t fileSize;
-    std::atomic<size_t> idx   = 0;
-    std::atomic<size_t> start = 0;
-    std::atomic<size_t> end   = 0;
+    // The chunk the last request started in, where the next one usually continues.
+    std::atomic<size_t> idx = 0;
+    // Every byte in front of this offset is loaded. Lets a file that is read from front to back skip the look at
+    // the chunks. Says nothing about what lies behind it: a range further back can be loaded as well.
+    std::atomic<size_t> loadedPrefix = 0;
     std::span<std::atomic<uint64_t>> chunkOffsetsLoaded{};
 
     GameFileImpl(size_t fileSize);
@@ -46,8 +48,23 @@ namespace SAA {
     [[nodiscard]] bool waitFinished(size_t targetOffset, size_t size, size_t chunIdx);
     bool safeLoad(size_t offset, size_t size, std::span<uint8_t> dst);
 
-    virtual bool load(size_t &idx, std::span<uint8_t> dst) = 0;
-    // Announces the chunk to the OS, load() for it follows right away.
+    // Writes the bytes [offset, offset + dst.size()) of the file to dst. fileBuffer is the buffer of the file, a
+    // chunk that is already loaded there is copied instead of read again. Loads nothing into fileBuffer itself.
+    // False if the range is outside the file or a chunk could not be read.
+    [[nodiscard]] bool readInto(size_t offset, std::span<uint8_t> dst, std::span<const uint8_t> fileBuffer);
+
+    // The bytes of the file a chunk stands for.
+    [[nodiscard]] size_t chunkStart(size_t idx) const {
+      return chunkOffsetsLoaded[idx].load(std::memory_order_relaxed) & VALUE_MASK;
+    }
+    [[nodiscard]] size_t chunkEnd(size_t idx) const {
+      return idx + 1 < chunkOffsetsLoaded.size() ? chunkStart(idx + 1) : fileSize;
+    }
+
+    // Reads the chunk into out, which is exactly as long as the chunk. Called from several threads at the same
+    // time, for different chunks.
+    virtual bool loadChunk(size_t idx, std::span<uint8_t> out) = 0;
+    // Announces the chunk to the OS, loadChunk() for it follows right away.
     virtual void willNeed(size_t idx) = 0;
 
     virtual uint64_t chunks() = 0;
@@ -168,15 +185,27 @@ namespace SAA {
 
     [[nodiscard]] ByteCursor subspan(size_t offset, size_t size);
 
+    // Writes the bytes [offset, offset + dst.size()) of the file straight to dst, without keeping them in the
+    // storage of the file. For a target the caller owns, a mapped buffer for example. A compression block that
+    // only partly lies in the range is decompressed into a buffer of the thread first and the part is copied; every
+    // other block is decompressed right where it belongs in dst.
+    // Throws like subspan() if the range is outside the file or a chunk could not be read.
+    void readInto(size_t offset, std::span<uint8_t> dst);
+
     void setOwner(AssetFileParser *ptr) { m_owner = ptr; }
 
   private:
-    bool load(size_t size);
+    // Loads size bytes from the cursor on.
+    bool load(size_t size) { return loadRange(m_cursor, size); }
+    // Does not touch the cursor, so several threads can ask for ranges of the same file at once.
+    bool loadRange(size_t offset, size_t size) {
+      if (offset + size <= impl->loadedPrefix.load(std::memory_order_acquire)) [[likely]] {
+        return true;
+      }
+      return impl->safeLoad(offset, size, m_buffer);
+    }
     AssetFileParser *m_owner      = nullptr;
     uint64_t m_cursor             = 0;
-    uint64_t m_idx                = 0;
-    uint64_t m_start              = 0;
-    uint64_t m_end                = 0;
     sc::MonotonicResource *m_storage           = nullptr;
     std::span<uint8_t> m_buffer{};
     GameFileImpl *impl = nullptr;

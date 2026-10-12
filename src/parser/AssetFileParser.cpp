@@ -96,19 +96,31 @@ namespace SAA {
   };
 
   GameFile *AssetFileParser::getBulkFile() {
-    if ((m_bulk == nullptr) && (m_bulkEntry != nullptr)) {
-      m_bulk = m_bulkEntry->read(m_storage.get());
-      m_bulk->setOwner(this);
+    GameFile *file = m_bulk.load(std::memory_order_acquire);
+    if (file == nullptr && m_bulkEntry != nullptr) {
+      const std::scoped_lock lock(m_fileLock);
+      file = m_bulk.load(std::memory_order_relaxed);
+      if (file == nullptr) {
+        file = m_bulkEntry->read(m_storage.get());
+        file->setOwner(this);
+        m_bulk.store(file, std::memory_order_release);
+      }
     }
-    return m_bulk;
+    return file;
   }
 
   GameFile *AssetFileParser::getAssetFile() {
-    if ((m_asset == nullptr) && (m_assetEntry != nullptr)) {
-      m_asset = m_assetEntry->read(m_storage.get());
-      m_asset->setOwner(this);
+    GameFile *file = m_asset.load(std::memory_order_acquire);
+    if (file == nullptr && m_assetEntry != nullptr) {
+      const std::scoped_lock lock(m_fileLock);
+      file = m_asset.load(std::memory_order_relaxed);
+      if (file == nullptr) {
+        file = m_assetEntry->read(m_storage.get());
+        file->setOwner(this);
+        m_asset.store(file, std::memory_order_release);
+      }
     }
-    return m_asset;
+    return file;
   }
 
   ByteCursor AssetFileParser::getAsset(size_t offset, size_t size) { return getAssetFile()->subspan(offset, size); }

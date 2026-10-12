@@ -4,19 +4,22 @@
 
 #include "game_file.hpp"
 
+#include <algorithm>
 #include <cassert>
+#include <exception>
 #include <thread>
 #include <vector>
 
+#include "sc/threading/threading.hpp"
+
 #include "core/name.hpp"
+#include "runtime_options.hpp"
 
 namespace SAA {
   GameFile::GameFile(sc::MonotonicResource *storage) : m_storage(storage) {}
 
   ByteCursor GameFile::subspan(size_t offset, size_t size) {
-    auto old = m_cursor;
-    m_cursor = offset;
-    if (!load(size)) [[unlikely]] {
+    if (!loadRange(offset, size)) [[unlikely]] {
       if (offset + size > impl->fileSize) {
         throw std::runtime_error("subspan out of range");
       }
@@ -26,16 +29,16 @@ namespace SAA {
 
     ByteCursor sub(m_buffer.subspan(offset, size), m_owner);
     sub.setAbsoluteOffset(offset);
-    m_cursor = old;
     return sub;
   }
 
-  bool GameFile::load(size_t size) {
-    if (m_cursor + size <= impl->end) {
-      return true;
+  void GameFile::readInto(size_t offset, std::span<uint8_t> dst) {
+    if (!impl->readInto(offset, dst, m_buffer)) [[unlikely]] {
+      if (offset + dst.size() > impl->fileSize) {
+        throw std::runtime_error("readInto out of range");
+      }
+      throw std::runtime_error("chunk of the file could not be read or decompressed");
     }
-
-    return impl->safeLoad(m_cursor, size, m_buffer);
   }
 
   void GameFile::seek(size_t newPos) {
@@ -62,19 +65,19 @@ namespace SAA {
     auto entries = utf16Storage->allocateSpan<std::string_view>(count);
 
     for (uint32_t i = 0; i < count; ++i) {
-      const auto &header    = headers[i];
+      const auto &header = headers[i];
       const uint32_t length = header.Length();
 
       if (header.IsUtf16()) {
         auto chars = readArray<char16_t>(length);
-        auto res   = utf16ToUtf8(*utf16Storage, chars);
+        auto res = utf16ToUtf8(*utf16Storage, chars);
         entries[i] = res;
       } else {
         if (!load(length)) [[unlikely]] {
           throw std::runtime_error("Name batch entry out of range");
         }
         const char *startPos = reinterpret_cast<const char *>(m_buffer.data() + m_cursor);
-        entries[i]           = {startPos, length};
+        entries[i] = {startPos, length};
         m_cursor += length;
       }
     }
@@ -86,42 +89,39 @@ namespace SAA {
 
   bool GameFileImpl::isLoaded(size_t targetOffset, size_t size, size_t &index) {
     const size_t targetEnd = targetOffset + size;
-    bool foundStart        = false;
 
-    if (index == chunkOffsetsLoaded.size()) {
-      index = 0;
-    }
-    const size_t currentStart = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
-    if (targetOffset < currentStart) [[unlikely]] {
-      index = 0;
+    // The chunk targetOffset lies in: the one of the last request or the one behind it when a file is read in
+    // order, anything else is searched for.
+    if (index >= chunkOffsetsLoaded.size() || targetOffset < chunkStart(index) || targetOffset >= chunkEnd(index)) {
+      if (index + 1 < chunkOffsetsLoaded.size() && targetOffset >= chunkStart(index + 1) &&
+          targetOffset < chunkEnd(index + 1)) {
+        ++index;
+      } else {
+        size_t found = 0;
+        for (size_t low = 0, high = chunkOffsetsLoaded.size(); low < high;) {
+          const size_t mid = low + ((high - low) / 2);
+          if (chunkStart(mid) <= targetOffset) {
+            found = mid;
+            low = mid + 1;
+          } else {
+            high = mid;
+          }
+        }
+        index = found;
+      }
     }
 
     for (size_t i = index; i < chunkOffsetsLoaded.size(); ++i) {
-      const auto &entry              = chunkOffsetsLoaded[i];
-      const size_t currentChunkStart = entry.load(std::memory_order_relaxed) & VALUE_MASK;
-      if (!foundStart) {
-        size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                    ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                    : fileSize;
-
-        if (targetOffset >= currentChunkStart && targetOffset < nextChunkStart) {
-          index      = i;
-          foundStart = true;
-        } else {
-          continue;
-        }
-      }
-
-      if (!(entry & FINISHED_BIT)) {
+      if (!(chunkOffsetsLoaded[i].load(std::memory_order_acquire) & FINISHED_BIT)) {
         return false;
       }
-
-      size_t nextChunkStart = (i + 1 < chunkOffsetsLoaded.size())
-                                  ? (chunkOffsetsLoaded[i + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                  : fileSize;
-
-      if (nextChunkStart >= targetEnd) {
-        end = nextChunkStart - 1;
+      const size_t loadedTo = chunkEnd(i);
+      if (loadedTo >= targetEnd) {
+        // Only a range that starts inside the prefix makes it longer.
+        size_t prefix = loadedPrefix.load(std::memory_order_acquire);
+        while (targetOffset <= prefix && loadedTo > prefix &&
+               !loadedPrefix.compare_exchange_weak(prefix, loadedTo, std::memory_order_acq_rel)) {
+        }
         return true;
       }
     }
@@ -142,94 +142,151 @@ namespace SAA {
     return tryLoad(targetOffset, size, index, dst) && waitFinished(targetOffset, size, index);
   }
 
+  namespace {
+    // Below this many chunks the calling thread loads them alone, a helper would hardly get started in time.
+    constexpr size_t MIN_CHUNKS_FOR_HELPERS = 4;
+
+    // Calls run(0) ... run(count - 1), on this thread and on pool threads that have nothing else to do, and returns
+    // once all of them are through. See sc::threading::parallelFor(): this may be called from a pool task, and a
+    // run() that throws keeps the chunks nobody has started from being loaded.
+    // Measured on the test parse of 1017 (28214 files, 15 threads): 3.6 s -> 2.0 s against loading the chunks one
+    // after the other, the CPU time stays the same. What is left of the tail runs on 3 to 5 threads: the payloads
+    // of a big file are asked for one after the other, and each of them only spans a few chunks.
+    template<typename F>
+    void forEachChunk(size_t count, F &&run) {
+      const size_t helpers = count >= MIN_CHUNKS_FOR_HELPERS && !runtimeOptions().serial ? SIZE_MAX : 0;
+      sc::threading::parallelFor(count, 1, helpers, [&](size_t first, size_t last) {
+        for (size_t n = first; n < last; ++n) {
+          run(n);
+        }
+      });
+    }
+  } // namespace
+
   bool GameFileImpl::tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst) {
-    size_t cIdx = chunIdx;
+    const size_t targetEnd = targetOffset + size;
 
-    size_t nextChunkStart = (cIdx + 1 < chunkOffsetsLoaded.size())
-                                ? (chunkOffsetsLoaded[cIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                : fileSize;
-    if (nextChunkStart < targetOffset + size) {
-
-      bool failed = false;
-      std::vector<size_t> chunksToLoad;
-      chunksToLoad.reserve(chunkOffsetsLoaded.size());
-      for (size_t offset = targetOffset; offset < targetOffset + size;) {
-        auto &atomic          = chunkOffsetsLoaded[cIdx];
-        auto expected         = atomic.load(std::memory_order_relaxed);
-        size_t nextChunkStart = (cIdx + 1 < chunkOffsetsLoaded.size())
-                                    ? (chunkOffsetsLoaded[cIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
-                                    : fileSize;
-        offset                = nextChunkStart;
-        if (expected & (FINISHED_BIT | FAILED_BIT)) {
-          failed |= (expected & FAILED_BIT) != 0;
-          cIdx++;
-          continue;
-        };
-        if (!(expected & LOADING_BIT)) {
-          uint64_t desired = expected | LOADING_BIT;
-          if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
-            chunksToLoad.emplace_back(cIdx);
-          }
-          cIdx++;
-        }
-      }
-      // TODO: Die Chunks werden hier nacheinander im aufrufenden Thread geladen. Vorher lief das ueber
-      // SC::ChaosThreading::parralelFor. Sobald sc::threading::parallelFor(count, grain, fn(first, last)) aus dem
-      // ecs-Branch von StructuredChaos auf master ist, hier wieder parallel laden: es blockiert, darf aus Pool-Tasks
-      // aufgerufen werden und der Aufrufer arbeitet selbst mit, die Worker koennen sich also nicht gegenseitig
-      // blockieren.
-      // Every claimed chunk ends up FINISHED or FAILED, otherwise the threads in waitFinished() never get out.
-      size_t next = 0;
-      try {
-        for (; next < chunksToLoad.size(); ++next) {
-          size_t i = chunksToLoad[next];
-          if (load(i, dst)) [[likely]] {
-            chunkOffsetsLoaded[i].fetch_or(FINISHED_BIT, std::memory_order_release);
-          } else {
-            chunkOffsetsLoaded[i].fetch_or(FAILED_BIT, std::memory_order_release);
-            failed = true;
-          }
-        }
-      } catch (...) {
-        for (; next < chunksToLoad.size(); ++next) {
-          chunkOffsetsLoaded[chunksToLoad[next]].fetch_or(FAILED_BIT, std::memory_order_release);
-        }
-        throw;
-      }
-      if (failed) [[unlikely]] {
-        return false;
-      }
-    } else {
-      auto &atomic  = chunkOffsetsLoaded[cIdx];
+    // Claims every chunk of the range that nobody has loaded or is loading yet. The others are finished, failed or
+    // in the hands of another thread, waitFinished() waits for those.
+    std::vector<size_t> chunksToLoad;
+    bool failed = false;
+    for (size_t cIdx = chunIdx; cIdx < chunkOffsetsLoaded.size() && chunkStart(cIdx) < targetEnd; ++cIdx) {
+      auto &atomic = chunkOffsetsLoaded[cIdx];
       auto expected = atomic.load(std::memory_order_relaxed);
-      if (!(expected & LOADING_BIT)) {
-        uint64_t desired = expected | LOADING_BIT;
-        if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
-          willNeed(cIdx);
-          bool loaded = false;
-          try {
-            loaded = load(cIdx, dst);
-          } catch (...) {
-            atomic.fetch_or(FAILED_BIT, std::memory_order_release);
-            throw;
-          }
-          atomic.fetch_or(loaded ? FINISHED_BIT : FAILED_BIT, std::memory_order_release);
-          return loaded;
-        }
+      if (expected & FAILED_BIT) {
+        failed = true;
+        continue;
+      }
+      if (expected & (FINISHED_BIT | LOADING_BIT)) {
+        continue;
+      }
+      if (atomic.compare_exchange_strong(expected, expected | LOADING_BIT, std::memory_order_acq_rel)) {
+        chunksToLoad.emplace_back(cIdx);
+      } else if (expected & FAILED_BIT) {
+        failed = true;
       }
     }
 
-    // Another thread is loading the rest, waitFinished() reports how that went.
-    return true;
+    if (chunksToLoad.size() == 1) {
+      willNeed(chunksToLoad.front());
+    }
+    // Every claimed chunk ends up FINISHED or FAILED, otherwise the threads in waitFinished() never get out. So
+    // an exception is kept until all of them are through instead of ending the loop.
+    std::atomic<bool> loadFailed{false};
+    std::atomic_flag threw;
+    std::exception_ptr error;
+    forEachChunk(chunksToLoad.size(), [&](size_t n) {
+      const size_t i = chunksToLoad[n];
+      bool loaded = false;
+      try {
+        const size_t begin = chunkStart(i);
+        loaded = loadChunk(i, dst.subspan(begin, chunkEnd(i) - begin));
+      } catch (...) {
+        if (!threw.test_and_set(std::memory_order_acq_rel)) {
+          error = std::current_exception();
+        }
+      }
+      chunkOffsetsLoaded[i].fetch_or(loaded ? FINISHED_BIT : FAILED_BIT, std::memory_order_release);
+      if (!loaded) [[unlikely]] {
+        loadFailed.store(true, std::memory_order_relaxed);
+      }
+    });
+    if (error) {
+      std::rethrow_exception(error);
+    }
+
+    // What another thread is loading is reported by waitFinished().
+    return !failed && !loadFailed.load(std::memory_order_relaxed);
+  }
+
+  bool GameFileImpl::readInto(size_t offset, std::span<uint8_t> dst, std::span<const uint8_t> fileBuffer) {
+    const size_t rangeEnd = offset + dst.size();
+    if (rangeEnd > fileSize || rangeEnd < offset) [[unlikely]] {
+      return false;
+    }
+    if (dst.empty()) {
+      return true;
+    }
+
+    // The last chunk that starts at or before offset.
+    size_t first = 0;
+    for (size_t low = 0, high = chunkOffsetsLoaded.size(); low < high;) {
+      const size_t mid = low + (high - low) / 2;
+      if (chunkStart(mid) <= offset) {
+        first = mid;
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+    size_t count = 0;
+    while (first + count < chunkOffsetsLoaded.size() && chunkStart(first + count) < rangeEnd) {
+      ++count;
+    }
+
+    std::atomic<bool> loadFailed{false};
+    forEachChunk(count, [&](size_t n) {
+      const size_t i = first + n;
+      const size_t begin = chunkStart(i);
+      const size_t end = chunkEnd(i);
+      // The part of the chunk that lies in the range, and where it goes in dst.
+      const size_t from = std::max(begin, offset);
+      const size_t to = std::min(end, rangeEnd);
+      uint8_t *target = dst.data() + (from - offset);
+
+      const uint64_t state = chunkOffsetsLoaded[i].load(std::memory_order_acquire);
+      if (state & FINISHED_BIT) {
+        std::memcpy(target, fileBuffer.data() + from, to - from);
+        return;
+      }
+      if (from == begin && to == end) {
+        if (!loadChunk(i, {target, end - begin})) [[unlikely]] {
+          loadFailed.store(true, std::memory_order_relaxed);
+        }
+        return;
+      }
+      // A chunk at the edge: the decompressor only gives it out whole, with the bytes in front of or behind the
+      // range. At most two per call.
+      thread_local std::vector<uint8_t> edge;
+      if (edge.size() < end - begin) {
+        edge.resize(end - begin);
+      }
+      if (!loadChunk(i, {edge.data(), end - begin})) [[unlikely]] {
+        loadFailed.store(true, std::memory_order_relaxed);
+        return;
+      }
+      std::memcpy(target, edge.data() + (from - begin), to - from);
+    });
+    return !loadFailed.load(std::memory_order_relaxed);
   }
 
   bool GameFileImpl::waitFinished(size_t targetOffset, size_t size, size_t chunIdx) {
     for (size_t offset = targetOffset; offset < targetOffset + size;) {
-      auto &atomic          = chunkOffsetsLoaded[chunIdx];
+      auto &atomic = chunkOffsetsLoaded[chunIdx];
       size_t nextChunkStart = (chunIdx + 1 < chunkOffsetsLoaded.size())
                                   ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
                                   : fileSize;
-      offset                = nextChunkStart;
+      offset = nextChunkStart;
       // TODO: Vorher hat der wartende Thread ueber SC::ChaosThreading::helpThread andere Tasks abgearbeitet.
       // sc::threading bietet das nicht mehr oeffentlich an (helpThread liegt in impl), deshalb wird hier nur noch
       // die CPU abgegeben.

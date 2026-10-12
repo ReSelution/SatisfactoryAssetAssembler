@@ -38,11 +38,20 @@ namespace SAA {
       // Logger::logError("[AssetParser]", "Unknown PKG : {}", pkg.Id);
       return nullptr;
     }
-    // An import is created again once its last holder is gone (43.1 K parser creations for 28.2 K packages in the
-    // crawl, 1017). That is fine by design: creating a parser loads nothing, data is only read by safeParse().
-    // Measured: keeping the last 16 imported parsers per cache shard alive saved no time (crawl 52.8 -> 51.9 ms
-    // median, test mode 3.44 s both) and cost 22 MB / 470 MB of peak memory.
-    return createParser(vfsEntry);
+    // An import is only held by the packages that asked for it (UAssetParser::importedPackage()) and by the cache,
+    // which keeps the imports asked for last alive. Without the cache holding on, a package that many others
+    // import one after the other is parsed again each time. Measured on 1017 with 15 threads, exports per run
+    // (the "OBJs" stat, every parse of a package counts its exports) and time:
+    //   per shard   crawl              test parse
+    //   0           543 K   66 ms      855 K   1.9 - 2.2 s   3.1 GB peak
+    //   4           464 K   59 ms      667 K   1.9 s         3.3 GB
+    //   16          458 K   59 ms      514 K   1.75 - 1.85 s 3.6 GB
+    //   64          453 K   59 ms      485 K   1.9 s         4.8 GB
+    auto parser = createParser(vfsEntry);
+    if (parser) {
+      m_parserCache.keepAlive(vfsEntry->hash, parser);
+    }
+    return parser;
   }
 
   void AssetParser::loadRes() { m_localizationManager.load(); }

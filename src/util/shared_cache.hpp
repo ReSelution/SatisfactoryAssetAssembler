@@ -24,11 +24,18 @@ template<typename K, typename V, size_t ShardCount = 64>
 class ShardedCache {
 
 
+  // How many values a shard holds on to by itself, see keepAlive().
+  static constexpr size_t KEEP_ALIVE = 16;
+
   struct alignas(64) Shard {
     sc::SpinLock lock;
     using denseMap = ankerl::unordered_dense::map<uint64_t, std::weak_ptr<V>, sc::IdentityHash>;
 
     denseMap data{};
+
+    // The values handed to keepAlive() last, see there.
+    std::array<std::shared_ptr<V>, KEEP_ALIVE> recent{};
+    size_t nextRecent = 0;
 
     void acquire() { lock.lock(); }
 
@@ -124,6 +131,24 @@ public:
     }
     shard.release();
     return value;
+  }
+
+  // Holds on to value until KEEP_ALIVE other values of its shard were handed in after it. Without this a value
+  // only lives as long as somebody outside holds it, and one that is asked for again and again by holders that
+  // do not overlap is made anew every time.
+  void keepAlive(const K &key, std::shared_ptr<V> value) {
+    auto &shard = getShard(key);
+    shard.acquire();
+    for (const auto &kept: shard.recent) {
+      if (kept == value) {
+        shard.release();
+        return;
+      }
+    }
+    std::swap(shard.recent[shard.nextRecent], value);
+    shard.nextRecent = (shard.nextRecent + 1) % KEEP_ALIVE;
+    shard.release();
+    // The value that fell out is released here, outside the lock: it may be the last holder.
   }
 
   void insert(const K &key, std::shared_ptr<V> value) {

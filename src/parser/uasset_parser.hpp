@@ -1,5 +1,9 @@
 #pragma once
 
+#include <atomic>
+#include <cstdint>
+#include <mutex>
+
 #include "AssetFileParser.hpp"
 #include "byte_cursor.hpp"
 #include "core/name.hpp"
@@ -31,7 +35,7 @@ namespace SAA {
 
     [[nodiscard]] std::span<const FBulkDataMapEntry> bulkDataMap() const { return m_bulkDataMap; };
 
-    FByteBulkData *parseFByteBulkData(ByteCursor &cursor) override;
+    FByteBulkData *parseFByteBulkData(ByteCursor &cursor, EBulkLoad load = EBulkLoad::Storage) override;
 
     Object *resolveIndex(int32_t index) override;
 
@@ -67,6 +71,10 @@ namespace SAA {
     void parseExportBundles(GameFile *file);
 
     void loadImportedPackages();
+
+    // The parser of an imported package, by its index in the store entry. Made on the first call, which can come
+    // from several threads at once. nullptr if the package is not in the VFS.
+    [[nodiscard]] AssetFileParser *importedPackage(size_t index);
 
     void processExports();
 
@@ -108,6 +116,14 @@ namespace SAA {
     using nameDenseMap = ankerl::unordered_dense::pmr::map<std::string_view, uint32_t, sc::IdentityHash>;
     nameDenseMap m_nameToIndex;
     std::span<const FExportBundleEntry> m_exportBundleEntries;
+
+    // One slot per imported package: nullptr until importedPackage() was asked for it, unknownPackage() if there
+    // is no such package. The parsers themselves are held by m_importedParsers.
+    std::span<std::atomic<AssetFileParser *>> m_importSlots;
+    std::mutex m_importLock;
+    [[nodiscard]] static AssetFileParser *unknownPackage() {
+      return reinterpret_cast<AssetFileParser *>(uintptr_t{1});
+    }
 
     // ---- imported assets ----
     std::span<Object *> m_importObjects;

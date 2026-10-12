@@ -25,7 +25,6 @@
 #include "stats.hpp"
 #include "sc/stats/core.hpp"
 #include "sc/threading/threading.hpp"
-#include "thread_slots.hpp"
 
 using ProviderLog = sc::Logger<"SAA", "Provider">;
 
@@ -61,7 +60,7 @@ namespace SAA {
       parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_globalDataParser->parse(m_globalData); }));
 
       std::vector<Vfs> childVFS;
-      const size_t slots = threadSlots();
+      const size_t slots = sc::threading::thread_slots();
       childVFS.reserve(slots);
       for (size_t i = 0; i < slots; i++) {
         childVFS.emplace_back(m_vfs.makeChild());

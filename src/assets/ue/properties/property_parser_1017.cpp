@@ -11,9 +11,9 @@
 
 
 // Hot path, measured on the test parse of 1017 (28214 files, 21.3 M property values, 15 threads, perf at 2 kHz).
-// The run has two parts: about 1.25 s in which all threads work, and a tail of about 2.4 s in which a single thread
-// decompresses the chunks of the big files one after the other (GameFileImpl::safeLoad(), see the TODO there). The
-// tail is what the wall time hangs on; nothing in this file changes it.
+// The run has two parts: about 1.3 s in which all threads work, and a tail of about 0.6 s in which 3 to 5 threads
+// decompress the chunks of the big files (GameFileImpl::tryLoad()). Before the chunks were loaded in parallel the
+// tail was one thread for 2.4 s and the run took 3.6 s instead of 2.0 s.
 // Samples of the whole run: Oodle 73 %, kernel 5 %, own code 20 %. Of the own code:
 //   parsePropertyTag() 2.1 %, parsePropertyValue() 2.0 %, PropertyMapBuilder (build/add/resize) 3.0 %,
 //   readFName() 1.0 %, parsePropertyTagData() 0.8 %.
@@ -31,6 +31,12 @@
 //    parsePropertyTagData().
 // property_count as a thread_local is not an issue: the linker turns the access into a plain offset from the
 // thread pointer, the binary has no call to __tls_get_addr.
+// TODO: The "Properties" stat counts parsed values, not distinct ones, and so differs from run to run. Measured on
+// the test parse of 1017: 21 583 386 values of 441 266 distinct objects in every run, plus 15.3 k values (15
+// threads) or 9.7 k (-j 1) from 12.3 k / 9.8 k objects that are parsed a second time. Those sit in imported packages:
+// the parser cache holds them weakly, an import whose last holder is gone is created and parsed again
+// (AssetParser::loadPackage()), and whether a holder is still there depends on the timing of the threads.
+// The numbers are from before imports were made on first use and the cache kept 16 of them per shard alive.
 namespace SAA {
 
   thread_local size_t property_count = 0;

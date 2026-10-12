@@ -17,7 +17,6 @@
 #include "satisfactory/items/fg_item_descriptor_biomass.hpp"
 #include "runtime_options.hpp"
 #include "stats.hpp"
-#include "thread_slots.hpp"
 #include "vfs.hpp"
 
 #include "sc/logger/logger.hpp"
@@ -95,7 +94,7 @@ namespace SAA {
 
 
   void Crawler::crawl(AssetParser &parser) {
-    const size_t slots = threadSlots();
+    const size_t slots = sc::threading::thread_slots();
     for (size_t i = 0; i < slots; ++i) {
       m_childs.emplace_back(getChild());
     }

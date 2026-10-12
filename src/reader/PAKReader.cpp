@@ -258,27 +258,23 @@ namespace SAA {
         }
       }
 
-      bool load(size_t &index, std::span<uint8_t> dst) final {
-
-        size_t offset = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
-        bool success = false;
-        std::span<const uint8_t> src;
-        size_t decompressedSize = 0;
+      bool loadChunk(size_t index, std::span<uint8_t> out) final {
+        bool success          = false;
+        size_t compressedSize = 0;
         if (entry.compressionMethod == CompressionMethod::None) {
-          decompressedSize = entry.uncompressedSize;
-          src              = dst.subspan(offset, decompressedSize);
-          success          = reader->m_pakFile.read(entry.offset, dst.subspan(offset, decompressedSize));
-        }
-        else {
-          auto &block = entry.compressedBlocks[index];
-          src = reader->m_pakFile.readTemp(block.compressedOffset, block.compressedSize);
-         decompressedSize = std::min<size_t>(entry.compressionBlockSize, entry.uncompressedSize - offset);
-          success = Decompressor::decompress(src, dst.subspan(offset, decompressedSize), entry.compressionMethod);
+          // One chunk for the whole file.
+          compressedSize = out.size();
+          success        = reader->m_pakFile.read(entry.offset, out);
+        } else {
+          auto &block    = entry.compressedBlocks[index];
+          auto src       = reader->m_pakFile.readTemp(block.compressedOffset, block.compressedSize);
+          compressedSize = src.size();
+          success        = Decompressor::decompress(src, out, entry.compressionMethod);
         }
 
         if (success) [[likely]] {
-          DecompressedThroughput::record(decompressedSize);
-          CompressedThroughput::record(src.size());
+          DecompressedThroughput::record(out.size());
+          CompressedThroughput::record(compressedSize);
         }
         return success;
       }

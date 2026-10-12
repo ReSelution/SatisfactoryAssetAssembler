@@ -92,6 +92,7 @@ namespace SAA {
       auto len               = asset.read<int64_t>();
       auto bulk              = storage()->make<FByteBulkData>();
       bulk->bulkCursor       = asset.subspan(asset.tell(), static_cast<int32_t>(len));
+      bulk->size             = bulk->bulkCursor.size();
       asset += static_cast<int32_t>(len);
       sharedImage.mip = FTexture2DMipMap{bulk, sharedImage.sizeX, sharedImage.sizeY, sharedImage.sizeZ};
     }

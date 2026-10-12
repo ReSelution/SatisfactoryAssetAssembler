@@ -30,6 +30,14 @@ namespace SAA {
   class ByteCursor;
   class GameFile;
 
+  // What parseFByteBulkData() does with a payload that lies in a separate file (.ubulk).
+  enum class EBulkLoad : uint8_t {
+    // Decompressed into the storage of the file right away, FByteBulkData::bulkCursor points at it.
+    Storage,
+    // Only located. The caller fetches it with FByteBulkData::readInto() into a buffer of its own, or not at all.
+    Deferred,
+  };
+
   enum class ParserState : uint8_t {
     NONE,
     PARSING,
@@ -115,7 +123,7 @@ namespace SAA {
 
     void setReader(Reader *reader);
 
-    virtual FByteBulkData *parseFByteBulkData(ByteCursor &cursor) = 0;
+    virtual FByteBulkData *parseFByteBulkData(ByteCursor &cursor, EBulkLoad load = EBulkLoad::Storage) = 0;
 
     //    [[nodiscard]] ByteCursor getAsset();
     [[nodiscard]] GameFile *getAssetFile();
@@ -142,6 +150,7 @@ namespace SAA {
     virtual void parse() { throw std::runtime_error("AssetFileParser::parse() called"); };
     std::span<std::string_view> m_nameMap;
     AssetParser *m_assetParser = nullptr;
+    // The imported packages that were asked for so far, in the order they were asked for.
     std::pmr::vector<std::shared_ptr<AssetFileParser>> *m_importedParsers{};
     // Kommt in safeParse() aus dem sc::ArenaPool und geht in reset() dorthin zurueck, vor dem ersten safeParse()
     // also nullptr.
@@ -154,10 +163,13 @@ namespace SAA {
     Reader *m_reader = nullptr;
 
     // ---- raw data ----
+    // Both files are opened on first use, which can come from several threads at once: the objects of a package
+    // are parsed in parallel and each may ask for its bulk data.
     const UnifiedVfsEntry *m_assetEntry{};
-    GameFile *m_asset = nullptr;
+    std::atomic<GameFile *> m_asset = nullptr;
     const UnifiedVfsEntry *m_bulkEntry{};
-    GameFile *m_bulk = nullptr;
+    std::atomic<GameFile *> m_bulk = nullptr;
+    std::mutex m_fileLock;
 
     AssetType m_type;
     ;

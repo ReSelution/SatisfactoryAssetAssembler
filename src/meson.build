@@ -77,6 +77,7 @@ saa_sources = files(
   'util/byte_cursor.cpp',
   'util/PropertyTracker.cpp',
   'vfs/game_file.cpp',
+  'structs/io/packages/f_byte_bulk_data.cpp',
   'vfs/vfs.cpp',
   'vfs/vfs_entry.cpp',
 )

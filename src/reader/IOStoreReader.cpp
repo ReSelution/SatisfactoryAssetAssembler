@@ -476,11 +476,8 @@ namespace SAA {
         reader->m_ucasReader.willNeed(block.compressedOffset(), block.compressedSize());
       }
 
-      bool load(size_t &index, std::span<uint8_t> dst) final {
-
-        size_t offset     = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
-        const auto &block = compressionBlocks[index];
-        return reader->readBlock(block, dst.subspan(offset, block.uncompressedSize()));
+      bool loadChunk(size_t index, std::span<uint8_t> out) final {
+        return reader->readBlock(compressionBlocks[index], out);
       }
     };
 
