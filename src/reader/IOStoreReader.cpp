@@ -467,7 +467,8 @@ namespace SAA {
 
       IOStoreFile(size_t fileSize, const IOStoreReader *reader,
                   std::span<const FIoStoreTocCompressedBlockEntry> blocks) :
-          GameFileImpl(fileSize), reader(reader), compressionBlocks(blocks) {}
+          GameFileImpl(fileSize, reader->m_TocHeader.compressionBlockSize), reader(reader),
+          compressionBlocks(blocks) {}
 
       uint64_t chunks() final { return compressionBlocks.size(); }
 
@@ -500,6 +501,10 @@ namespace SAA {
       auto size                     = block.uncompressedSize();
       impl->chunkOffsetsLoaded[idx] = offset;
       offset += size;
+      // GameFileImpl::chunkAt() relies on it.
+      if (offset < lenght && size != m_TocHeader.compressionBlockSize) [[unlikely]] {
+        throw std::runtime_error("compression block of a chunk is not of the block size of the container");
+      }
     }
 
     return file;

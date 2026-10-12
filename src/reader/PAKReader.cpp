@@ -241,7 +241,9 @@ namespace SAA {
       const FPakEntry &entry;
 
       PAKFileImpl(const PAKReader *r, const FPakEntry &e)
-          : GameFileImpl(e.uncompressedSize), reader(r), entry(e) {}
+          : GameFileImpl(e.uncompressedSize,
+                         e.compressionMethod == CompressionMethod::None ? e.uncompressedSize : e.compressionBlockSize),
+            reader(r), entry(e) {}
 
       uint64_t chunks() final {
         return entry.compressionMethod == CompressionMethod::None

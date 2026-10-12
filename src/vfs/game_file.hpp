@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <algorithm>
 
 #include <atomic>
 #include <concepts>
@@ -33,14 +34,15 @@ namespace SAA {
     static constexpr uint64_t VALUE_MASK   = ~(LOADING_BIT | FINISHED_BIT | FAILED_BIT);
 
     const size_t fileSize;
-    // The chunk the last request started in, where the next one usually continues.
-    std::atomic<size_t> idx = 0;
+    // Every chunk but the last one stands for this many bytes of the file, so the chunk of an offset is a division.
+    // Both containers cut a file into compression blocks of one size.
+    const size_t chunkSize;
     // Every byte in front of this offset is loaded. Lets a file that is read from front to back skip the look at
     // the chunks. Says nothing about what lies behind it: a range further back can be loaded as well.
     std::atomic<size_t> loadedPrefix = 0;
     std::span<std::atomic<uint64_t>> chunkOffsetsLoaded{};
 
-    GameFileImpl(size_t fileSize);
+    GameFileImpl(size_t fileSize, size_t chunkSize);
 
     [[nodiscard]] bool isLoaded(size_t targetOffset, size_t size, size_t &index);
 
@@ -52,6 +54,15 @@ namespace SAA {
     // chunk that is already loaded there is copied instead of read again. Loads nothing into fileBuffer itself.
     // False if the range is outside the file or a chunk could not be read.
     [[nodiscard]] bool readInto(size_t offset, std::span<uint8_t> dst, std::span<const uint8_t> fileBuffer);
+
+    // The chunk an offset of the file lies in.
+    [[nodiscard]] size_t chunkAt(size_t offset) const {
+      const size_t count = chunkOffsetsLoaded.size();
+      if (count == 0 || chunkSize == 0) [[unlikely]] {
+        return 0;
+      }
+      return std::min(offset / chunkSize, count - 1);
+    }
 
     // The bytes of the file a chunk stands for.
     [[nodiscard]] size_t chunkStart(size_t idx) const {

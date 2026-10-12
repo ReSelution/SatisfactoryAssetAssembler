@@ -85,31 +85,12 @@ namespace SAA {
   }
 
 
-  GameFileImpl::GameFileImpl(const size_t fileSize) : fileSize(fileSize) {}
+  GameFileImpl::GameFileImpl(const size_t fileSize, const size_t chunkSize) : fileSize(fileSize), chunkSize(chunkSize) {}
 
   bool GameFileImpl::isLoaded(size_t targetOffset, size_t size, size_t &index) {
     const size_t targetEnd = targetOffset + size;
 
-    // The chunk targetOffset lies in: the one of the last request or the one behind it when a file is read in
-    // order, anything else is searched for.
-    if (index >= chunkOffsetsLoaded.size() || targetOffset < chunkStart(index) || targetOffset >= chunkEnd(index)) {
-      if (index + 1 < chunkOffsetsLoaded.size() && targetOffset >= chunkStart(index + 1) &&
-          targetOffset < chunkEnd(index + 1)) {
-        ++index;
-      } else {
-        size_t found = 0;
-        for (size_t low = 0, high = chunkOffsetsLoaded.size(); low < high;) {
-          const size_t mid = low + ((high - low) / 2);
-          if (chunkStart(mid) <= targetOffset) {
-            found = mid;
-            low = mid + 1;
-          } else {
-            high = mid;
-          }
-        }
-        index = found;
-      }
-    }
+    index = chunkAt(targetOffset);
 
     for (size_t i = index; i < chunkOffsetsLoaded.size(); ++i) {
       if (!(chunkOffsetsLoaded[i].load(std::memory_order_acquire) & FINISHED_BIT)) {
@@ -134,9 +115,8 @@ namespace SAA {
     if (targetOffset + size > fileSize) [[unlikely]] {
       return false;
     }
-    auto index = idx.load(std::memory_order_relaxed);
+    size_t index = 0;
     if (isLoaded(targetOffset, size, index)) {
-      idx.store(index, std::memory_order_relaxed);
       return true;
     }
     return tryLoad(targetOffset, size, index, dst) && waitFinished(targetOffset, size, index);
@@ -228,17 +208,7 @@ namespace SAA {
       return true;
     }
 
-    // The last chunk that starts at or before offset.
-    size_t first = 0;
-    for (size_t low = 0, high = chunkOffsetsLoaded.size(); low < high;) {
-      const size_t mid = low + (high - low) / 2;
-      if (chunkStart(mid) <= offset) {
-        first = mid;
-        low = mid + 1;
-      } else {
-        high = mid;
-      }
-    }
+    const size_t first = chunkAt(offset);
     size_t count = 0;
     while (first + count < chunkOffsetsLoaded.size() && chunkStart(first + count) < rangeEnd) {
       ++count;
