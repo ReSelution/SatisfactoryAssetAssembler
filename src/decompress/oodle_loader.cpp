@@ -5,7 +5,9 @@
 #include "oodle_loader.hpp"
 
 #include <fstream>
+#include <cctype>
 #include <iterator>
+#include <string>
 #include <system_error>
 
 #include "Decompressor.hpp"
@@ -92,6 +94,56 @@ namespace SAA {
   }
 #endif
 
+#ifdef _WIN32
+  // Fills the import table of a module that was loaded with DONT_RESOLVE_DLL_REFERENCES, but only for kernel32 and
+  // the C runtime. Oodle calls into those (GetEnvironmentVariableA on the first decode, for one). Every other
+  // import stays unresolved, a call through one of them crashes.
+  static void bindSystemImports(HMODULE module) {
+    auto *base = reinterpret_cast<uint8_t *>(module);
+    auto *nt   = reinterpret_cast<IMAGE_NT_HEADERS64 *>(base + reinterpret_cast<IMAGE_DOS_HEADER *>(base)->e_lfanew);
+    const IMAGE_DATA_DIRECTORY dir = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+    if (dir.VirtualAddress == 0) {
+      return;
+    }
+
+    for (auto *desc = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR *>(base + dir.VirtualAddress); desc->Name != 0; ++desc) {
+      std::string dll = reinterpret_cast<const char *>(base + desc->Name);
+      for (char &c: dll) {
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      }
+      if (dll != "kernel32.dll" && !dll.starts_with("vcruntime140") && !dll.starts_with("api-ms-win-")) {
+        continue;
+      }
+      const HMODULE dep = LoadLibraryA(dll.c_str());
+      if (dep == nullptr) {
+        continue;
+      }
+
+      auto *thunk = reinterpret_cast<IMAGE_THUNK_DATA64 *>(base + desc->FirstThunk);
+      // The names, the loader has not overwritten them yet.
+      auto *names = reinterpret_cast<IMAGE_THUNK_DATA64 *>(
+          base + (desc->OriginalFirstThunk != 0 ? desc->OriginalFirstThunk : desc->FirstThunk));
+      size_t count = 0;
+      while (names[count].u1.AddressOfData != 0) {
+        count++;
+      }
+
+      DWORD protection = 0;
+      VirtualProtect(thunk, count * sizeof(*thunk), PAGE_READWRITE, &protection);
+      for (size_t i = 0; i < count; i++) {
+        const FARPROC function =
+            IMAGE_SNAP_BY_ORDINAL64(names[i].u1.Ordinal)
+                ? GetProcAddress(dep, reinterpret_cast<LPCSTR>(IMAGE_ORDINAL64(names[i].u1.Ordinal)))
+                : GetProcAddress(dep, reinterpret_cast<IMAGE_IMPORT_BY_NAME *>(base + names[i].u1.AddressOfData)->Name);
+        if (function != nullptr) {
+          thunk[i].u1.Function = reinterpret_cast<ULONGLONG>(function);
+        }
+      }
+      VirtualProtect(thunk, count * sizeof(*thunk), protection, &protection);
+    }
+  }
+#endif
+
   // The directory the running executable lies in, or an empty path if it cannot be determined.
   static std::filesystem::path executableDir() {
     std::error_code ec;
@@ -137,12 +189,15 @@ namespace SAA {
       std::filesystem::path binPath = coreDllPath.parent_path();
       SetDllDirectoryW(binPath.wstring().c_str());
 
+      // Only the image: its ~25 dependencies are not loaded and the initialization of the Core module does not run,
+      // which together took ~65 ms. Oodle itself needs neither, only the imports bound below.
       HMODULE hCore = LoadLibraryExW(
         coreDllPath.wstring().c_str(),
         NULL,
-        LOAD_WITH_ALTERED_SEARCH_PATH
+        LOAD_WITH_ALTERED_SEARCH_PATH | DONT_RESOLVE_DLL_REFERENCES
       );
       if (hCore) {
+        bindSystemImports(hCore);
         MODULEINFO modInfo;
         if (GetModuleInformation(GetCurrentProcess(), hCore, &modInfo, sizeof(modInfo))) {
           std::vector<uint8_t> pattern = {
