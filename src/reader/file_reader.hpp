@@ -24,8 +24,8 @@ namespace SAA {
     ~FileReader() { close(); }
 
     [[nodiscard]] std::span<const uint8_t> getSpan(size_t offset = 0, size_t length = 0) const;
-    // Reads the range with pread instead of through the mapping: no pages get mapped that munmap has to tear down
-    // one by one later. On Windows the copy comes from the mapping.
+    // Reads the range with pread (ReadFile on Windows) instead of through the mapping: no pages get mapped that
+    // munmap has to tear down one by one later.
     bool read(size_t offset, std::span<uint8_t> dst) const;
     // Like read(), into a buffer of the calling thread. Valid until the next call on this thread.
     [[nodiscard]] std::span<const uint8_t> readTemp(size_t offset, size_t length) const;

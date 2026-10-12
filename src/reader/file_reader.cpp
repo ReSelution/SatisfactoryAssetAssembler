@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cerrno>
-#include <cstring>
 #include <vector>
 
 
@@ -20,7 +19,20 @@ namespace SAA {
   bool FileReader::read(size_t offset, std::span<uint8_t> dst) const {
     assert(offset + dst.size() <= m_size);
 #ifdef _WIN32
-    std::memcpy(dst.data(), static_cast<const uint8_t *>(m_data) + offset, dst.size());
+    size_t done = 0;
+    while (done < dst.size()) {
+      // With an offset in OVERLAPPED the read is positional, also on a synchronous handle.
+      OVERLAPPED ov{};
+      const uint64_t pos = offset + done;
+      ov.Offset          = static_cast<DWORD>(pos);
+      ov.OffsetHigh      = static_cast<DWORD>(pos >> 32);
+      const DWORD want   = static_cast<DWORD>(std::min<size_t>(dst.size() - done, size_t{1} << 30));
+      DWORD got          = 0;
+      if (!ReadFile(m_fileHandle, dst.data() + done, want, &got, &ov) || got == 0) {
+        return false;
+      }
+      done += got;
+    }
     return true;
 #else
     size_t done = 0;
@@ -39,9 +51,6 @@ namespace SAA {
   }
 
   std::span<const uint8_t> FileReader::readTemp(size_t offset, size_t length) const {
-#ifdef _WIN32
-    return getSpan(offset, length);
-#else
     thread_local std::vector<uint8_t> buffer;
     if (buffer.size() < length) {
       buffer.resize(length);
@@ -50,7 +59,6 @@ namespace SAA {
       return {};
     }
     return {buffer.data(), length};
-#endif
   }
 
   void FileReader::willNeed(size_t offset, size_t length) const {
@@ -63,7 +71,8 @@ namespace SAA {
     const size_t end       = std::min((offset + length + align - 1) & ~(align - 1), m_size);
     ::madvise(static_cast<uint8_t *>(m_data) + start, end - start, MADV_WILLNEED);
 #else
-    // Windows already prefetches the whole file in openFile() with PrefetchVirtualMemory.
+    // Not announced on Windows. Under Wine a PrefetchVirtualMemory on the range saved ~14 ms cold and cost ~5 ms
+    // warm, on a real Windows it is not measured.
     (void) offset;
     (void) length;
 #endif
