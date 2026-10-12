@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <span>
+#include <string_view>
 #include <utility>
 #include "sc/memory/huge_page_resource.hpp"
 #include "sc/memory/monotonic_resource.hpp"
@@ -10,6 +12,20 @@
 
 namespace SAA {
   class Vfs;
+
+  // Appends segment to the path in [start, pos), with a '/' in between if the path does not end in one. Returns the
+  // new end of the path, or nullptr if the result does not fit before end. Nothing is written in that case.
+  inline char *appendPathSegment(const char *start, char *pos, const char *end, std::string_view segment) {
+    const bool needsSlash = pos > start && *(pos - 1) != '/';
+    if (static_cast<size_t>(end - pos) < segment.size() + (needsSlash ? 1 : 0)) [[unlikely]] {
+      return nullptr;
+    }
+    if (needsSlash) {
+      *pos++ = '/';
+    }
+    memcpy(pos, segment.data(), segment.size());
+    return pos + segment.size();
+  }
 
   class Reader {
   public:

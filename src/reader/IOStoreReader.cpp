@@ -42,11 +42,8 @@ namespace SAA {
     parseHeader(cursor);
     parseChunkIds(cursor);
     parseOffsetLengths(cursor);
-    // TODO: createChunkLookupTable() laeuft vor parsePerfectHashTable(), m_ChunkIndicesWithoutPerfectHash ist hier
-    // also noch leer und m_ImperfectChunkOffsetMap bleibt immer leer. resolveImperfectChunk() findet dadurch nie
-    // etwas. Die beiden Aufrufe muessten vertauscht werden. War vor der Portierung schon so.
-    createChunkLookupTable();
     parsePerfectHashTable(cursor);
+    createChunkLookupTable();
     parseCompressionBlocks(cursor);
     parseCompressionMethods(cursor);
     parseSignatures(cursor);
@@ -88,16 +85,15 @@ namespace SAA {
     entriesCount = fileEntries.size();
 
 
-    // TODO: pathBuffer hat feste 512 Bytes, keiner der memcpy-Aufrufe unten prueft die Laenge. Ein tiefer Pfad oder
-    // kaputte Indexdaten schreiben ueber den Stack-Puffer hinaus. Ebenso wird file.name anders als dir.name nicht
-    // gegen m_DirectoryPaths.size() geprueft. War vor der Portierung schon so.
     char pathBuffer[512];
-    char *const pathStart = pathBuffer;
-    char *current         = pathBuffer;
+    char *const pathStart     = pathBuffer;
+    const char *const pathEnd = pathBuffer + sizeof(pathBuffer);
 
-    size_t mpSize = mountPoint.size();
-    memcpy(current, mountPoint.data(), mpSize);
-    current += mpSize;
+    char *current = appendPathSegment(pathStart, pathStart, pathEnd, mountPoint);
+    if (current == nullptr) {
+      IOStoreLog::err("{}: mount point is longer than {} bytes.", name, sizeof(pathBuffer));
+      return false;
+    }
 
     struct StackFrame {
       uint32_t dirIndex;
@@ -121,12 +117,13 @@ namespace SAA {
         if (dir.name < m_DirectoryPaths.size()) {
           std::string_view dName = m_DirectoryPaths[dir.name];
           if (!dName.empty()) {
-            // Slash hinzufügen, falls nötig
-            if (current > pathStart && *(current - 1) != '/') {
-              *current++ = '/';
+            current = appendPathSegment(pathStart, current, pathEnd, dName);
+            if (current == nullptr) {
+              // The children only get longer, so the whole subtree is skipped.
+              IOStoreLog::err("{}: directory path is longer than {} bytes, skipping '{}' and everything below.", name,
+                              sizeof(pathBuffer), dName);
+              continue;
             }
-            memcpy(current, dName.data(), dName.size());
-            current += dName.size();
           }
         }
 
@@ -134,29 +131,39 @@ namespace SAA {
 
         uint32_t fileIndex = dir.firstFileEntry;
         while (fileIndex != FIoDirectoryIndexResource_InvalidIndex) {
-          const auto &file       = fileEntries[fileIndex];
+          if (fileIndex >= fileEntries.size()) {
+            IOStoreLog::err("{}: file index {} is out of range.", name, fileIndex);
+            break;
+          }
+          const auto &file = fileEntries[fileIndex];
+          fileIndex        = file.nextFileEntry;
+
+          if (file.name >= m_DirectoryPaths.size() || file.userData >= m_ChunkIds.size()) {
+            IOStoreLog::err("{}: file entry points outside the index (name {}, chunk {}).", name, file.name,
+                            file.userData);
+            continue;
+          }
           std::string_view fName = m_DirectoryPaths[file.name];
 
-          char *filePointer = currentDirEnd;
-
-          if (filePointer > pathStart && *(filePointer - 1) != '/') {
-            *filePointer++ = '/';
+          // current bleibt auf currentDirEnd, kein Reset nötig
+          char *endOfPath = appendPathSegment(pathStart, currentDirEnd, pathEnd, fName);
+          if (endOfPath == nullptr) {
+            IOStoreLog::err("{}: file path is longer than {} bytes, skipping '{}'.", name, sizeof(pathBuffer), fName);
+            continue;
           }
-
-          memcpy(filePointer, fName.data(), fName.size());
-          char *endOfPath = filePointer + fName.size();
 
           // String-View für den Mount-Aufruf erstellen (ohne neue Allokation)
           std::string_view fullPath(pathStart, endOfPath - pathStart);
           vfs->mountEntry(this, fullPath, m_ChunkIds[file.userData]);
-
-          fileIndex = file.nextFileEntry;
-          // current bleibt auf currentDirEnd, kein Reset nötig
         }
 
         // 3. Kinder auf den Stack legen
         uint32_t childIndex = dir.firstChildEntry;
         while (childIndex != FIoDirectoryIndexResource_InvalidIndex) {
+          if (childIndex >= dirEntries.size()) {
+            IOStoreLog::err("{}: directory index {} is out of range.", name, childIndex);
+            break;
+          }
           stack.push_back({childIndex, currentDirEnd});
           childIndex = dirEntries[childIndex].nextSiblingEntry;
         }
@@ -373,8 +380,20 @@ namespace SAA {
   }
 
   void IOStoreReader::createChunkLookupTable() {
+    // Without a perfect hash table every chunk is looked up through the map (see resolveChunk()).
+    if (m_ChunkPerfectHashSeeds.empty()) {
+      m_ImperfectChunkOffsetMap.reserve(m_ChunkIds.size());
+      for (size_t i = 0; i < m_ChunkIds.size(); ++i) {
+        m_ImperfectChunkOffsetMap.try_emplace(m_ChunkIds[i], m_ChunkOffsetLengths[i]);
+      }
+      return;
+    }
+
     m_ImperfectChunkOffsetMap.reserve(m_ChunkIndicesWithoutPerfectHash.size());
     for (const auto &i: m_ChunkIndicesWithoutPerfectHash) {
+      if (i >= m_ChunkIds.size()) {
+        throw std::runtime_error("Chunk index without perfect hash is out of range.");
+      }
       m_ImperfectChunkOffsetMap.try_emplace(m_ChunkIds[i], m_ChunkOffsetLengths[i]);
     }
   }
@@ -395,8 +414,10 @@ namespace SAA {
       return false;
     }
 
-    // TODO: Ist die Seed-Tabelle leer, tocEntryCount aber nicht 0, wird unten durch 0 geteilt.
     auto seedCount = m_ChunkPerfectHashSeeds.size();
+    if (seedCount == 0) {
+      return resolveImperfectChunk(chunkId, outOffsetLength);
+    }
     auto seedIndex = hashChunk(0, &chunkId) % seedCount;
     auto seed      = m_ChunkPerfectHashSeeds[seedIndex];
     if (seed == 0) {

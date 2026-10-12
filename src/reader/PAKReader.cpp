@@ -85,7 +85,9 @@ namespace SAA {
     auto blockSize = (bitField & 0x3f) == 0x3f ? cursor.read<uint32_t>()
                                                : (bitField & 0x3f) << 11;
     auto compressionIndex = ((bitField >> 23) & 0x3f);
-    // TODO: compressionIndex (bis 63) wird nicht gegen compressionMethods.size() (hoechstens 6) geprueft.
+    if (compressionIndex >= m_pakInfo.compressionMethods.size()) {
+      throw std::runtime_error("PAK entry uses an unknown compression method index.");
+    }
     entry.compressionMethod = m_pakInfo.compressionMethods[compressionIndex];
 
     auto isOffset32BitSafe = static_cast<bool>(bitField & (1 << 31));
@@ -176,46 +178,48 @@ namespace SAA {
     auto dirIndexCount = dirIndex.read<uint32_t>();
 
     // Vorbereitung des Pfad-Buffers
-    // TODO: pathBuffer hat feste 512 Bytes, keiner der memcpy-Aufrufe prueft die Laenge. Ein langer Pfad oder
-    // kaputte Indexdaten schreiben ueber den Stack-Puffer hinaus. War vor der Portierung schon so.
     char pathBuffer[512];
     char *const pathStart = pathBuffer;
+    const char *const pathEnd = pathBuffer + sizeof(pathBuffer);
 
     // Mountpoint kopieren
-    memcpy(pathBuffer, mountPoint.data(), mountPoint.size());
-    char *pos = pathBuffer + mountPoint.size();
+    char *const pos = appendPathSegment(pathStart, pathStart, pathEnd, mountPoint);
+    if (pos == nullptr) {
+      PakLog::err("{}: mount point is longer than {} bytes.", name, sizeof(pathBuffer));
+      return false;
+    }
 
     // Log-Timer starten (jetzt wo fileCount bekannt ist)
     auto t = PakLog::time("{1}: Mounted {2} entries in {0}", name, fileCount,
                           mountPoint);
 
     for (uint32_t i = 0; i < dirIndexCount; i++) {
-      char *dirBasePos = pos;
+      char *pathWithDirPos = pos;
 
       auto dirName = dirIndex.readFString(&m_storage);
       if (!dirName.empty()) {
-        // Slash hinzufügen, falls nötig
-        if (pos > pathStart && *(pos - 1) != '/') {
-          *pos++ = '/';
+        pathWithDirPos = appendPathSegment(pathStart, pos, pathEnd, dirName);
+        if (pathWithDirPos == nullptr) {
+          PakLog::err("{}: directory path is longer than {} bytes, skipping '{}'.", name, sizeof(pathBuffer),
+                      dirName);
         }
-        memcpy(pos, dirName.data(), dirName.size());
-        pos += dirName.size();
       }
-
-      char *pathWithDirPos = pos;
 
       auto fileEntriesCount = dirIndex.read<uint32_t>();
       for (uint32_t j = 0; j < fileEntriesCount; j++) {
         auto fileName = dirIndex.readFString(&m_storage);
         auto entryOffset = dirIndex.read<uint32_t>();
 
-        char *filePos = pathWithDirPos;
-        if (filePos > pathStart && *(filePos - 1) != '/') {
-          *filePos++ = '/';
+        // The entries of a skipped directory are still read to keep dirIndex in step.
+        if (pathWithDirPos == nullptr) {
+          continue;
         }
 
-        memcpy(filePos, fileName.data(), fileName.size());
-        char *endOfPath = filePos + fileName.size();
+        char *endOfPath = appendPathSegment(pathStart, pathWithDirPos, pathEnd, fileName);
+        if (endOfPath == nullptr) {
+          PakLog::err("{}: file path is longer than {} bytes, skipping '{}'.", name, sizeof(pathBuffer), fileName);
+          continue;
+        }
 
         // VFS Mount
         auto fileIndex = readPakEntry(encodedPakEntries, entryOffset);
@@ -224,8 +228,6 @@ namespace SAA {
                             endOfPath - pathStart)},
                         fileIndex);
       }
-
-      pos = dirBasePos;
     }
 
     return true;
