@@ -22,7 +22,8 @@ namespace SAA {
     magpie = sc::Magpie::get();
   }
 
-  void LocResParser::parse() {
+  size_t LocResParser::parse() {
+    size_t inserted = 0;
     // Lebt nur fuer diesen Aufruf: Datei, Namespaces und die String-Tabelle. Die uebersetzten Texte selbst liegen im
     // Speicher von Magpie.
     sc::MonotonicResource storage;
@@ -82,10 +83,12 @@ namespace SAA {
           if (localizedStringArray.size() > stringIndex) [[likely]] {
             sc::Magpie::mt_InsertStored(sc::MagpieKey{nsHash, keyHash}, localizedStringArray[stringIndex].str, nsStr,
                                         keyStr);
+            inserted++;
           }
         }
       }
     }
     magpie->mt_Merge(!isNative);
+    return inserted;
   }
 } // namespace SAA

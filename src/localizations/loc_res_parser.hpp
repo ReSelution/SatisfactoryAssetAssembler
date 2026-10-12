@@ -39,7 +39,8 @@ namespace SAA {
   public:
     LocResParser(const UnifiedVfsEntry *vfsEntry, bool isNative = false);
 
-    void parse();
+    // Returns how many entries the file handed to Magpie.
+    size_t parse();
 
   private:
     bool isNative;
