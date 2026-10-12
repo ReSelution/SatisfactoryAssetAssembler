@@ -4,13 +4,69 @@
 
 #include "file_reader.hpp"
 
+#include <algorithm>
 #include <cassert>
+#include <cerrno>
+#include <cstring>
+#include <vector>
 
 
 namespace SAA {
   std::span<const uint8_t> FileReader::getSpan(size_t offset, size_t length) const {
     assert(offset + length <= m_size);
     return {static_cast<const uint8_t *>(m_data) + offset, length};
+  }
+
+  bool FileReader::read(size_t offset, std::span<uint8_t> dst) const {
+    assert(offset + dst.size() <= m_size);
+#ifdef _WIN32
+    std::memcpy(dst.data(), static_cast<const uint8_t *>(m_data) + offset, dst.size());
+    return true;
+#else
+    size_t done = 0;
+    while (done < dst.size()) {
+      const ssize_t n = ::pread(m_fd, dst.data() + done, dst.size() - done, static_cast<off_t>(offset + done));
+      if (n < 0 && errno == EINTR) {
+        continue;
+      }
+      if (n <= 0) {
+        return false;
+      }
+      done += static_cast<size_t>(n);
+    }
+    return true;
+#endif
+  }
+
+  std::span<const uint8_t> FileReader::readTemp(size_t offset, size_t length) const {
+#ifdef _WIN32
+    return getSpan(offset, length);
+#else
+    thread_local std::vector<uint8_t> buffer;
+    if (buffer.size() < length) {
+      buffer.resize(length);
+    }
+    if (!read(offset, {buffer.data(), length})) {
+      return {};
+    }
+    return {buffer.data(), length};
+#endif
+  }
+
+  void FileReader::willNeed(size_t offset, size_t length) const {
+    assert(offset + length <= m_size);
+#ifndef _WIN32
+    // Rounded out to 16 KiB: the neighbours come along and are usually read next. Measured on the cold crawl,
+    // 4 KiB and 64 KiB+ were slower, and so was reading the rounded range with pread right away.
+    constexpr size_t align = 16 * 1024;
+    const size_t start     = offset & ~(align - 1);
+    const size_t end       = std::min((offset + length + align - 1) & ~(align - 1), m_size);
+    ::madvise(static_cast<uint8_t *>(m_data) + start, end - start, MADV_WILLNEED);
+#else
+    // Windows already prefetches the whole file in openFile() with PrefetchVirtualMemory.
+    (void) offset;
+    (void) length;
+#endif
   }
 
   bool FileReader::openFile(const std::filesystem::path &path) {
@@ -42,7 +98,8 @@ namespace SAA {
     m_data = ::mmap(nullptr, m_size, PROT_READ, MAP_SHARED, m_fd, 0);
 
     if (m_data != MAP_FAILED) {
-      ::madvise(m_data, m_size, MADV_WILLNEED | MADV_SEQUENTIAL | MADV_HUGEPAGE);
+      // advice values are not flags, they cannot be combined with |
+      ::madvise(m_data, m_size, MADV_HUGEPAGE);
     }
     if (m_data == MAP_FAILED) {
       ::close(m_fd);

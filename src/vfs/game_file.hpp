@@ -45,6 +45,8 @@ namespace SAA {
     bool safeLoad(size_t offset, size_t size, std::span<uint8_t> dst);
 
     virtual bool load(size_t &idx, std::span<uint8_t> dst) = 0;
+    // Announces the chunk to the OS, load() for it follows right away.
+    virtual void willNeed(size_t idx) = 0;
 
     virtual uint64_t chunks() = 0;
   };

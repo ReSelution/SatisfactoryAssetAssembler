@@ -247,6 +247,15 @@ namespace SAA {
                : entry.compressedBlocks.size();
       }
 
+      void willNeed(size_t index) final {
+        if (entry.compressionMethod == CompressionMethod::None) {
+          reader->m_pakFile.willNeed(entry.offset, entry.uncompressedSize);
+        } else {
+          auto &block = entry.compressedBlocks[index];
+          reader->m_pakFile.willNeed(block.compressedOffset, block.compressedSize);
+        }
+      }
+
       bool load(size_t &index, std::span<uint8_t> dst) final {
 
         size_t offset = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
@@ -254,13 +263,13 @@ namespace SAA {
         std::span<const uint8_t> src;
         size_t decompressedSize = 0;
         if (entry.compressionMethod == CompressionMethod::None) {
-          src = reader->m_pakFile.getSpan(entry.offset, entry.uncompressedSize);
-          decompressedSize =entry.uncompressedSize;
-          success = Decompressor::decompress(src, dst.subspan(offset,decompressedSize), entry.compressionMethod);
+          decompressedSize = entry.uncompressedSize;
+          src              = dst.subspan(offset, decompressedSize);
+          success          = reader->m_pakFile.read(entry.offset, dst.subspan(offset, decompressedSize));
         }
         else {
           auto &block = entry.compressedBlocks[index];
-          src = reader->m_pakFile.getSpan(block.compressedOffset, block.compressedSize);
+          src = reader->m_pakFile.readTemp(block.compressedOffset, block.compressedSize);
          decompressedSize = std::min<size_t>(entry.compressionBlockSize, entry.uncompressedSize - offset);
           success = Decompressor::decompress(src, dst.subspan(offset, decompressedSize), entry.compressionMethod);
         }

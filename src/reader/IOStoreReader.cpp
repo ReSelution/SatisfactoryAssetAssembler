@@ -450,6 +450,11 @@ namespace SAA {
 
       uint64_t chunks() final { return compressionBlocks.size(); }
 
+      void willNeed(size_t index) final {
+        const auto &block = compressionBlocks[index];
+        reader->m_ucasReader.willNeed(block.compressedOffset(), block.compressedSize());
+      }
+
       bool load(size_t &index, std::span<uint8_t> dst) final {
 
         size_t offset     = chunkOffsetsLoaded[index].load(std::memory_order_relaxed) & VALUE_MASK;
@@ -495,9 +500,12 @@ namespace SAA {
       return false;
     }
 
-    std::span<const uint8_t> compressedData = m_ucasReader.getSpan(compressedOffset, compressedSize);
     DecompressedThroughput::record(dst.size());
     CompressedThroughput::record(compressedSize);
+    if (compressionMethod == CompressionMethod::None && dst.size() == compressedSize) {
+      return m_ucasReader.read(compressedOffset, dst);
+    }
+    std::span<const uint8_t> compressedData = m_ucasReader.readTemp(compressedOffset, compressedSize);
     return Decompressor::decompress(compressedData, dst, compressionMethod);
   }
 } // namespace SAA

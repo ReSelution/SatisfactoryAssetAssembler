@@ -183,6 +183,7 @@ namespace SAA {
       if (!(expected & LOADING_BIT)) {
         uint64_t desired = expected | LOADING_BIT;
         if (atomic.compare_exchange_strong(expected, desired, std::memory_order_acq_rel)) {
+          willNeed(cIdx);
           if (load(cIdx, dst)) [[likely]] {
             atomic.fetch_or(FINISHED_BIT, std::memory_order_release);
             return true;
