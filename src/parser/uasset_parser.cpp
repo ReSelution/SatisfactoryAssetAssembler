@@ -113,7 +113,7 @@ namespace SAA {
     }
   }
 
-  void UAssetParser::parseNameMap(GameFile *file) { m_nameMap = file->loadNameBatch(); }
+  void UAssetParser::parseNameMap(GameFile *file) { setNameMap(file->loadNameBatch()); }
 
   void UAssetParser::resolveStoreEntry() {
     std::string_view name = getMappedName(m_summary.Name);

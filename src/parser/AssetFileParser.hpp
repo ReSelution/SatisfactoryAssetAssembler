@@ -13,7 +13,10 @@
 #include <string_view>
 #include <vector>
 
+#include "sc/hash/hash.hpp"
 #include "sc/memory/monotonic_resource.hpp"
+
+#include "core/name.hpp"
 
 #include "io/packages/f_export_map_entry.hpp"
 #include "io_global_data.hpp"
@@ -91,6 +94,15 @@ namespace SAA {
 
     std::span<std::string_view> nameMap() const { return m_nameMap; }
 
+    // sc::hash() of the text of a name that was read from this file. Without a number it is the hash of an entry of
+    // the name map, those are made once per file in setNameMap() instead of once per use.
+    [[nodiscard]] uint64_t nameHash(const FName &name) const {
+      if (name.number == 0 && name.index < m_nameHashes.size()) [[likely]] {
+        return m_nameHashes[name.index];
+      }
+      return hashText(name);
+    }
+
 
     virtual Object *resolveExportObject(const FExportMapEntry &entry [[maybe_unused]],
                                         const FPackageObjectIndex &index [[maybe_unused]]) {
@@ -148,7 +160,12 @@ namespace SAA {
 
   protected:
     virtual void parse() { throw std::runtime_error("AssetFileParser::parse() called"); };
+    // The rare case of nameHash(), out of line so that nameHash() stays small enough to be inlined.
+    [[gnu::cold, gnu::noinline]] static uint64_t hashText(const FName &name);
+    // Sets m_nameMap and its hashes, which come from m_storage.
+    void setNameMap(std::span<std::string_view> nameMap);
     std::span<std::string_view> m_nameMap;
+    std::span<uint64_t> m_nameHashes;
     AssetParser *m_assetParser = nullptr;
     // The imported packages that were asked for so far, in the order they were asked for.
     std::pmr::vector<std::shared_ptr<AssetFileParser>> *m_importedParsers{};

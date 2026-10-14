@@ -22,21 +22,19 @@
 // - PropertyMap instead of a hash map per holder, and FProperty (104 B) instead of FPropertyTag (232 B, 176 B by now) as what
 //   is stored (property_map.hpp).
 // - FName is 24 B without the slab pointer, which brought FPropertyValue from 112 B to 72 B.
-// TODO: What is left, each of it small against the numbers above:
-// 1. Every tag hashes strings: the name as the key, the type name of every node of the type, the struct name. All
-//    of them come from the name map of the file, a table name index -> hash per file would replace the hashing by
-//    an array access. At most a part of the 2.1 % of parsePropertyTag().
-// 2. An FPropertyTagData (144 B, zeroed) is made for every tag, also for Int, Float, Name, ... where nothing is
-//    in it. Only Struct/Enum/Byte/Array/Set/Map/Optional/Bool need it. At most the 0.8 % of
-//    parsePropertyTagData().
+// - The names of tags and types are hashed once per file when the name map is read (AssetFileParser::nameHash()),
+//   no longer for every use: 2.7 M names in all name maps against 25.7 M hashes before. FPropertyTagData is only
+//   made for the types that have something in it, 4.6 M of the 11.0 M tags have none. Together 0.3 % fewer
+//   instructions in the whole run (118.6 G -> 118.2 G). parsePropertyTag() and parsePropertyTagData() lost about
+//   200 samples, about 100 of them show up again at the entry of parsePropertyValue(), whose code did not change.
 // property_count as a thread_local is not an issue: the linker turns the access into a plain offset from the
 // thread pointer, the binary has no call to __tls_get_addr.
-// TODO: The "Properties" stat counts parsed values, not distinct ones, and so differs from run to run. Measured on
-// the test parse of 1017: 21 583 386 values of 441 266 distinct objects in every run, plus 15.3 k values (15
-// threads) or 9.7 k (-j 1) from 12.3 k / 9.8 k objects that are parsed a second time. Those sit in imported packages:
-// the parser cache holds them weakly, an import whose last holder is gone is created and parsed again
-// (AssetParser::loadPackage()), and whether a holder is still there depends on the timing of the threads.
-// The numbers are from before imports were made on first use and the cache kept 16 of them per shard alive.
+// The "Properties" stat counts parsed values, not distinct ones, and so differs slightly from run to run. Measured
+// on the test parse of 1017: 21 583 386 values of 441 266 distinct objects in every run, plus about 1.5 k values
+// from 4.5 k to 4.6 k objects that are parsed a second time, with 15 threads as with -j 1 (before imports were made
+// on first use: 15.3 k / 9.7 k values). Those sit in imported packages: the parser cache holds them weakly, an import
+// whose last holder is gone is created and parsed again (AssetParser::loadPackage()), and whether a holder is still
+// there depends on the timing.
 namespace SAA {
 
   thread_local size_t property_count = 0;
@@ -60,7 +58,7 @@ namespace SAA {
       auto final = cursor.tell() + tag.Size;
       tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
       cursor = final;
-      properties.add(PropertyHolder::propertyKey(sc::hash(tag.Name.text()), tag.ArrayIndex), std::move(tag));
+      properties.add(PropertyHolder::propertyKey(cursor.m_owner->nameHash(tag.Name), tag.ArrayIndex), std::move(tag));
     }
   }
 
@@ -85,12 +83,12 @@ namespace SAA {
       const auto innerCount = cursor.read<int32_t>();
       remaining += innerCount - 1;
       if (nodeCount < typeName.size()) [[likely]] {
-        typeName[nodeCount++] = {nodeName, innerCount};
+        typeName[nodeCount++] = {nodeName, innerCount, cursor.m_owner->nameHash(nodeName)};
       }
     }
 
     tag.PropertyTypeName = typeName[0].Name;
-    tag.PropertyType = sc::hash<EPropertyTagType>(tag.PropertyTypeName.text());
+    tag.PropertyType = static_cast<EPropertyTagType>(typeName[0].NameHash);
     tag.TagData = parsePropertyTagData(storage, tag.PropertyType, std::span{typeName.data(), nodeCount},
                                        tag.PropertyTypeName);
     tag.Size = cursor.read<uint32_t>();
@@ -101,7 +99,9 @@ namespace SAA {
 
     // The value of a bool is this flag, it takes no bytes in the stream.
     if (hasFlag(tag.Flags, EPropertyTagFlags::BoolTrue)) {
-      tag.TagData->BoolValue = true;
+      if (tag.TagData != nullptr) [[likely]] {
+        tag.TagData->BoolValue = true;
+      }
     }
     if ((uint8_t) tag.Flags & ExtraDataMask) [[unlikely]] {
       if (hasFlag(tag.Flags, EPropertyTagFlags::HasArrayIndex)) {
@@ -124,6 +124,20 @@ namespace SAA {
   template<>
   FPropertyTagData *PP6::parsePropertyTagData(sc::MonotonicResource *storage, EPropertyTagType type,
                                               std::span<FPropertyTypeNameNode> typeName, const FName &name) {
+    // Only these types have something in it, the others (Int, Float, Name, Object, ...) are read without it.
+    switch (type) {
+      case EPropertyTagType::Struct:
+      case EPropertyTagType::Bool:
+      case EPropertyTagType::Byte:
+      case EPropertyTagType::Enum:
+      case EPropertyTagType::Optional:
+      case EPropertyTagType::Array:
+      case EPropertyTagType::Set:
+      case EPropertyTagType::Map:
+        break;
+      default:
+        return nullptr;
+    }
     auto *data = storage->make<FPropertyTagData>();
     data->Name = name;
 
@@ -131,7 +145,7 @@ namespace SAA {
       case EPropertyTagType::Struct: {
         if (const auto pram = getParameter(typeName, 0); !pram.empty()) {
           data->structName = pram[0].Name;
-          data->StructType = sc::hash<ESatisfactoryStruct>(data->structName.text());
+          data->StructType = static_cast<ESatisfactoryStruct>(pram[0].NameHash);
         }
         break;
       }
@@ -150,7 +164,7 @@ namespace SAA {
       case EPropertyTagType::Array:
       case EPropertyTagType::Set: {
         if (const auto pram = getParameter(typeName, 0); !pram.empty()) {
-          data->InnerType = sc::hash<EPropertyTagType>(pram[0].Name.text());
+          data->InnerType = static_cast<EPropertyTagType>(pram[0].NameHash);
           if (data->InnerType != EPropertyTagType::None && pram[0].innerCount != 0) {
             data->InnerTypeData = parsePropertyTagData(storage, data->InnerType, pram, pram[0].Name);
           }
@@ -163,11 +177,11 @@ namespace SAA {
         const auto valType = getParameter(typeName, 1);
 
         if (!keyType.empty() && !valType.empty()) {
-          data->InnerType = sc::hash<EPropertyTagType>(keyType[0].Name.text());
+          data->InnerType = static_cast<EPropertyTagType>(keyType[0].NameHash);
           if (data->InnerType != EPropertyTagType::None && keyType[0].innerCount != 0) {
             data->InnerTypeData = parsePropertyTagData(storage, data->InnerType, keyType, keyType[0].Name);
           }
-          data->ValueType = sc::hash<EPropertyTagType>(valType[0].Name.text());
+          data->ValueType = static_cast<EPropertyTagType>(valType[0].NameHash);
           if (data->ValueType != EPropertyTagType::None && valType[0].innerCount != 0) {
             data->ValueTypeData = parsePropertyTagData(storage, data->ValueType, valType, valType[0].Name);
           }
@@ -270,6 +284,11 @@ namespace SAA {
       case EPropertyTagType::FieldPath:
       case EPropertyTagType::MulticastSparse:
       case EPropertyTagType::MulticastInline: {
+        // Same as the skipped structs in parseStructPropertyValue(): in a map or a set there is no size.
+        if (size == 0) [[unlikely]] {
+          throw std::runtime_error("Field path or multicast delegate without a size cannot be skipped @ " +
+                                   std::to_string(cursor.tell()));
+        }
         cursor += size;
         break;
       }
@@ -333,9 +352,9 @@ namespace SAA {
       // Only a struct takes a size, for the kinds that are skipped instead of parsed (Transform, InstancedStruct,
       // GameplayTagContainer, ...). The elements have no size of their own, so the rest of the array is split
       // evenly: exact for elements of one size, and with different sizes the last one still ends where the array
-      // ends.
-      // TODO: Inside a map or another array the size is unknown and such a struct cannot be skipped, everything
-      // after it is read from the wrong position.
+      // ends. The size of the array is always known here: UE has no nested containers, an array is never an
+      // element of a map, set or another array. A struct that is a key or value of a map or an element of a set
+      // gets no size at all, parseStructPropertyValue() throws if it would have to skip one.
       uint32_t elementSize = 0;
       if (arrayType == EPropertyTagType::Struct && sizeKnown && arrayEnd > cursor.tell()) {
         elementSize = static_cast<uint32_t>((arrayEnd - cursor.tell()) / (lenght - i));
@@ -355,7 +374,7 @@ namespace SAA {
       };
       const auto end = cursor.tell() + tag.Size;
       tag.Tag = parsePropertyValue(cursor, storage, tag, ReadType::NORMAL, tag.Size);
-      properties.add(PropertyHolder::propertyKey(sc::hash(tag.Name.text()), tag.ArrayIndex), std::move(tag));
+      properties.add(PropertyHolder::propertyKey(cursor.m_owner->nameHash(tag.Name), tag.ArrayIndex), std::move(tag));
       cursor = end;
     }
     return PropertyHolder(properties.build(cursor.m_owner->storage()));
@@ -472,6 +491,12 @@ namespace SAA {
       case ESatisfactoryStruct::ShaderValueTypeHandle:
       case ESatisfactoryStruct::GameplayTagContainer:
       case ESatisfactoryStruct::InventoryItem: {
+        // As a key or value of a map or an element of a set the size is 0. Skipping nothing would read everything
+        // after it from the wrong position, the file fails instead. Does not occur in 1009 or 1017.
+        if (size == 0) [[unlikely]] {
+          throw std::runtime_error("Struct " + std::string(tagData->structName.text()) +
+                                   " without a size cannot be skipped @ " + std::to_string(cursor.tell()));
+        }
         cursor += size;
         break;
       }

@@ -17,10 +17,21 @@
 namespace SAA {
   AssetFileParser::~AssetFileParser() { sc::ArenaPool::release(m_storage); }
 
+  uint64_t AssetFileParser::hashText(const FName &name) { return sc::hash(name.text()); }
+
+  void AssetFileParser::setNameMap(std::span<std::string_view> nameMap) {
+    m_nameMap    = nameMap;
+    m_nameHashes = m_storage->allocateSpan<uint64_t>(nameMap.size());
+    for (size_t i = 0; i < nameMap.size(); ++i) {
+      m_nameHashes[i] = sc::hash(nameMap[i]);
+    }
+  }
+
   void AssetFileParser::reset() {
-    // Both live in m_storage.
+    // All of them live in m_storage.
     m_asset = nullptr;
     m_bulk = nullptr;
+    m_nameHashes = {};
     sc::ArenaPool::release(m_storage);
     m_state.store(ParserState::NONE, std::memory_order_release);
   }

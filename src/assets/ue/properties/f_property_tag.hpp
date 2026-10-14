@@ -197,6 +197,8 @@ namespace SAA {
   struct alignas(8) FPropertyTypeNameNode {
     FName Name;
     int32_t innerCount;
+    // AssetFileParser::nameHash() of Name.
+    uint64_t NameHash;
   };
 
   inline int32_t countSubtreeNodes(std::span<FPropertyTypeNameNode> s) {

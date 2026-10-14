@@ -39,10 +39,12 @@ namespace SAA {
   template<>
   FPropertyValue PropertyParser<EUE5Version::UE5_3>::parseMapProperty(ByteCursor &cursor, sc::MonotonicResource *storage,
                                                                       FPropertyTagData *tagData, uint32_t size) {
-    // UE 5.3 does not store which struct a key or value is, such a map can only be skipped.
-    // TODO: As an element of an array or another map size is 0, then it cannot even be skipped. Does not occur in
-    // the game data so far.
+    // UE 5.3 does not store which struct a key or value is, such a map can only be skipped. Its size is always the
+    // one of its tag: UE has no nested containers, a map is never an element of an array, set or another map.
     if (tagData->InnerType == EPropertyTagType::Struct || tagData->ValueType == EPropertyTagType::Struct) {
+      if (size == 0) [[unlikely]] {
+        throw std::runtime_error("Map of structs without a size cannot be skipped @ " + std::to_string(cursor.tell()));
+      }
       cursor += size;
       return {};
     }
@@ -226,6 +228,11 @@ namespace SAA {
       case EPropertyTagType::FieldPath:
       case EPropertyTagType::MulticastSparse:
       case EPropertyTagType::MulticastInline: {
+        // Same as the skipped structs in parseStructPropertyValue(): in a map or a set there is no size.
+        if (size == 0) [[unlikely]] {
+          throw std::runtime_error("Field path or multicast delegate without a size cannot be skipped @ " +
+                                   std::to_string(cursor.tell()));
+        }
         cursor += size;
         break;
       }
@@ -355,6 +362,12 @@ namespace SAA {
       case ESatisfactoryStruct::PerPlatformFrameRate:
       case ESatisfactoryStruct::ShaderValueTypeHandle:
       case ESatisfactoryStruct::InventoryItem: {
+        // Without a size skipping does nothing and everything after it would be read from the wrong position, the
+        // file fails instead. Does not occur in 1009.
+        if (size == 0) [[unlikely]] {
+          throw std::runtime_error("Struct " + std::string(tagData->structName.text()) +
+                                   " without a size cannot be skipped @ " + std::to_string(cursor.tell()));
+        }
         cursor += size;
         break;
       }
