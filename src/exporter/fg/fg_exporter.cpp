@@ -9,9 +9,6 @@
 #include "satisfactory/building/fg_building_base.hpp"
 #include "satisfactory/items/fg_item_base.hpp"
 
-// TODO: Die Statistik ItemTracker (SC::ChaosMapCounter<std::string_view>, "Itemclass") ist entfallen: sc::stats hat
-// keinen Map-Counter mehr. Sie wurde nur in den auskommentierten CHAOS_RECORD-Zeilen unten benutzt.
-
 
 namespace SAA {
     void FGExporter::encodeRecipe(FGRecipe *recipe) {
@@ -32,13 +29,11 @@ namespace SAA {
 
 //    for (auto &ing: recipe->mIngredients) {
 //      auto obj = FGFactory::createBase(ing.object);
-//      CHAOS_RECORD(ItemTracker, obj->getClassName())
 //      obj->safeParse();
 //      obj->addUsedIn(ex);
 //    }
 //    for (auto &pro: recipe->mProduct) {
 //      auto obj = FGFactory::createBase(pro.object);
-//      CHAOS_RECORD(ItemTracker, obj->getClassName())
 //      obj->safeParse();
 //      obj->addProducedIn(ex);
 //    }
