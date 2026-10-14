@@ -258,8 +258,8 @@ namespace SAA {
                                   : fileSize;
       offset = nextChunkStart;
       // The chunk is loaded by another thread, in its forEachChunk(). This thread only gives up the CPU instead of
-      // working on something else meanwhile (sc::threading has no public way for that): measured on the test parse
-      // of 1017, 75 to 83 of about 275 k chunks had to be waited for, 7 to 9 ms in all and at most 0.7 ms at once.
+      // joining that loop with sc::threading::helpThread(): measured on the test parse of 1017, 75 to 83 of about
+      // 275 k chunks had to be waited for, 7 to 9 ms in all and at most 0.7 ms at once.
       uint64_t state = atomic.load(std::memory_order_acquire);
       while (!(state & (FINISHED_BIT | FAILED_BIT))) {
         std::this_thread::yield();
