@@ -141,6 +141,21 @@ namespace SAA {
         }
       });
     }
+
+    // The same, and threads that wait for one of the chunks can join the loop through the ticket that onTicket
+    // gets, also when it has no pool threads as helpers.
+    template<typename F, typename OnTicket>
+    void forEachChunk(size_t count, F &&run, OnTicket &&onTicket) {
+      const size_t helpers = count >= MIN_CHUNKS_FOR_HELPERS && !runtimeOptions().serial ? SIZE_MAX : 0;
+      sc::threading::parallelFor(
+          count, 1, helpers,
+          [&](size_t first, size_t last) {
+            for (size_t n = first; n < last; ++n) {
+              run(n);
+            }
+          },
+          onTicket);
+    }
   } // namespace
 
   bool GameFileImpl::tryLoad(size_t targetOffset, size_t size, size_t chunIdx, std::span<uint8_t> dst) {
@@ -189,6 +204,10 @@ namespace SAA {
       chunkOffsetsLoaded[i].fetch_or(loaded ? FINISHED_BIT : FAILED_BIT, std::memory_order_release);
       if (!loaded) [[unlikely]] {
         loadFailed.store(true, std::memory_order_relaxed);
+      }
+    }, [&](sc::threading::LoopTicket ticket) {
+      for (const size_t i: chunksToLoad) {
+        chunkTickets[i].store(ticket.value, std::memory_order_release);
       }
     });
     if (error) {
@@ -257,14 +276,19 @@ namespace SAA {
                                   ? (chunkOffsetsLoaded[chunIdx + 1].load(std::memory_order_relaxed) & VALUE_MASK)
                                   : fileSize;
       offset = nextChunkStart;
-      // The chunk is loaded by another thread, in its forEachChunk(). This thread only gives up the CPU instead of
-      // joining that loop with sc::threading::helpThread(): measured on the test parse of 1017, 75 to 83 of about
-      // 275 k chunks had to be waited for, 7 to 9 ms in all and at most 0.7 ms at once.
-      uint64_t state = atomic.load(std::memory_order_acquire);
-      while (!(state & (FINISHED_BIT | FAILED_BIT))) {
-        std::this_thread::yield();
-        state = atomic.load(std::memory_order_acquire);
+      // The chunk is loaded by another thread, in the loop of its tryLoad(). This thread joins exactly that loop,
+      // which only decompresses, so it cannot get into work that waits for it in turn. It leaves the loop once
+      // its chunk is done. Without a ticket yet, or once the loop is over, it only gives up the CPU.
+      // Measured on the test parse of 1017 before: 75 to 83 of about 275 k chunks had to be waited for, 7 to 9 ms
+      // in all and at most 0.7 ms at once.
+      const auto done = [&atomic] { return (atomic.load(std::memory_order_acquire) & (FINISHED_BIT | FAILED_BIT)) != 0; };
+      while (!done()) {
+        const sc::threading::LoopTicket ticket{chunkTickets[chunIdx].load(std::memory_order_acquire)};
+        if (!sc::threading::helpThread(ticket, done)) {
+          std::this_thread::yield();
+        }
       }
+      const uint64_t state = atomic.load(std::memory_order_acquire);
       if (state & FAILED_BIT) [[unlikely]] {
         return false;
       }

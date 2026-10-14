@@ -9,6 +9,7 @@
 #include <concepts>
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -41,6 +42,9 @@ namespace SAA {
     // the chunks. Says nothing about what lies behind it: a range further back can be loaded as well.
     std::atomic<size_t> loadedPrefix = 0;
     std::span<std::atomic<uint64_t>> chunkOffsetsLoaded{};
+    // The sc::threading::LoopTicket of the loop in tryLoad() that loads the chunk, for waitFinished() to join it.
+    // 0 or void once the loop is over, which is harmless.
+    std::span<std::atomic<uint64_t>> chunkTickets{};
 
     GameFileImpl(size_t fileSize, size_t chunkSize);
 
@@ -190,6 +194,10 @@ namespace SAA {
     T *createImpl(Args &&...args) {
       impl                     = m_storage->make<T>(std::forward<Args>(args)...);
       impl->chunkOffsetsLoaded = m_storage->allocateSpan<std::atomic<uint64_t>>(impl->chunks());
+      impl->chunkTickets       = m_storage->allocateSpan<std::atomic<uint64_t>>(impl->chunks());
+      for (auto &ticket: impl->chunkTickets) {
+        std::construct_at(&ticket, 0);
+      }
       m_buffer                 = m_storage->allocateSpan(impl->fileSize);
       return static_cast<T *>(impl);
     }
