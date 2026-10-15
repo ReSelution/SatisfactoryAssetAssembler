@@ -45,8 +45,13 @@ not tested regularly.
 ## ▶️ Usage
 
 ```bash
-build/src/AssetRipperTest [options] <game-path>
+build/src/AssetRipperTest [options] <command> <game-path>
 ```
+
+| Command | Effect |
+| --- | --- |
+| `crawl` | Crawls the game and exports the assets |
+| `test` | Parses every package of the game instead of crawling, to check the parsers |
 
 `<game-path>` is the install directory of Satisfactory. Without it the environment variable
 `SAA_GAME_PATH` is used. Output (`output/`, `logs/`) is written below the current directory.
@@ -57,4 +62,7 @@ On Windows the binary is `build\src\AssetRipperTest.exe`.
 | Option | Effect |
 | --- | --- |
 | `-j`, `--threads <n>` | Worker threads of the pool, default: one less than the CPU has. `1` runs everything on the main thread, for debugging |
-| `-h`, `--help` | Shows the help |
+| `--culture <code>` | Culture of the texts, e.g. `de`. Default: the native culture of the game |
+| `-h`, `--help` | Shows the help, after a command the help of that command |
+
+The options can stand before or after the command.

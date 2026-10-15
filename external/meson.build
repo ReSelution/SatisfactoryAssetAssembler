@@ -26,6 +26,9 @@ fastgltf_dep = dependency(
 stb_dep = dependency('stb', fallback: ['stb', 'stb_dep'])
 bcdec_dep = dependency('bcdec', fallback: ['bcdec', 'bcdec_dep'])
 
+# Command line of the executable only, kept out of all_deps so the library does not see it.
+cli11_dep = dependency('CLI11', fallback: ['cli11', 'CLI11_dep'])
+
 # Vendored in subprojects/cityhash, there is no wrap for it.
 cityhash_dep = dependency('cityhash', fallback: ['cityhash', 'cityhash_dep'])
 

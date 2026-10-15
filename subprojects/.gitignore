@@ -5,6 +5,7 @@
 # Keep our own wrap files
 !StructuredChaos.wrap
 !bcdec.wrap
+!cli11.wrap
 !fastgltf.wrap
 !simdjson.wrap
 !stb.wrap

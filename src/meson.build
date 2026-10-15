@@ -108,6 +108,6 @@ if not meson.is_subproject()
   executable(
     'AssetRipperTest',
     'main.cpp',
-    dependencies: saa_dep,
+    dependencies: [saa_dep, cli11_dep],
   )
 endif

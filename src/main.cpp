@@ -1,15 +1,12 @@
 // src/main.cpp
-#include <charconv>
 #include <cstdint>
-#include <cstdio>
-#include <cstdlib>
 #include <exception>
 #include <filesystem>
-#include <optional>
+#include <limits>
 #include <print>
 #include <string>
-#include <string_view>
-#include <system_error>
+
+#include <CLI/CLI.hpp>
 
 #include "sc/ecs/registry.hpp"
 #include "sc/logger/logger.hpp"
@@ -26,100 +23,46 @@ namespace {
     std::filesystem::path gamePath;
     uint32_t threads = 0;
     std::string culture;
-    bool test = false;
-    bool help = false;
   };
 
-  void printUsage(std::FILE *out, const char *program) {
-    std::println(
-        out,
-        "Usage: {} [options] <game-path>\n\n  <game-path>        install directory of Satisfactory, or set "
-        "SAA_GAME_PATH\n\nOptions:\n  -j, --threads <n>  worker threads of the pool, default: one less than "
-        "the CPU has.\n                     1 runs everything on the main thread, for debugging.\n  --culture <code>   "
-        "culture of the texts, e.g. de. Default: the native culture of the game.\n  --test             "
-                 "parse every package of the game instead of crawling, to check the parsers.\n  -h, "
-        "--help         show this help\n\nOutput (output/, logs/) is written below the current directory.",
-        program);
-  }
-
-  // Leer, wenn die Argumente nicht passen. Die Meldung dazu ist dann schon ausgegeben.
-  std::optional<CommandLine> parseCommandLine(int argc, char **argv) {
-    CommandLine cmd;
-    for (int i = 1; i < argc; ++i) {
-      const std::string_view arg = argv[i];
-      if (arg == "-h" || arg == "--help") {
-        cmd.help = true;
-        return cmd;
-      }
-      if (arg == "-j" || arg == "--threads") {
-        if (i + 1 >= argc) {
-          std::fprintf(stderr, "Missing value for %s\n", argv[i]);
-          return std::nullopt;
-        }
-        const std::string_view value = argv[++i];
-        const auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), cmd.threads);
-        if (error != std::errc() || end != value.data() + value.size() || cmd.threads == 0) {
-          std::fprintf(stderr, "Not a thread count: %s\n", argv[i]);
-          return std::nullopt;
-        }
-        continue;
-      }
-      if (arg == "--test") {
-        cmd.test = true;
-        continue;
-      }
-      if (arg == "--culture") {
-        if (i + 1 >= argc) {
-          std::fprintf(stderr, "Missing value for %s\n", argv[i]);
-          return std::nullopt;
-        }
-        cmd.culture = argv[++i];
-        continue;
-      }
-      if (arg.starts_with('-')) {
-        std::fprintf(stderr, "Unknown option: %s\n", argv[i]);
-        return std::nullopt;
-      }
-      if (!cmd.gamePath.empty()) {
-        std::fprintf(stderr, "More than one game path: %s\n", argv[i]);
-        return std::nullopt;
-      }
-      cmd.gamePath = arg;
-    }
-
-    if (cmd.gamePath.empty()) {
-      if (const char *env = std::getenv("SAA_GAME_PATH"); env != nullptr && *env != '\0') {
-        cmd.gamePath = env;
-      }
-    }
-    return cmd;
+  // Every subcommand that works on the game files takes the install directory as its positional.
+  void addGamePath(CLI::App &sub, CommandLine &cmd) {
+    sub.add_option("game-path", cmd.gamePath, "install directory of Satisfactory")
+        ->envname("SAA_GAME_PATH")
+        ->required()
+        ->check(CLI::ExistingDirectory);
   }
 } // namespace
 
 int main(int argc, char **argv) {
-  const char *program = argc > 0 ? argv[0] : "AssetRipperTest";
+  CommandLine cmd;
 
-  const std::optional<CommandLine> cmd = parseCommandLine(argc, argv);
-  if (!cmd) {
-    printUsage(stderr, program);
-    return 2;
-  }
-  if (cmd->help) {
-    printUsage(stdout, program);
-    return 0;
-  }
-  if (cmd->gamePath.empty()) {
-    printUsage(stderr, program);
-    return 2;
-  }
-  if (!std::filesystem::is_directory(cmd->gamePath)) {
-    std::println(stderr, "Not a directory: {}", cmd->gamePath.string());
-    return 2;
+  CLI::App app{"Extracts the assets of Satisfactory.", "AssetRipperTest"};
+  app.footer("Output (output/, logs/) is written below the current directory.");
+  // Global options are also accepted after the subcommand.
+  app.fallthrough();
+  app.require_subcommand(1);
+
+  app.add_option("-j,--threads", cmd.threads,
+                 "worker threads of the pool, default: one less than the CPU has.\n"
+                 "1 runs everything on the main thread, for debugging.")
+      ->check(CLI::Range(uint32_t{1}, std::numeric_limits<uint32_t>::max()));
+  app.add_option("--culture", cmd.culture, "culture of the texts, e.g. de. Default: the native culture of the game.");
+
+  CLI::App *crawl = app.add_subcommand("crawl", "crawl the game and export the assets");
+  addGamePath(*crawl, cmd);
+  CLI::App *test = app.add_subcommand("test", "parse every package of the game instead of crawling, to check the parsers");
+  addGamePath(*test, cmd);
+
+  try {
+    app.parse(argc, argv);
+  } catch (const CLI::ParseError &e) {
+    return app.exit(e) == 0 ? 0 : 2;
   }
 
-  SAA::runtimeOptions().threads = cmd->threads;
-  SAA::runtimeOptions().serial = cmd->threads == 1;
-  SAA::runtimeOptions().culture = cmd->culture;
+  SAA::runtimeOptions().threads = cmd.threads;
+  SAA::runtimeOptions().serial = cmd.threads == 1;
+  SAA::runtimeOptions().culture = cmd.culture;
 
   try {
     sc::ecs::Registry reg;
@@ -127,16 +70,16 @@ int main(int argc, char **argv) {
     auto t = mainLog::time(spdlog::level::err, "Finished in {}");
 
     // Auch seriell gibt es den Pool: einzelne Stellen geben weiter Arbeit dorthin ab.
-    if (cmd->threads > 1) {
-      sc::threading::init(cmd->threads);
+    if (cmd.threads > 1) {
+      sc::threading::init(cmd.threads);
     } else {
       sc::threading::init();
     }
-    SAA::SatisfactoryDataProvider provider(cmd->gamePath);
+    SAA::SatisfactoryDataProvider provider(cmd.gamePath);
     SAA::SatisfactoryDataProvider::setECS(&reg);
     provider.load();
 
-    if (cmd->test) {
+    if (test->parsed()) {
       provider.test();
     } else {
       provider.crawl();
