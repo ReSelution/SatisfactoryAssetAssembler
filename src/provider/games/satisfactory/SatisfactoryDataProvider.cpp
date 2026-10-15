@@ -116,24 +116,28 @@ namespace SAA {
     // A file that cannot be parsed is reported and skipped, like in Crawler::createFileQueue().
     std::atomic<size_t> files  = 0;
     std::atomic<size_t> failed = 0;
-    sc::threading::detachBatch(
-        val,
-        [&parser, &files, &failed](auto entry) {
-          if (entry.second->isPkg) {
-            files.fetch_add(1, std::memory_order_relaxed);
-            try {
-              parser.parseAsset(entry.second->packagePath, [](std::shared_ptr<AssetFileParser> &&file) {
-                file->loadExports();
-                // file->exportAssets();
-              });
-            } catch (const std::exception &e) {
-              failed.fetch_add(1, std::memory_order_relaxed);
-              ProviderLog::err("{}: {}", entry.second->packagePath, e.what());
-            }
-          }
-        },
-        nullptr);
-    sc::threading::waitUntilFinished();
+    const auto testEntry = [&parser, &files, &failed](const auto &entry) {
+      if (entry.second->isPkg) {
+        files.fetch_add(1, std::memory_order_relaxed);
+        try {
+          parser.parseAsset(entry.second->packagePath, [](std::shared_ptr<AssetFileParser> &&file) {
+            file->loadExports();
+            // file->exportAssets();
+          });
+        } catch (const std::exception &e) {
+          failed.fetch_add(1, std::memory_order_relaxed);
+          ProviderLog::err("{}: {}", entry.second->packagePath, e.what());
+        }
+      }
+    };
+    if (runtimeOptions().serial) {
+      for (const auto &entry: val) {
+        testEntry(entry);
+      }
+    } else {
+      sc::threading::detachBatch(val, testEntry, nullptr);
+      sc::threading::waitUntilFinished();
+    }
     ProviderLog::info("Parsed {} Files", files.load());
     if (failed > 0) {
       ProviderLog::err("{} of {} Files could not be parsed", failed.load(), files.load());
