@@ -47,7 +47,7 @@ namespace SAA {
 
         const UnifiedVfsEntry *m_vfsEntry;
         LocManager *m_manager;
-        using denseMap = ankerl::unordered_dense::map<std::string_view, std::string_view, sc::IdentityHash>;
+        using denseMap = ankerl::unordered_dense::map<std::string_view, std::string_view, sc::TransparentHash>;
         denseMap cultures;
         // unique_ptr, weil sc::MonotonicResource nicht verschiebbar ist, LocMetaParser aber in einem std::vector liegt.
         std::unique_ptr<sc::MonotonicResource> m_storage{};

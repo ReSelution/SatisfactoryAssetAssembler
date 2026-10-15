@@ -11,6 +11,7 @@
 #include <thread>
 
 #include "loc_manager.hpp"
+#include "sc/memory/arena_pool.hpp"
 #include "shared_cache.hpp"
 
 
@@ -51,6 +52,9 @@ namespace SAA {
     const GlobalData *m_globalData;
 
     LocManager m_localizationManager;
+
+    // The arenas of the AssetFileParsers. Declared before m_parserCache so that it outlives the cached parsers.
+    sc::ArenaPool m_arenaPool;
 
     ShardedCache<uint64_t, AssetFileParser> m_parserCache;
   };

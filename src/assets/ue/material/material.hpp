@@ -12,6 +12,8 @@
 #include "object_factory.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   class Material : public MaterialInterface {
     friend class MaterialExporter;
       enum class EMaterialInterface : uint64_t {

@@ -44,6 +44,8 @@
 
 
 namespace SAA {
+  using namespace sc::literals;
+
   struct FPropertyValue;
   class Object;
   struct FPropertyTag;

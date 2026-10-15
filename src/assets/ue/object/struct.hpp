@@ -7,6 +7,8 @@
 #include "field.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   class Struct : public Field {
   public:
     Struct(std::string_view classname = "Struct", uint64_t clsHash = StaticHASH) : Field(classname, clsHash) {};

@@ -446,7 +446,7 @@ namespace SAA {
         text.nSpace = cursor.readFString();
         text.key = cursor.readFString();
         text.sourceString = cursor.readFString();
-        magpieResult = sc::MagpieString(text.nSpace, text.key, text.sourceString);
+        magpieResult = sc::MagpieString::withSource(text.nSpace, text.key, text.sourceString);
         break;
       }
       case ETextHistoryType::AsPercent: {

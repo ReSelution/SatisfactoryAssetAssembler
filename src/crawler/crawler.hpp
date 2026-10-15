@@ -12,6 +12,8 @@
 
 
 namespace SAA {
+  using namespace sc::literals;
+
   class Crawler {
     enum class HIT_TEST_CLASS_HASH : uint64_t {
 

@@ -7,6 +7,8 @@
 #include "object_factory.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   class FGResourceDescriptor : public FGItemBase {
     struct Resource {
 

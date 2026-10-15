@@ -25,6 +25,8 @@
 #include "ue/properties/property_holder.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   class AssetFileParser;
 
   class Object : public PropertyHolder {

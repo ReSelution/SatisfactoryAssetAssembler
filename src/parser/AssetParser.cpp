@@ -20,7 +20,8 @@ using APLog = sc::Logger<"SAA", "AssetParser">;
 
 namespace SAA {
   AssetParser::AssetParser(Vfs *vfs, const FUsmapMappingData *mappings, const GlobalData *globalData) :
-      m_vfs(vfs), m_mappings(mappings), m_globalData(globalData), m_localizationManager(this) {}
+      m_vfs(vfs), m_mappings(mappings), m_globalData(globalData), m_localizationManager(this),
+      m_arenaPool(sc::threading::threadSlots() * 16, size_t{32} * 1024) {}
 
 
   std::shared_ptr<AssetFileParser> AssetParser::loadPackage(std::string_view path) {

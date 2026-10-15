@@ -6,6 +6,8 @@
 #include <cstdint>
 
 namespace SAA {
+  using namespace sc::literals;
+
     enum class EMaterialParameterAssociation : uint64_t {
         LayerParameter = "LayerParameter"_h,
         BlendParameter = "BlendParameter"_h,

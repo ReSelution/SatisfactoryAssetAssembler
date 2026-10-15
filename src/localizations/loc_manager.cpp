@@ -95,7 +95,7 @@ namespace SAA {
         parser.parse();
       }
     } else {
-      sc::Magpie::get()->clear();
+      sc::Magpie::get().clear();
       // Counted here instead of magpie->size(): the crawl is already running and inserts its own texts into the same
       // map, so the size depends on when the batch finishes. Every entry of every file counts, the same key from the
       // native and the translated file counts twice.
@@ -109,7 +109,7 @@ namespace SAA {
           [inserted](LocResParser parser) { inserted->fetch_add(parser.parse(), std::memory_order_relaxed); },
           [timer = std::move(t)]() mutable {
             timer.stop();
-            LocMngLog::stats<sc::MagpieInsert, sc::MagpieMEM, sc::threading::PoolThroughput>("Magpie");
+            LocMngLog::stats<sc::MagpieInsert, sc::MagpieMemory>("Magpie");
           });
     }
     loadedIndex = cultureIndex;

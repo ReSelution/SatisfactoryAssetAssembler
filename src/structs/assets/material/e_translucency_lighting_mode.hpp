@@ -7,6 +7,8 @@
 #include "sc/hash/hash.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
     enum class ETranslucencyLightingMode : uint64_t {
         TLM_VolumetricNonDirectional          = "TLM_VolumetricNonDirectional"_h,
         TLM_VolumetricDirectional             = "TLM_VolumetricDirectional"_h,

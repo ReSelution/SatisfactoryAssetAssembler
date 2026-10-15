@@ -9,6 +9,8 @@
 
 
 namespace SAA {
+  using namespace sc::literals;
+
 struct Recipe;
 
   class FGRecipe : public Object {

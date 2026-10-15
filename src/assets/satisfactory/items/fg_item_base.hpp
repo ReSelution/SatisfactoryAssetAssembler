@@ -6,6 +6,8 @@
 #include "satisfactory/fg_descriptor_base.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   struct ItemDescriptor;
 
   class FGItemBase : public FGDescriptorBase {

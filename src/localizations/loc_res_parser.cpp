@@ -19,7 +19,7 @@ using LocResLoc = sc::Logger<"SAA", "LOCRES">;
 namespace SAA {
   LocResParser::LocResParser(const UnifiedVfsEntry *vfsEntry, bool isNative) :
       isNative(isNative), m_vfsEntry(vfsEntry) {
-    magpie = sc::Magpie::get();
+    magpie = &sc::Magpie::get();
   }
 
   size_t LocResParser::parse() {
@@ -46,7 +46,7 @@ namespace SAA {
         localizedStringArray = storage.allocateSpan<FTextLocalizationResourceString>(count);
         if (version >= ELocResVersion::Optimized_CRC32) {
           for (auto i = 0; i < count; i++) {
-            // Direkt in den Speicher von Magpie lesen: mt_InsertStored() kopiert den Text nicht mehr, die View muss
+            // Direkt in den Speicher von Magpie lesen: insertStoredLocal() kopiert den Text nicht mehr, die View muss
             // also bis zum naechsten Magpie::clear() gueltig bleiben.
             auto str = cursor.readFString(magpie); // Dont move inside emplace !!! Breaks under Mingw and Wine
             localizedStringArray[i] = {str, cursor.read<int32_t>()};
@@ -63,7 +63,7 @@ namespace SAA {
     if (version >= ELocResVersion::Optimized_CRC32) {
       auto entriesCount = cursor.read<uint32_t>();
       auto nsCount      = cursor.read<uint32_t>();
-      magpie->mt_reserve(entriesCount);
+      magpie->reserveLocal(entriesCount);
       for (uint32_t i = 0; i < nsCount; i++) {
         cursor += sizeof(uint32_t); // skip hash
         auto nsStr  = cursor.readFString(&storage);
@@ -72,20 +72,20 @@ namespace SAA {
         const auto keyCount = cursor.read<uint32_t>();
         for (uint32_t j = 0; j < keyCount; j++) {
           cursor += sizeof(uint32_t); // skip hash
-          // Only needed for the hash, mt_InsertStored() copies the key itself where it keeps it (DUMP_MAGPIE).
+          // Only needed for the hash, insertStoredLocal() copies the key itself where it keeps it (DUMP_MAGPIE).
           auto keyStr  = cursor.readFString(&storage);
           auto keyHash = sc::hash(keyStr);
           cursor += sizeof(uint32_t);
           auto stringIndex = cursor.read<uint32_t>();
           if (localizedStringArray.size() > stringIndex) [[likely]] {
-            sc::Magpie::mt_InsertStored(sc::MagpieKey{nsHash, keyHash}, localizedStringArray[stringIndex].str, nsStr,
-                                        keyStr);
+            magpie->insertStoredLocal(sc::MagpieKey{nsHash, keyHash}, localizedStringArray[stringIndex].str, nsStr,
+                                      keyStr);
             inserted++;
           }
         }
       }
     }
-    magpie->mt_Merge(!isNative);
+    magpie->mergeLocal(isNative ? sc::MergeMode::KeepExisting : sc::MergeMode::Override);
     return inserted;
   }
 } // namespace SAA

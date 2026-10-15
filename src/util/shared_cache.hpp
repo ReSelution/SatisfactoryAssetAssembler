@@ -29,7 +29,7 @@ class ShardedCache {
 
   struct alignas(64) Shard {
     sc::SpinLock lock;
-    using denseMap = ankerl::unordered_dense::map<uint64_t, std::weak_ptr<V>, sc::IdentityHash>;
+    using denseMap = ankerl::unordered_dense::map<uint64_t, std::weak_ptr<V>, sc::TransparentHash>;
 
     denseMap data{};
 
@@ -84,7 +84,7 @@ public:
     fut.wait();
     count = atomicCount.load();
 
-    // sc::threading::wait_until_finished();
+    // sc::threading::waitUntilFinished();
     // for (Shard &shard : shards) {
     //   shard.acquire();
     //   for (auto &[hash, weakParser] : shard.data) {

@@ -5,6 +5,8 @@
 #pragma once
 
 namespace SAA {
+  using namespace sc::literals;
+
     enum class EMaterialShadingModel : uint64_t {
         MSM_Unlit = "MSM_Unlit"_h,
         MSM_DefaultLit = "MSM_DefaultLit"_h,

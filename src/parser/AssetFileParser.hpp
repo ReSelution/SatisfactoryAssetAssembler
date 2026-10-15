@@ -169,7 +169,7 @@ namespace SAA {
     AssetParser *m_assetParser = nullptr;
     // The imported packages that were asked for so far, in the order they were asked for.
     std::pmr::vector<std::shared_ptr<AssetFileParser>> *m_importedParsers{};
-    // Kommt in safeParse() aus dem sc::ArenaPool und geht in reset() dorthin zurueck, vor dem ersten safeParse()
+    // Kommt in safeParse() aus dem sc::ArenaPool des AssetParsers und geht in reset() dorthin zurueck, vor dem ersten safeParse()
     // also nullptr.
     // mutable: const-Methoden wie getMappedName() allokieren Namen daraus.
     mutable std::unique_ptr<sc::MonotonicResource> m_storage;

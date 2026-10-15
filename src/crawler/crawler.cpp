@@ -85,7 +85,7 @@ namespace SAA {
     }
     files    = batch.size();
     auto fut = sc::threading::enqueueBatch(std::move(batch), [&parseFile, this](std::string_view path) {
-      parseFile(path, m_childs[sc::threading::thread_id()]);
+      parseFile(path, m_childs[sc::threading::threadId()]);
     });
     // get() instead of wait(): anything that is not a std::exception still ends the batch and has to reach main().
     fut.get();
@@ -94,7 +94,7 @@ namespace SAA {
 
 
   void Crawler::crawl(AssetParser &parser) {
-    const size_t slots = sc::threading::thread_slots();
+    const size_t slots = sc::threading::threadSlots();
     for (size_t i = 0; i < slots; ++i) {
       m_childs.emplace_back(getChild());
     }
@@ -103,7 +103,6 @@ namespace SAA {
     size_t threads = runtimeOptions().serial ? 1 : slots - 1;
 
     auto t = CrawlerLog::time("Parsed {1} Files in {0} on {2} Threads", files, threads);
-    sc::ArenaPool::init(slots * 16, 32 * 1024);
     createFileQueue(parser, files, failed);
     for (auto &m_child: m_childs) {
       mergeWithChild(m_child);
@@ -120,7 +119,7 @@ namespace SAA {
     CrawlerLog::info("Found {} Schematics", m_schematics.size());
     CrawlerLog::info("Found {} Resources", m_resources.size());
     CrawlerLog::stats<DecompressedThroughput, CompressedThroughput>("Crawled");
-    sc::stats::report_all<CrawlerLog>();
+    sc::stats::reportAll<CrawlerLog>();
   }
 
   void Crawler::onParsed(std::shared_ptr<AssetFileParser> &&parser) { hitTestAsset(std::move(parser)); }

@@ -15,8 +15,8 @@
 
 namespace SAA {
   struct FUsmapMappingData {
-    using denseMapEnums   = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, sc::IdentityHash>;
-    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, sc::IdentityHash>;
+    using denseMapEnums   = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, sc::TransparentHash>;
+    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, sc::TransparentHash>;
 
     sc::MonotonicResource storage;
     FPackageFileVersion pkgVersion;

@@ -9,6 +9,8 @@
 #include "object_factory.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
     class FGItemDescriptorBiomass : public FGItemBase {
 
     public:

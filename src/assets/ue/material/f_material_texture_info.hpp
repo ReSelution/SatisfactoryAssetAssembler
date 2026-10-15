@@ -11,6 +11,8 @@
 #include "ue/properties/f_property_tag.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   struct FMaterialTextureInfo {
     enum class EMaterialTextureInfo : uint64_t {
         SamplingScale  = "SamplingScale"_h,

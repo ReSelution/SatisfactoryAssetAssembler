@@ -7,6 +7,8 @@
 #include "asset_object.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
 
 struct ItemAmount {
     static constexpr uint64_t Amount = "Amount"_h;

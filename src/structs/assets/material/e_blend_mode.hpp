@@ -6,6 +6,8 @@
 #include <cstdint>
 
 namespace SAA {
+  using namespace sc::literals;
+
     enum class EBlendMode : uint64_t {
         BLEND_Opaque         = "BLEND_Opaque"_h,
         BLEND_Masked         = "BLEND_Masked"_h,

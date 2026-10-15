@@ -111,9 +111,9 @@ namespace SAA {
     std::span<const uint64_t> m_importedPublicExportHashes;
     std::span<const FExportMapEntry> m_exportMap;
 
-    using exportDenseMap = ankerl::unordered_dense::pmr::map<uint64_t, uint32_t, sc::IdentityHash>;
+    using exportDenseMap = ankerl::unordered_dense::pmr::map<uint64_t, uint32_t, sc::TransparentHash>;
     exportDenseMap m_exportHashToIndex;
-    using nameDenseMap = ankerl::unordered_dense::pmr::map<std::string_view, uint32_t, sc::IdentityHash>;
+    using nameDenseMap = ankerl::unordered_dense::pmr::map<std::string_view, uint32_t, sc::TransparentHash>;
     nameDenseMap m_nameToIndex;
     std::span<const FExportBundleEntry> m_exportBundleEntries;
 

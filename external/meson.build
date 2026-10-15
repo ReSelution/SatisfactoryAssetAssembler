@@ -8,6 +8,13 @@ sc_dep = dependency(
   ],
 )
 
+# byte_cursor.cpp uses it directly, sc_dep no longer passes it on. Same subproject and options as in StructuredChaos.
+simdutf_dep = dependency(
+  'simdutf',
+  fallback: ['simdutf', 'simdutf_dep'],
+  default_options: ['default_library=static'],
+)
+
 # The JSON parser of fastgltf. Resolved here first so that it is built statically as well: fastgltf only passes
 # its own default_options on, and as a DLL simdjson does not export every symbol fastgltf needs.
 dependency(
@@ -37,6 +44,7 @@ dl_dep = cpp.find_library('dl', required: false)
 
 all_deps = [
   sc_dep,
+  simdutf_dep,
   fastgltf_dep,
   cityhash_dep,
   stb_dep,

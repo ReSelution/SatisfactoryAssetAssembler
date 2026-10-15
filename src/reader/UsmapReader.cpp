@@ -123,7 +123,7 @@ namespace SAA {
 
   void UsmapReader::parseEnums(ByteCursor &cursor, FUsmapMappingData &outData) {
     uint32_t enumCount = cursor.read<uint32_t>();
-    using denseMapEnums = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, sc::IdentityHash>;
+    using denseMapEnums = ankerl::unordered_dense::pmr::map<uint64_t, std::span<std::string_view>, sc::TransparentHash>;
     outData.Enums = denseMapEnums(&outData.storage);
     outData.Enums.reserve(enumCount);
 
@@ -162,7 +162,7 @@ namespace SAA {
 
   void UsmapReader::parseSchemas(ByteCursor &cursor, FUsmapMappingData &outData) {
     uint32_t schemaCount = cursor.read<uint32_t>();
-    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, sc::IdentityHash>;
+    using denseMapSchemas = ankerl::unordered_dense::pmr::map<uint64_t, FUsmapSchema, sc::TransparentHash>;
     outData.Schemas = denseMapSchemas (&outData.storage);
     outData.Schemas.reserve(schemaCount);
 

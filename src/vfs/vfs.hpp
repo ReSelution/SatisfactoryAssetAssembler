@@ -17,7 +17,7 @@
 
 namespace SAA {
   class Vfs {
-    using denseMap = ankerl::unordered_dense::map<uint64_t, const UnifiedVfsEntry *, sc::IdentityHash>;
+    using denseMap = ankerl::unordered_dense::map<uint64_t, const UnifiedVfsEntry *, sc::TransparentHash>;
 
   public:
     Vfs() :

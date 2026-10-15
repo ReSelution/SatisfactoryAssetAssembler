@@ -60,7 +60,7 @@ namespace SAA {
       parsableFutures.emplace_back(sc::threading::enqueue([&]() { m_globalDataParser->parse(m_globalData); }));
 
       std::vector<Vfs> childVFS;
-      const size_t slots = sc::threading::thread_slots();
+      const size_t slots = sc::threading::threadSlots();
       childVFS.reserve(slots);
       for (size_t i = 0; i < slots; i++) {
         childVFS.emplace_back(m_vfs.makeChild());
@@ -69,7 +69,7 @@ namespace SAA {
       for (const auto &val: m_Parsers | std::views::values) {
         auto *currentParser = val.get();
         parsableFutures.emplace_back(sc::threading::enqueue([&, currentParser]() {
-          auto &child = childVFS[sc::threading::thread_id()];
+          auto &child = childVFS[sc::threading::threadId()];
           currentParser->load();
           currentParser->mountVFS(&child);
           m_vfs.mergeChild(child);
@@ -94,14 +94,14 @@ namespace SAA {
 
   void SatisfactoryDataProvider::crawl() {
     AssetParser parser(&m_vfs, &m_usmapData, &m_globalData);
-    sc::stats::reset_all();
+    sc::stats::resetAll();
     DecompressedThroughput::reset();
     CompressedThroughput::reset();
     parser.loadRes();
     Crawler crawler;
     crawler.crawl(parser);
 
-    sc::Magpie::get()->dumpToFile("output/magpie.json");
+    sc::Magpie::get().dumpToFile("output/magpie.json");
   }
 
   void SatisfactoryDataProvider::test() {
@@ -110,7 +110,7 @@ namespace SAA {
 
     ProviderLog::info("Testing with {} files", m_vfs.entries().size());
     auto val = m_vfs.entries().values();
-    sc::stats::reset_all();
+    sc::stats::resetAll();
     DecompressedThroughput::reset();
     CompressedThroughput::reset();
     // A file that cannot be parsed is reported and skipped, like in Crawler::createFileQueue().
@@ -133,13 +133,13 @@ namespace SAA {
           }
         },
         nullptr);
-    sc::threading::wait_until_finished();
+    sc::threading::waitUntilFinished();
     ProviderLog::info("Parsed {} Files", files.load());
     if (failed > 0) {
       ProviderLog::err("{} of {} Files could not be parsed", failed.load(), files.load());
     }
     ProviderLog::stats<DecompressedThroughput, CompressedThroughput>("Crawled");
-    sc::stats::report_all<ProviderLog>();
+    sc::stats::reportAll<ProviderLog>();
     // DBG_PRINT_MISSING();
   }
 

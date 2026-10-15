@@ -15,7 +15,11 @@
 #include "vfs_entry.hpp"
 
 namespace SAA {
-  AssetFileParser::~AssetFileParser() { sc::ArenaPool::release(m_storage); }
+  AssetFileParser::~AssetFileParser() {
+    if (m_storage) {
+      m_assetParser->m_arenaPool.release(std::move(m_storage));
+    }
+  }
 
   uint64_t AssetFileParser::hashText(const FName &name) { return sc::hash(name.text()); }
 
@@ -32,7 +36,9 @@ namespace SAA {
     m_asset = nullptr;
     m_bulk = nullptr;
     m_nameHashes = {};
-    sc::ArenaPool::release(m_storage);
+    if (m_storage) {
+      m_assetParser->m_arenaPool.release(std::move(m_storage));
+    }
     m_state.store(ParserState::NONE, std::memory_order_release);
   }
 
@@ -51,7 +57,7 @@ namespace SAA {
       };
 
       try {
-        m_storage = sc::ArenaPool::acquire();
+        m_storage = m_assetParser->m_arenaPool.acquire();
         parse();
       } catch (...) {
         // The threads waiting below have to be released as well.

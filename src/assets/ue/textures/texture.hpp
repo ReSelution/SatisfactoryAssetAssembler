@@ -17,6 +17,8 @@
 #include "assets/textures/FSharedImage.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   class TextureExporter;
   class AssetFileParser;
   enum class TextureFilter : uint32_t;

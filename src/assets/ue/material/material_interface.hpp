@@ -13,6 +13,8 @@
 #include "ue/textures/texture.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   using MatIntLog = sc::Logger<"SAA", "MaterialInterface">;
   class MaterialInterface : public UnrealMaterial {
     friend class MaterialExporter;

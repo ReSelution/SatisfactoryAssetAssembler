@@ -4,6 +4,8 @@
 
 #include "fg_descriptor_base.hpp"
 
+#include <mutex>
+
 namespace SAA {
   FGDescriptorBase::FGDescriptorBase(Object *object) : Object(object) {
   }
@@ -22,7 +24,7 @@ namespace SAA {
   }
 
   void FGDescriptorBase::addProducedIn(Recipe *recipe) {
-    sc::SpinLockGuard guard(mProducedInLock);
+    std::scoped_lock guard(mProducedInLock);
     if (!m_producedIn) {
       m_producedIn = m_owner->storage()->makePmr<std::pmr::vector<Recipe *>>();
       m_producedIn->reserve(5);
@@ -31,7 +33,7 @@ namespace SAA {
   }
 
   void FGDescriptorBase::addUsedIn(Recipe *recipe) {
-    sc::SpinLockGuard guard(mUsedInLock);
+    std::scoped_lock guard(mUsedInLock);
     if (!m_usedIn) {
       m_usedIn = m_owner->storage()->makePmr<std::pmr::vector<Recipe *>>();
       m_usedIn->reserve(5);

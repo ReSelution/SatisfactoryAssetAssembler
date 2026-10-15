@@ -24,7 +24,7 @@ namespace SAA {
 
   public:
     using Factory  = Object *(*) (sc::MonotonicResource * storage);
-    using denseMap = ankerl::unordered_dense::map<std::string_view, Factory, sc::IdentityHash>;
+    using denseMap = ankerl::unordered_dense::map<std::string_view, Factory, sc::TransparentHash>;
 
     static bool Register(std::string_view name, Factory factory) {
       map()[name] = factory;

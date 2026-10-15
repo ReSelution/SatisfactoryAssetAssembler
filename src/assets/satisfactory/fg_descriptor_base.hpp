@@ -7,6 +7,8 @@
 #include "sc/threading/spin_lock.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   struct Recipe;
 
   class FGDescriptorBase : public Object {

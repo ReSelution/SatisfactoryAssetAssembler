@@ -8,6 +8,8 @@
 #include "object_factory.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   class FGSchematic : public Object {
     struct Schematic {
         static constexpr uint64_t DisplayName                = "mDisplayName"_h;

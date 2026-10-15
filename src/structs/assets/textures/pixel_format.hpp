@@ -7,6 +7,8 @@
 #include "sc/hash/hash.hpp"
 
 namespace SAA {
+  using namespace sc::literals;
+
   enum class EPixelFormatByte : uint8_t {
     PF_Unknown       = 0,
     PF_A32B32G32R32F = 1,
